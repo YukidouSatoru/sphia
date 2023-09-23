@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/network.dart';
 import 'package:sphia/util/system.dart';
@@ -63,7 +66,18 @@ class AboutPage extends StatelessWidget {
                   return await NetworkUtil.getLatestVersion('sphia');
                 },
                 getBinaryUrl: (version) async {
-                  return 'https://github.com/YukidouSatoru/sphia/releases/download/v$version/${SystemUtil.getCoreArchiveFileName('sphia', version!)}';
+                  final coreArchiveFileName =
+                      SystemUtil.getCoreArchiveFileName('sphia', version!);
+                  return 'https://github.com/YukidouSatoru/sphia/releases/download/v$version/$coreArchiveFileName';
+                },
+                getDownloadFileLocation: (version) async {
+                  final coreArchiveFileName =
+                      SystemUtil.getCoreArchiveFileName('sphia', version!);
+                  final bytes = await NetworkUtil.downloadFile(
+                      'https://github.com/YukidouSatoru/sphia/releases/download/v$version/$coreArchiveFileName');
+                  final tempFile = File(p.join(tempPath, coreArchiveFileName));
+                  await tempFile.writeAsBytes(bytes);
+                  return tempFile;
                 },
                 appName: 'Sphia',
                 getChangelog: (_, __) async {

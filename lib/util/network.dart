@@ -18,7 +18,9 @@ class NetworkUtil {
     final userAgent = userAgents[sphiaConfig.userAgent]!;
     client.userAgent = userAgent;
     if (coreProvider.coreRunning &&
-        (sphiaConfig.updateThroughProxy || url == 'https://api.ip.sb/ip')) {
+        (sphiaConfig.updateThroughProxy ||
+            url == 'https://api.ip.sb/ip' ||
+            url.contains('sphia'))) {
       client.findProxy = (uri) {
         return 'PROXY ${sphiaConfig.listen}:'
             '${sphiaConfig.routingProvider == 'sing-box' ? sphiaConfig.mixedPort : sphiaConfig.httpPort}';
