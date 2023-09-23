@@ -7,8 +7,8 @@ import 'package:sphia/util/network.dart';
 import 'package:sphia/util/system.dart';
 import 'package:updat/updat.dart';
 
-const sphiaVersion = '0.7.2';
-const sphiaBuildNumber = 3;
+const sphiaVersion = '0.7.3';
+const sphiaBuildNumber = 4;
 const sphiaFullVersion = '$sphiaVersion+$sphiaBuildNumber';
 const sphiaLastCommitHash = 'SELF_BUILD';
 
