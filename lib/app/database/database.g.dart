@@ -7,9 +7,7 @@ class $ConfigTable extends Config with TableInfo<$ConfigTable, ConfigData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-
   $ConfigTable(this.attachedDatabase, [this._alias]);
-
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -24,16 +22,12 @@ class $ConfigTable extends Config with TableInfo<$ConfigTable, ConfigData> {
   late final GeneratedColumn<String> config = GeneratedColumn<String>(
       'config', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-
   @override
   List<GeneratedColumn> get $columns => [id, config];
-
   @override
   String get aliasedName => _alias ?? 'config';
-
   @override
   String get actualTableName => 'config';
-
   @override
   VerificationContext validateIntegrity(Insertable<ConfigData> instance,
       {bool isInserting = false}) {
@@ -53,7 +47,6 @@ class $ConfigTable extends Config with TableInfo<$ConfigTable, ConfigData> {
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
-
   @override
   ConfigData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -74,9 +67,7 @@ class $ConfigTable extends Config with TableInfo<$ConfigTable, ConfigData> {
 class ConfigData extends DataClass implements Insertable<ConfigData> {
   final int id;
   final String config;
-
   const ConfigData({required this.id, required this.config});
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -100,7 +91,6 @@ class ConfigData extends DataClass implements Insertable<ConfigData> {
       config: serializer.fromJson<String>(json['config']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
@@ -114,7 +104,6 @@ class ConfigData extends DataClass implements Insertable<ConfigData> {
         id: id ?? this.id,
         config: config ?? this.config,
       );
-
   @override
   String toString() {
     return (StringBuffer('ConfigData(')
@@ -126,7 +115,6 @@ class ConfigData extends DataClass implements Insertable<ConfigData> {
 
   @override
   int get hashCode => Object.hash(id, config);
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -138,17 +126,14 @@ class ConfigData extends DataClass implements Insertable<ConfigData> {
 class ConfigCompanion extends UpdateCompanion<ConfigData> {
   final Value<int> id;
   final Value<String> config;
-
   const ConfigCompanion({
     this.id = const Value.absent(),
     this.config = const Value.absent(),
   });
-
   ConfigCompanion.insert({
     this.id = const Value.absent(),
     required String config,
   }) : config = Value(config);
-
   static Insertable<ConfigData> custom({
     Expression<int>? id,
     Expression<String>? config,
@@ -193,9 +178,7 @@ class $ServerGroupsTable extends ServerGroups
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-
   $ServerGroupsTable(this.attachedDatabase, [this._alias]);
-
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -216,16 +199,12 @@ class $ServerGroupsTable extends ServerGroups
   late final GeneratedColumn<String> subscribe = GeneratedColumn<String>(
       'subscribe', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-
   @override
   List<GeneratedColumn> get $columns => [id, name, subscribe];
-
   @override
   String get aliasedName => _alias ?? 'server_groups';
-
   @override
   String get actualTableName => 'server_groups';
-
   @override
   VerificationContext validateIntegrity(Insertable<ServerGroup> instance,
       {bool isInserting = false}) {
@@ -251,7 +230,6 @@ class $ServerGroupsTable extends ServerGroups
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
-
   @override
   ServerGroup map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -275,10 +253,8 @@ class ServerGroup extends DataClass implements Insertable<ServerGroup> {
   final int id;
   final String name;
   final String subscribe;
-
   const ServerGroup(
       {required this.id, required this.name, required this.subscribe});
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -305,7 +281,6 @@ class ServerGroup extends DataClass implements Insertable<ServerGroup> {
       subscribe: serializer.fromJson<String>(json['subscribe']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
@@ -322,7 +297,6 @@ class ServerGroup extends DataClass implements Insertable<ServerGroup> {
         name: name ?? this.name,
         subscribe: subscribe ?? this.subscribe,
       );
-
   @override
   String toString() {
     return (StringBuffer('ServerGroup(')
@@ -335,7 +309,6 @@ class ServerGroup extends DataClass implements Insertable<ServerGroup> {
 
   @override
   int get hashCode => Object.hash(id, name, subscribe);
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -349,20 +322,17 @@ class ServerGroupsCompanion extends UpdateCompanion<ServerGroup> {
   final Value<int> id;
   final Value<String> name;
   final Value<String> subscribe;
-
   const ServerGroupsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.subscribe = const Value.absent(),
   });
-
   ServerGroupsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     required String subscribe,
   })  : name = Value(name),
         subscribe = Value(subscribe);
-
   static Insertable<ServerGroup> custom({
     Expression<int>? id,
     Expression<String>? name,
@@ -414,9 +384,7 @@ class $ServersTable extends Servers with TableInfo<$ServersTable, Server> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-
   $ServersTable(this.attachedDatabase, [this._alias]);
-
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -437,16 +405,12 @@ class $ServersTable extends Servers with TableInfo<$ServersTable, Server> {
   late final GeneratedColumn<String> data = GeneratedColumn<String>(
       'data', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-
   @override
   List<GeneratedColumn> get $columns => [id, groupId, data];
-
   @override
   String get aliasedName => _alias ?? 'servers';
-
   @override
   String get actualTableName => 'servers';
-
   @override
   VerificationContext validateIntegrity(Insertable<Server> instance,
       {bool isInserting = false}) {
@@ -472,7 +436,6 @@ class $ServersTable extends Servers with TableInfo<$ServersTable, Server> {
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
-
   @override
   Server map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -496,9 +459,7 @@ class Server extends DataClass implements Insertable<Server> {
   final int id;
   final int groupId;
   final String data;
-
   const Server({required this.id, required this.groupId, required this.data});
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -525,7 +486,6 @@ class Server extends DataClass implements Insertable<Server> {
       data: serializer.fromJson<String>(json['data']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
@@ -541,7 +501,6 @@ class Server extends DataClass implements Insertable<Server> {
         groupId: groupId ?? this.groupId,
         data: data ?? this.data,
       );
-
   @override
   String toString() {
     return (StringBuffer('Server(')
@@ -554,7 +513,6 @@ class Server extends DataClass implements Insertable<Server> {
 
   @override
   int get hashCode => Object.hash(id, groupId, data);
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -568,20 +526,17 @@ class ServersCompanion extends UpdateCompanion<Server> {
   final Value<int> id;
   final Value<int> groupId;
   final Value<String> data;
-
   const ServersCompanion({
     this.id = const Value.absent(),
     this.groupId = const Value.absent(),
     this.data = const Value.absent(),
   });
-
   ServersCompanion.insert({
     this.id = const Value.absent(),
     required int groupId,
     required String data,
   })  : groupId = Value(groupId),
         data = Value(data);
-
   static Insertable<Server> custom({
     Expression<int>? id,
     Expression<int>? groupId,
@@ -634,9 +589,7 @@ class $RuleGroupsTable extends RuleGroups
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-
   $RuleGroupsTable(this.attachedDatabase, [this._alias]);
-
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -651,16 +604,12 @@ class $RuleGroupsTable extends RuleGroups
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-
   @override
   List<GeneratedColumn> get $columns => [id, name];
-
   @override
   String get aliasedName => _alias ?? 'rule_groups';
-
   @override
   String get actualTableName => 'rule_groups';
-
   @override
   VerificationContext validateIntegrity(Insertable<RuleGroup> instance,
       {bool isInserting = false}) {
@@ -680,7 +629,6 @@ class $RuleGroupsTable extends RuleGroups
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
-
   @override
   RuleGroup map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -701,9 +649,7 @@ class $RuleGroupsTable extends RuleGroups
 class RuleGroup extends DataClass implements Insertable<RuleGroup> {
   final int id;
   final String name;
-
   const RuleGroup({required this.id, required this.name});
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -727,7 +673,6 @@ class RuleGroup extends DataClass implements Insertable<RuleGroup> {
       name: serializer.fromJson<String>(json['name']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
@@ -741,7 +686,6 @@ class RuleGroup extends DataClass implements Insertable<RuleGroup> {
         id: id ?? this.id,
         name: name ?? this.name,
       );
-
   @override
   String toString() {
     return (StringBuffer('RuleGroup(')
@@ -753,7 +697,6 @@ class RuleGroup extends DataClass implements Insertable<RuleGroup> {
 
   @override
   int get hashCode => Object.hash(id, name);
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -763,17 +706,14 @@ class RuleGroup extends DataClass implements Insertable<RuleGroup> {
 class RuleGroupsCompanion extends UpdateCompanion<RuleGroup> {
   final Value<int> id;
   final Value<String> name;
-
   const RuleGroupsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
   });
-
   RuleGroupsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
   }) : name = Value(name);
-
   static Insertable<RuleGroup> custom({
     Expression<int>? id,
     Expression<String>? name,
@@ -817,9 +757,7 @@ class $RulesTable extends Rules with TableInfo<$RulesTable, Rule> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-
   $RulesTable(this.attachedDatabase, [this._alias]);
-
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -840,16 +778,12 @@ class $RulesTable extends Rules with TableInfo<$RulesTable, Rule> {
   late final GeneratedColumn<String> data = GeneratedColumn<String>(
       'data', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-
   @override
   List<GeneratedColumn> get $columns => [id, groupId, data];
-
   @override
   String get aliasedName => _alias ?? 'rules';
-
   @override
   String get actualTableName => 'rules';
-
   @override
   VerificationContext validateIntegrity(Insertable<Rule> instance,
       {bool isInserting = false}) {
@@ -875,7 +809,6 @@ class $RulesTable extends Rules with TableInfo<$RulesTable, Rule> {
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
-
   @override
   Rule map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -899,9 +832,7 @@ class Rule extends DataClass implements Insertable<Rule> {
   final int id;
   final int groupId;
   final String data;
-
   const Rule({required this.id, required this.groupId, required this.data});
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -928,7 +859,6 @@ class Rule extends DataClass implements Insertable<Rule> {
       data: serializer.fromJson<String>(json['data']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
@@ -944,7 +874,6 @@ class Rule extends DataClass implements Insertable<Rule> {
         groupId: groupId ?? this.groupId,
         data: data ?? this.data,
       );
-
   @override
   String toString() {
     return (StringBuffer('Rule(')
@@ -957,7 +886,6 @@ class Rule extends DataClass implements Insertable<Rule> {
 
   @override
   int get hashCode => Object.hash(id, groupId, data);
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -971,20 +899,17 @@ class RulesCompanion extends UpdateCompanion<Rule> {
   final Value<int> id;
   final Value<int> groupId;
   final Value<String> data;
-
   const RulesCompanion({
     this.id = const Value.absent(),
     this.groupId = const Value.absent(),
     this.data = const Value.absent(),
   });
-
   RulesCompanion.insert({
     this.id = const Value.absent(),
     required int groupId,
     required String data,
   })  : groupId = Value(groupId),
         data = Value(data);
-
   static Insertable<Rule> custom({
     Expression<int>? id,
     Expression<int>? groupId,
@@ -1037,9 +962,7 @@ class $GroupsOrderTable extends GroupsOrder
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-
   $GroupsOrderTable(this.attachedDatabase, [this._alias]);
-
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -1054,16 +977,12 @@ class $GroupsOrderTable extends GroupsOrder
   late final GeneratedColumn<String> data = GeneratedColumn<String>(
       'data', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-
   @override
   List<GeneratedColumn> get $columns => [id, data];
-
   @override
   String get aliasedName => _alias ?? 'groups_order';
-
   @override
   String get actualTableName => 'groups_order';
-
   @override
   VerificationContext validateIntegrity(Insertable<GroupsOrderData> instance,
       {bool isInserting = false}) {
@@ -1083,7 +1002,6 @@ class $GroupsOrderTable extends GroupsOrder
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
-
   @override
   GroupsOrderData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -1104,9 +1022,7 @@ class $GroupsOrderTable extends GroupsOrder
 class GroupsOrderData extends DataClass implements Insertable<GroupsOrderData> {
   final int id;
   final String data;
-
   const GroupsOrderData({required this.id, required this.data});
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1130,7 +1046,6 @@ class GroupsOrderData extends DataClass implements Insertable<GroupsOrderData> {
       data: serializer.fromJson<String>(json['data']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
@@ -1144,7 +1059,6 @@ class GroupsOrderData extends DataClass implements Insertable<GroupsOrderData> {
         id: id ?? this.id,
         data: data ?? this.data,
       );
-
   @override
   String toString() {
     return (StringBuffer('GroupsOrderData(')
@@ -1156,7 +1070,6 @@ class GroupsOrderData extends DataClass implements Insertable<GroupsOrderData> {
 
   @override
   int get hashCode => Object.hash(id, data);
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1168,17 +1081,14 @@ class GroupsOrderData extends DataClass implements Insertable<GroupsOrderData> {
 class GroupsOrderCompanion extends UpdateCompanion<GroupsOrderData> {
   final Value<int> id;
   final Value<String> data;
-
   const GroupsOrderCompanion({
     this.id = const Value.absent(),
     this.data = const Value.absent(),
   });
-
   GroupsOrderCompanion.insert({
     this.id = const Value.absent(),
     required String data,
   }) : data = Value(data);
-
   static Insertable<GroupsOrderData> custom({
     Expression<int>? id,
     Expression<String>? data,
@@ -1223,9 +1133,7 @@ class $ServersOrderTable extends ServersOrder
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-
   $ServersOrderTable(this.attachedDatabase, [this._alias]);
-
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -1246,16 +1154,12 @@ class $ServersOrderTable extends ServersOrder
   late final GeneratedColumn<String> data = GeneratedColumn<String>(
       'data', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-
   @override
   List<GeneratedColumn> get $columns => [id, groupId, data];
-
   @override
   String get aliasedName => _alias ?? 'servers_order';
-
   @override
   String get actualTableName => 'servers_order';
-
   @override
   VerificationContext validateIntegrity(Insertable<ServersOrderData> instance,
       {bool isInserting = false}) {
@@ -1281,7 +1185,6 @@ class $ServersOrderTable extends ServersOrder
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
-
   @override
   ServersOrderData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -1306,10 +1209,8 @@ class ServersOrderData extends DataClass
   final int id;
   final int groupId;
   final String data;
-
   const ServersOrderData(
       {required this.id, required this.groupId, required this.data});
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1336,7 +1237,6 @@ class ServersOrderData extends DataClass
       data: serializer.fromJson<String>(json['data']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
@@ -1353,7 +1253,6 @@ class ServersOrderData extends DataClass
         groupId: groupId ?? this.groupId,
         data: data ?? this.data,
       );
-
   @override
   String toString() {
     return (StringBuffer('ServersOrderData(')
@@ -1366,7 +1265,6 @@ class ServersOrderData extends DataClass
 
   @override
   int get hashCode => Object.hash(id, groupId, data);
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1380,20 +1278,17 @@ class ServersOrderCompanion extends UpdateCompanion<ServersOrderData> {
   final Value<int> id;
   final Value<int> groupId;
   final Value<String> data;
-
   const ServersOrderCompanion({
     this.id = const Value.absent(),
     this.groupId = const Value.absent(),
     this.data = const Value.absent(),
   });
-
   ServersOrderCompanion.insert({
     this.id = const Value.absent(),
     required int groupId,
     required String data,
   })  : groupId = Value(groupId),
         data = Value(data);
-
   static Insertable<ServersOrderData> custom({
     Expression<int>? id,
     Expression<int>? groupId,
@@ -1446,9 +1341,7 @@ class $RulesOrderTable extends RulesOrder
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-
   $RulesOrderTable(this.attachedDatabase, [this._alias]);
-
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -1469,16 +1362,12 @@ class $RulesOrderTable extends RulesOrder
   late final GeneratedColumn<String> data = GeneratedColumn<String>(
       'data', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-
   @override
   List<GeneratedColumn> get $columns => [id, groupId, data];
-
   @override
   String get aliasedName => _alias ?? 'rules_order';
-
   @override
   String get actualTableName => 'rules_order';
-
   @override
   VerificationContext validateIntegrity(Insertable<RulesOrderData> instance,
       {bool isInserting = false}) {
@@ -1504,7 +1393,6 @@ class $RulesOrderTable extends RulesOrder
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
-
   @override
   RulesOrderData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -1528,10 +1416,8 @@ class RulesOrderData extends DataClass implements Insertable<RulesOrderData> {
   final int id;
   final int groupId;
   final String data;
-
   const RulesOrderData(
       {required this.id, required this.groupId, required this.data});
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1558,7 +1444,6 @@ class RulesOrderData extends DataClass implements Insertable<RulesOrderData> {
       data: serializer.fromJson<String>(json['data']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
@@ -1575,7 +1460,6 @@ class RulesOrderData extends DataClass implements Insertable<RulesOrderData> {
         groupId: groupId ?? this.groupId,
         data: data ?? this.data,
       );
-
   @override
   String toString() {
     return (StringBuffer('RulesOrderData(')
@@ -1588,7 +1472,6 @@ class RulesOrderData extends DataClass implements Insertable<RulesOrderData> {
 
   @override
   int get hashCode => Object.hash(id, groupId, data);
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1602,20 +1485,17 @@ class RulesOrderCompanion extends UpdateCompanion<RulesOrderData> {
   final Value<int> id;
   final Value<int> groupId;
   final Value<String> data;
-
   const RulesOrderCompanion({
     this.id = const Value.absent(),
     this.groupId = const Value.absent(),
     this.data = const Value.absent(),
   });
-
   RulesOrderCompanion.insert({
     this.id = const Value.absent(),
     required int groupId,
     required String data,
   })  : groupId = Value(groupId),
         data = Value(data);
-
   static Insertable<RulesOrderData> custom({
     Expression<int>? id,
     Expression<int>? groupId,
@@ -1673,11 +1553,9 @@ abstract class _$Database extends GeneratedDatabase {
   late final $GroupsOrderTable groupsOrder = $GroupsOrderTable(this);
   late final $ServersOrderTable serversOrder = $ServersOrderTable(this);
   late final $RulesOrderTable rulesOrder = $RulesOrderTable(this);
-
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
-
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
         config,
