@@ -549,14 +549,24 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                                 onTap: () {
                                   setState(
                                     () {
-                                      SphiaTray.setMenuItem(
-                                          'server-${serverConfigProvider.config.selectedServerId}',
-                                          false);
-                                      serverConfigProvider
-                                          .config.selectedServerId = server.id;
-                                      SphiaTray.setMenuItem(
-                                          'server-${server.id}', true);
-                                      serverConfigProvider.saveConfig();
+                                      if (server.id ==
+                                          serverConfigProvider
+                                              .config.selectedServerId) {
+                                        SphiaTray.setMenuItem(
+                                            'server-${server.id}', false);
+                                        serverConfigProvider
+                                            .config.selectedServerId = 0;
+                                        serverConfigProvider.saveConfig();
+                                      } else {
+                                        SphiaTray.setMenuItem(
+                                            'server-${serverConfigProvider.config.selectedServerId}',
+                                            false);
+                                        serverConfigProvider.config
+                                            .selectedServerId = server.id;
+                                        SphiaTray.setMenuItem(
+                                            'server-${server.id}', true);
+                                        serverConfigProvider.saveConfig();
+                                      }
                                     },
                                   );
                                 },
