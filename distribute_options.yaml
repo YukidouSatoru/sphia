@@ -1,0 +1,26 @@
+output: dist/
+artifact_name: 'sphia-{{platform}}.{{ext}}'
+releases:
+  - name: prod
+    jobs:
+      - name: release-linux-appimage
+        package:
+          platform: linux
+          target: appimage
+          build_args:
+            dart-define:
+              APP_ENV: production
+      - name: release-windows-exe
+        package:
+          platform: windows
+          target: exe
+          build_args:
+            dart-define:
+              APP_ENV: production
+      - name: release-macos-dmg
+        package:
+          platform: macos
+          target: dmg
+          build_args:
+            dart-define:
+              APP_ENV: production

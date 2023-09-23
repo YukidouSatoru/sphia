@@ -1,0 +1,65 @@
+name: 报告 Bug
+description: "创建报告以帮助我们改进"
+body:
+  - type: checkboxes
+    attributes:
+      label: Bug 报告清单
+      description: 在提交 bug 报告之前，请检查以下项目，否则您的 issue 可能会被关闭。
+      options:
+        - label: 如果您有能力和时间，可以尝试修复这个 bug
+          required: false
+        - label: 我已经搜索了 [issues](https://github.com/YukidouSatoru/sphia/issues)
+          required: true
+        - label: 确保这个问题中只有一个 bug report
+          required: true
+        - label: 确保这个 bug 在[最新的构建](https://github.com/YukidouSatoru/sphia/actions/workflows/build.yml)中没有被修复
+          required: true
+  - type: dropdown
+    attributes:
+      label: 系统
+      description: 请提供您使用的操作系统
+      options:
+        - Linux
+        - Windows
+        - macOS Intel
+        - macOS Apple Silicon
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: 系统版本
+      description: 请提供您使用的操作系统版本
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Sphia 版本
+      description: 您正在使用的 Sphia 版本。如果您正在使用来自 Github Actions 的 Sphia，请在下面提供最后的提交哈希。
+  - type: input
+    attributes:
+      label: 最后的提交哈希
+      description: 您正在使用的 Sphia 的最后提交哈希。
+  - type: textarea
+    attributes:
+      label: 描述
+      description: 请提供一个清晰而简洁的描述，说明这个 bug 是什么。
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 重现
+      description: 请提供一个清晰而简洁的描述，说明如何重现这个 bug。
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 日志
+      description: 请提供您与此 bug 相关的任何日志。在 Windows 或 Linux 上，您可以在 INSTALL_DIR\Sphia\log 中找到它们。在 macOS 上，您可以在 ~/Library/Application Support/com.yukidousatoru.sphia/log 中找到它们。
+  - type: textarea
+    attributes:
+      label: 截图
+      description: 如果适用，请添加截图以帮助解释您的问题。
+  - type: textarea
+    attributes:
+      label: 其他上下文
+      description: 在这里添加有关问题的任何其他上下文。

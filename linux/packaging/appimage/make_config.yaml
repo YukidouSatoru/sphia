@@ -1,0 +1,6 @@
+display_name: Sphia
+generic_name: Sphia - a Proxy Handling Intuitive Application
+icon: assets/app_icon.png
+startup_notify: true
+categories:
+  - Utility

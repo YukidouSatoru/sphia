@@ -1,0 +1,69 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '.github/**'
+      - '!.github/workflows/build.yml'
+      - 'README.md'
+      - 'docs/**'
+
+jobs:
+  build-on-linux-amd64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Flutter action
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.13.2'
+      - name: Build
+        run: |
+          bash -c "lib/script/build.sh"
+      - name: Publish x86_64 artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: sphia-${{github.sha}}-linux-amd64
+          path: dist/sphia-linux-amd64.AppImage
+
+  build-on-windows-amd64:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Flutter action
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.13.2'
+      - name: Build
+        run: |
+          powershell -Command "lib\script\build.ps1"
+      - name: Publish x86_64 artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: sphia-${{github.sha}}-windows-amd64
+          path: dist/sphia-windows-amd64.exe
+
+  build-on-macos-amd64:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Flutter action
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.13.2'
+      - name: Build
+        run: |
+          bash -c "lib/script/build.sh"
+      - name: Publish universal artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: sphia-${{github.sha}}-macos-universal
+          path: dist/sphia-macos-universal.dmg

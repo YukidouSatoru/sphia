@@ -1,0 +1,65 @@
+name: Bug report
+description: "Create a report to help us improve"
+body:
+  - type: checkboxes
+    attributes:
+      label: Bug report checklist
+      description: Please check the following items before submitting a bug report, otherwise your issue may be closed.
+      options:
+        - label: If you have the ability and time, you can try to fix this bug
+          required: false
+        - label: I have searched the [issues](https://github.com/YukidouSatoru/sphia/issues)
+          required: true
+        - label: Ensure there is only one bug report in this issue
+          required: true
+        - label: Ensure the bug has not been fixed in the [latest build](https://github.com/YukidouSatoru/sphia/actions/workflows/build.yml)
+          required: true
+  - type: dropdown
+    attributes:
+      label: System
+      description: Please provide the operating system you are using
+      options:
+        - Linux
+        - Windows
+        - macOS Intel
+        - macOS Apple Silicon
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: System version
+      description: Please provide the operating system version you are using
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Sphia version
+      description: Version of Sphia you are using. If you are using Sphia from Github Actions, please provide the last commit hash below.
+  - type: input
+    attributes:
+      label: Last commit hash
+      description: Last commit hash of Sphia you are using.
+  - type: textarea
+    attributes:
+      label: Description
+      description: Please provide a clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Reproduction
+      description: Please provide a clear and concise description of how to reproduce the bug.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Logs
+      description: Please provide any logs you have related to this bug. On Windows or Linux, you can find them in INSTALL_DIR\Sphia\log. On macOS, you can find them in ~/Library/Application Support/com.yukidousatoru.sphia/log.
+  - type: textarea
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots to help explain your problem.
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: Add any other context about the problem here.

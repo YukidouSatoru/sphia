@@ -1,0 +1,8 @@
+app_id: 75776274-AEA9-436F-AD4D-CF21DA3FB689
+publisher: YukidouSatoru
+publisher_url: https://github.com/YukidouSatoru/sphia
+display_name: Sphia
+create_desktop_icon: true
+install_dir_name: Sphia
+setup_icon_file: ..\..\assets\app_icon.ico
+script_template: inno_setup.iss

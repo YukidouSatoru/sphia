@@ -1,0 +1,10 @@
+title: Sphia
+contents:
+  - x: 448
+    y: 237
+    type: link
+    path: "/Applications"
+  - x: 192
+    y: 237
+    type: file
+    path: Sphia.app
