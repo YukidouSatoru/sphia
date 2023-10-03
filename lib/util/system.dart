@@ -302,7 +302,7 @@ class SystemUtil {
         switch (os) {
           case 'windows':
             arch = architecture == 'arm64' ? 'arm64' : 'amd64';
-            ext = '.msix';
+            ext = '.exe';
             break;
           case 'linux':
             arch = architecture == 'arm64' ? 'arm64' : 'amd64';
