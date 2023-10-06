@@ -17,7 +17,7 @@ import 'package:sphia/util/system.dart';
 import 'package:sphia/view/page/about.dart';
 import 'package:window_manager/window_manager.dart';
 
-Future<void> configureApp() async {
+Future<void> getAppPath() async {
   if (Platform.isLinux && Platform.environment.containsKey('APPIMAGE')) {
     execPath = Platform.environment['APPIMAGE']!;
   } else {
@@ -26,17 +26,19 @@ Future<void> configureApp() async {
   if (const bool.fromEnvironment('dart.vm.product')) {
     if (Platform.isLinux) {
       final linuxAppPath = (await getApplicationSupportDirectory()).path;
-      if (linuxAppPath.contains('/root/')) {
-        appPath = linuxAppPath.replaceAll(
-            '/root/', '/home/${Platform.environment['SUDO_USER']}/');
+      final int firstIndex = linuxAppPath.indexOf('/root/');
+      if (firstIndex != -1) {
+        appPath = linuxAppPath.replaceFirst('/root/',
+            '/home/${Platform.environment['SUDO_USER']}/', firstIndex);
       } else {
         appPath = linuxAppPath;
       }
     } else if (Platform.isMacOS) {
       final macAppPath = (await getApplicationSupportDirectory()).path;
-      if (macAppPath.contains('/var/root/')) {
-        appPath = macAppPath.replaceAll(
-            '/var/root/', '/Users/${Platform.environment['SUDO_USER']}/');
+      final int firstIndex = macAppPath.indexOf('/var/root/');
+      if (firstIndex != -1) {
+        appPath = macAppPath.replaceFirst('/var/root/',
+            '/Users/${Platform.environment['SUDO_USER']}/', firstIndex);
       } else {
         appPath = macAppPath;
       }
@@ -53,6 +55,11 @@ Future<void> configureApp() async {
           execPath.substring(0, execPath.lastIndexOf(Platform.pathSeparator));
     }
   }
+}
+
+Future<void> configureApp() async {
+  // Get app path
+  await getAppPath();
 
   // Init logger
   if (const bool.fromEnvironment('dart.vm.product')) {
