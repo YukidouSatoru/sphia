@@ -72,7 +72,7 @@ class _DashboardState extends State<Dashboard> {
     final sphiaConfig = sphiaConfigProvider.config;
 
     final runningCoresCard = CardData(
-      title: S.of(context).runningCores,
+      title: Text(S.of(context).runningCores),
       icon: Icons.memory,
       widget: coreProvider.coreRunning
           ? ListView.builder(
@@ -142,7 +142,7 @@ class _DashboardState extends State<Dashboard> {
             ),
     );
     final rulesCard = CardData(
-        title: S.of(context).rules,
+        title: Text(S.of(context).rules),
         icon: Icons.alt_route,
         widget: Consumer<RuleConfigProvider>(
           builder: (context, ruleConfigProvider, child) {
@@ -182,7 +182,7 @@ class _DashboardState extends State<Dashboard> {
           },
         ));
     final dnsCard = CardData(
-      title: S.of(context).dns,
+      title: Text(S.of(context).dns),
       icon: Icons.dns,
       widget: sphiaConfig.configureDns
           ? ListView(
@@ -279,12 +279,40 @@ class _DashboardState extends State<Dashboard> {
     );
 
     final cardNet = CardData(
-      title: sphiaConfig.autoGetIp
-          ? '${S.of(context).currentIp}: ${_currentIp.isNotEmpty ? _currentIp : S.of(context).getIpFailed}'
-          : S.of(context).speed,
+      title: Row(
+        children: [
+          Text(
+            sphiaConfig.autoGetIp
+                ? '${S.of(context).currentIp}: ${_currentIp.isNotEmpty ? _currentIp : S.of(context).getIpFailed}'
+                : S.of(context).speed,
+          ),
+          const Spacer(),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _currentIp = S.of(context).gettingIp;
+              });
+              (() async {
+                late final String ip;
+                ip = await NetworkUtil.getIp();
+                setState(() {
+                  _currentIp = ip;
+                });
+              })();
+            },
+            child: Text(S.of(context).refresh),
+          ),
+        ],
+      ),
       icon: Icons.near_me,
-      widget: Center(
-        child: ClipRect(child: _networkChart),
+      widget: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: ClipRect(child: _networkChart),
+            ),
+          ),
+        ],
       ),
     );
 
@@ -299,7 +327,7 @@ class _DashboardState extends State<Dashboard> {
     }
 
     final cardTraffic = CardData(
-      title: S.of(context).traffic,
+      title: Text(S.of(context).traffic),
       icon: Icons.data_usage,
       widget: sphiaConfig.enableStatistics
           ? ListView(
@@ -385,11 +413,7 @@ class _DashboardState extends State<Dashboard> {
         });
         (() async {
           late final String ip;
-          try {
-            ip = await NetworkUtil.getIp();
-          } on Exception catch (_) {
-            // do nothing
-          }
+          ip = await NetworkUtil.getIp();
           setState(() {
             _currentIp = ip;
           });
@@ -463,9 +487,7 @@ class _DashboardState extends State<Dashboard> {
                   child: Icon(cardData.icon),
                 ),
                 Flexible(
-                  child: Text(
-                    cardData.title,
-                  ),
+                  child: cardData.title,
                 ),
               ],
             ),
@@ -554,7 +576,7 @@ class _DashboardState extends State<Dashboard> {
 }
 
 class CardData {
-  String title;
+  Widget title;
   IconData icon;
   Widget widget;
 

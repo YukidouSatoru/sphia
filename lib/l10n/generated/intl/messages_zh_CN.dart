@@ -195,6 +195,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("请输入有效的 QUIC 流接收窗口值"),
         "recvWindowInvalidMsg":
             MessageLookupByLibrary.simpleMessage("请输入有效的 QUIC 连接接收窗口值"),
+        "refresh": MessageLookupByLibrary.simpleMessage("刷新"),
         "remark": MessageLookupByLibrary.simpleMessage("备注"),
         "remoteDns": MessageLookupByLibrary.simpleMessage("远程 DNS"),
         "remoteDnsMsg": MessageLookupByLibrary.simpleMessage(

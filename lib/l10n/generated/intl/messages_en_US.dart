@@ -240,6 +240,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "Please enter a valid value of QUIC Stream Receive Window"),
         "recvWindowInvalidMsg": MessageLookupByLibrary.simpleMessage(
             "Please enter a valid value of QUIC Connection Receive Window"),
+        "refresh": MessageLookupByLibrary.simpleMessage("Refresh"),
         "remark": MessageLookupByLibrary.simpleMessage("Remark"),
         "remoteDns": MessageLookupByLibrary.simpleMessage("Remote DNS"),
         "remoteDnsMsg": MessageLookupByLibrary.simpleMessage(
