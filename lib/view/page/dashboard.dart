@@ -387,8 +387,8 @@ class _DashboardState extends State<Dashboard> {
           late final String ip;
           try {
             ip = await NetworkUtil.getIp();
-          } on Exception catch (e) {
-            logger.e(e);
+          } on Exception catch (_) {
+            // do nothing
           }
           setState(() {
             _currentIp = ip;

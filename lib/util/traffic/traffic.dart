@@ -18,14 +18,12 @@ abstract class Traffic {
 
   Future<void> stop();
 
-  Future<bool> isApiPortOpen() async {
+  Future<bool> checkAvailability() async {
     try {
-      await Future.delayed(const Duration(milliseconds: 500));
-      final socket = await Socket.connect('localhost', apiPort,
-          timeout: const Duration(seconds: 2));
-      await socket.close();
+      final socket = await Socket.connect('localhost', apiPort);
+      socket.destroy();
       return true;
-    } on Exception catch (_) {
+    } on SocketException catch (_) {
       return false;
     }
   }
@@ -55,11 +53,14 @@ class XrayTraffic extends Traffic {
 
   @override
   Future<void> start() async {
+    await Future.doWhile(() async {
+      final isApiAvailable = await checkAvailability();
+      if (!isApiAvailable) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      return !isApiAvailable;
+    });
     logger.i('Starting XrayTraffic');
-    if (!await isApiPortOpen()) {
-      logger.e('Failed to get traffic: API port is not open');
-      throw Exception('Failed to get traffic: API port is not open');
-    }
     timer = Timer.periodic(const Duration(seconds: 1), (_) async {
       try {
         final uplinkResponse = await client.queryStats(uplinkRequest);
@@ -112,11 +113,14 @@ class SingBoxTraffic extends Traffic {
 
   @override
   Future<void> start() async {
+    await Future.doWhile(() async {
+      final isApiAvailable = await checkAvailability();
+      if (!isApiAvailable) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      return !isApiAvailable;
+    });
     logger.i('Starting SingBoxTraffic');
-    if (!await isApiPortOpen()) {
-      logger.e('Failed to get traffic: API port is not open');
-      throw Exception('Failed to get traffic: API port is not open');
-    }
     try {
       final request = await client.getUrl(url);
       final response = await request.close();
@@ -136,12 +140,6 @@ class SingBoxTraffic extends Traffic {
           '"down"': down,
         });
       });
-    } on TimeoutException catch (_) {
-      logger.e('Failed to get traffic: Timeout');
-      throw Exception('Failed to get traffic: Timeout');
-    } on SocketException catch (_) {
-      logger.e('Failed to get traffic: SocketException');
-      throw Exception('Failed to get traffic: SocketException');
     } on Exception catch (e) {
       logger.e('Failed to get traffic: $e');
       throw Exception('Failed to get traffic: $e');
