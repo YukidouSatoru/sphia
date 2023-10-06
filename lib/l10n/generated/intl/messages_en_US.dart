@@ -129,6 +129,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Enable Sniffing"),
         "enableSniffingMsg": MessageLookupByLibrary.simpleMessage(
             "Enable traffic sniffing, default on"),
+        "enableSpeedChart":
+            MessageLookupByLibrary.simpleMessage("Enable Speed Chart"),
+        "enableSpeedChartMsg": MessageLookupByLibrary.simpleMessage(
+            "Enable speed chart, default off"),
         "enableStatistics":
             MessageLookupByLibrary.simpleMessage("Enable Statistics"),
         "enableStatisticsMsg": MessageLookupByLibrary.simpleMessage(

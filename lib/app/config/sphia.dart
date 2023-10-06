@@ -13,6 +13,7 @@ class SphiaConfig {
   int themeColor;
   bool showAddress;
   bool enableStatistics;
+  bool enableSpeedChart;
   int updateSubscribeInterval;
   bool updateThroughProxy;
   String userAgent;
@@ -72,6 +73,7 @@ class SphiaConfig {
     required this.themeColor,
     required this.showAddress,
     required this.enableStatistics,
+    required this.enableSpeedChart,
     required this.updateSubscribeInterval,
     required this.updateThroughProxy,
     required this.userAgent,
@@ -125,6 +127,7 @@ class SphiaConfig {
       themeColor: 4278430196,
       showAddress: false,
       enableStatistics: false,
+      enableSpeedChart: false,
       updateSubscribeInterval: -1,
       updateThroughProxy: false,
       userAgent: 'chrome',

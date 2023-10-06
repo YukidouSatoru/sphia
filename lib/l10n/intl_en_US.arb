@@ -72,6 +72,8 @@
   "enableIpv6Msg": "Enable IPv6 for Tun",
   "enableSniffing": "Enable Sniffing",
   "enableSniffingMsg": "Enable traffic sniffing, default on",
+  "enableSpeedChart": "Enable Speed Chart",
+  "enableSpeedChartMsg": "Enable speed chart, default off",
   "enableStatistics": "Enable Statistics",
   "enableStatisticsMsg": "Enable statistics, default off. When turned on, it will track the traffic and display speed on the dashboard",
   "enableTun": "Enable Tun",

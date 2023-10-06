@@ -770,6 +770,26 @@ class S {
     );
   }
 
+  /// `Enable Speed Chart`
+  String get enableSpeedChart {
+    return Intl.message(
+      'Enable Speed Chart',
+      name: 'enableSpeedChart',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enable speed chart, default off`
+  String get enableSpeedChartMsg {
+    return Intl.message(
+      'Enable speed chart, default off',
+      name: 'enableSpeedChartMsg',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Enable Statistics`
   String get enableStatistics {
     return Intl.message(

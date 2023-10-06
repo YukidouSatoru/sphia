@@ -111,6 +111,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "enableSniffing": MessageLookupByLibrary.simpleMessage("启用嗅探"),
         "enableSniffingMsg":
             MessageLookupByLibrary.simpleMessage("启用流量嗅探，默认开启"),
+        "enableSpeedChart": MessageLookupByLibrary.simpleMessage("启用速度图表"),
+        "enableSpeedChartMsg":
+            MessageLookupByLibrary.simpleMessage("启用速度图表，默认关闭"),
         "enableStatistics": MessageLookupByLibrary.simpleMessage("启用统计"),
         "enableStatisticsMsg":
             MessageLookupByLibrary.simpleMessage("启用统计，默认关闭。开启后会统计流量并在仪表盘显示速度"),

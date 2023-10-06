@@ -72,6 +72,8 @@
   "enableIpv6Msg": "为 Tun 启用 IPv6",
   "enableSniffing": "启用嗅探",
   "enableSniffingMsg": "启用流量嗅探，默认开启",
+  "enableSpeedChart": "启用速度图表",
+  "enableSpeedChartMsg": "启用速度图表，默认关闭",
   "enableStatistics": "启用统计",
   "enableStatisticsMsg": "启用统计，默认关闭。开启后会统计流量并在仪表盘显示速度",
   "enableTun": "启用 Tun",

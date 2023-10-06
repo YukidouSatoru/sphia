@@ -217,6 +217,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
       ),
+      const Divider(),
       WidgetBuild.buildCheckboxListTile(
         sphiaConfig.enableStatistics,
         S.of(context).enableStatistics,
@@ -229,6 +230,23 @@ class _SettingPageState extends State<SettingPage> {
             _scaffoldMessengerKey.currentState?.showSnackBar(
               WidgetBuild.snackBar(
                 S.of(context).enableStatisticsMsg,
+              ),
+            );
+          }
+        },
+      ),
+      WidgetBuild.buildCheckboxListTile(
+        sphiaConfig.enableSpeedChart,
+        S.of(context).enableSpeedChart,
+        (value) {
+          if (value != null) {
+            logger.i(
+                'Updating enableSpeedChart from ${sphiaConfig.enableSpeedChart} to $value');
+            sphiaConfig.enableSpeedChart = value;
+            sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
+              WidgetBuild.snackBar(
+                S.of(context).enableSpeedChartMsg,
               ),
             );
           }
