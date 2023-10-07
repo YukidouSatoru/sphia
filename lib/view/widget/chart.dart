@@ -57,6 +57,16 @@ class _NetworkChartState extends State<NetworkChart> {
     _timer = Timer.periodic(const Duration(milliseconds: 25), (timer) {
       final nowStamp = DateTime.now().millisecondsSinceEpoch;
       setState(() {
+        double axisY = [
+          ...widget.uploadSpots,
+          ...widget.downloadSpots,
+        ].fold(0, (maxY, spot) => max(maxY, spot.y));
+        _maxY = axisY;
+        _unitIndex = 0;
+        while (axisY > 1024) {
+          axisY /= 1024;
+          _unitIndex += 1;
+        }
         widget.uploadSpots
             .removeWhere((element) => nowStamp - element.x > 60000);
         widget.downloadSpots
@@ -86,26 +96,7 @@ class _NetworkChartState extends State<NetworkChart> {
   // TODO: ugly
   @override
   Widget build(BuildContext context) {
-    // for axis
     final nowStamp = DateTime.now().millisecondsSinceEpoch;
-
-    double axisY = 0;
-    for (var spot in widget.uploadSpots) {
-      axisY = max(axisY, spot.y);
-    }
-    for (var spot in widget.downloadSpots) {
-      axisY = max(axisY, spot.y);
-    }
-
-    setState(() {
-      _maxY = axisY;
-      _unitIndex = 0;
-      while (axisY > 1024) {
-        axisY /= 1024;
-        _unitIndex += 1;
-      }
-    });
-
     return LineChart(
       LineChartData(
         lineTouchData: const LineTouchData(enabled: false),
