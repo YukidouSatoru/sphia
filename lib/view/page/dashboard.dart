@@ -287,21 +287,23 @@ class _DashboardState extends State<Dashboard> {
                 : S.of(context).speed,
           ),
           const Spacer(),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _currentIp = S.of(context).gettingIp;
-              });
-              (() async {
-                late final String ip;
-                ip = await NetworkUtil.getIp();
-                setState(() {
-                  _currentIp = ip;
-                });
-              })();
-            },
-            child: Text(S.of(context).refresh),
-          ),
+          sphiaConfig.autoGetIp
+              ? ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _currentIp = S.of(context).gettingIp;
+                    });
+                    (() async {
+                      late final String ip;
+                      ip = await NetworkUtil.getIp();
+                      setState(() {
+                        _currentIp = ip;
+                      });
+                    })();
+                  },
+                  child: Text(S.of(context).refresh),
+                )
+              : const SizedBox(),
         ],
       ),
       icon: Icons.near_me,
