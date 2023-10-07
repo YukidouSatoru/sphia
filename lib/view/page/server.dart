@@ -665,6 +665,6 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
       downlink /= 1024;
       downlinkUnitIndex += 1;
     }
-    return '${uplink.toStringAsFixed(2)}${unit[uplinkUnitIndex]}↑ ${downlink.toStringAsFixed(2)}${unit[downlinkUnitIndex]}↓';
+    return '${uplink.toStringAsFixed(2)}${units[uplinkUnitIndex]}↑ ${downlink.toStringAsFixed(2)}${units[downlinkUnitIndex]}↓';
   }
 }

@@ -7,8 +7,8 @@ import 'package:provider/provider.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 
-const List<String> unit = [' B', 'KB', 'MB', 'GB', 'TB', 'EB'];
-const List<int> unitRate = [
+const List<String> units = [' B', 'KB', 'MB', 'GB', 'TB', 'EB'];
+const List<int> unitRates = [
   1,
   1024,
   1048576,
@@ -119,7 +119,7 @@ class _NetworkChartState extends State<NetworkChart> {
                   axisSide: meta.axisSide,
                   space: 0,
                   child: Text(
-                      '${(value / unitRate[_unitIndex]).toStringAsFixed(1)} ${unit[_unitIndex]}'),
+                      '${(value / unitRates[_unitIndex]).toStringAsFixed(1)} ${units[_unitIndex]}/s'),
                 );
               },
             ),
@@ -135,7 +135,7 @@ class _NetworkChartState extends State<NetworkChart> {
                   axisSide: meta.axisSide,
                   space: 0,
                   child: Text(
-                      '${(value / unitRate[_unitIndex]).toStringAsFixed(1)} ${unit[_unitIndex]}'),
+                      '${(value / unitRates[_unitIndex]).toStringAsFixed(1)} ${units[_unitIndex]}/s'),
                 );
               },
             ),

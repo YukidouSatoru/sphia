@@ -319,7 +319,7 @@ class _DashboardState extends State<Dashboard> {
     int getUnit(int byte) {
       int ret = 0;
       for (int idx = 0; idx < 5; idx++) {
-        if (byte > unitRate[idx]) {
+        if (byte > unitRates[idx]) {
           ret = idx;
         }
       }
@@ -340,9 +340,9 @@ class _DashboardState extends State<Dashboard> {
                       final totalUploadIdx =
                           getUnit(_totalUpload.value.toInt());
                       final showUpload =
-                          _totalUpload.value / unitRate[totalUploadIdx];
+                          _totalUpload.value / unitRates[totalUploadIdx];
                       return Text(
-                          '${showUpload.toStringAsFixed(1)} ${unit[totalUploadIdx]}');
+                          '${showUpload.toStringAsFixed(1)} ${units[totalUploadIdx]}');
                     },
                   ),
                 ),
@@ -354,9 +354,9 @@ class _DashboardState extends State<Dashboard> {
                       final totalDownloadIdx =
                           getUnit(_totalDownload.value.toInt());
                       final showDownload =
-                          _totalDownload.value / unitRate[totalDownloadIdx];
+                          _totalDownload.value / unitRates[totalDownloadIdx];
                       return Text(
-                        '${showDownload.toStringAsFixed(1)} ${unit[totalDownloadIdx]}',
+                        '${showDownload.toStringAsFixed(1)} ${units[totalDownloadIdx]}',
                       );
                     },
                   ),
@@ -369,9 +369,9 @@ class _DashboardState extends State<Dashboard> {
                       final uploadLastSecondIdx =
                           getUnit(_uploadLastSecond.value.toInt());
                       final showUploadSpeed = _uploadLastSecond.value /
-                          unitRate[uploadLastSecondIdx];
+                          unitRates[uploadLastSecondIdx];
                       return Text(
-                        '${showUploadSpeed.toStringAsFixed(1)} ${unit[uploadLastSecondIdx]}/s',
+                        '${showUploadSpeed.toStringAsFixed(1)} ${units[uploadLastSecondIdx]}/s',
                       );
                     },
                   ),
@@ -384,9 +384,9 @@ class _DashboardState extends State<Dashboard> {
                       final downloadLastSecondIdx =
                           getUnit(_downloadLastSecond.value.toInt());
                       final showDownloadSpeed = _downloadLastSecond.value /
-                          unitRate[downloadLastSecondIdx];
+                          unitRates[downloadLastSecondIdx];
                       return Text(
-                        '${showDownloadSpeed.toStringAsFixed(1)} ${unit[downloadLastSecondIdx]}/s',
+                        '${showDownloadSpeed.toStringAsFixed(1)} ${units[downloadLastSecondIdx]}/s',
                       );
                     },
                   ),
