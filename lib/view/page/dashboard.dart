@@ -536,8 +536,6 @@ class _DashboardState extends State<Dashboard> {
             .add(FlSpot(nowStamp.toDouble(), data['down'].toDouble()));
       }
     } else {
-      _networkChart.uploadSpots.clear();
-      _networkChart.downloadSpots.clear();
       if (_traffic != null) {
         await _traffic!.stop();
         _traffic = null;

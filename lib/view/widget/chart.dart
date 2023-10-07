@@ -53,28 +53,30 @@ class _NetworkChartState extends State<NetworkChart> {
   }
 
   void _startTimer() {
-    if (_sphiaConfigProvider.config.enableSpeedChart) {
-      // just keep lastest 60s
-      _timer = Timer.periodic(const Duration(milliseconds: 25), (timer) {
-        final nowStamp = DateTime.now().millisecondsSinceEpoch;
-        setState(() {
-          widget.uploadSpots
-              .removeWhere((element) => nowStamp - element.x > 60000);
-          widget.downloadSpots
-              .removeWhere((element) => nowStamp - element.x > 60000);
-        });
+    // just keep lastest 60s
+    _timer = Timer.periodic(const Duration(milliseconds: 25), (timer) {
+      final nowStamp = DateTime.now().millisecondsSinceEpoch;
+      setState(() {
+        widget.uploadSpots
+            .removeWhere((element) => nowStamp - element.x > 60000);
+        widget.downloadSpots
+            .removeWhere((element) => nowStamp - element.x > 60000);
       });
-    }
+    });
   }
 
   void _stopTimer() {
     _timer?.cancel();
     _timer = null;
+    widget.uploadSpots.clear();
+    widget.downloadSpots.clear();
   }
 
   void _shouldStartTimer() {
     if (_sphiaConfigProvider.config.enableStatistics &&
-        _coreProvider.coreRunning) {
+        _coreProvider.coreRunning &&
+        _sphiaConfigProvider.config.enableSpeedChart &&
+        _timer == null) {
       _startTimer();
     } else {
       _stopTimer();
