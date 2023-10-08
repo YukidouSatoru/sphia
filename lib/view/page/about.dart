@@ -8,8 +8,8 @@ import 'package:sphia/util/system.dart';
 import 'package:sphia/view/page/wrapper.dart';
 import 'package:updat/updat.dart';
 
-const sphiaVersion = '0.7.3';
-const sphiaBuildNumber = 4;
+const sphiaVersion = '0.7.4';
+const sphiaBuildNumber = 5;
 const sphiaFullVersion = '$sphiaVersion+$sphiaBuildNumber';
 const sphiaLastCommitHash = 'SELF_BUILD';
 

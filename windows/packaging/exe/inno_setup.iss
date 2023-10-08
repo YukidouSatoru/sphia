@@ -1,6 +1,6 @@
 [Setup]
 AppId=75776274-AEA9-436F-AD4D-CF21DA3FB689
-AppVersion=0.7.3+4
+AppVersion=0.7.4+5
 AppName=Sphia
 AppPublisher=YukidouSatoru
 AppPublisherURL=https://github.com/YukidouSatoru/sphia
