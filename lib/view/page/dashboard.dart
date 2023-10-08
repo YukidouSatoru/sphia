@@ -18,6 +18,7 @@ import 'package:sphia/server/server_base.dart';
 import 'package:sphia/util/network.dart';
 import 'package:sphia/util/traffic/traffic.dart';
 import 'package:sphia/view/page/agent/update.dart';
+import 'package:sphia/view/page/wrapper.dart';
 import 'package:sphia/view/widget/chart.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -402,11 +403,6 @@ class _DashboardState extends State<Dashboard> {
             ),
     );
 
-    const cardhorizontalSpacing = 16.0;
-    const cardVerticalSpacing = 16.0;
-    const edgehorizontalSpacing = 32.0;
-    const edgeVerticalSpacing = 32.0;
-
     if (coreProvider.coreRunning != _previousCoreRunning) {
       _trafficStats();
       if (sphiaConfig.autoGetIp) {
@@ -429,44 +425,47 @@ class _DashboardState extends State<Dashboard> {
         title: Text(S.of(context).dashboard),
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          Flexible(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  flex: 3,
-                  child: Row(
-                    children: [
-                      const SizedBox(width: edgehorizontalSpacing),
-                      Flexible(child: _buildCard(runningCoresCard)),
-                      const SizedBox(width: cardhorizontalSpacing),
-                      Flexible(child: _buildCard(rulesCard)),
-                      const SizedBox(width: cardhorizontalSpacing),
-                      Flexible(child: _buildCard(dnsCard)),
-                      const SizedBox(width: edgehorizontalSpacing),
-                    ],
+      body: PageWrapper(
+        padding: dashboardPadding,
+        child: Column(
+          children: [
+            Flexible(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    flex: 3,
+                    child: Row(
+                      children: [
+                        const SizedBox(width: edgehorizontalSpacing),
+                        Flexible(child: _buildCard(runningCoresCard)),
+                        const SizedBox(width: cardhorizontalSpacing),
+                        Flexible(child: _buildCard(rulesCard)),
+                        const SizedBox(width: cardhorizontalSpacing),
+                        Flexible(child: _buildCard(dnsCard)),
+                        const SizedBox(width: edgehorizontalSpacing),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: cardVerticalSpacing),
-                Flexible(
-                  flex: 4,
-                  child: Row(
-                    children: [
-                      const SizedBox(width: edgehorizontalSpacing),
-                      Flexible(flex: 2, child: _buildCard(cardTraffic)),
-                      const SizedBox(width: cardhorizontalSpacing),
-                      Flexible(flex: 7, child: _buildCard(cardNet)),
-                      const SizedBox(width: edgehorizontalSpacing),
-                    ],
+                  const SizedBox(height: cardVerticalSpacing),
+                  Flexible(
+                    flex: 4,
+                    child: Row(
+                      children: [
+                        const SizedBox(width: edgehorizontalSpacing),
+                        Flexible(flex: 2, child: _buildCard(cardTraffic)),
+                        const SizedBox(width: cardhorizontalSpacing),
+                        Flexible(flex: 7, child: _buildCard(cardNet)),
+                        const SizedBox(width: edgehorizontalSpacing),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: edgeVerticalSpacing),
-              ],
+                  const SizedBox(height: edgeVerticalSpacing),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

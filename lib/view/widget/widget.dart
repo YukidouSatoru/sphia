@@ -35,161 +35,178 @@ class WidgetBuild {
     );
   }
 
-  static Widget buildCheckboxListTile(
+  static Widget buildCheckboxCard(
     bool value,
     String title,
     void Function(bool?)? onChanged,
   ) {
-    return ListTile(
-      title: Text(title),
-      trailing: Container(
-        alignment: Alignment.centerRight,
-        width: 20,
-        child: Checkbox(
-          value: value,
-          onChanged: onChanged,
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: ListTile(
+        title: Text(title),
+        trailing: Container(
+          alignment: Alignment.centerRight,
+          width: 20,
+          child: Checkbox(
+            value: value,
+            onChanged: onChanged,
+          ),
         ),
+        onTap: () {
+          onChanged!(!value);
+        },
       ),
-      onTap: () {
-        onChanged!(!value);
-      },
     );
   }
 
-  static Widget buildTextListTile(
+  static Widget buildTextCard(
     String value,
     String title,
     void Function(String?) update,
     BuildContext context,
   ) {
-    return ListTile(
-      title: Text(title),
-      trailing: Text(value),
-      onTap: () async {
-        TextEditingController controller = TextEditingController();
-        controller.text = value;
-        String? newValue = await showDialog<String>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text(title),
-              content: TextFormField(
-                controller: controller,
-              ),
-              actions: [
-                TextButton(
-                  child: Text(S.of(context).cancel),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: ListTile(
+        title: Text(title),
+        trailing: Text(value),
+        onTap: () async {
+          TextEditingController controller = TextEditingController();
+          controller.text = value;
+          String? newValue = await showDialog<String>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(title),
+                content: TextFormField(
+                  controller: controller,
                 ),
-                TextButton(
-                  child: Text(S.of(context).save),
-                  onPressed: () {
-                    Navigator.of(context).pop(controller.text);
-                  },
-                ),
-              ],
-            );
-          },
-        );
-        update(newValue);
-      },
+                actions: [
+                  TextButton(
+                    child: Text(S.of(context).cancel),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  TextButton(
+                    child: Text(S.of(context).save),
+                    onPressed: () {
+                      Navigator.of(context).pop(controller.text);
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+          update(newValue);
+        },
+      ),
     );
   }
 
-  static Widget buildItemsListTile(
+  static Widget buildItemsCard(
     String value,
     String title,
     List<String> items,
     void Function(String?) update,
     BuildContext context,
   ) {
-    return ListTile(
-      title: Text(title),
-      trailing: Text(value),
-      onTap: () async {
-        String? newValue = await showDialog<String>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text(title),
-              content: SizedBox(
-                width: double.minPositive,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: items.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                      title: Text(items[index]),
-                      trailing: Icon(
-                        items[index] == value ? Icons.check : null,
-                      ),
-                      onTap: () {
-                        Navigator.of(context).pop(items[index]);
-                      },
-                    );
-                  },
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: ListTile(
+        title: Text(title),
+        trailing: Text(value),
+        onTap: () async {
+          String? newValue = await showDialog<String>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(title),
+                content: SizedBox(
+                  width: double.minPositive,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: items.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                        title: Text(items[index]),
+                        trailing: Icon(
+                          items[index] == value ? Icons.check : null,
+                        ),
+                        onTap: () {
+                          Navigator.of(context).pop(items[index]);
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
-            );
-          },
-        );
-        update(newValue);
-      },
+              );
+            },
+          );
+          update(newValue);
+        },
+      ),
     );
   }
 
-  static Widget buildColorsListTile(
+  static Widget buildColorsCard(
     int value,
     String title,
     Map<int, String> items,
     void Function(int?) update,
     BuildContext context,
   ) {
-    return ListTile(
-      title: Text(title),
-      trailing: Text(
-        "❖ ${items[value] ?? "Sphia"}",
-        style: TextStyle(
-          color: Color(value),
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: ListTile(
+        title: Text(title),
+        trailing: Text(
+          "❖ ${items[value] ?? "Sphia"}",
+          style: TextStyle(
+            color: Color(value),
+          ),
         ),
-      ),
-      onTap: () async {
-        int? newValue = await showDialog<int>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text(title),
-              content: SizedBox(
-                width: double.minPositive,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: items.keys.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final color = items.keys.elementAt(index);
-                    return ListTile(
-                      title: Text(
-                        "❖ ${items[color]}",
-                        style: TextStyle(
-                          color: Color(color),
+        onTap: () async {
+          int? newValue = await showDialog<int>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(title),
+                content: SizedBox(
+                  width: double.minPositive,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: items.keys.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final color = items.keys.elementAt(index);
+                      return ListTile(
+                        title: Text(
+                          "❖ ${items[color]}",
+                          style: TextStyle(
+                            color: Color(color),
+                          ),
                         ),
-                      ),
-                      trailing: Icon(
-                        color == value ? Icons.check : null,
-                      ),
-                      onTap: () {
-                        Navigator.of(context).pop(items.keys.elementAt(index));
-                      },
-                    );
-                  },
+                        trailing: Icon(
+                          color == value ? Icons.check : null,
+                        ),
+                        onTap: () {
+                          Navigator.of(context)
+                              .pop(items.keys.elementAt(index));
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
-            );
-          },
-        );
-        update(newValue);
-      },
+              );
+            },
+          );
+          update(newValue);
+        },
+      ),
     );
   }
 

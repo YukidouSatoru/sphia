@@ -6,6 +6,7 @@ import 'package:sphia/app/task/subscribe.dart';
 import 'package:sphia/app/task/task.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/system.dart';
+import 'package:sphia/view/page/wrapper.dart';
 import 'package:sphia/view/widget/widget.dart';
 
 class SettingPage extends StatefulWidget {
@@ -37,7 +38,7 @@ class _SettingPageState extends State<SettingPage> {
     final sphiaConfig = sphiaConfigProvider.config;
 
     final sphiaWidgets = [
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.startOnBoot,
         S.of(context).startOnBoot,
         (value) {
@@ -55,7 +56,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
       ),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.autoRunServer,
         S.of(context).autoRunServer,
         (value) {
@@ -73,7 +74,7 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       const Divider(),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.useMaterial3,
         S.of(context).useMaterial3,
         (value) {
@@ -90,7 +91,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
       ),
-      WidgetBuild.buildItemsListTile(
+      WidgetBuild.buildItemsCard(
         sphiaConfig.navigationStyle,
         S.of(context).navigationStyle,
         ['rail', 'drawer'],
@@ -109,7 +110,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.darkMode,
         S.of(context).darkMode,
         (value) {
@@ -126,7 +127,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
       ),
-      WidgetBuild.buildColorsListTile(
+      WidgetBuild.buildColorsCard(
         sphiaConfig.themeColor,
         S.of(context).themeColor,
         {
@@ -154,7 +155,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildTextListTile(
+      WidgetBuild.buildTextCard(
         "${sphiaConfig.themeColor >> 24},${(sphiaConfig.themeColor >> 16) & 0xFF},${(sphiaConfig.themeColor >> 8) & 0xFF},${sphiaConfig.themeColor & 0xFF}",
         S.of(context).themeColorArgb,
         (value) {
@@ -200,7 +201,7 @@ class _SettingPageState extends State<SettingPage> {
         context,
       ),
       const Divider(),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.showAddress,
         S.of(context).showAddress,
         (value) {
@@ -218,7 +219,7 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       const Divider(),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.enableStatistics,
         S.of(context).enableStatistics,
         (value) {
@@ -235,7 +236,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
       ),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.enableSpeedChart,
         S.of(context).enableSpeedChart,
         (value) {
@@ -253,7 +254,7 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       const Divider(),
-      WidgetBuild.buildTextListTile(
+      WidgetBuild.buildTextCard(
         sphiaConfig.updateSubscribeInterval.toString(),
         S.of(context).updateSubscribeInterval,
         (value) {
@@ -293,7 +294,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.updateThroughProxy,
         S.of(context).updateThroughProxy,
         (value) {
@@ -310,7 +311,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
       ),
-      WidgetBuild.buildItemsListTile(
+      WidgetBuild.buildItemsCard(
         sphiaConfig.userAgent,
         S.of(context).userAgent,
         ['chrome', 'firefox', 'safari', 'edge', 'none'],
@@ -331,7 +332,7 @@ class _SettingPageState extends State<SettingPage> {
       ),
     ];
     final proxyWidgets = [
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.autoGetIp,
         S.of(context).autoGetIp,
         (value) {
@@ -348,7 +349,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
       ),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.autoConfigureSystemProxy,
         S.of(context).autoConfigureSystemProxy,
         (value) {
@@ -365,7 +366,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
       ),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.enableTun,
         S.of(context).enableTun,
         (value) {
@@ -383,7 +384,7 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       const Divider(),
-      WidgetBuild.buildTextListTile(
+      WidgetBuild.buildTextCard(
         sphiaConfig.socksPort.toString(),
         S.of(context).socksPort,
         (value) {
@@ -412,7 +413,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildTextListTile(
+      WidgetBuild.buildTextCard(
         sphiaConfig.httpPort.toString(),
         S.of(context).httpPort,
         (value) {
@@ -441,7 +442,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildTextListTile(
+      WidgetBuild.buildTextCard(
           sphiaConfig.mixedPort.toString(), S.of(context).mixedPort, (value) {
         if (value != null) {
           late final int? newValue;
@@ -467,7 +468,7 @@ class _SettingPageState extends State<SettingPage> {
           );
         }
       }, context),
-      WidgetBuild.buildTextListTile(sphiaConfig.listen, S.of(context).listen,
+      WidgetBuild.buildTextCard(sphiaConfig.listen, S.of(context).listen,
           (value) {
         if (value != null) {
           logger.i('Updating listen from ${sphiaConfig.listen} to $value');
@@ -480,7 +481,7 @@ class _SettingPageState extends State<SettingPage> {
           );
         }
       }, context),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.enableUdp,
         S.of(context).enableUdp,
         (value) {
@@ -498,7 +499,7 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       const Divider(),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.authentication,
         S.of(context).authentication,
         (value) {
@@ -515,7 +516,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
       ),
-      WidgetBuild.buildTextListTile(
+      WidgetBuild.buildTextCard(
         sphiaConfig.user,
         S.of(context).user,
         (value) {
@@ -532,7 +533,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildTextListTile(
+      WidgetBuild.buildTextCard(
         sphiaConfig.password,
         S.of(context).password,
         (value) {
@@ -552,7 +553,7 @@ class _SettingPageState extends State<SettingPage> {
       ),
     ];
     final coreWidgets = [
-      WidgetBuild.buildTextListTile(
+      WidgetBuild.buildTextCard(
         sphiaConfig.coreApiPort.toString(),
         S.of(context).coreApiPort,
         (value) {
@@ -582,7 +583,7 @@ class _SettingPageState extends State<SettingPage> {
         context,
       ),
       const Divider(),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.enableSniffing,
         S.of(context).enableSniffing,
         (value) {
@@ -599,7 +600,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
       ),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.configureDns,
         S.of(context).configureDns,
         (value) {
@@ -616,7 +617,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
       ),
-      WidgetBuild.buildTextListTile(
+      WidgetBuild.buildTextCard(
         sphiaConfig.remoteDns,
         S.of(context).remoteDns,
         (value) {
@@ -634,7 +635,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildTextListTile(
+      WidgetBuild.buildTextCard(
         sphiaConfig.directDns,
         S.of(context).directDns,
         (value) {
@@ -653,7 +654,7 @@ class _SettingPageState extends State<SettingPage> {
         context,
       ),
       const Divider(),
-      WidgetBuild.buildItemsListTile(
+      WidgetBuild.buildItemsCard(
         sphiaConfig.domainStrategy,
         S.of(context).domainStrategy,
         ['AsIs', 'IPIfNonMatch', 'IPOnDemand'],
@@ -672,7 +673,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildItemsListTile(
+      WidgetBuild.buildItemsCard(
         sphiaConfig.domainMatcher,
         S.of(context).domainMatcher,
         ['hybrid', 'linear'],
@@ -692,7 +693,7 @@ class _SettingPageState extends State<SettingPage> {
         context,
       ),
       const Divider(),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.enableCoreLog,
         S.of(context).enableCoreLog,
         (value) {
@@ -709,7 +710,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
       ),
-      WidgetBuild.buildItemsListTile(
+      WidgetBuild.buildItemsCard(
         sphiaConfig.logLevel,
         S.of(context).logLevel,
         ['none', 'warning', 'debug', 'error', 'info'],
@@ -728,7 +729,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildTextListTile(
+      WidgetBuild.buildTextCard(
         sphiaConfig.maxLogCount.toString(),
         S.of(context).maxLogCount,
         (value) {
@@ -755,7 +756,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.saveCoreLog,
         S.of(context).saveCoreLog,
         (value) {
@@ -775,7 +776,7 @@ class _SettingPageState extends State<SettingPage> {
     ];
 
     final providerWidgets = [
-      WidgetBuild.buildItemsListTile(
+      WidgetBuild.buildItemsCard(
         sphiaConfig.routingProvider,
         S.of(context).routingProvider,
         ['sing-box', 'xray-core'],
@@ -794,7 +795,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildItemsListTile(
+      WidgetBuild.buildItemsCard(
         sphiaConfig.vmessProvider,
         S.of(context).vmessProvider,
         ['sing-box', 'xray-core'],
@@ -813,7 +814,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildItemsListTile(
+      WidgetBuild.buildItemsCard(
         sphiaConfig.vlessProvider,
         S.of(context).vlessProvider,
         ['sing-box', 'xray-core'],
@@ -832,7 +833,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildItemsListTile(
+      WidgetBuild.buildItemsCard(
         sphiaConfig.shadowsocksProvider,
         S.of(context).shadowsocksProvider,
         ['sing-box', 'xray-core', 'shadowsocks-rust'],
@@ -851,7 +852,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildItemsListTile(
+      WidgetBuild.buildItemsCard(
         sphiaConfig.trojanProvider,
         S.of(context).trojanProvider,
         ['sing-box', 'xray-core'],
@@ -870,7 +871,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildItemsListTile(
+      WidgetBuild.buildItemsCard(
         sphiaConfig.hysteriaProvider,
         S.of(context).hysteriaProvider,
         ['sing-box', 'hysteria'],
@@ -890,7 +891,7 @@ class _SettingPageState extends State<SettingPage> {
         context,
       ),
       const Divider(),
-      WidgetBuild.buildTextListTile(
+      WidgetBuild.buildTextCard(
         sphiaConfig.additionalSocksPort.toString(),
         S.of(context).additionalSocksPort,
         (value) {
@@ -921,7 +922,7 @@ class _SettingPageState extends State<SettingPage> {
       ),
     ];
     final tunWidgets = [
-      WidgetBuild.buildItemsListTile(
+      WidgetBuild.buildItemsCard(
         sphiaConfig.tunProvider,
         S.of(context).tunProvider,
         ['sing-box'],
@@ -941,7 +942,7 @@ class _SettingPageState extends State<SettingPage> {
         context,
       ),
       const Divider(),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.enableIpv4,
         S.of(context).enableIpv4,
         (value) {
@@ -954,7 +955,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
       ),
-      WidgetBuild.buildTextListTile(
+      WidgetBuild.buildTextCard(
         sphiaConfig.ipv4Address,
         S.of(context).ipv4Address,
         (value) {
@@ -972,7 +973,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.enableIpv6,
         S.of(context).enableIpv6,
         (value) {
@@ -989,7 +990,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
       ),
-      WidgetBuild.buildTextListTile(
+      WidgetBuild.buildTextCard(
         sphiaConfig.ipv6Address,
         S.of(context).ipv6Address,
         (value) {
@@ -1008,7 +1009,7 @@ class _SettingPageState extends State<SettingPage> {
         context,
       ),
       const Divider(),
-      WidgetBuild.buildTextListTile(
+      WidgetBuild.buildTextCard(
         sphiaConfig.mtu.toString(),
         S.of(context).mtu,
         (value) {
@@ -1034,7 +1035,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildItemsListTile(
+      WidgetBuild.buildItemsCard(
         sphiaConfig.stack,
         S.of(context).stack,
         ['system', 'gvisor'],
@@ -1052,7 +1053,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.autoRoute,
         S.of(context).autoRoute,
         (value) {
@@ -1069,7 +1070,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
       ),
-      WidgetBuild.buildCheckboxListTile(
+      WidgetBuild.buildCheckboxCard(
         sphiaConfig.strictRoute,
         S.of(context).strictRoute,
         (value) {
@@ -1107,45 +1108,47 @@ class _SettingPageState extends State<SettingPage> {
               ],
             ),
           ),
-          body: TabBarView(
-            children: [
-              // use builder
-              ListView.builder(
-                itemCount: sphiaWidgets.length,
-                itemBuilder: (context, index) {
-                  final widget = sphiaWidgets[index];
-                  return widget;
-                },
-              ),
-              ListView.builder(
-                itemCount: proxyWidgets.length,
-                itemBuilder: (context, index) {
-                  final widget = proxyWidgets[index];
-                  return widget;
-                },
-              ),
-              ListView.builder(
-                itemCount: coreWidgets.length,
-                itemBuilder: (context, index) {
-                  final widget = coreWidgets[index];
-                  return widget;
-                },
-              ),
-              ListView.builder(
-                itemCount: providerWidgets.length,
-                itemBuilder: (context, index) {
-                  final widget = providerWidgets[index];
-                  return widget;
-                },
-              ),
-              ListView.builder(
-                itemCount: tunWidgets.length,
-                itemBuilder: (context, index) {
-                  final widget = tunWidgets[index];
-                  return widget;
-                },
-              ),
-            ],
+          body: PageWrapper(
+            child: TabBarView(
+              children: [
+                // use builder
+                ListView.builder(
+                  itemCount: sphiaWidgets.length,
+                  itemBuilder: (context, index) {
+                    final widget = sphiaWidgets[index];
+                    return widget;
+                  },
+                ),
+                ListView.builder(
+                  itemCount: proxyWidgets.length,
+                  itemBuilder: (context, index) {
+                    final widget = proxyWidgets[index];
+                    return widget;
+                  },
+                ),
+                ListView.builder(
+                  itemCount: coreWidgets.length,
+                  itemBuilder: (context, index) {
+                    final widget = coreWidgets[index];
+                    return widget;
+                  },
+                ),
+                ListView.builder(
+                  itemCount: providerWidgets.length,
+                  itemBuilder: (context, index) {
+                    final widget = providerWidgets[index];
+                    return widget;
+                  },
+                ),
+                ListView.builder(
+                  itemCount: tunWidgets.length,
+                  itemBuilder: (context, index) {
+                    final widget = tunWidgets[index];
+                    return widget;
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

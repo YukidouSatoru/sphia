@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
+import 'package:sphia/view/page/wrapper.dart';
 
 class LogPage extends StatefulWidget {
   const LogPage({
@@ -43,7 +44,7 @@ class _LogPageState extends State<LogPage> {
     if (_previousCoreRunning != coreProvider.coreRunning) {
       _previousCoreRunning = coreProvider.coreRunning;
       if (sphiaConfigProvider.config.enableCoreLog &&
-          coreProvider.cores.isNotEmpty) {
+          coreProvider.coreRunning) {
         _scrollController.addListener(() {
           if (_scrollController.position.userScrollDirection !=
               ScrollDirection.idle) {
@@ -61,25 +62,32 @@ class _LogPageState extends State<LogPage> {
         title: Text(S.of(context).log),
         elevation: 0,
       ),
-      body: sphiaConfigProvider.config.enableCoreLog &&
-              coreProvider.cores.isNotEmpty
-          ? SingleChildScrollView(
-              controller: _scrollController,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SelectableText(
-                  _logList.join('\n'),
-                  style: const TextStyle(
-                    fontFamily: 'Courier New',
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+      body: PageWrapper(
+        child: PageView(
+          children: [
+            Card(
+              elevation: 2,
+              margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+              child: sphiaConfigProvider.config.enableCoreLog &&
+                      coreProvider.cores.isNotEmpty
+                  ? SingleChildScrollView(
+                      controller: _scrollController,
+                      child: SelectableText(
+                        _logList.join('\n'),
+                        style: const TextStyle(
+                          fontFamily: 'Courier New',
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    )
+                  : Center(
+                      child: Text(S.of(context).noLogsAvailable),
+                    ),
             )
-          : Center(
-              child: Text(S.of(context).noLogsAvailable),
-            ),
+          ],
+        ),
+      ),
     );
   }
 

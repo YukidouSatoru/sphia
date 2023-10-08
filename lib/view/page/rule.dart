@@ -9,6 +9,7 @@ import 'package:sphia/app/tray.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/server/xray/config.dart';
 import 'package:sphia/view/page/agent/rule.dart';
+import 'package:sphia/view/page/wrapper.dart';
 import 'package:sphia/view/widget/widget.dart';
 
 class RulePage extends StatefulWidget {
@@ -183,106 +184,109 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
       length: ruleConfigProvider.ruleGroups.length,
       child: Scaffold(
         appBar: appBar,
-        body: TabBarView(
-          controller: _tabController,
-          children: ruleConfigProvider.ruleGroups.map<Widget>(
-            (ruleGroup) {
-              if (_index == ruleConfigProvider.ruleGroups.indexOf(ruleGroup)) {
-                return ReorderableListView.builder(
-                  proxyDecorator: (child, index, animation) => child,
-                  onReorder: (int oldIndex, int newIndex) async {
-                    final oldOrder = _rules.map((e) => e.id).toList();
-                    setState(() {
-                      if (oldIndex < newIndex) {
-                        newIndex -= 1;
+        body: PageWrapper(
+          child: TabBarView(
+            controller: _tabController,
+            children: ruleConfigProvider.ruleGroups.map<Widget>(
+              (ruleGroup) {
+                if (_index ==
+                    ruleConfigProvider.ruleGroups.indexOf(ruleGroup)) {
+                  return ReorderableListView.builder(
+                    proxyDecorator: (child, index, animation) => child,
+                    onReorder: (int oldIndex, int newIndex) async {
+                      final oldOrder = _rules.map((e) => e.id).toList();
+                      setState(() {
+                        if (oldIndex < newIndex) {
+                          newIndex -= 1;
+                        }
+                        final rule = _rules.removeAt(oldIndex);
+                        _rules.insert(newIndex, rule);
+                      });
+                      final newOrder = _rules.map((e) => e.id).toList();
+                      if (listsEqual(oldOrder, newOrder)) {
+                        return;
                       }
-                      final rule = _rules.removeAt(oldIndex);
-                      _rules.insert(newIndex, rule);
-                    });
-                    final newOrder = _rules.map((e) => e.id).toList();
-                    if (listsEqual(oldOrder, newOrder)) {
-                      return;
-                    }
-                    await SphiaDatabase.ruleDao.updateRulesOrderByGroupId(
-                      ruleGroup.id,
-                      newOrder,
-                    );
-                  },
-                  itemCount: _rules.length,
-                  itemBuilder: (context, index) {
-                    final rule = _rules[index];
-                    final xrayRule = XrayRule.fromJson(
-                      jsonDecode(rule.data),
-                    );
-                    return Column(
-                      key: Key('${ruleGroup.id}-$index'),
-                      children: [
-                        Card(
-                          elevation: 2,
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 8),
-                          child: ListTile(
-                            title: Text(xrayRule.name ?? 'Rule'),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Type: ${xrayRule.type}'),
-                                Text('Outbound Tag: ${xrayRule.outboundTag}'),
-                              ],
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Switch(
-                                  value: xrayRule.enabled,
-                                  onChanged: (bool value) async {
-                                    _rules[index] = rule.copyWith(
-                                      data: jsonEncode(
-                                        xrayRule..enabled = value,
-                                      ),
-                                    );
-                                    await SphiaDatabase.ruleDao.updateRule(
-                                      rule.id,
-                                      jsonEncode(xrayRule..enabled = value),
-                                    );
-                                    setState(() {});
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  onPressed: () async {
-                                    late final Rule? newRule;
-                                    if ((newRule =
-                                            await _agent.editRule(rule)) !=
-                                        null) {
-                                      _rules[index] = newRule!;
+                      await SphiaDatabase.ruleDao.updateRulesOrderByGroupId(
+                        ruleGroup.id,
+                        newOrder,
+                      );
+                    },
+                    itemCount: _rules.length,
+                    itemBuilder: (context, index) {
+                      final rule = _rules[index];
+                      final xrayRule = XrayRule.fromJson(
+                        jsonDecode(rule.data),
+                      );
+                      return Column(
+                        key: Key('${ruleGroup.id}-$index'),
+                        children: [
+                          Card(
+                            elevation: 2,
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 8),
+                            child: ListTile(
+                              title: Text(xrayRule.name ?? 'Rule'),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Type: ${xrayRule.type}'),
+                                  Text('Outbound Tag: ${xrayRule.outboundTag}'),
+                                ],
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Switch(
+                                    value: xrayRule.enabled,
+                                    onChanged: (bool value) async {
+                                      _rules[index] = rule.copyWith(
+                                        data: jsonEncode(
+                                          xrayRule..enabled = value,
+                                        ),
+                                      );
+                                      await SphiaDatabase.ruleDao.updateRule(
+                                        rule.id,
+                                        jsonEncode(xrayRule..enabled = value),
+                                      );
                                       setState(() {});
-                                    }
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () async {
-                                    if (await _agent.deleteRule(rule.id)) {
-                                      _rules.removeAt(index);
-                                      setState(() {});
-                                    }
-                                  },
-                                ),
-                                const SizedBox(width: 16),
-                              ],
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () async {
+                                      late final Rule? newRule;
+                                      if ((newRule =
+                                              await _agent.editRule(rule)) !=
+                                          null) {
+                                        _rules[index] = newRule!;
+                                        setState(() {});
+                                      }
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete),
+                                    onPressed: () async {
+                                      if (await _agent.deleteRule(rule.id)) {
+                                        _rules.removeAt(index);
+                                        setState(() {});
+                                      }
+                                    },
+                                  ),
+                                  const SizedBox(width: 16),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            },
-          ).toList(),
+                        ],
+                      );
+                    },
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ).toList(),
+          ),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {

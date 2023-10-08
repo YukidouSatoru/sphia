@@ -17,6 +17,7 @@ import 'package:sphia/app/tray.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/server/server_base.dart';
 import 'package:sphia/view/page/agent/server.dart';
+import 'package:sphia/view/page/wrapper.dart';
 import 'package:sphia/view/widget/chart.dart';
 import 'package:sphia/view/widget/widget.dart';
 
@@ -395,193 +396,201 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
         key: _scaffoldMessengerKey,
         child: Scaffold(
           appBar: appBar,
-          body: TabBarView(
-            controller: _tabController,
-            children:
-                serverConfigProvider.serverGroups.map<Widget>((serverGroup) {
-              if (_index ==
-                  serverConfigProvider.serverGroups.indexOf(serverGroup)) {
-                return ReorderableListView.builder(
-                  proxyDecorator: (child, index, animation) => child,
-                  // https://github.com/flutter/flutter/issues/63527
-                  onReorder: (int oldIndex, int newIndex) async {
-                    final oldOrder =
-                        serverConfigProvider.servers.map((e) => e.id).toList();
-                    setState(() {
-                      if (oldIndex < newIndex) {
-                        newIndex -= 1;
-                      }
-                      final server =
-                          serverConfigProvider.servers.removeAt(oldIndex);
-                      serverConfigProvider.servers.insert(newIndex, server);
-                    });
-                    final newOrder =
-                        serverConfigProvider.servers.map((e) => e.id).toList();
-                    if (listsEqual(oldOrder, newOrder)) {
-                      return;
-                    }
-                    await SphiaDatabase.serverDao.updateServersOrderByGroupId(
-                      serverGroup.id,
-                      newOrder,
-                    );
-                    SphiaTray.generateServerItems();
-                    SphiaTray.setMenu();
-                  },
-                  scrollController: _scrollController,
-                  itemCount: serverConfigProvider.servers.length,
-                  itemBuilder: (context, index) {
-                    final server = serverConfigProvider.servers[index];
-                    final serverBase = ServerBase.fromJson(
-                        jsonDecode(serverConfigProvider.servers[index].data));
-                    if (_scrollToLastSelectServer) {
-                      _scrollToLastSelectServer = false;
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _scrollToServer(serverConfigProvider.servers.indexWhere(
-                            (element) =>
-                                element.id ==
-                                serverConfigProvider.config.selectedServerId));
+          body: PageWrapper(
+            child: TabBarView(
+              controller: _tabController,
+              children:
+                  serverConfigProvider.serverGroups.map<Widget>((serverGroup) {
+                if (_index ==
+                    serverConfigProvider.serverGroups.indexOf(serverGroup)) {
+                  return ReorderableListView.builder(
+                    proxyDecorator: (child, index, animation) => child,
+                    // https://github.com/flutter/flutter/issues/63527
+                    onReorder: (int oldIndex, int newIndex) async {
+                      final oldOrder = serverConfigProvider.servers
+                          .map((e) => e.id)
+                          .toList();
+                      setState(() {
+                        if (oldIndex < newIndex) {
+                          newIndex -= 1;
+                        }
+                        final server =
+                            serverConfigProvider.servers.removeAt(oldIndex);
+                        serverConfigProvider.servers.insert(newIndex, server);
                       });
-                    }
-                    return Consumer<SphiaConfigProvider>(
-                      key: Key('${serverGroup.id}-$index'),
-                      builder: (context, sphiaConfigProvider, child) {
-                        return Column(
-                          // key: Key('${serverGroup.id}-$index'),
-                          children: [
-                            Card(
-                              key: index == 0 ? _cardKey : null,
-                              elevation: 2,
-                              margin: const EdgeInsets.symmetric(
-                                  vertical: 4, horizontal: 8),
-                              color: server.id ==
-                                      serverConfigProvider
-                                          .config.selectedServerId
-                                  ? SphiaTheme.getThemeColor(
-                                      sphiaConfigProvider.config.themeColor)
-                                  : null,
-                              child: ListTile(
-                                title: Text(serverBase.remark),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(serverBase.protocol),
-                                    if (sphiaConfigProvider.config.showAddress)
-                                      Text(
-                                          '${serverBase.address}:${serverBase.port}')
-                                  ],
-                                ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (serverBase.uplink != null &&
-                                        serverBase.downlink != null)
-                                      Text(
-                                        _getServerTraffic(
-                                          serverBase.uplink!.toDouble(),
-                                          serverBase.downlink!.toDouble(),
+                      final newOrder = serverConfigProvider.servers
+                          .map((e) => e.id)
+                          .toList();
+                      if (listsEqual(oldOrder, newOrder)) {
+                        return;
+                      }
+                      await SphiaDatabase.serverDao.updateServersOrderByGroupId(
+                        serverGroup.id,
+                        newOrder,
+                      );
+                      SphiaTray.generateServerItems();
+                      SphiaTray.setMenu();
+                    },
+                    scrollController: _scrollController,
+                    itemCount: serverConfigProvider.servers.length,
+                    itemBuilder: (context, index) {
+                      final server = serverConfigProvider.servers[index];
+                      final serverBase = ServerBase.fromJson(
+                          jsonDecode(serverConfigProvider.servers[index].data));
+                      if (_scrollToLastSelectServer) {
+                        _scrollToLastSelectServer = false;
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _scrollToServer(serverConfigProvider.servers
+                              .indexWhere((element) =>
+                                  element.id ==
+                                  serverConfigProvider
+                                      .config.selectedServerId));
+                        });
+                      }
+                      return Consumer<SphiaConfigProvider>(
+                        key: Key('${serverGroup.id}-$index'),
+                        builder: (context, sphiaConfigProvider, child) {
+                          return Column(
+                            // key: Key('${serverGroup.id}-$index'),
+                            children: [
+                              Card(
+                                key: index == 0 ? _cardKey : null,
+                                elevation: 2,
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 8),
+                                color: server.id ==
+                                        serverConfigProvider
+                                            .config.selectedServerId
+                                    ? SphiaTheme.getThemeColor(
+                                        sphiaConfigProvider.config.themeColor)
+                                    : null,
+                                child: ListTile(
+                                  title: Text(serverBase.remark),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(serverBase.protocol),
+                                      if (sphiaConfigProvider
+                                          .config.showAddress)
+                                        Text(
+                                            '${serverBase.address}:${serverBase.port}')
+                                    ],
+                                  ),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (serverBase.uplink != null &&
+                                          serverBase.downlink != null)
+                                        Text(
+                                          _getServerTraffic(
+                                            serverBase.uplink!.toDouble(),
+                                            serverBase.downlink!.toDouble(),
+                                          ),
                                         ),
-                                      ),
-                                    IconButton(
-                                      icon: const Icon(Icons.edit),
-                                      onPressed: () async {
-                                        late final Server? newServer;
-                                        if ((newServer = await _agent
-                                                .editServer(server)) !=
-                                            null) {
-                                          serverConfigProvider.servers[index] =
-                                              newServer!;
-                                          SphiaTray.replaceServerItem(
-                                              newServer);
-                                          SphiaTray.setMenu();
-                                          setState(() {});
-                                        }
-                                      },
-                                    ),
-                                    PopupMenuButton(
-                                      icon: const Icon(Icons.share),
-                                      onSelected: (value) async =>
-                                          await _agent.shareServer(
-                                        value,
-                                        server.id,
-                                        (message) {
-                                          _scaffoldMessengerKey.currentState!
-                                              .showSnackBar(
-                                            WidgetBuild.snackBar(message),
-                                          );
+                                      IconButton(
+                                        icon: const Icon(Icons.edit),
+                                        onPressed: () async {
+                                          late final Server? newServer;
+                                          if ((newServer = await _agent
+                                                  .editServer(server)) !=
+                                              null) {
+                                            serverConfigProvider
+                                                .servers[index] = newServer!;
+                                            SphiaTray.replaceServerItem(
+                                                newServer);
+                                            SphiaTray.setMenu();
+                                            setState(() {});
+                                          }
                                         },
                                       ),
-                                      itemBuilder: (BuildContext context) {
-                                        return [
-                                          PopupMenuItem(
-                                            value: 'QRCode',
-                                            child: Text(S.of(context).qrCode),
-                                          ),
-                                          PopupMenuItem(
-                                            value: 'ExportToClipboard',
-                                            child: Text(S
-                                                .of(context)
-                                                .exportToClipboard),
-                                          ),
-                                          PopupMenuItem(
-                                            value: 'Configuration',
-                                            child: Text(
-                                                S.of(context).configuration),
-                                          ),
-                                        ];
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      onPressed: () async {
-                                        if (await _agent
-                                            .deleteServer(server.id)) {
-                                          serverConfigProvider.servers
-                                              .removeAt(index);
-                                          SphiaTray.removeServerItem(server.id);
-                                          SphiaTray.setMenu();
-                                          setState(() {});
+                                      PopupMenuButton(
+                                        icon: const Icon(Icons.share),
+                                        onSelected: (value) async =>
+                                            await _agent.shareServer(
+                                          value,
+                                          server.id,
+                                          (message) {
+                                            _scaffoldMessengerKey.currentState!
+                                                .showSnackBar(
+                                              WidgetBuild.snackBar(message),
+                                            );
+                                          },
+                                        ),
+                                        itemBuilder: (BuildContext context) {
+                                          return [
+                                            PopupMenuItem(
+                                              value: 'QRCode',
+                                              child: Text(S.of(context).qrCode),
+                                            ),
+                                            PopupMenuItem(
+                                              value: 'ExportToClipboard',
+                                              child: Text(S
+                                                  .of(context)
+                                                  .exportToClipboard),
+                                            ),
+                                            PopupMenuItem(
+                                              value: 'Configuration',
+                                              child: Text(
+                                                  S.of(context).configuration),
+                                            ),
+                                          ];
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete),
+                                        onPressed: () async {
+                                          if (await _agent
+                                              .deleteServer(server.id)) {
+                                            serverConfigProvider.servers
+                                                .removeAt(index);
+                                            SphiaTray.removeServerItem(
+                                                server.id);
+                                            SphiaTray.setMenu();
+                                            setState(() {});
+                                          }
+                                        },
+                                      ),
+                                      const SizedBox(width: 16),
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    setState(
+                                      () {
+                                        if (server.id ==
+                                            serverConfigProvider
+                                                .config.selectedServerId) {
+                                          SphiaTray.setMenuItem(
+                                              'server-${server.id}', false);
+                                          serverConfigProvider
+                                              .config.selectedServerId = 0;
+                                          serverConfigProvider.saveConfig();
+                                        } else {
+                                          SphiaTray.setMenuItem(
+                                              'server-${serverConfigProvider.config.selectedServerId}',
+                                              false);
+                                          serverConfigProvider.config
+                                              .selectedServerId = server.id;
+                                          SphiaTray.setMenuItem(
+                                              'server-${server.id}', true);
+                                          serverConfigProvider.saveConfig();
                                         }
                                       },
-                                    ),
-                                    const SizedBox(width: 16),
-                                  ],
+                                    );
+                                  },
                                 ),
-                                onTap: () {
-                                  setState(
-                                    () {
-                                      if (server.id ==
-                                          serverConfigProvider
-                                              .config.selectedServerId) {
-                                        SphiaTray.setMenuItem(
-                                            'server-${server.id}', false);
-                                        serverConfigProvider
-                                            .config.selectedServerId = 0;
-                                        serverConfigProvider.saveConfig();
-                                      } else {
-                                        SphiaTray.setMenuItem(
-                                            'server-${serverConfigProvider.config.selectedServerId}',
-                                            false);
-                                        serverConfigProvider.config
-                                            .selectedServerId = server.id;
-                                        SphiaTray.setMenuItem(
-                                            'server-${server.id}', true);
-                                        serverConfigProvider.saveConfig();
-                                      }
-                                    },
-                                  );
-                                },
                               ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            }).toList(),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              }).toList(),
+            ),
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: _toggleServer,

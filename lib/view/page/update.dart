@@ -4,6 +4,7 @@ import 'package:sphia/app/log.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/network.dart';
 import 'package:sphia/view/page/agent/update.dart';
+import 'package:sphia/view/page/wrapper.dart';
 import 'package:sphia/view/widget/widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -41,71 +42,74 @@ class _UpdatePageState extends State<UpdatePage> {
           title: Text(S.of(context).update),
           elevation: 0,
         ),
-        body: ListView.builder(
-          itemCount: coreRepositories.length - 1,
-          itemBuilder: (BuildContext context, int index) {
-            final coreName = coreRepositories.keys.elementAt(index);
-            final repoUrl = coreRepositories.values.elementAt(index);
-            final latestVersion = _latestVersions[coreName] ??
-                (_latestVersions[coreName] = S.of(context).unknown);
-            return Card(
-              elevation: 2,
-              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-              child: ListTile(
-                title: Text(coreName),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text.rich(
-                      TextSpan(
-                        text: '${S.of(context).repoUrl}: $repoUrl',
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () async {
-                            try {
-                              await launchUrl(Uri.parse(repoUrl));
-                            } on Exception catch (e) {
-                              logger.e('Failed to launch url: $e');
-                              _scaffoldMessengerKey.currentState!.showSnackBar(
-                                WidgetBuild.snackBar(
-                                    '${S.current.launchUrlFailed}: $e'),
-                              );
-                            }
-                          },
+        body: PageWrapper(
+          child: ListView.builder(
+            itemCount: coreRepositories.length - 1,
+            itemBuilder: (BuildContext context, int index) {
+              final coreName = coreRepositories.keys.elementAt(index);
+              final repoUrl = coreRepositories.values.elementAt(index);
+              final latestVersion = _latestVersions[coreName] ??
+                  (_latestVersions[coreName] = S.of(context).unknown);
+              return Card(
+                elevation: 2,
+                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                child: ListTile(
+                  title: Text(coreName),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text.rich(
+                        TextSpan(
+                          text: '${S.of(context).repoUrl}: $repoUrl',
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () async {
+                              try {
+                                await launchUrl(Uri.parse(repoUrl));
+                              } on Exception catch (e) {
+                                logger.e('Failed to launch url: $e');
+                                _scaffoldMessengerKey.currentState!
+                                    .showSnackBar(
+                                  WidgetBuild.snackBar(
+                                      '${S.current.launchUrlFailed}: $e'),
+                                );
+                              }
+                            },
+                        ),
                       ),
-                    ),
-                    Text('${S.of(context).latestVersion}: $latestVersion'),
-                  ],
+                      Text('${S.of(context).latestVersion}: $latestVersion'),
+                    ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () async => await _checkUpdate(coreName),
+                        child: Text(S.of(context).checkUpdate),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (!_latestVersions.containsKey(coreName) ||
+                              _latestVersions[coreName] == null ||
+                              _latestVersions[coreName] ==
+                                  S.of(context).unknown) {
+                            await _checkUpdate(coreName);
+                          }
+                          await _agent.updateCore(
+                              coreName, _latestVersions[coreName]!, (message) {
+                            _scaffoldMessengerKey.currentState!.showSnackBar(
+                              WidgetBuild.snackBar(message),
+                            );
+                          });
+                        },
+                        child: Text(S.of(context).update),
+                      ),
+                    ],
+                  ),
                 ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () async => await _checkUpdate(coreName),
-                      child: Text(S.of(context).checkUpdate),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () async {
-                        if (!_latestVersions.containsKey(coreName) ||
-                            _latestVersions[coreName] == null ||
-                            _latestVersions[coreName] ==
-                                S.of(context).unknown) {
-                          await _checkUpdate(coreName);
-                        }
-                        await _agent.updateCore(
-                            coreName, _latestVersions[coreName]!, (message) {
-                          _scaffoldMessengerKey.currentState!.showSnackBar(
-                            WidgetBuild.snackBar(message),
-                          );
-                        });
-                      },
-                      child: Text(S.of(context).update),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
