@@ -53,10 +53,16 @@ class XrayTraffic extends Traffic {
 
   @override
   Future<void> start() async {
+    int tryCount = 0;
     await Future.doWhile(() async {
       final isApiAvailable = await checkAvailability();
       if (!isApiAvailable) {
         await Future.delayed(const Duration(milliseconds: 100));
+        tryCount++;
+      }
+      if (tryCount > 10) {
+        logger.e('Failed to get traffic: API is not available');
+        throw Exception('Failed to get traffic: API is not available');
       }
       return !isApiAvailable;
     });
@@ -113,10 +119,16 @@ class SingBoxTraffic extends Traffic {
 
   @override
   Future<void> start() async {
+    int tryCount = 0;
     await Future.doWhile(() async {
       final isApiAvailable = await checkAvailability();
       if (!isApiAvailable) {
         await Future.delayed(const Duration(milliseconds: 100));
+        tryCount++;
+      }
+      if (tryCount > 10) {
+        logger.e('Failed to get traffic: API is not available');
+        throw Exception('Failed to get traffic: API is not available');
       }
       return !isApiAvailable;
     });
