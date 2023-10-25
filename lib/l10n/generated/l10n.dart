@@ -900,6 +900,16 @@ class S {
     );
   }
 
+  /// `Fetch Subscribe`
+  String get fetchSubscribe {
+    return Intl.message(
+      'Fetch Subscribe',
+      name: 'fetchSubscribe',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `FingerPrint`
   String get fingerPrint {
     return Intl.message(
@@ -1285,6 +1295,16 @@ class S {
     return Intl.message(
       'New version available',
       name: 'newVersionAvailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No`
+  String get no {
+    return Intl.message(
+      'No',
+      name: 'no',
       desc: '',
       args: [],
     );
@@ -2355,6 +2375,16 @@ class S {
     return Intl.message(
       'Warning',
       name: 'warning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Yes`
+  String get yes {
+    return Intl.message(
+      'Yes',
+      name: 'yes',
       desc: '',
       args: [],
     );

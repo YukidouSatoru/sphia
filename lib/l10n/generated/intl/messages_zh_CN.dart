@@ -127,6 +127,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "exit": MessageLookupByLibrary.simpleMessage("退出"),
         "exportToClipboard": MessageLookupByLibrary.simpleMessage("导出到剪贴板"),
         "exportToFile": MessageLookupByLibrary.simpleMessage("导出到文件"),
+        "fetchSubscribe": MessageLookupByLibrary.simpleMessage("获取订阅"),
         "fingerPrint": MessageLookupByLibrary.simpleMessage("指纹"),
         "flow": MessageLookupByLibrary.simpleMessage("流控"),
         "getIpFailed": MessageLookupByLibrary.simpleMessage("获取 IP 失败"),
@@ -173,6 +174,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "navigationStyleMsg":
             MessageLookupByLibrary.simpleMessage("导航栏样式，默认为 rail"),
         "newVersionAvailable": MessageLookupByLibrary.simpleMessage("有新版本可用"),
+        "no": MessageLookupByLibrary.simpleMessage("否"),
         "noConfigurationFileGenerated":
             MessageLookupByLibrary.simpleMessage("未生成配置文件"),
         "noLogsAvailable": MessageLookupByLibrary.simpleMessage("没有可用的日志"),
@@ -304,6 +306,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "vmessProvider": MessageLookupByLibrary.simpleMessage("VMess 提供者"),
         "vmessProviderMsg":
             MessageLookupByLibrary.simpleMessage("VMess 提供者，默认为 sing-box"),
-        "warning": MessageLookupByLibrary.simpleMessage("警告")
+        "warning": MessageLookupByLibrary.simpleMessage("警告"),
+        "yes": MessageLookupByLibrary.simpleMessage("是")
       };
 }

@@ -85,6 +85,7 @@
   "exit": "Exit",
   "exportToClipboard": "Export to Clipboard",
   "exportToFile": "Export to File",
+  "fetchSubscribe": "Fetch Subscribe",
   "fingerPrint": "FingerPrint",
   "flow": "Flow",
   "getIpFailed": "Failed to get IP",
@@ -124,6 +125,7 @@
   "navigationStyle": "Navigation Style",
   "navigationStyleMsg": "Navigation style, default is rail",
   "newVersionAvailable": "New version available",
+  "no": "No",
   "noConfigurationFileGenerated": "No configuration file generated",
   "noLogsAvailable": "No logs available",
   "noRunningCores": "No running cores",
@@ -230,5 +232,6 @@
   "vlessProviderMsg": "Vless provider, default is sing-box",
   "vmessProvider": "VMess Provider",
   "vmessProviderMsg": "VMess provider, default is sing-box",
-  "warning": "Warning"
+  "warning": "Warning",
+  "yes": "Yes"
 }

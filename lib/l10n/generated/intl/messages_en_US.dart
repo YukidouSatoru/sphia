@@ -150,6 +150,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "exportToClipboard":
             MessageLookupByLibrary.simpleMessage("Export to Clipboard"),
         "exportToFile": MessageLookupByLibrary.simpleMessage("Export to File"),
+        "fetchSubscribe":
+            MessageLookupByLibrary.simpleMessage("Fetch Subscribe"),
         "fingerPrint": MessageLookupByLibrary.simpleMessage("FingerPrint"),
         "flow": MessageLookupByLibrary.simpleMessage("Flow"),
         "getIpFailed": MessageLookupByLibrary.simpleMessage("Failed to get IP"),
@@ -209,6 +211,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "Navigation style, default is rail"),
         "newVersionAvailable":
             MessageLookupByLibrary.simpleMessage("New version available"),
+        "no": MessageLookupByLibrary.simpleMessage("No"),
         "noConfigurationFileGenerated": MessageLookupByLibrary.simpleMessage(
             "No configuration file generated"),
         "noLogsAvailable":
@@ -366,6 +369,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "vmessProvider": MessageLookupByLibrary.simpleMessage("VMess Provider"),
         "vmessProviderMsg": MessageLookupByLibrary.simpleMessage(
             "VMess provider, default is sing-box"),
-        "warning": MessageLookupByLibrary.simpleMessage("Warning")
+        "warning": MessageLookupByLibrary.simpleMessage("Warning"),
+        "yes": MessageLookupByLibrary.simpleMessage("Yes")
       };
 }

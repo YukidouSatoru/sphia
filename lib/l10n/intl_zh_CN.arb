@@ -85,6 +85,7 @@
   "exit": "退出",
   "exportToClipboard": "导出到剪贴板",
   "exportToFile": "导出到文件",
+  "fetchSubscribe": "获取订阅",
   "fingerPrint": "指纹",
   "flow": "流控",
   "getIpFailed": "获取 IP 失败",
@@ -124,6 +125,7 @@
   "navigationStyle": "导航栏样式",
   "navigationStyleMsg": "导航栏样式，默认为 rail",
   "newVersionAvailable": "有新版本可用",
+  "no": "否",
   "noConfigurationFileGenerated": "未生成配置文件",
   "noLogsAvailable": "没有可用的日志",
   "noRunningCores": "没有运行的核心",
@@ -230,5 +232,6 @@
   "vlessProviderMsg": "Vless 提供者，默认为 sing-box",
   "vmessProvider": "VMess 提供者",
   "vmessProviderMsg": "VMess 提供者，默认为 sing-box",
-  "warning": "警告"
+  "warning": "警告",
+  "yes": "是"
 }

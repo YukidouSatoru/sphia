@@ -261,6 +261,7 @@ class ServerAgent {
     final groupNameController = TextEditingController();
     final subscribeController = TextEditingController();
     String subscribe = '';
+    bool fetchSubscribe = false;
     String? newGroupName = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
@@ -286,6 +287,16 @@ class ServerAgent {
                   subscribeController,
                   S.of(context).subscribe,
                   null,
+                ),
+                WidgetBuild.buildDropdownButtonFormField(
+                  S.of(context).no,
+                  S.of(context).fetchSubscribe,
+                  [S.of(context).no, S.of(context).yes],
+                  (value) {
+                    if (value != null) {
+                      fetchSubscribe = value == S.of(context).yes;
+                    }
+                  },
                 ),
               ],
             ),
@@ -320,11 +331,15 @@ class ServerAgent {
         .insertServerGroup(newGroupName, subscribe);
     await SphiaDatabase.serverGroupDao.refreshServerGroupsOrder();
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
+    final id = await SphiaDatabase.serverGroupDao.getLastServerGroupId();
     serverConfigProvider.serverGroups.add(ServerGroup(
-      id: await SphiaDatabase.serverGroupDao.getLastServerGroupId(),
+      id: id,
       name: newGroupName,
       subscribe: subscribe,
     ));
+    if (fetchSubscribe && subscribe.trim().isNotEmpty) {
+      await updateGroup('CurrentGroup', id, (value) {});
+    }
     serverConfigProvider.notify();
     return true;
   }
