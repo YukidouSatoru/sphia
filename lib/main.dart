@@ -68,7 +68,7 @@ Future<void> configureApp() async {
     SphiaLog.initLogger(false, 5, 5);
   }
 
-  // Check dir exsits
+  // Check dir exists
   SystemUtil.createDir(binPath);
   SystemUtil.createDir(configPath);
   SystemUtil.createDir(logPath);
