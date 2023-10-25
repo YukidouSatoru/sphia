@@ -46,8 +46,9 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
     super.initState();
     final serverConfigProvider =
         Provider.of<ServerConfigProvider>(context, listen: false);
-    _index = serverConfigProvider.serverGroups.indexWhere((element) =>
-        element.id == serverConfigProvider.config.selectedServerGroupId);
+    final serverConfig = serverConfigProvider.config;
+    _index = serverConfigProvider.serverGroups.indexWhere(
+        (element) => element.id == serverConfig.selectedServerGroupId);
     _updateTabController();
     _loadServers().then((_) {
       SphiaTray.generateRuleItems();
@@ -60,10 +61,11 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final sphiaConfigProvider =
           Provider.of<SphiaConfigProvider>(context, listen: false);
-      if (sphiaConfigProvider.config.autoRunServer) {
+      final sphiaConfig = sphiaConfigProvider.config;
+      if (sphiaConfig.autoRunServer) {
         _toggleServer();
       }
-      if (sphiaConfigProvider.config.updateSubscribeInterval != -1) {
+      if (sphiaConfig.updateSubscribeInterval != -1) {
         SphiaTask.addTask(SubscribeTask.generate());
       }
     });
@@ -90,17 +92,18 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
     _tabController?.dispose();
     final serverConfigProvider =
         Provider.of<ServerConfigProvider>(context, listen: false);
+    final serverConfig = serverConfigProvider.config;
     if (_index == serverConfigProvider.serverGroups.length) {
       _index -= 1;
-      serverConfigProvider.config.selectedServerGroupId =
+      serverConfig.selectedServerGroupId =
           serverConfigProvider.serverGroups[_index].id;
     } else if (_index > serverConfigProvider.serverGroups.length) {
       _index = 0;
-      serverConfigProvider.config.selectedServerGroupId =
+      serverConfig.selectedServerGroupId =
           serverConfigProvider.serverGroups[_index].id;
     } else if (_index == -1) {
       _index = 0;
-      serverConfigProvider.config.selectedServerGroupId =
+      serverConfig.selectedServerGroupId =
           serverConfigProvider.serverGroups[_index].id;
     }
     serverConfigProvider.saveConfigWithoutNotify();
@@ -113,7 +116,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
       switchTab() async {
         _index = _tabController!.index;
         await _loadServers();
-        serverConfigProvider.config.selectedServerGroupId =
+        serverConfig.selectedServerGroupId =
             serverConfigProvider.serverGroups[_index].id;
         serverConfigProvider.saveConfig();
         _scrollToLastSelectServer = true;
@@ -134,8 +137,10 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final sphiaConfig = Provider.of<SphiaConfigProvider>(context).config;
     final coreProvider = Provider.of<CoreProvider>(context);
     final serverConfigProvider = Provider.of<ServerConfigProvider>(context);
+    final serverConfig = serverConfigProvider.config;
     final appBar = AppBar(
       title: Text(
         S.of(context).servers,
@@ -183,23 +188,23 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
             ),
             WidgetBuild.buildPopupMenuItem(
               value: 'ClearTraffic',
-              child: Text(S.of(context).clearTraffic),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(S.of(context).clearTraffic),
+                  const Icon(Icons.arrow_left),
+                ],
+              ),
             ),
           ],
           onItemSelected: (value) async {
             switch (value) {
               case 'AddServer':
-                final RenderBox button =
-                    context.findRenderObject() as RenderBox;
-                final RenderBox overlay =
-                    Overlay.of(context).context.findRenderObject() as RenderBox;
-                final RelativeRect position = RelativeRect.fromRect(
-                  Rect.fromPoints(
-                    button.localToGlobal(Offset.zero, ancestor: overlay),
-                    button.localToGlobal(button.size.bottomRight(Offset.zero),
-                        ancestor: overlay),
-                  ),
-                  Offset.zero & overlay.size,
+                final position = RelativeRect.fromLTRB(
+                  MediaQuery.of(context).size.width,
+                  0,
+                  0,
+                  0,
                 );
                 showMenu(
                   context: context,
@@ -265,18 +270,11 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                 break;
               case 'UpdateGroup':
                 if (context.mounted) {
-                  final RenderBox button =
-                      context.findRenderObject() as RenderBox;
-                  final RenderBox overlay = Overlay.of(context)
-                      .context
-                      .findRenderObject() as RenderBox;
-                  final RelativeRect position = RelativeRect.fromRect(
-                    Rect.fromPoints(
-                      button.localToGlobal(Offset.zero, ancestor: overlay),
-                      button.localToGlobal(button.size.bottomRight(Offset.zero),
-                          ancestor: overlay),
-                    ),
-                    Offset.zero & overlay.size,
+                  final position = RelativeRect.fromLTRB(
+                    MediaQuery.of(context).size.width,
+                    0,
+                    0,
+                    0,
                   );
                   showMenu(
                     context: context,
@@ -335,18 +333,11 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                 break;
               case 'ClearTraffic':
                 if (context.mounted) {
-                  final RenderBox button =
-                      context.findRenderObject() as RenderBox;
-                  final RenderBox overlay = Overlay.of(context)
-                      .context
-                      .findRenderObject() as RenderBox;
-                  final RelativeRect position = RelativeRect.fromRect(
-                    Rect.fromPoints(
-                      button.localToGlobal(Offset.zero, ancestor: overlay),
-                      button.localToGlobal(button.size.bottomRight(Offset.zero),
-                          ancestor: overlay),
-                    ),
-                    Offset.zero & overlay.size,
+                  final position = RelativeRect.fromLTRB(
+                    MediaQuery.of(context).size.width,
+                    0,
+                    0,
+                    0,
                   );
                   showMenu(
                     context: context,
@@ -404,6 +395,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                 if (_index ==
                     serverConfigProvider.serverGroups.indexOf(serverGroup)) {
                   return ReorderableListView.builder(
+                    buildDefaultDragHandles: false,
                     proxyDecorator: (child, index, animation) => child,
                     // https://github.com/flutter/flutter/issues/63527
                     onReorder: (int oldIndex, int newIndex) async {
@@ -435,154 +427,28 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                     itemCount: serverConfigProvider.servers.length,
                     itemBuilder: (context, index) {
                       final server = serverConfigProvider.servers[index];
-                      final serverBase = ServerBase.fromJson(
-                          jsonDecode(serverConfigProvider.servers[index].data));
                       if (_scrollToLastSelectServer) {
                         _scrollToLastSelectServer = false;
+                        final targetId = serverConfig.selectedServerId;
                         WidgetsBinding.instance.addPostFrameCallback((_) {
-                          _scrollToServer(serverConfigProvider.servers
-                              .indexWhere((element) =>
-                                  element.id ==
-                                  serverConfigProvider
-                                      .config.selectedServerId));
+                          _scrollToServer(
+                            serverConfigProvider.servers.indexWhere(
+                              (element) => element.id == targetId,
+                            ),
+                          );
                         });
                       }
-                      return Consumer<SphiaConfigProvider>(
+                      return RepaintBoundary(
                         key: Key('${serverGroup.id}-$index'),
-                        builder: (context, sphiaConfigProvider, child) {
-                          return Column(
-                            // key: Key('${serverGroup.id}-$index'),
-                            children: [
-                              Card(
-                                key: index == 0 ? _cardKey : null,
-                                elevation: 2,
-                                margin: const EdgeInsets.symmetric(
-                                    vertical: 4, horizontal: 8),
-                                color: server.id ==
-                                        serverConfigProvider
-                                            .config.selectedServerId
-                                    ? SphiaTheme.getThemeColor(
-                                        sphiaConfigProvider.config.themeColor)
-                                    : null,
-                                child: ListTile(
-                                  title: Text(serverBase.remark),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(serverBase.protocol),
-                                      if (sphiaConfigProvider
-                                          .config.showAddress)
-                                        Text(
-                                            '${serverBase.address}:${serverBase.port}')
-                                    ],
-                                  ),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (serverBase.uplink != null &&
-                                          serverBase.downlink != null)
-                                        Text(
-                                          _getServerTraffic(
-                                            serverBase.uplink!.toDouble(),
-                                            serverBase.downlink!.toDouble(),
-                                          ),
-                                        ),
-                                      IconButton(
-                                        icon: const Icon(Icons.edit),
-                                        onPressed: () async {
-                                          late final Server? newServer;
-                                          if ((newServer = await _agent
-                                                  .editServer(server)) !=
-                                              null) {
-                                            serverConfigProvider
-                                                .servers[index] = newServer!;
-                                            SphiaTray.replaceServerItem(
-                                                newServer);
-                                            SphiaTray.setMenu();
-                                            setState(() {});
-                                          }
-                                        },
-                                      ),
-                                      PopupMenuButton(
-                                        icon: const Icon(Icons.share),
-                                        onSelected: (value) async =>
-                                            await _agent.shareServer(
-                                          value,
-                                          server.id,
-                                          (message) {
-                                            _scaffoldMessengerKey.currentState!
-                                                .showSnackBar(
-                                              WidgetBuild.snackBar(message),
-                                            );
-                                          },
-                                        ),
-                                        itemBuilder: (BuildContext context) {
-                                          return [
-                                            PopupMenuItem(
-                                              value: 'QRCode',
-                                              child: Text(S.of(context).qrCode),
-                                            ),
-                                            PopupMenuItem(
-                                              value: 'ExportToClipboard',
-                                              child: Text(S
-                                                  .of(context)
-                                                  .exportToClipboard),
-                                            ),
-                                            PopupMenuItem(
-                                              value: 'Configuration',
-                                              child: Text(
-                                                  S.of(context).configuration),
-                                            ),
-                                          ];
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.delete),
-                                        onPressed: () async {
-                                          if (await _agent
-                                              .deleteServer(server.id)) {
-                                            serverConfigProvider.servers
-                                                .removeAt(index);
-                                            SphiaTray.removeServerItem(
-                                                server.id);
-                                            SphiaTray.setMenu();
-                                            setState(() {});
-                                          }
-                                        },
-                                      ),
-                                      const SizedBox(width: 16),
-                                    ],
-                                  ),
-                                  onTap: () {
-                                    setState(
-                                      () {
-                                        if (server.id ==
-                                            serverConfigProvider
-                                                .config.selectedServerId) {
-                                          SphiaTray.setMenuItem(
-                                              'server-${server.id}', false);
-                                          serverConfigProvider
-                                              .config.selectedServerId = 0;
-                                          serverConfigProvider.saveConfig();
-                                        } else {
-                                          SphiaTray.setMenuItem(
-                                              'server-${serverConfigProvider.config.selectedServerId}',
-                                              false);
-                                          serverConfigProvider.config
-                                              .selectedServerId = server.id;
-                                          SphiaTray.setMenuItem(
-                                              'server-${server.id}', true);
-                                          serverConfigProvider.saveConfig();
-                                        }
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                          );
-                        },
+                        child: ReorderableDragStartListener(
+                          index: index,
+                          child: _buildCard(
+                            server,
+                            index,
+                            sphiaConfig.themeColor,
+                            sphiaConfig.showAddress,
+                          ),
+                        ),
                       );
                     },
                   );
@@ -604,6 +470,117 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCard(
+      Server server, int index, int themeColorInt, bool showAddress) {
+    final themeColor = SphiaTheme.getThemeColor(themeColorInt);
+    final serverConfigProvider =
+        Provider.of<ServerConfigProvider>(context, listen: false);
+    final serverConfig = serverConfigProvider.config;
+    final serverBase = ServerBase.fromJson(
+        jsonDecode(serverConfigProvider.servers[index].data));
+    return Column(
+      children: [
+        Card(
+          key: index == 0 ? _cardKey : null,
+          elevation: 2,
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          color: server.id == serverConfig.selectedServerId ? themeColor : null,
+          child: ListTile(
+            title: Text(serverBase.remark),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(serverBase.protocol),
+                if (showAddress)
+                  Text('${serverBase.address}:${serverBase.port}')
+              ],
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (serverBase.uplink != null && serverBase.downlink != null)
+                  Text(
+                    _getServerTraffic(
+                      serverBase.uplink!.toDouble(),
+                      serverBase.downlink!.toDouble(),
+                    ),
+                  ),
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () async {
+                    late final Server? newServer;
+                    if ((newServer = await _agent.editServer(server)) != null) {
+                      serverConfigProvider.servers[index] = newServer!;
+                      SphiaTray.replaceServerItem(newServer);
+                      SphiaTray.setMenu();
+                      setState(() {});
+                    }
+                  },
+                ),
+                PopupMenuButton(
+                  icon: const Icon(Icons.share),
+                  onSelected: (value) async => await _agent.shareServer(
+                    value,
+                    server.id,
+                    (message) {
+                      _scaffoldMessengerKey.currentState!.showSnackBar(
+                        WidgetBuild.snackBar(message),
+                      );
+                    },
+                  ),
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      PopupMenuItem(
+                        value: 'QRCode',
+                        child: Text(S.of(context).qrCode),
+                      ),
+                      PopupMenuItem(
+                        value: 'ExportToClipboard',
+                        child: Text(S.of(context).exportToClipboard),
+                      ),
+                      PopupMenuItem(
+                        value: 'Configuration',
+                        child: Text(S.of(context).configuration),
+                      ),
+                    ];
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () async {
+                    if (await _agent.deleteServer(server.id)) {
+                      serverConfigProvider.servers.removeAt(index);
+                      SphiaTray.removeServerItem(server.id);
+                      SphiaTray.setMenu();
+                      setState(() {});
+                    }
+                  },
+                ),
+              ],
+            ),
+            onTap: () {
+              setState(
+                () {
+                  if (server.id == serverConfig.selectedServerId) {
+                    SphiaTray.setMenuItem('server-${server.id}', false);
+                    serverConfig.selectedServerId = 0;
+                    serverConfigProvider.saveConfig();
+                  } else {
+                    SphiaTray.setMenuItem(
+                        'server-${serverConfig.selectedServerId}', false);
+                    serverConfig.selectedServerId = server.id;
+                    SphiaTray.setMenuItem('server-${server.id}', true);
+                    serverConfigProvider.saveConfig();
+                  }
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -629,9 +606,10 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
   Future<void> _toggleServer() async {
     final serverConfigProvider =
         Provider.of<ServerConfigProvider>(context, listen: false);
+    final serverConfig = serverConfigProvider.config;
     final coreProvider = Provider.of<CoreProvider>(context, listen: false);
     final server = await SphiaDatabase.serverDao
-        .getServerById(serverConfigProvider.config.selectedServerId);
+        .getServerById(serverConfig.selectedServerId);
     if (server == null) {
       if (coreProvider.coreRunning) {
         await SphiaController.stopCores();

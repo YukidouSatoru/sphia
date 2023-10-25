@@ -32,8 +32,9 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
     super.initState();
     final ruleConfigProvider =
         Provider.of<RuleConfigProvider>(context, listen: false);
-    _index = ruleConfigProvider.ruleGroups.indexWhere((element) =>
-        element.id == ruleConfigProvider.config.selectedRuleGroupId);
+    final ruleConfig = ruleConfigProvider.config;
+    _index = ruleConfigProvider.ruleGroups
+        .indexWhere((element) => element.id == ruleConfig.selectedRuleGroupId);
     _updateTabController();
     _loadRules().then((_) => setState(() {}));
     _agent = RuleAgent(context);
@@ -57,18 +58,16 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
     _tabController?.dispose();
     final ruleConfigProvider =
         Provider.of<RuleConfigProvider>(context, listen: false);
+    final ruleConfig = ruleConfigProvider.config;
     if (_index == ruleConfigProvider.ruleGroups.length) {
       _index -= 1;
-      ruleConfigProvider.config.selectedRuleGroupId =
-          ruleConfigProvider.ruleGroups[_index].id;
+      ruleConfig.selectedRuleGroupId = ruleConfigProvider.ruleGroups[_index].id;
     } else if (_index > ruleConfigProvider.ruleGroups.length) {
       _index = 0;
-      ruleConfigProvider.config.selectedRuleGroupId =
-          ruleConfigProvider.ruleGroups[_index].id;
+      ruleConfig.selectedRuleGroupId = ruleConfigProvider.ruleGroups[_index].id;
     } else if (_index < 0) {
       _index = 0;
-      ruleConfigProvider.config.selectedRuleGroupId =
-          ruleConfigProvider.ruleGroups[_index].id;
+      ruleConfig.selectedRuleGroupId = ruleConfigProvider.ruleGroups[_index].id;
     }
     ruleConfigProvider.saveConfigWithoutNotify();
     _tabController = TabController(
@@ -192,6 +191,7 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
                 if (_index ==
                     ruleConfigProvider.ruleGroups.indexOf(ruleGroup)) {
                   return ReorderableListView.builder(
+                    buildDefaultDragHandles: false,
                     proxyDecorator: (child, index, animation) => child,
                     onReorder: (int oldIndex, int newIndex) async {
                       final oldOrder = _rules.map((e) => e.id).toList();
@@ -214,70 +214,12 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
                     itemCount: _rules.length,
                     itemBuilder: (context, index) {
                       final rule = _rules[index];
-                      final xrayRule = XrayRule.fromJson(
-                        jsonDecode(rule.data),
-                      );
-                      return Column(
+                      return RepaintBoundary(
                         key: Key('${ruleGroup.id}-$index'),
-                        children: [
-                          Card(
-                            elevation: 2,
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 8),
-                            child: ListTile(
-                              title: Text(xrayRule.name ?? 'Rule'),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Type: ${xrayRule.type}'),
-                                  Text('Outbound Tag: ${xrayRule.outboundTag}'),
-                                ],
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Switch(
-                                    value: xrayRule.enabled,
-                                    onChanged: (bool value) async {
-                                      _rules[index] = rule.copyWith(
-                                        data: jsonEncode(
-                                          xrayRule..enabled = value,
-                                        ),
-                                      );
-                                      await SphiaDatabase.ruleDao.updateRule(
-                                        rule.id,
-                                        jsonEncode(xrayRule..enabled = value),
-                                      );
-                                      setState(() {});
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.edit),
-                                    onPressed: () async {
-                                      late final Rule? newRule;
-                                      if ((newRule =
-                                              await _agent.editRule(rule)) !=
-                                          null) {
-                                        _rules[index] = newRule!;
-                                        setState(() {});
-                                      }
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete),
-                                    onPressed: () async {
-                                      if (await _agent.deleteRule(rule.id)) {
-                                        _rules.removeAt(index);
-                                        setState(() {});
-                                      }
-                                    },
-                                  ),
-                                  const SizedBox(width: 16),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+                        child: ReorderableDragStartListener(
+                          index: index,
+                          child: _buildCard(rule, index),
+                        ),
                       );
                     },
                   );
@@ -301,6 +243,69 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
           child: const Icon(Icons.add),
         ),
       ),
+    );
+  }
+
+  Widget _buildCard(Rule rule, int index) {
+    final xrayRule = XrayRule.fromJson(
+      jsonDecode(rule.data),
+    );
+    return Column(
+      children: [
+        Card(
+          elevation: 2,
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          child: ListTile(
+            title: Text(xrayRule.name ?? 'Rule'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Type: ${xrayRule.type}'),
+                Text('Outbound Tag: ${xrayRule.outboundTag}'),
+              ],
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Switch(
+                  value: xrayRule.enabled,
+                  onChanged: (bool value) async {
+                    _rules[index] = rule.copyWith(
+                      data: jsonEncode(
+                        xrayRule..enabled = value,
+                      ),
+                    );
+                    await SphiaDatabase.ruleDao.updateRule(
+                      rule.id,
+                      jsonEncode(xrayRule..enabled = value),
+                    );
+                    setState(() {});
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () async {
+                    late final Rule? newRule;
+                    if ((newRule = await _agent.editRule(rule)) != null) {
+                      _rules[index] = newRule!;
+                      setState(() {});
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () async {
+                    if (await _agent.deleteRule(rule.id)) {
+                      _rules.removeAt(index);
+                      setState(() {});
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
