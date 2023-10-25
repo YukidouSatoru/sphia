@@ -16,15 +16,9 @@ import 'package:window_manager/window_manager.dart';
 class SphiaTray {
   static late Tray _tray;
 
-  static Future<void> init() async {
+  static void init() async {
     _tray = Tray();
   }
-
-  static Tray get I => _tray;
-
-  static get serverItems => _tray.serverItems;
-
-  static get ruleItems => _tray.ruleItems;
 
   static Function get initTray => _tray.initTray;
 

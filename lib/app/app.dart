@@ -48,203 +48,12 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
   Widget build(BuildContext context) {
     final sphiaConfigProvider = Provider.of<SphiaConfigProvider>(context);
     final sphiaConfig = sphiaConfigProvider.config;
-
-    NavigationRail? rail;
-    NavigationDrawer? drawer;
+    dynamic navigation;
 
     if (sphiaConfig.navigationStyle == 'rail') {
-      rail = NavigationRail(
-        selectedIndex: _index,
-        onDestinationSelected: (index) {
-          setState(() {
-            _index = index;
-          });
-        },
-        trailing: Expanded(
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              padding: const EdgeInsets.only(bottom: 6.0),
-              child: FloatingActionButton(
-                isExtended: true,
-                elevation: 0,
-                focusElevation: 0,
-                highlightElevation: 0,
-                hoverElevation: 0,
-                disabledElevation: 0,
-                foregroundColor:
-                    sphiaConfig.darkMode ? Colors.white : Colors.black,
-                splashColor: Colors.transparent,
-                hoverColor: Colors.transparent,
-                backgroundColor: Colors.transparent,
-                focusColor: Colors.transparent,
-                onPressed: () {
-                  logger.i(
-                      'Updating darkMode from ${sphiaConfig.darkMode} to ${!sphiaConfig.darkMode}');
-                  sphiaConfig.darkMode = !sphiaConfig.darkMode;
-                  sphiaConfigProvider.saveConfig();
-                },
-                child: Icon(
-                  sphiaConfig.darkMode ? Icons.light_mode : Icons.dark_mode,
-                ),
-              ),
-            ),
-          ),
-        ),
-        destinations: [
-          NavigationRailDestination(
-            icon: const Icon(Icons.dashboard),
-            label: Builder(
-              builder: (context) => Text(
-                S.of(context).dashboard,
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
-          ),
-          NavigationRailDestination(
-            icon: const Icon(Icons.folder),
-            label: Builder(
-              builder: (context) => Text(
-                S.of(context).servers,
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
-          ),
-          NavigationRailDestination(
-            icon: const Icon(Icons.rule),
-            label: Builder(
-              builder: (context) => Text(
-                S.of(context).rules,
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
-          ),
-          NavigationRailDestination(
-            icon: const Icon(Icons.settings),
-            label: Builder(
-              builder: (context) => Text(
-                S.of(context).settings,
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
-          ),
-          NavigationRailDestination(
-            icon: const Icon(Icons.upgrade),
-            label: Builder(
-              builder: (context) => Text(
-                S.of(context).update,
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
-          ),
-          NavigationRailDestination(
-            icon: const Icon(Icons.description),
-            label: Builder(
-              builder: (context) => Text(
-                S.of(context).log,
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
-          ),
-          NavigationRailDestination(
-            icon: const Icon(Icons.info),
-            label: Builder(
-              builder: (context) => Text(
-                S.of(context).about,
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
-          ),
-        ],
-      );
+      navigation = _getNavigationRail(context);
     } else {
-      drawer = NavigationDrawer(
-        selectedIndex: _index,
-        onDestinationSelected: (index) {
-          setState(() {
-            _index = index;
-          });
-        },
-        children: [
-          NavigationDrawerDestination(
-            icon: const Icon(Icons.dashboard),
-            label: Flexible(
-              child: Builder(
-                builder: (context) => Text(
-                  S.of(context).dashboard,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ),
-          NavigationDrawerDestination(
-            icon: const Icon(Icons.folder),
-            label: Flexible(
-              child: Builder(
-                builder: (context) => Text(
-                  S.of(context).servers,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ),
-          NavigationDrawerDestination(
-            icon: const Icon(Icons.rule),
-            label: Flexible(
-              child: Builder(
-                builder: (context) => Text(
-                  S.of(context).rules,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ),
-          NavigationDrawerDestination(
-            icon: const Icon(Icons.settings),
-            label: Flexible(
-              child: Builder(
-                builder: (context) => Text(
-                  S.of(context).settings,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ),
-          NavigationDrawerDestination(
-            icon: const Icon(Icons.upgrade),
-            label: Flexible(
-              child: Builder(
-                builder: (context) => Text(
-                  S.of(context).update,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ),
-          NavigationDrawerDestination(
-            icon: const Icon(Icons.description),
-            label: Flexible(
-              child: Builder(
-                builder: (context) => Text(
-                  S.of(context).log,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ),
-          NavigationDrawerDestination(
-            icon: const Icon(Icons.info),
-            label: Flexible(
-              child: Builder(
-                builder: (context) => Text(
-                  S.of(context).about,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
+      navigation = _getNavigationDrawer(context);
     }
 
     return MaterialApp(
@@ -267,12 +76,7 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
             Expanded(
               child: Row(
                 children: [
-                  if (sphiaConfig.navigationStyle == 'rail' && rail != null)
-                    // Rail
-                    rail,
-                  if (sphiaConfig.navigationStyle == 'drawer' && drawer != null)
-                    // Drawer
-                    drawer,
+                  navigation,
                   // Pages
                   Expanded(
                     child: IndexedStack(
@@ -294,37 +98,241 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
           ],
         ),
         floatingActionButton: sphiaConfig.navigationStyle == 'drawer'
-            ? Container(
-                padding: const EdgeInsets.only(bottom: 6.0),
-                child: FloatingActionButton(
-                  isExtended: true,
-                  elevation: 0,
-                  focusElevation: 0,
-                  highlightElevation: 0,
-                  hoverElevation: 0,
-                  disabledElevation: 0,
-                  foregroundColor:
-                      sphiaConfig.darkMode ? Colors.white : Colors.black,
-                  splashColor: Colors.transparent,
-                  hoverColor: Colors.transparent,
-                  backgroundColor: Colors.transparent,
-                  focusColor: Colors.transparent,
-                  onPressed: () {
-                    logger.i(
-                        'Updating darkMode from ${sphiaConfig.darkMode} to ${!sphiaConfig.darkMode}');
-                    sphiaConfig.darkMode = !sphiaConfig.darkMode;
-                    sphiaConfigProvider.saveConfig();
-                  },
-                  child: Icon(
-                    sphiaConfig.darkMode ? Icons.light_mode : Icons.dark_mode,
-                  ),
-                ),
-              )
+            ? _getDrawerFloatingButton()
             : null,
         floatingActionButtonLocation: sphiaConfig.navigationStyle == 'drawer'
             ? FloatingActionButtonLocation.miniStartFloat
             : null,
       ),
+    );
+  }
+
+  Widget _getDrawerFloatingButton() {
+    final sphiaConfigProvider = Provider.of<SphiaConfigProvider>(context);
+    final sphiaConfig = sphiaConfigProvider.config;
+    return Container(
+      padding: const EdgeInsets.only(bottom: 6.0),
+      child: FloatingActionButton(
+        isExtended: true,
+        elevation: 0,
+        focusElevation: 0,
+        highlightElevation: 0,
+        hoverElevation: 0,
+        disabledElevation: 0,
+        foregroundColor: sphiaConfig.darkMode ? Colors.white : Colors.black,
+        splashColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        backgroundColor: Colors.transparent,
+        focusColor: Colors.transparent,
+        onPressed: () {
+          logger.i(
+              'Updating darkMode from ${sphiaConfig.darkMode} to ${!sphiaConfig.darkMode}');
+          sphiaConfig.darkMode = !sphiaConfig.darkMode;
+          sphiaConfigProvider.saveConfig();
+        },
+        child: Icon(
+          sphiaConfig.darkMode ? Icons.light_mode : Icons.dark_mode,
+        ),
+      ),
+    );
+  }
+
+  NavigationDrawer _getNavigationDrawer(BuildContext context) {
+    return NavigationDrawer(
+      selectedIndex: _index,
+      onDestinationSelected: (index) {
+        setState(() {
+          _index = index;
+        });
+      },
+      children: [
+        NavigationDrawerDestination(
+          icon: const Icon(Icons.dashboard),
+          label: Flexible(
+            child: Builder(
+              builder: (context) => Text(
+                S.of(context).dashboard,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ),
+        NavigationDrawerDestination(
+          icon: const Icon(Icons.folder),
+          label: Flexible(
+            child: Builder(
+              builder: (context) => Text(
+                S.of(context).servers,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ),
+        NavigationDrawerDestination(
+          icon: const Icon(Icons.rule),
+          label: Flexible(
+            child: Builder(
+              builder: (context) => Text(
+                S.of(context).rules,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ),
+        NavigationDrawerDestination(
+          icon: const Icon(Icons.settings),
+          label: Flexible(
+            child: Builder(
+              builder: (context) => Text(
+                S.of(context).settings,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ),
+        NavigationDrawerDestination(
+          icon: const Icon(Icons.upgrade),
+          label: Flexible(
+            child: Builder(
+              builder: (context) => Text(
+                S.of(context).update,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ),
+        NavigationDrawerDestination(
+          icon: const Icon(Icons.description),
+          label: Flexible(
+            child: Builder(
+              builder: (context) => Text(
+                S.of(context).log,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ),
+        NavigationDrawerDestination(
+          icon: const Icon(Icons.info),
+          label: Flexible(
+            child: Builder(
+              builder: (context) => Text(
+                S.of(context).about,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  NavigationRail _getNavigationRail(BuildContext context) {
+    final sphiaConfigProvider = Provider.of<SphiaConfigProvider>(context);
+    final sphiaConfig = sphiaConfigProvider.config;
+    return NavigationRail(
+      selectedIndex: _index,
+      onDestinationSelected: (index) {
+        setState(() {
+          _index = index;
+        });
+      },
+      trailing: Expanded(
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            padding: const EdgeInsets.only(bottom: 6.0),
+            child: FloatingActionButton(
+              isExtended: true,
+              elevation: 0,
+              focusElevation: 0,
+              highlightElevation: 0,
+              hoverElevation: 0,
+              disabledElevation: 0,
+              foregroundColor:
+                  sphiaConfig.darkMode ? Colors.white : Colors.black,
+              splashColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              backgroundColor: Colors.transparent,
+              focusColor: Colors.transparent,
+              onPressed: () {
+                logger.i(
+                    'Updating darkMode from ${sphiaConfig.darkMode} to ${!sphiaConfig.darkMode}');
+                sphiaConfig.darkMode = !sphiaConfig.darkMode;
+                sphiaConfigProvider.saveConfig();
+              },
+              child: Icon(
+                sphiaConfig.darkMode ? Icons.light_mode : Icons.dark_mode,
+              ),
+            ),
+          ),
+        ),
+      ),
+      destinations: [
+        NavigationRailDestination(
+          icon: const Icon(Icons.dashboard),
+          label: Builder(
+            builder: (context) => Text(
+              S.of(context).dashboard,
+              style: const TextStyle(fontSize: 16),
+            ),
+          ),
+        ),
+        NavigationRailDestination(
+          icon: const Icon(Icons.folder),
+          label: Builder(
+            builder: (context) => Text(
+              S.of(context).servers,
+              style: const TextStyle(fontSize: 16),
+            ),
+          ),
+        ),
+        NavigationRailDestination(
+          icon: const Icon(Icons.rule),
+          label: Builder(
+            builder: (context) => Text(
+              S.of(context).rules,
+              style: const TextStyle(fontSize: 16),
+            ),
+          ),
+        ),
+        NavigationRailDestination(
+          icon: const Icon(Icons.settings),
+          label: Builder(
+            builder: (context) => Text(
+              S.of(context).settings,
+              style: const TextStyle(fontSize: 16),
+            ),
+          ),
+        ),
+        NavigationRailDestination(
+          icon: const Icon(Icons.upgrade),
+          label: Builder(
+            builder: (context) => Text(
+              S.of(context).update,
+              style: const TextStyle(fontSize: 16),
+            ),
+          ),
+        ),
+        NavigationRailDestination(
+          icon: const Icon(Icons.description),
+          label: Builder(
+            builder: (context) => Text(
+              S.of(context).log,
+              style: const TextStyle(fontSize: 16),
+            ),
+          ),
+        ),
+        NavigationRailDestination(
+          icon: const Icon(Icons.info),
+          label: Builder(
+            builder: (context) => Text(
+              S.of(context).about,
+              style: const TextStyle(fontSize: 16),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

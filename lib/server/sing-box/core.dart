@@ -19,6 +19,12 @@ class SingBoxCore extends CoreBase {
 
   @override
   Future<void> configure(ServerBase server) async {
+    final jsonString = await generateConfig(server);
+    await writeConfig(jsonString);
+  }
+
+  @override
+  Future<String> generateConfig(ServerBase server) async {
     String level = sphiaConfig.logLevel;
     if (level == 'warning') {
       level = 'warn';
@@ -123,7 +129,6 @@ class SingBoxCore extends CoreBase {
       experimental: experimental,
     );
 
-    String jsonString = jsonEncode(singBoxConfig.toJson());
-    await writeConfig(jsonString);
+    return jsonEncode(singBoxConfig.toJson());
   }
 }

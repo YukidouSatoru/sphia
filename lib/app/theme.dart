@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 class SphiaTheme {
   static ThemeData getThemeData(bool useMaterial3, bool darkMode,
-      int themeColorINT, BuildContext context) {
-    final themeColor = getThemeColor(themeColorINT);
+      int themeColorInt, BuildContext context) {
+    final themeColor = getThemeColor(themeColorInt);
     if (darkMode) {
       return ThemeData(
         useMaterial3: useMaterial3,

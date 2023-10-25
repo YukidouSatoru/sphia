@@ -19,6 +19,12 @@ class XrayCore extends CoreBase {
 
   @override
   Future<void> configure(ServerBase server) async {
+    final jsonString = await generateConfig(server);
+    await writeConfig(jsonString);
+  }
+
+  @override
+  Future<String> generateConfig(ServerBase server) async {
     final log = XrayGenerate.log(coreLogPath, sphiaConfig.logLevel);
 
     Dns? dns;
@@ -108,7 +114,6 @@ class XrayCore extends CoreBase {
       stats: stats,
     );
 
-    String jsonString = jsonEncode(xrayConfig.toJson());
-    await writeConfig(jsonString);
+    return jsonEncode(xrayConfig.toJson());
   }
 }

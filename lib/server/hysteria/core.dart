@@ -15,6 +15,12 @@ class HysteriaCore extends CoreBase {
 
   @override
   Future<void> configure(ServerBase server) async {
+    final jsonString = await generateConfig(server);
+    await writeConfig(jsonString);
+  }
+
+  @override
+  Future<String> generateConfig(ServerBase server) async {
     if (server is HysteriaServer) {
       final hysteriaConfig = HysteriaConfig(
         server: '${server.address}:${server.port}',
@@ -41,8 +47,7 @@ class HysteriaCore extends CoreBase {
         ),
       );
 
-      String jsonString = jsonEncode(hysteriaConfig.toJson());
-      await writeConfig(jsonString);
+      return jsonEncode(hysteriaConfig.toJson());
     } else {
       throw Exception(
           'Hyteria does not support this server type: ${server.protocol}');

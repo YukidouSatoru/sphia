@@ -68,31 +68,30 @@ class RuleAgent {
   }
 
   Future<bool> addGroup() async {
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    final groupNameController = TextEditingController();
     String? newGroupName = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
-        final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-        TextEditingController groupNameController = TextEditingController();
         return AlertDialog(
           title: Text(S.of(context).addGroup),
-          content: SingleChildScrollView(
-            child: Form(
-              key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  WidgetBuild.buildTextFormField(
-                    groupNameController,
-                    S.of(context).groupName,
-                    (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return S.current.groupNameEnterMsg;
-                      }
-                      return null;
-                    },
-                  ),
-                ],
-              ),
+          scrollable: true,
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                WidgetBuild.buildTextFormField(
+                  groupNameController,
+                  S.of(context).groupName,
+                  (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return S.current.groupNameEnterMsg;
+                    }
+                    return null;
+                  },
+                ),
+              ],
             ),
           ),
           actions: <Widget>[
@@ -133,16 +132,16 @@ class RuleAgent {
 
   Future<bool> editGroup(RuleGroup ruleGroup) async {
     if (ruleGroup.name != 'Default') {
+      final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+      final groupNameController = TextEditingController();
+      groupNameController.text = ruleGroup.name;
       String? newGroupName = await showDialog<String>(
         context: context,
         builder: (BuildContext context) {
-          final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-          TextEditingController groupNameController = TextEditingController();
-          groupNameController.text = ruleGroup.name;
           return AlertDialog(
             title: Text(S.of(context).editGroup),
-            content: SingleChildScrollView(
-                child: Form(
+            scrollable: true,
+            content: Form(
               key: formKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -159,7 +158,7 @@ class RuleAgent {
                   ),
                 ],
               ),
-            )),
+            ),
             actions: <Widget>[
               TextButton(
                 child: Text(S.of(context).cancel),

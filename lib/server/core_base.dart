@@ -22,7 +22,7 @@ abstract class CoreBase {
   Process? coreProcess;
   final logStreamController = StreamController<String>.broadcast();
   String? coreLogPath;
-  bool _isPreLog = true;
+  bool isPreLog = true;
   final List<String> _preLogList = [];
   late final Server runningServer;
 
@@ -62,7 +62,7 @@ abstract class CoreBase {
     coreProcess!.stdout.transform(utf8.decoder).listen((data) {
       if (data.trim().isNotEmpty) {
         logStreamController.add(data);
-        if (_isPreLog) {
+        if (isPreLog) {
           _preLogList.add(data);
         }
       }
@@ -71,7 +71,7 @@ abstract class CoreBase {
     coreProcess!.stderr.transform(utf8.decoder).listen((data) {
       if (data.trim().isNotEmpty) {
         logStreamController.add(data);
-        if (_isPreLog) {
+        if (isPreLog) {
           _preLogList.add(data);
         }
       }
@@ -84,7 +84,7 @@ abstract class CoreBase {
         throw Exception('\n${_preLogList.join('\n')}');
       }
     } on TimeoutException catch (_) {
-      _isPreLog = false;
+      isPreLog = false;
     }
   }
 
@@ -119,6 +119,8 @@ abstract class CoreBase {
   }
 
   Future<void> configure(ServerBase server);
+
+  Future<String> generateConfig(ServerBase server);
 
   Future<void> writeConfig(String jsonString) async {
     if (await configFile.exists()) {

@@ -127,13 +127,12 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
 
     return AlertDialog(
       title: Text(widget.title),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: widgets,
-          ),
+      scrollable: true,
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: widgets,
         ),
       ),
       actions: [

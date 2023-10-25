@@ -27,8 +27,8 @@ class SphiaController {
       } else {
         await startCores(server);
       }
-    } on Exception catch (e) {
-      logger.e('Failed to start core: $e');
+    } on Exception catch (_) {
+      // logger.e('Failed to start core: $e');
       rethrow;
     }
   }

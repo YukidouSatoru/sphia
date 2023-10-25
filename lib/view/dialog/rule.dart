@@ -84,13 +84,12 @@ class _RuleDialogState extends State<RuleDialog> {
     ];
     return AlertDialog(
       title: Text(widget.title),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: widgets,
-          ),
+      scrollable: true,
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: widgets,
         ),
       ),
       actions: [

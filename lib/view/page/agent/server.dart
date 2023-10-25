@@ -257,38 +257,37 @@ class ServerAgent {
   }
 
   Future<bool> addGroup() async {
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    final groupNameController = TextEditingController();
+    final subscribeController = TextEditingController();
     String subscribe = '';
     String? newGroupName = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
-        final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-        TextEditingController groupNameController = TextEditingController();
-        TextEditingController subscribeController = TextEditingController();
         return AlertDialog(
+          scrollable: true,
           title: Text(S.of(context).addGroup),
-          content: SingleChildScrollView(
-            child: Form(
-              key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  WidgetBuild.buildTextFormField(
-                    groupNameController,
-                    S.of(context).groupName,
-                    (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return S.current.groupNameEnterMsg;
-                      }
-                      return null;
-                    },
-                  ),
-                  WidgetBuild.buildTextFormField(
-                    subscribeController,
-                    S.of(context).subscribe,
-                    null,
-                  ),
-                ],
-              ),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                WidgetBuild.buildTextFormField(
+                  groupNameController,
+                  S.of(context).groupName,
+                  (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return S.current.groupNameEnterMsg;
+                    }
+                    return null;
+                  },
+                ),
+                WidgetBuild.buildTextFormField(
+                  subscribeController,
+                  S.of(context).subscribe,
+                  null,
+                ),
+              ],
             ),
           ),
           actions: <Widget>[
@@ -332,40 +331,39 @@ class ServerAgent {
 
   Future<bool> editGroup(ServerGroup serverGroup) async {
     if (serverGroup.name != 'Default') {
+      final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+      final groupNameController = TextEditingController();
+      final subscribeController = TextEditingController();
       String subscribe = serverGroup.subscribe;
+      groupNameController.text = serverGroup.name;
+      subscribeController.text = subscribe;
       String? newGroupName = await showDialog<String>(
         context: context,
         builder: (BuildContext context) {
-          final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-          TextEditingController groupNameController = TextEditingController();
-          TextEditingController subscribeController = TextEditingController();
-          groupNameController.text = serverGroup.name;
-          subscribeController.text = subscribe;
           return AlertDialog(
+            scrollable: true,
             title: Text(S.of(context).editGroup),
-            content: SingleChildScrollView(
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    WidgetBuild.buildTextFormField(
-                      groupNameController,
-                      S.of(context).groupName,
-                      (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return S.current.groupNameEnterMsg;
-                        }
-                        return null;
-                      },
-                    ),
-                    WidgetBuild.buildTextFormField(
-                      subscribeController,
-                      S.of(context).subscribe,
-                      null,
-                    ),
-                  ],
-                ),
+            content: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  WidgetBuild.buildTextFormField(
+                    groupNameController,
+                    S.of(context).groupName,
+                    (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return S.current.groupNameEnterMsg;
+                      }
+                      return null;
+                    },
+                  ),
+                  WidgetBuild.buildTextFormField(
+                    subscribeController,
+                    S.of(context).subscribe,
+                    null,
+                  ),
+                ],
               ),
             ),
             actions: <Widget>[

@@ -1111,41 +1111,20 @@ class _SettingPageState extends State<SettingPage> {
           body: PageWrapper(
             child: TabBarView(
               children: [
-                // use builder
-                ListView.builder(
-                  itemCount: sphiaWidgets.length,
-                  itemBuilder: (context, index) {
-                    final widget = sphiaWidgets[index];
-                    return widget;
-                  },
+                ListView(
+                  children: sphiaWidgets,
                 ),
-                ListView.builder(
-                  itemCount: proxyWidgets.length,
-                  itemBuilder: (context, index) {
-                    final widget = proxyWidgets[index];
-                    return widget;
-                  },
+                ListView(
+                  children: proxyWidgets,
                 ),
-                ListView.builder(
-                  itemCount: coreWidgets.length,
-                  itemBuilder: (context, index) {
-                    final widget = coreWidgets[index];
-                    return widget;
-                  },
+                ListView(
+                  children: coreWidgets,
                 ),
-                ListView.builder(
-                  itemCount: providerWidgets.length,
-                  itemBuilder: (context, index) {
-                    final widget = providerWidgets[index];
-                    return widget;
-                  },
+                ListView(
+                  children: providerWidgets,
                 ),
-                ListView.builder(
-                  itemCount: tunWidgets.length,
-                  itemBuilder: (context, index) {
-                    final widget = tunWidgets[index];
-                    return widget;
-                  },
+                ListView(
+                  children: tunWidgets,
                 ),
               ],
             ),

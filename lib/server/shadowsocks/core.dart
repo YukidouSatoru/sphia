@@ -27,6 +27,11 @@ class ShadowsocksRustCore extends CoreBase {
     }
   }
 
+  @override
+  Future<String> generateConfig(ServerBase server) async {
+    throw UnimplementedError();
+  }
+
   String convertPluginOpts(String pluginOpts) {
     String result = '';
     final opts = pluginOpts.split(';');
