@@ -51,11 +51,8 @@ class _UpdatePageState extends State<UpdatePage> {
             itemBuilder: (BuildContext context, int index) {
               final coreName = coreRepositories.keys.elementAt(index);
               final repoUrl = coreRepositories.values.elementAt(index);
-              final latestVersion = _latestVersions[coreName] ??
-                  (_latestVersions[coreName] = S.of(context).unknown);
-              final currentVersion =
-                  versionConfigProvider.getVersion(coreName) ??
-                      S.of(context).unknown;
+              final latestVersion = _latestVersions[coreName];
+              final currentVersion = versionConfigProvider.getVersion(coreName);
               return Card(
                 elevation: 2,
                 margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -82,10 +79,16 @@ class _UpdatePageState extends State<UpdatePage> {
                             },
                         ),
                       ),
-                      Text(
-                        '${S.of(context).currentVersion}: $currentVersion',
-                      ),
-                      Text('${S.of(context).latestVersion}: $latestVersion'),
+                      currentVersion == null
+                          ? const SizedBox.shrink()
+                          : Text(
+                              '${S.of(context).currentVersion}: $currentVersion',
+                            ),
+                      latestVersion == null
+                          ? const SizedBox.shrink()
+                          : Text(
+                              '${S.of(context).latestVersion}: $latestVersion',
+                            ),
                     ],
                   ),
                   trailing: Row(
@@ -99,9 +102,7 @@ class _UpdatePageState extends State<UpdatePage> {
                       ElevatedButton(
                         onPressed: () async {
                           if (!_latestVersions.containsKey(coreName) ||
-                              _latestVersions[coreName] == null ||
-                              _latestVersions[coreName] ==
-                                  S.of(context).unknown) {
+                              _latestVersions[coreName] == null) {
                             await _checkUpdate(coreName);
                           }
                           if (_latestVersions[coreName] ==

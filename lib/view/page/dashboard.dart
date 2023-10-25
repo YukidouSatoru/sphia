@@ -304,7 +304,7 @@ class _DashboardState extends State<Dashboard> {
                   },
                   child: Text(S.of(context).refresh),
                 )
-              : const SizedBox(),
+              : const SizedBox.shrink(),
         ],
       ),
       icon: Icons.near_me,
