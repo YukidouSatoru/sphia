@@ -12,6 +12,7 @@ import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/provider/task.dart';
+import 'package:sphia/app/provider/version_config.dart';
 import 'package:sphia/app/tray.dart';
 import 'package:sphia/util/system.dart';
 import 'package:sphia/view/page/about.dart';
@@ -100,26 +101,32 @@ Future<void> configureApp() async {
   final sphiaConfig = await SphiaDatabase.sphiaConfigDao.loadConfig();
   final serverConfig = await SphiaDatabase.serverConfigDao.loadConfig();
   final ruleConfig = await SphiaDatabase.ruleConfigDao.loadConfig();
+  final versionConfig = await SphiaDatabase.versionConfigDao.loadConfig();
+
+  final sphiaConfigProvider = SphiaConfigProvider(sphiaConfig);
+  final coreProvider = CoreProvider();
+  final taskProvider = TaskProvider();
+  final serverConfigProvider = ServerConfigProvider(
+    serverConfig,
+    await SphiaDatabase.serverGroupDao.getOrderedServerGroups(),
+  );
+  final ruleConfigProvider = RuleConfigProvider(
+    ruleConfig,
+    await SphiaDatabase.ruleGroupDao.getOrderedRuleGroups(),
+  );
+  final versionConfigProvider = VersionConfigProvider(versionConfig);
 
   // Register providers
   final getIt = GetIt.I;
-  getIt.registerSingleton<SphiaConfigProvider>(
-    SphiaConfigProvider(sphiaConfig),
-  );
-  getIt.registerSingleton<CoreProvider>(CoreProvider());
-  getIt.registerSingleton<TaskProvider>(TaskProvider());
-  getIt.registerSingleton<ServerConfigProvider>(
-    ServerConfigProvider(
-      serverConfig,
-      await SphiaDatabase.serverGroupDao.getOrderedServerGroups(),
-    ),
-  );
-  getIt.registerSingleton<RuleConfigProvider>(
-    RuleConfigProvider(
-      ruleConfig,
-      await SphiaDatabase.ruleGroupDao.getOrderedRuleGroups(),
-    ),
-  );
+  getIt.registerSingleton<SphiaConfigProvider>(sphiaConfigProvider);
+  getIt.registerSingleton<CoreProvider>(coreProvider);
+  getIt.registerSingleton<TaskProvider>(taskProvider);
+  getIt.registerSingleton<ServerConfigProvider>(serverConfigProvider);
+  getIt.registerSingleton<RuleConfigProvider>(ruleConfigProvider);
+  getIt.registerSingleton<VersionConfigProvider>(versionConfigProvider);
+
+  // Print versions of cores
+  logger.i(versionConfigProvider.generateLog());
 
   // Init tray
   SphiaTray.init();
@@ -165,6 +172,9 @@ Future<void> configureApp() async {
         ),
         ChangeNotifierProvider(
           create: (context) => getIt.get<RuleConfigProvider>(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => getIt.get<VersionConfigProvider>(),
         ),
       ],
       child: const SphiaApp(),

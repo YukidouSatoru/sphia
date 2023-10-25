@@ -9,11 +9,13 @@ import 'package:path/path.dart' as p;
 import 'package:sphia/app/config/rule.dart';
 import 'package:sphia/app/config/server.dart';
 import 'package:sphia/app/config/sphia.dart';
+import 'package:sphia/app/config/version.dart';
 import 'package:sphia/app/database/tables.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:sphia/app/provider/version_config.dart';
 import 'package:sphia/server/server_base.dart';
 import 'package:sphia/server/xray/config.dart';
 import 'package:sphia/util/system.dart';
@@ -23,6 +25,7 @@ part 'database.g.dart';
 const sphiaConfigId = 1;
 const serverConfigId = 2;
 const ruleConfigId = 3;
+const versionConfigId = 4;
 const serverGroupsOrderId = 1;
 const ruleGroupsOrderId = 2;
 
@@ -40,6 +43,8 @@ class SphiaDatabase {
   static ServerConfigDao get serverConfigDao => _database.serverConfigDao;
 
   static RuleConfigDao get ruleConfigDao => _database.ruleConfigDao;
+
+  static VersionConfigDao get versionConfigDao => _database.versionConfigDao;
 
   static ServerGroupDao get serverGroupDao => _database.serverGroupDao;
 
@@ -71,6 +76,8 @@ class Database extends _$Database {
   ServerConfigDao get serverConfigDao => ServerConfigDao(this);
 
   RuleConfigDao get ruleConfigDao => RuleConfigDao(this);
+
+  VersionConfigDao get versionConfigDao => VersionConfigDao(this);
 
   ServerGroupDao get serverGroupDao => ServerGroupDao(this);
 
@@ -110,6 +117,12 @@ class SphiaConfigDao {
           ..where((tbl) => tbl.id.equals(sphiaConfigId)))
         .getSingleOrNull();
     if (sphiaConfig == null) {
+      await (_db.into(_db.config).insert(
+            ConfigCompanion.insert(
+              id: const Value(sphiaConfigId),
+              config: const JsonEncoder().convert(SphiaConfig.defaults()),
+            ),
+          ));
       return const JsonEncoder().convert(SphiaConfig.defaults().toJson());
     }
     return sphiaConfig.config;
@@ -155,6 +168,12 @@ class ServerConfigDao {
           ..where((tbl) => tbl.id.equals(serverConfigId)))
         .getSingleOrNull();
     if (serverConfig == null) {
+      await (_db.into(_db.config).insert(
+            ConfigCompanion.insert(
+              id: const Value(serverConfigId),
+              config: const JsonEncoder().convert(ServerConfig.defaults()),
+            ),
+          ));
       return const JsonEncoder().convert(ServerConfig.defaults().toJson());
     }
     return serverConfig.config;
@@ -201,6 +220,12 @@ class RuleConfigDao {
           ..where((tbl) => tbl.id.equals(ruleConfigId)))
         .getSingleOrNull();
     if (ruleConfig == null) {
+      await (_db.into(_db.config).insert(
+            ConfigCompanion.insert(
+              id: const Value(ruleConfigId),
+              config: const JsonEncoder().convert(RuleConfig.defaults()),
+            ),
+          ));
       return const JsonEncoder().convert(RuleConfig.defaults().toJson());
     }
     return ruleConfig.config;
@@ -232,6 +257,49 @@ class RuleConfigDao {
     final ruleConfig = GetIt.I.get<RuleConfigProvider>().config;
     final jsonString = jsonEncode(ruleConfig.toJson());
     await (_db.update(_db.config)..where((tbl) => tbl.id.equals(ruleConfigId)))
+        .write(ConfigCompanion(config: Value(jsonString)));
+  }
+}
+
+class VersionConfigDao {
+  final Database _db;
+
+  VersionConfigDao(this._db);
+
+  Future<String> getConfigJson() async {
+    final versionConfig = await (_db.select(_db.config)
+          ..where((tbl) => tbl.id.equals(versionConfigId)))
+        .getSingleOrNull();
+    if (versionConfig == null) {
+      await (_db.into(_db.config).insert(
+            ConfigCompanion.insert(
+              id: const Value(versionConfigId),
+              config: const JsonEncoder().convert(VersionConfig.empty()),
+            ),
+          ));
+      return const JsonEncoder().convert(VersionConfig.empty().toJson());
+    }
+    return versionConfig.config;
+  }
+
+  Future<VersionConfig> loadConfig() async {
+    logger.i('Loading version config');
+    try {
+      final json = await getConfigJson();
+      var data = jsonDecode(json);
+      return VersionConfig.fromJson(data);
+    } on Exception catch (e) {
+      logger.wtf('Failed to load version config: $e');
+      rethrow;
+    }
+  }
+
+  void saveConfig() async {
+    logger.i('Saving version config');
+    final versionConfig = GetIt.I.get<VersionConfigProvider>().config;
+    final jsonString = jsonEncode(versionConfig.toJson());
+    await (_db.update(_db.config)
+          ..where((tbl) => tbl.id.equals(versionConfigId)))
         .write(ConfigCompanion(config: Value(jsonString)));
   }
 }

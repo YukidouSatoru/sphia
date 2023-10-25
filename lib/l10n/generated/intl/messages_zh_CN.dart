@@ -35,6 +35,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "allGroups": MessageLookupByLibrary.simpleMessage("所有分组"),
         "allowInsecure": MessageLookupByLibrary.simpleMessage("允许不安全连接"),
         "alpn": MessageLookupByLibrary.simpleMessage("ALPN"),
+        "alreadyLatestVersion": MessageLookupByLibrary.simpleMessage("已经是最新版本"),
         "alterId": MessageLookupByLibrary.simpleMessage("Alter ID"),
         "alterIdEnterMsg": MessageLookupByLibrary.simpleMessage("请输入 Alter ID"),
         "alterIdInvalidMsg":
@@ -76,6 +77,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "coreStop": MessageLookupByLibrary.simpleMessage("停止核心"),
         "currentGroup": MessageLookupByLibrary.simpleMessage("当前分组"),
         "currentIp": MessageLookupByLibrary.simpleMessage("当前 IP"),
+        "currentVersion": MessageLookupByLibrary.simpleMessage("当前版本"),
         "darkMode": MessageLookupByLibrary.simpleMessage("深色模式"),
         "darkModeMsg": MessageLookupByLibrary.simpleMessage("启用深色模式，默认开启"),
         "dashboard": MessageLookupByLibrary.simpleMessage("仪表盘"),

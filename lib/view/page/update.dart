@@ -1,6 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sphia/app/log.dart';
+import 'package:sphia/app/provider/version_config.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/network.dart';
 import 'package:sphia/view/page/agent/update.dart';
@@ -35,6 +37,7 @@ class _UpdatePageState extends State<UpdatePage> {
 
   @override
   Widget build(BuildContext context) {
+    final versionConfigProvider = Provider.of<VersionConfigProvider>(context);
     return ScaffoldMessenger(
       key: _scaffoldMessengerKey,
       child: Scaffold(
@@ -50,6 +53,9 @@ class _UpdatePageState extends State<UpdatePage> {
               final repoUrl = coreRepositories.values.elementAt(index);
               final latestVersion = _latestVersions[coreName] ??
                   (_latestVersions[coreName] = S.of(context).unknown);
+              final currentVersion =
+                  versionConfigProvider.getVersion(coreName) ??
+                      S.of(context).unknown;
               return Card(
                 elevation: 2,
                 margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -76,6 +82,9 @@ class _UpdatePageState extends State<UpdatePage> {
                             },
                         ),
                       ),
+                      Text(
+                        '${S.of(context).currentVersion}: $currentVersion',
+                      ),
                       Text('${S.of(context).latestVersion}: $latestVersion'),
                     ],
                   ),
@@ -94,6 +103,16 @@ class _UpdatePageState extends State<UpdatePage> {
                               _latestVersions[coreName] ==
                                   S.of(context).unknown) {
                             await _checkUpdate(coreName);
+                          }
+                          if (_latestVersions[coreName] ==
+                              versionConfigProvider.getVersion(coreName)) {
+                            if (context.mounted) {
+                              _scaffoldMessengerKey.currentState!.showSnackBar(
+                                WidgetBuild.snackBar(
+                                    '${S.of(context).alreadyLatestVersion}: $coreName'),
+                              );
+                            }
+                            return;
                           }
                           await _agent.updateCore(
                               coreName, _latestVersions[coreName]!, (message) {

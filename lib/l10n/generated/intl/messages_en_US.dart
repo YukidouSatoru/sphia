@@ -36,6 +36,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "allGroups": MessageLookupByLibrary.simpleMessage("All Groups"),
         "allowInsecure": MessageLookupByLibrary.simpleMessage("Allow Insecure"),
         "alpn": MessageLookupByLibrary.simpleMessage("ALPN"),
+        "alreadyLatestVersion":
+            MessageLookupByLibrary.simpleMessage("Already latest version"),
         "alterId": MessageLookupByLibrary.simpleMessage("Alter ID"),
         "alterIdEnterMsg":
             MessageLookupByLibrary.simpleMessage("Please enter an Alter ID"),
@@ -86,6 +88,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "coreStop": MessageLookupByLibrary.simpleMessage("Stop Core"),
         "currentGroup": MessageLookupByLibrary.simpleMessage("Current Group"),
         "currentIp": MessageLookupByLibrary.simpleMessage("Current IP"),
+        "currentVersion":
+            MessageLookupByLibrary.simpleMessage("Current Version"),
         "darkMode": MessageLookupByLibrary.simpleMessage("Dark Mode"),
         "darkModeMsg": MessageLookupByLibrary.simpleMessage(
             "Enable dark mode, default on"),

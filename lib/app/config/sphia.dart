@@ -123,7 +123,7 @@ class SphiaConfig {
       autoRunServer: false,
       useMaterial3: false,
       navigationStyle: 'rail',
-      darkMode: true,
+      darkMode: false,
       themeColor: 4278430196,
       showAddress: false,
       enableStatistics: false,

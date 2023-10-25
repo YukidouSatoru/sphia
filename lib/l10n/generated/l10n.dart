@@ -160,6 +160,16 @@ class S {
     );
   }
 
+  /// `Already latest version`
+  String get alreadyLatestVersion {
+    return Intl.message(
+      'Already latest version',
+      name: 'alreadyLatestVersion',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Alter ID`
   String get alterId {
     return Intl.message(
@@ -485,6 +495,16 @@ class S {
     return Intl.message(
       'Current IP',
       name: 'currentIp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current Version`
+  String get currentVersion {
+    return Intl.message(
+      'Current Version',
+      name: 'currentVersion',
       desc: '',
       args: [],
     );

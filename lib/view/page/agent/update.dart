@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:archive/archive_io.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
 import 'package:sphia/app/controller.dart';
 import 'package:sphia/app/log.dart';
+import 'package:sphia/app/provider/version_config.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/network.dart';
 import 'package:sphia/util/system.dart';
@@ -52,6 +54,8 @@ class UpdateAgent {
       }
       logger.i('Updated successfully: $coreName');
       showSnackBar('${S.current.updatedSuccessfully}: $coreName');
+      final versionConfigProvider = GetIt.I.get<VersionConfigProvider>();
+      versionConfigProvider.updateVersion(coreName, latestVersion);
     } else {
       try {
         final coreArchiveFileName =
@@ -79,6 +83,8 @@ class UpdateAgent {
       }
       logger.i('Updated successfully: $coreName');
       showSnackBar('${S.current.updatedSuccessfully}: $coreName');
+      final versionConfigProvider = GetIt.I.get<VersionConfigProvider>();
+      versionConfigProvider.updateVersion(coreName, latestVersion);
     }
   }
 
