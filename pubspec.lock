@@ -25,22 +25,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.11.2"
-  ansi_regex:
-    dependency: transitive
-    description:
-      name: ansi_regex
-      sha256: ca4f2b24a85e797a1512e1d3fe34d5f8429648f78e2268b6a8b5628c8430e643
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.2"
-  ansi_strip:
-    dependency: "direct main"
-    description:
-      name: ansi_strip
-      sha256: "9bb54e10962ac1de86b9b64a278a5b8965a28a2f741975eac7fe9fb0ebe1aaac"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.1+1"
   archive:
     dependency: "direct main"
     description:

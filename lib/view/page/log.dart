@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:ansi_strip/ansi_strip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get_it/get_it.dart';
@@ -52,8 +51,7 @@ class _LogPageState extends State<LogPage> {
             isUserScrolling = true;
           }
         });
-        _logList.addAll(
-            coreProvider.cores.last.preLogList.map((e) => stripAnsi(e)));
+        _logList.addAll(coreProvider.cores.last.preLogList);
         _listenToLogs();
       } else {
         _removeLogListener();
@@ -110,8 +108,12 @@ class _LogPageState extends State<LogPage> {
 
   void _addLog(String log) {
     final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
-    if (log.trim().isNotEmpty && log.trim() != '\n') {
-      _logList.add(stripAnsi(log));
+    final trimLog = log.trim();
+    if (trimLog.isNotEmpty &&
+        trimLog != '\n' &&
+        trimLog != '\r\n' &&
+        trimLog != '\r') {
+      _logList.add(trimLog);
       if (_logList.length >= sphiaConfigProvider.config.maxLogCount) {
         _logList.removeAt(0);
       }

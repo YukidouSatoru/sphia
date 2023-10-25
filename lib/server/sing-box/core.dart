@@ -13,7 +13,7 @@ class SingBoxCore extends CoreBase {
   SingBoxCore()
       : super(
           'sing-box',
-          ['run', '-c', p.join(tempPath, 'sing-box.json')],
+          ['run', '-c', p.join(tempPath, 'sing-box.json'), '--disable-color'],
           'sing-box.json',
         );
 
