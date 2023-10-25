@@ -78,6 +78,7 @@ class _NetworkChartState extends State<NetworkChart> {
   void _stopTimer() {
     _timer?.cancel();
     _timer = null;
+    _maxY = 0;
     widget.uploadSpots.clear();
     widget.downloadSpots.clear();
   }
