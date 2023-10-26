@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/version_config.dart';
@@ -136,9 +133,7 @@ class _UpdatePageState extends State<UpdatePage> {
   Future<void> _checkUpdate(String coreName) async {
     final versionConfigProvider =
         Provider.of<VersionConfigProvider>(context, listen: false);
-    final coreExists =
-        File(p.join(binPath, SystemUtil.getCoreFileName(coreName)))
-            .existsSync();
+    final coreExists = SystemUtil.coreExists(coreName);
     if (!coreExists) {
       setState(() {
         versionConfigProvider.removeVersion(coreName);

@@ -368,6 +368,18 @@ class SystemUtil {
       dir.createSync();
     }
   }
+
+  static bool coreExists(String coreName) {
+    if (coreName == 'sing-box-rules') {
+      return File(p.join(binPath, 'geoip.db')).existsSync() &&
+          File(p.join(binPath, 'geosite.db')).existsSync();
+    } else if (coreName == 'v2ray-rules-dat') {
+      return File(p.join(binPath, 'geoip.dat')).existsSync() &&
+          File(p.join(binPath, 'geosite.dat')).existsSync();
+    } else {
+      return File(p.join(binPath, getCoreFileName(coreName))).existsSync();
+    }
+  }
 }
 
 late final String execPath;
