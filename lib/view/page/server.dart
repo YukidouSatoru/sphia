@@ -445,6 +445,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                           child: _buildCard(
                             server,
                             index,
+                            sphiaConfig.useMaterial3,
                             sphiaConfig.themeColor,
                             sphiaConfig.showAddress,
                           ),
@@ -473,9 +474,9 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildCard(
-      Server server, int index, int themeColorInt, bool showAddress) {
-    final themeColor = SphiaTheme.getThemeColor(themeColorInt);
+  Widget _buildCard(Server server, int index, bool useMaterial3,
+      int themeColorInt, bool showAddress) {
+    final themeColor = Color(themeColorInt);
     final serverConfigProvider =
         Provider.of<ServerConfigProvider>(context, listen: false);
     final serverConfig = serverConfigProvider.config;
@@ -489,6 +490,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
           margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
           color: server.id == serverConfig.selectedServerId ? themeColor : null,
           child: ListTile(
+            shape: SphiaTheme.listTileShape(useMaterial3),
             title: Text(serverBase.remark),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:sphia/app/theme.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 
 class WidgetBuild {
@@ -40,23 +43,21 @@ class WidgetBuild {
     String title,
     void Function(bool?)? onChanged,
   ) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      child: ListTile(
-        title: Text(title),
-        trailing: Container(
-          alignment: Alignment.centerRight,
-          width: 20,
-          child: Checkbox(
-            value: value,
-            onChanged: onChanged,
-          ),
+    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+    return ListTile(
+      shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
+      title: Text(title),
+      trailing: Container(
+        alignment: Alignment.centerRight,
+        width: 20,
+        child: Checkbox(
+          value: value,
+          onChanged: onChanged,
         ),
-        onTap: () {
-          onChanged!(!value);
-        },
       ),
+      onTap: () {
+        onChanged!(!value);
+      },
     );
   }
 
@@ -66,43 +67,41 @@ class WidgetBuild {
     void Function(String?) update,
     BuildContext context,
   ) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      child: ListTile(
-        title: Text(title),
-        trailing: Text(value),
-        onTap: () async {
-          TextEditingController controller = TextEditingController();
-          controller.text = value;
-          String? newValue = await showDialog<String>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text(title),
-                content: TextFormField(
-                  controller: controller,
+    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+    return ListTile(
+      shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
+      title: Text(title),
+      trailing: Text(value),
+      onTap: () async {
+        TextEditingController controller = TextEditingController();
+        controller.text = value;
+        String? newValue = await showDialog<String>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(title),
+              content: TextFormField(
+                controller: controller,
+              ),
+              actions: [
+                TextButton(
+                  child: Text(S.of(context).cancel),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
                 ),
-                actions: [
-                  TextButton(
-                    child: Text(S.of(context).cancel),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  TextButton(
-                    child: Text(S.of(context).save),
-                    onPressed: () {
-                      Navigator.of(context).pop(controller.text);
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-          update(newValue);
-        },
-      ),
+                TextButton(
+                  child: Text(S.of(context).save),
+                  onPressed: () {
+                    Navigator.of(context).pop(controller.text);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        update(newValue);
+      },
     );
   }
 
@@ -113,42 +112,40 @@ class WidgetBuild {
     void Function(String?) update,
     BuildContext context,
   ) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      child: ListTile(
-        title: Text(title),
-        trailing: Text(value),
-        onTap: () async {
-          String? newValue = await showDialog<String>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text(title),
-                content: SizedBox(
-                  width: double.minPositive,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: items.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return ListTile(
-                        title: Text(items[index]),
-                        trailing: Icon(
-                          items[index] == value ? Icons.check : null,
-                        ),
-                        onTap: () {
-                          Navigator.of(context).pop(items[index]);
-                        },
-                      );
-                    },
-                  ),
+    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+    return ListTile(
+      shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
+      title: Text(title),
+      trailing: Text(value),
+      onTap: () async {
+        String? newValue = await showDialog<String>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(title),
+              content: SizedBox(
+                width: double.minPositive,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: items.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      title: Text(items[index]),
+                      trailing: Icon(
+                        items[index] == value ? Icons.check : null,
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop(items[index]);
+                      },
+                    );
+                  },
                 ),
-              );
-            },
-          );
-          update(newValue);
-        },
-      ),
+              ),
+            );
+          },
+        );
+        update(newValue);
+      },
     );
   }
 
@@ -159,54 +156,51 @@ class WidgetBuild {
     void Function(int?) update,
     BuildContext context,
   ) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      child: ListTile(
-        title: Text(title),
-        trailing: Text(
-          "❖ ${items[value] ?? "Sphia"}",
-          style: TextStyle(
-            color: Color(value),
-          ),
+    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+    return ListTile(
+      shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
+      title: Text(title),
+      trailing: Text(
+        "❖ ${items[value] ?? "Sphia"}",
+        style: TextStyle(
+          color: Color(value),
         ),
-        onTap: () async {
-          int? newValue = await showDialog<int>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text(title),
-                content: SizedBox(
-                  width: double.minPositive,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: items.keys.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final color = items.keys.elementAt(index);
-                      return ListTile(
-                        title: Text(
-                          "❖ ${items[color]}",
-                          style: TextStyle(
-                            color: Color(color),
-                          ),
-                        ),
-                        trailing: Icon(
-                          color == value ? Icons.check : null,
-                        ),
-                        onTap: () {
-                          Navigator.of(context)
-                              .pop(items.keys.elementAt(index));
-                        },
-                      );
-                    },
-                  ),
-                ),
-              );
-            },
-          );
-          update(newValue);
-        },
       ),
+      onTap: () async {
+        int? newValue = await showDialog<int>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(title),
+              content: SizedBox(
+                width: double.minPositive,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: items.keys.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final color = items.keys.elementAt(index);
+                    return ListTile(
+                      title: Text(
+                        "❖ ${items[color]}",
+                        style: TextStyle(
+                          color: Color(color),
+                        ),
+                      ),
+                      trailing: Icon(
+                        color == value ? Icons.check : null,
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop(items.keys.elementAt(index));
+                      },
+                    );
+                  },
+                ),
+              ),
+            );
+          },
+        );
+        update(newValue);
+      },
     );
   }
 

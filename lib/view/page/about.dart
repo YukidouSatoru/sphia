@@ -27,6 +27,9 @@ class AboutPage extends StatelessWidget {
       ),
       body: PageWrapper(
         child: Card(
+          color: Colors.transparent,
+          shadowColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
           elevation: 2,
           margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
           child: Row(

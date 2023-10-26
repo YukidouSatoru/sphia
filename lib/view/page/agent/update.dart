@@ -40,6 +40,8 @@ final coreRepositories = {
   // Add new core here
 };
 
+const hysteriaLatestVersion = 'v1.3.5';
+
 class UpdateAgent {
   Future<void> updateCore(String coreName, String latestVersion,
       void Function(String) showSnackBar) async {

@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/version_config.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/network.dart';
+import 'package:sphia/util/system.dart';
 import 'package:sphia/view/page/agent/update.dart';
 import 'package:sphia/view/page/wrapper.dart';
 import 'package:sphia/view/widget/widget.dart';
@@ -22,7 +26,7 @@ class UpdatePage extends StatefulWidget {
 class _UpdatePageState extends State<UpdatePage> {
   final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
-  final Map<String, String> _latestVersions = {'hysteria': 'v1.3.5'};
+  final Map<String, String> _latestVersions = {};
   final _agent = UpdateAgent();
 
   @override
@@ -105,22 +109,16 @@ class _UpdatePageState extends State<UpdatePage> {
                               _latestVersions[coreName] == null) {
                             await _checkUpdate(coreName);
                           }
-                          if (_latestVersions[coreName] ==
-                              versionConfigProvider.getVersion(coreName)) {
-                            if (context.mounted) {
+                          try {
+                            await _agent.updateCore(
+                                coreName, _latestVersions[coreName]!,
+                                (message) {
                               _scaffoldMessengerKey.currentState!.showSnackBar(
-                                WidgetBuild.snackBar(
-                                    '${S.of(context).alreadyLatestVersion}: $coreName'),
+                                WidgetBuild.snackBar(message),
                               );
-                            }
-                            return;
-                          }
-                          await _agent.updateCore(
-                              coreName, _latestVersions[coreName]!, (message) {
-                            _scaffoldMessengerKey.currentState!.showSnackBar(
-                              WidgetBuild.snackBar(message),
-                            );
-                          });
+                            });
+                            _latestVersions.remove(coreName);
+                          } on Exception catch (_) {}
                         },
                         child: Text(S.of(context).update),
                       ),
@@ -136,7 +134,28 @@ class _UpdatePageState extends State<UpdatePage> {
   }
 
   Future<void> _checkUpdate(String coreName) async {
+    final versionConfigProvider =
+        Provider.of<VersionConfigProvider>(context, listen: false);
+    final coreExists =
+        File(p.join(binPath, SystemUtil.getCoreFileName(coreName)))
+            .existsSync();
+    if (!coreExists) {
+      setState(() {
+        versionConfigProvider.removeVersion(coreName);
+      });
+    }
     if (coreName == 'hysteria') {
+      if (versionConfigProvider.getVersion(coreName) == hysteriaLatestVersion &&
+          coreExists) {
+        _scaffoldMessengerKey.currentState?.showSnackBar(
+          WidgetBuild.snackBar(
+              '${S.of(context).alreadyLatestVersion}: $coreName'),
+        );
+        return;
+      }
+      setState(() {
+        _latestVersions['hysteria'] = hysteriaLatestVersion;
+      });
       return;
     }
     logger.i('Checking update: $coreName');
@@ -157,6 +176,16 @@ class _UpdatePageState extends State<UpdatePage> {
         return;
       }
       final latestVersion = await NetworkUtil.getLatestVersion(coreName);
+      if (context.mounted) {
+        if (versionConfigProvider.getVersion(coreName) == latestVersion &&
+            coreExists) {
+          _scaffoldMessengerKey.currentState?.showSnackBar(
+            WidgetBuild.snackBar(
+                '${S.of(context).alreadyLatestVersion}: $coreName'),
+          );
+          return;
+        }
+      }
       setState(() {
         _latestVersions[coreName] = latestVersion;
       });

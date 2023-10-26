@@ -66,6 +66,9 @@ class _LogPageState extends State<LogPage> {
         child: PageView(
           children: [
             Card(
+              color: Colors.transparent,
+              shadowColor: Colors.transparent,
+              surfaceTintColor: Colors.transparent,
               elevation: 2,
               margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
               child: sphiaConfigProvider.config.enableCoreLog &&

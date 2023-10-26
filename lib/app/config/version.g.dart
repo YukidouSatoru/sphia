@@ -10,7 +10,7 @@ VersionConfig _$VersionConfigFromJson(Map<String, dynamic> json) =>
     VersionConfig(
       singBoxVersion: json['singBoxVersion'] as String?,
       xrayCoreVersion: json['xrayCoreVersion'] as String?,
-      shadowsocksRustVersion: json['ssRustVersion'] as String?,
+      shadowsocksRustVersion: json['shadowsocksRustVersion'] as String?,
       hysteriaVersion: json['hysteriaVersion'] as String?,
       singBoxRulesVersion: json['singBoxRulesVersion'] as String?,
       v2rayRulesVersion: json['v2rayRulesVersion'] as String?,
@@ -27,7 +27,7 @@ Map<String, dynamic> _$VersionConfigToJson(VersionConfig instance) {
 
   writeNotNull('singBoxVersion', instance.singBoxVersion);
   writeNotNull('xrayCoreVersion', instance.xrayCoreVersion);
-  writeNotNull('ssRustVersion', instance.shadowsocksRustVersion);
+  writeNotNull('shadowsocksRustVersion', instance.shadowsocksRustVersion);
   writeNotNull('hysteriaVersion', instance.hysteriaVersion);
   writeNotNull('singBoxRulesVersion', instance.singBoxRulesVersion);
   writeNotNull('v2rayRulesVersion', instance.v2rayRulesVersion);

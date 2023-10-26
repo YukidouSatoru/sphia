@@ -3,9 +3,17 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class SphiaTheme {
+  static RoundedRectangleBorder listTileShape(bool useMaterial3) => useMaterial3
+      ? const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        )
+      : const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(4)),
+        );
+
   static ThemeData getThemeData(bool useMaterial3, bool darkMode,
       int themeColorInt, BuildContext context) {
-    final themeColor = getThemeColor(themeColorInt);
+    final themeColor = Color(themeColorInt);
     if (darkMode) {
       return ThemeData(
         useMaterial3: useMaterial3,
@@ -92,11 +100,13 @@ class SphiaTheme {
             }
           }),
         ),
+        /*
         cardTheme: const CardTheme(
           shadowColor: Colors.transparent,
           surfaceTintColor: Colors.transparent,
           color: Colors.transparent,
         ),
+        */
         listTileTheme: const ListTileThemeData(
           iconColor: Colors.white,
         ),
@@ -196,11 +206,13 @@ class SphiaTheme {
             }
           }),
         ),
+        /*
         cardTheme: const CardTheme(
           shadowColor: Colors.transparent,
           surfaceTintColor: Colors.transparent,
           color: Colors.transparent,
         ),
+        */
         listTileTheme: const ListTileThemeData(
           iconColor: Colors.black,
         ),
@@ -214,20 +226,5 @@ class SphiaTheme {
         ).copyWith(background: Colors.grey[100]!),
       );
     }
-  }
-
-  static MaterialColor getThemeColor(int themeColorINT) {
-    return MaterialColor(themeColorINT, <int, Color>{
-      50: Color(themeColorINT).withOpacity(0.1),
-      100: Color(themeColorINT).withOpacity(0.2),
-      200: Color(themeColorINT).withOpacity(0.3),
-      300: Color(themeColorINT).withOpacity(0.4),
-      400: Color(themeColorINT).withOpacity(0.5),
-      500: Color(themeColorINT).withOpacity(0.6),
-      600: Color(themeColorINT).withOpacity(0.7),
-      700: Color(themeColorINT).withOpacity(0.8),
-      800: Color(themeColorINT).withOpacity(0.9),
-      900: Color(themeColorINT).withOpacity(1.0),
-    });
   }
 }

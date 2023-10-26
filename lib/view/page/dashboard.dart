@@ -12,6 +12,7 @@ import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:sphia/app/theme.dart';
 import 'package:sphia/app/tray.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/server/server_base.dart';
@@ -82,7 +83,9 @@ class _DashboardState extends State<Dashboard> {
                 final coreName = coreProvider.cores[index].coreName;
                 final String runningServerName = jsonDecode(
                     coreProvider.cores[index].runningServer.data)['remark'];
-                return InkWell(
+                return ListTile(
+                  shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
+                  title: Text(coreName),
                   onTap: () async {
                     await showDialog<void>(
                       context: context,
@@ -130,9 +133,6 @@ class _DashboardState extends State<Dashboard> {
                       },
                     );
                   },
-                  child: ListTile(
-                    title: Text(coreName),
-                  ),
                 );
               },
             )
@@ -151,7 +151,17 @@ class _DashboardState extends State<Dashboard> {
               itemCount: ruleConfigProvider.ruleGroups.length,
               itemBuilder: (BuildContext context, int index) {
                 final ruleGroup = ruleConfigProvider.ruleGroups[index];
-                return InkWell(
+                return ListTile(
+                  shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
+                  title: Text(
+                    ruleConfigProvider.ruleGroups[index].name,
+                  ),
+                  trailing: Icon(
+                    ruleGroup.id ==
+                            ruleConfigProvider.config.selectedRuleGroupId
+                        ? Icons.check
+                        : null,
+                  ),
                   onTap: () async {
                     if (ruleGroup.id !=
                         ruleConfigProvider.config.selectedRuleGroupId) {
@@ -166,17 +176,6 @@ class _DashboardState extends State<Dashboard> {
                       await SphiaController.restartCores();
                     }
                   },
-                  child: ListTile(
-                    title: Text(
-                      ruleConfigProvider.ruleGroups[index].name,
-                    ),
-                    trailing: Icon(
-                      ruleGroup.id ==
-                              ruleConfigProvider.config.selectedRuleGroupId
-                          ? Icons.check
-                          : null,
-                    ),
-                  ),
                 );
               },
             );
@@ -188,7 +187,10 @@ class _DashboardState extends State<Dashboard> {
       widget: sphiaConfig.configureDns
           ? ListView(
               children: [
-                InkWell(
+                ListTile(
+                  shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
+                  title: Text(S.of(context).remoteDns),
+                  subtitle: Text(sphiaConfig.remoteDns),
                   onTap: () async {
                     TextEditingController remoteDnsController =
                         TextEditingController();
@@ -224,12 +226,11 @@ class _DashboardState extends State<Dashboard> {
                       },
                     );
                   },
-                  child: ListTile(
-                    title: Text(S.of(context).remoteDns),
-                    subtitle: Text(sphiaConfig.remoteDns),
-                  ),
                 ),
-                InkWell(
+                ListTile(
+                  shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
+                  title: Text(S.of(context).directDns),
+                  subtitle: Text(sphiaConfig.directDns),
                   onTap: () async {
                     TextEditingController directDnsController =
                         TextEditingController();
@@ -265,10 +266,6 @@ class _DashboardState extends State<Dashboard> {
                       },
                     );
                   },
-                  child: ListTile(
-                    title: Text(S.of(context).directDns),
-                    subtitle: Text(sphiaConfig.directDns),
-                  ),
                 ),
               ],
             )
@@ -471,11 +468,9 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _buildCard(CardData cardData) {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
-        side: BorderSide(color: Color(sphiaConfig.themeColor)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8),

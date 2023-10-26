@@ -57,6 +57,32 @@ class VersionConfigProvider extends ChangeNotifier {
     saveConfig();
   }
 
+  void removeVersion(String coreName) {
+    switch (coreName) {
+      case 'sing-box':
+        config.singBoxVersion = null;
+        break;
+      case 'xray-core':
+        config.xrayCoreVersion = null;
+        break;
+      case 'shadowsocks-rust':
+        config.shadowsocksRustVersion = null;
+        break;
+      case 'hysteria':
+        config.hysteriaVersion = null;
+        break;
+      case 'sing-box-rules':
+        config.singBoxRulesVersion = null;
+        break;
+      case 'v2ray-rules-dat':
+        config.v2rayRulesVersion = null;
+        break;
+      default:
+        break;
+    }
+    saveConfig();
+  }
+
   String generateLog() {
     var json = config.toJson();
     final StringBuffer sb = StringBuffer();
