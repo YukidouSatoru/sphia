@@ -40,6 +40,10 @@ class SphiaController {
     List<CoreBase> newCores = [];
     late final XrayServer? additionalServerBase;
     if (sphiaConfig.enableTun) {
+      if (!SystemUtil.isRoot) {
+        logger.e('Tun mode requires administrator privileges');
+        throw Exception('Tun mode requires administrator privileges');
+      }
       newCores.add(SingBoxCore());
     } else {
       switch (protocol) {

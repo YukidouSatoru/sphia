@@ -10,10 +10,12 @@ import 'package:sphia/view/page/agent/update.dart';
 class SystemUtil {
   static late final String os;
   static late final String architecture;
+  static late final bool isRoot;
 
   static void init() {
     os = determineOS();
     architecture = determineArchitecture();
+    isRoot = determineIsRoot();
   }
 
   static String determineOS() {
@@ -56,6 +58,24 @@ class SystemUtil {
       } else {
         logger.e('Unsupported Architecture');
         throw Exception('Unsupported Architecture');
+      }
+    }
+  }
+
+  static bool determineIsRoot() {
+    if (os == 'windows') {
+      final result = Process.runSync('net', ['session']);
+      if (result.exitCode == 0) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      final result = Process.runSync('id', ['-u']);
+      if (result.exitCode == 0) {
+        return result.stdout.toString().trim() == '0';
+      } else {
+        return false;
       }
     }
   }
