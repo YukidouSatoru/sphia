@@ -12,6 +12,7 @@ import 'package:sphia/view/page/rule.dart';
 import 'package:sphia/view/page/server.dart';
 import 'package:sphia/view/page/setting.dart';
 import 'package:sphia/view/page/update.dart';
+import 'package:sphia/view/widget/updat.dart';
 import 'package:window_manager/window_manager.dart';
 
 class SphiaApp extends StatefulWidget {
@@ -98,7 +99,13 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
           ],
         ),
         floatingActionButton: sphiaConfig.navigationStyle == 'drawer'
-            ? _getDrawerFloatingButton()
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  SphiaUpdatWidget().updatWidget(),
+                  _getDrawerFloatingButton(),
+                ],
+              )
             : null,
         floatingActionButtonLocation: sphiaConfig.navigationStyle == 'drawer'
             ? FloatingActionButtonLocation.miniStartFloat
@@ -240,31 +247,37 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
       trailing: Expanded(
         child: Align(
           alignment: Alignment.bottomCenter,
-          child: Container(
-            padding: const EdgeInsets.only(bottom: 6.0),
-            child: FloatingActionButton(
-              isExtended: true,
-              elevation: 0,
-              focusElevation: 0,
-              highlightElevation: 0,
-              hoverElevation: 0,
-              disabledElevation: 0,
-              foregroundColor:
-                  sphiaConfig.darkMode ? Colors.white : Colors.black,
-              splashColor: Colors.transparent,
-              hoverColor: Colors.transparent,
-              backgroundColor: Colors.transparent,
-              focusColor: Colors.transparent,
-              onPressed: () {
-                logger.i(
-                    'Updating darkMode from ${sphiaConfig.darkMode} to ${!sphiaConfig.darkMode}');
-                sphiaConfig.darkMode = !sphiaConfig.darkMode;
-                sphiaConfigProvider.saveConfig();
-              },
-              child: Icon(
-                sphiaConfig.darkMode ? Icons.light_mode : Icons.dark_mode,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              SphiaUpdatWidget().updatWidget(),
+              Container(
+                padding: const EdgeInsets.only(bottom: 6.0),
+                child: FloatingActionButton(
+                  isExtended: true,
+                  elevation: 0,
+                  focusElevation: 0,
+                  highlightElevation: 0,
+                  hoverElevation: 0,
+                  disabledElevation: 0,
+                  foregroundColor:
+                      sphiaConfig.darkMode ? Colors.white : Colors.black,
+                  splashColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  backgroundColor: Colors.transparent,
+                  focusColor: Colors.transparent,
+                  onPressed: () {
+                    logger.i(
+                        'Updating darkMode from ${sphiaConfig.darkMode} to ${!sphiaConfig.darkMode}');
+                    sphiaConfig.darkMode = !sphiaConfig.darkMode;
+                    sphiaConfigProvider.saveConfig();
+                  },
+                  child: Icon(
+                    sphiaConfig.darkMode ? Icons.light_mode : Icons.dark_mode,
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
