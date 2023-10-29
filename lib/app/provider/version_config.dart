@@ -85,11 +85,11 @@ class VersionConfigProvider extends ChangeNotifier {
 
   String generateLog() {
     var json = config.toJson();
-    final StringBuffer sb = StringBuffer();
-    json.removeWhere((key, value) => value == null);
+    final List<String> logList = [];
+    // json.removeWhere((key, value) => value == null);
     json.forEach((key, value) {
-      sb.write('$key: $value\n');
+      logList.add('$key: $value');
     });
-    return sb.toString();
+    return logList.join('\n');
   }
 }

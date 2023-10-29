@@ -89,8 +89,7 @@ Future<void> configureApp() async {
   Bin path: $binPath
   Config path: $configPath
   Log path: $logPath
-  Temp path: $tempPath
-  ''';
+  Temp path: $tempPath''';
 
   logger.i(sphiaInfo);
 
