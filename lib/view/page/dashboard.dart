@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
+import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/controller.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
@@ -501,7 +502,7 @@ class _DashboardState extends State<Dashboard> {
     final sphiaConfig = sphiaConfigProvider.config;
     if (coreProvider.coreRunning && sphiaConfig.enableStatistics) {
       _serverId = coreProvider.cores.first.runningServer.id;
-      if (sphiaConfig.routingProvider == 'xray-core') {
+      if (sphiaConfig.routingProvider == RoutingProvider.xray.index) {
         _traffic = XrayTraffic(sphiaConfig.coreApiPort);
       } else {
         _traffic = SingBoxTraffic(sphiaConfig.coreApiPort);

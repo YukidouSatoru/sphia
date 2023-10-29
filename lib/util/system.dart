@@ -3,13 +3,18 @@ import 'dart:io';
 import 'package:get_it/get_it.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:path/path.dart' as p;
+import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/view/page/agent/update.dart';
 
+enum OS { windows, linux, macos }
+
+enum Architecture { x86_64, arm64 }
+
 class SystemUtil {
-  static late final String os;
-  static late final String architecture;
+  static late final OS os;
+  static late final Architecture architecture;
   static late final bool isRoot;
 
   static void init() {
@@ -18,27 +23,27 @@ class SystemUtil {
     isRoot = determineIsRoot();
   }
 
-  static String determineOS() {
+  static OS determineOS() {
     if (Platform.isWindows) {
-      return 'windows';
-    } else if (Platform.isMacOS) {
-      return 'macos';
+      return OS.windows;
     } else if (Platform.isLinux) {
-      return 'linux';
+      return OS.linux;
+    } else if (Platform.isMacOS) {
+      return OS.macos;
     } else {
       logger.e('Unsupported OS');
       throw Exception('Unsupported OS');
     }
   }
 
-  static String determineArchitecture() {
-    if (os == 'windows') {
+  static Architecture determineArchitecture() {
+    if (os == OS.windows) {
       final arch = Platform.environment['PROCESSOR_ARCHITECTURE'];
       // https://learn.microsoft.com/en-us/windows/win32/winprog64/wow64-implementation-details
       if (arch == 'AMD64') {
-        return 'x86_64';
+        return Architecture.x86_64;
       } else if (arch == 'ARM64') {
-        return 'arm64';
+        return Architecture.arm64;
       } else {
         logger.e('Unsupported Architecture');
         throw Exception('Unsupported Architecture');
@@ -48,9 +53,9 @@ class SystemUtil {
       if (result.exitCode == 0) {
         final arch = result.stdout.toString().trim();
         if (arch == 'x86_64') {
-          return 'x86_64';
+          return Architecture.x86_64;
         } else if (arch == 'aarch64' || arch == 'arm64') {
-          return 'arm64';
+          return Architecture.arm64;
         } else {
           logger.e('Unsupported Architecture');
           throw Exception('Unsupported Architecture');
@@ -63,7 +68,7 @@ class SystemUtil {
   }
 
   static bool determineIsRoot() {
-    if (os == 'windows') {
+    if (os == OS.windows) {
       final result = Process.runSync('net', ['session']);
       if (result.exitCode == 0) {
         return true;
@@ -100,33 +105,33 @@ class SystemUtil {
     if (enable) {
       logger.i('Enabling system proxy');
       final listen = sphiaCnfig.listen;
-      final httpPort = sphiaCnfig.routingProvider == 'xray-core'
+      final httpPort = sphiaCnfig.routingProvider == RoutingProvider.xray.index
           ? sphiaCnfig.httpPort
           : sphiaCnfig.mixedPort;
-      final socksPort = sphiaCnfig.routingProvider == 'xray-core'
+      final socksPort = sphiaCnfig.routingProvider == RoutingProvider.xray.index
           ? sphiaCnfig.socksPort
           : sphiaCnfig.mixedPort;
       switch (os) {
-        case 'windows':
+        case OS.windows:
           enableWindowsProxy(listen, httpPort);
           break;
-        case 'linux':
+        case OS.linux:
           enableLinuxProxy(listen, httpPort, socksPort);
           break;
-        case 'macos':
+        case OS.macos:
           enableMacOSProxy(listen, httpPort);
           break;
       }
     } else {
       logger.i('Disabling system proxy');
       switch (os) {
-        case 'windows':
+        case OS.windows:
           disableWindowsProxy();
           break;
-        case 'linux':
+        case OS.linux:
           disableLinuxProxy();
           break;
-        case 'macos':
+        case OS.macos:
           disableMacOSProxy();
           break;
       }
@@ -278,7 +283,7 @@ class SystemUtil {
   }
 
   static void setFilePermission(String fileName) {
-    if (os != 'windows') {
+    if (os != OS.windows) {
       Process.runSync('chmod', ['+x', fileName]);
     }
   }
@@ -289,30 +294,30 @@ class SystemUtil {
         if (latestVersion.startsWith('v')) {
           latestVersion = latestVersion.substring(1);
         }
-        final plat = os == 'macos' ? 'darwin' : os;
-        final arch = architecture == 'arm64' ? 'arm64' : 'amd64';
-        final ext = os == 'windows' ? '.zip' : '.tar.gz';
+        final plat = os == OS.macos ? 'darwin' : os.name;
+        final arch = architecture == Architecture.arm64 ? 'arm64' : 'amd64';
+        final ext = os == OS.windows ? '.zip' : '.tar.gz';
         return 'sing-box-$latestVersion-$plat-$arch$ext';
       case 'xray-core':
-        final arch = architecture == 'arm64' ? 'arm64-v8a' : '64';
-        return 'Xray-$os-$arch.zip';
+        final arch = architecture == Architecture.arm64 ? 'arm64-v8a' : '64';
+        return 'Xray-${os.name}-$arch.zip';
       case 'shadowsocks-rust':
         late final String plat;
         switch (os) {
-          case 'windows':
+          case OS.windows:
             plat = 'pc-windows-gnu';
             break;
-          case 'linux':
+          case OS.linux:
             plat = 'unknown-linux-gnu';
             break;
-          case 'macos':
+          case OS.macos:
             plat = 'apple-darwin';
             break;
           default:
             throw Exception('Unsupported OS');
         }
-        final arch = architecture == 'arm64' ? 'aarch64' : 'x86_64';
-        final ext = os == 'windows' ? '.zip' : '.tar.xz';
+        final arch = architecture == Architecture.arm64 ? 'aarch64' : 'x86_64';
+        final ext = os == OS.windows ? '.zip' : '.tar.xz';
         return 'shadowsocks-$latestVersion.$arch-$plat$ext';
       case 'hysteria':
         return getCoreFileName('hysteria');
@@ -320,29 +325,29 @@ class SystemUtil {
         late final String arch;
         late final String ext;
         switch (os) {
-          case 'windows':
-            arch = architecture == 'arm64' ? 'arm64' : 'amd64';
+          case OS.windows:
+            arch = architecture == Architecture.arm64 ? 'arm64' : 'amd64';
             ext = '.exe';
             break;
-          case 'linux':
-            arch = architecture == 'arm64' ? 'arm64' : 'amd64';
+          case OS.linux:
+            arch = architecture == Architecture.arm64 ? 'arm64' : 'amd64';
             ext = '.appimage';
             break;
-          case 'macos':
+          case OS.macos:
             arch = 'universal';
             ext = '.dmg';
             break;
           default:
             throw Exception('Unsupported OS');
         }
-        return 'sphia-$os-$arch$ext';
+        return 'sphia-${os.name}-$arch$ext';
       default:
         throw Exception('Unsupported core: $coreName');
     }
   }
 
   static String getCoreFileName(String coreName) {
-    final ext = os == 'windows' ? '.exe' : '';
+    final ext = os == OS.windows ? '.exe' : '';
     switch (coreName) {
       case 'sing-box':
         return 'sing-box$ext';
@@ -351,8 +356,8 @@ class SystemUtil {
       case 'shadowsocks-rust':
         return 'sslocal$ext';
       case 'hysteria':
-        final plat = os == 'macos' ? 'darwin' : os;
-        final arch = architecture == 'arm64' ? 'arm64' : 'amd64';
+        final plat = os == OS.macos ? 'darwin' : os.name;
+        final arch = architecture == Architecture.arm64 ? 'arm64' : 'amd64';
         return 'hysteria-$plat-$arch$ext';
       case 'sphia':
         return 'sphia$ext';

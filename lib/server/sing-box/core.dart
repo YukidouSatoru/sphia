@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:core';
 
 import 'package:path/path.dart' as p;
+import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/server/core_base.dart';
 import 'package:sphia/server/server_base.dart';
@@ -25,7 +26,7 @@ class SingBoxCore extends CoreBase {
 
   @override
   Future<String> generateConfig(ServerBase server) async {
-    String level = sphiaConfig.logLevel;
+    String level = LogLevel.values[sphiaConfig.logLevel].name;
     if (level == 'warning') {
       level = 'warn';
     }
@@ -38,7 +39,8 @@ class SingBoxCore extends CoreBase {
 
     Dns? dns;
     if (sphiaConfig.enableTun ||
-        (sphiaConfig.configureDns && sphiaConfig.routingProvider == coreName)) {
+        (sphiaConfig.configureDns &&
+            sphiaConfig.routingProvider == RoutingProvider.singbox.index)) {
       dns = await SingBoxGenerate.dns(
         sphiaConfig.remoteDns,
         sphiaConfig.directDns,
@@ -67,7 +69,7 @@ class SingBoxCore extends CoreBase {
           sphiaConfig.enableIpv4 ? sphiaConfig.ipv4Address : null,
           sphiaConfig.enableIpv6 ? sphiaConfig.ipv6Address : null,
           sphiaConfig.mtu,
-          sphiaConfig.stack,
+          TunStack.values[sphiaConfig.stack].name,
           sphiaConfig.autoRoute,
           sphiaConfig.strictRoute,
           sphiaConfig.enableSniffing,
@@ -77,7 +79,8 @@ class SingBoxCore extends CoreBase {
 
     Route? route;
     if (sphiaConfig.enableTun ||
-        (!sphiaConfig.enableTun && sphiaConfig.routingProvider == coreName)) {
+        (!sphiaConfig.enableTun &&
+            sphiaConfig.routingProvider == RoutingProvider.singbox.index)) {
       route = SingBoxGenerate.route(
         await SphiaDatabase.ruleDao
             .getXrayRulesByGroupId(ruleConfig.selectedRuleGroupId),
@@ -110,7 +113,7 @@ class SingBoxCore extends CoreBase {
 
     Experimental? experimental;
     if (sphiaConfig.enableStatistics &&
-        sphiaConfig.routingProvider == 'sing-box') {
+        sphiaConfig.routingProvider == RoutingProvider.singbox.index) {
       experimental = Experimental(
         clashApi: ClashApi(
           externalController: '127.0.0.1:${sphiaConfig.coreApiPort}',

@@ -49,8 +49,8 @@ class Tray {
     logger.i('Initializing system tray');
 
     await _tray.initSystemTray(
-      title: SystemUtil.os == 'macos' ? null : 'Sphia',
-      iconPath: SystemUtil.os == 'macos'
+      title: SystemUtil.os == OS.macos ? null : 'Sphia',
+      iconPath: SystemUtil.os == OS.macos
           ? 'assets/tray_no_color_off.png'
           : 'assets/tray_color_off.ico',
     );
@@ -59,13 +59,13 @@ class Tray {
     _tray.registerSystemTrayEventHandler(
       (eventName) async {
         if (eventName == kSystemTrayEventClick) {
-          if (SystemUtil.os == 'windows') {
+          if (SystemUtil.os == OS.windows) {
             await windowManager.show();
           } else {
             _tray.popUpContextMenu();
           }
         } else if (eventName == kSystemTrayEventRightClick) {
-          if (SystemUtil.os == 'windows') {
+          if (SystemUtil.os == OS.windows) {
             _tray.popUpContextMenu();
           } else {
             await windowManager.show();
@@ -215,13 +215,13 @@ class Tray {
 
   String getIconPath(bool coreRunning) {
     if (coreRunning) {
-      if (SystemUtil.os == 'macos') {
+      if (SystemUtil.os == OS.macos) {
         return 'assets/tray_no_color_on.png';
       } else {
         return 'assets/tray_color_on.ico';
       }
     } else {
-      if (SystemUtil.os == 'macos') {
+      if (SystemUtil.os == OS.macos) {
         return 'assets/tray_no_color_off.png';
       } else {
         return 'assets/tray_color_off.ico';

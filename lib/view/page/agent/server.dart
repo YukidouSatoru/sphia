@@ -13,6 +13,7 @@ import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/server/core_base.dart';
+import 'package:sphia/server/hysteria/core.dart';
 import 'package:sphia/server/hysteria/server.dart';
 import 'package:sphia/server/server_base.dart';
 import 'package:sphia/server/shadowsocks/server.dart';
@@ -228,27 +229,38 @@ class ServerAgent {
           '${S.of(context).exportToFile}: ${p.join(tempPath, exportFileName)}');
       late final CoreBase core;
       if ((protocol == 'vless' &&
-              sphiaConfigProvider.config.vlessProvider == 'xray-core') ||
+              sphiaConfigProvider.config.vlessProvider ==
+                  VlessProvider.xray.index) ||
           (protocol == 'vmess' &&
-              sphiaConfigProvider.config.vmessProvider == 'xray-core') ||
+              sphiaConfigProvider.config.vmessProvider ==
+                  VmessProvider.xray.index) ||
           protocol == 'shadowsocks' &&
-              sphiaConfigProvider.config.shadowsocksProvider == 'xray-core' ||
+              sphiaConfigProvider.config.shadowsocksProvider ==
+                  ShadowsocksProvider.xray.index ||
           protocol == 'trojan' &&
-              sphiaConfigProvider.config.trojanProvider == 'xray-core' ||
-          protocol == 'hysteria' &&
-              sphiaConfigProvider.config.hysteriaProvider == 'xray-core') {
+              sphiaConfigProvider.config.trojanProvider ==
+                  TrojanProvider.xray.index) {
         core = XrayCore()..configFileName = exportFileName;
       } else if ((protocol == 'vless' &&
-              sphiaConfigProvider.config.vlessProvider == 'sing-box') ||
+              sphiaConfigProvider.config.vlessProvider ==
+                  VlessProvider.sing.index) ||
           (protocol == 'vmess' &&
-              sphiaConfigProvider.config.vmessProvider == 'sing-box') ||
+              sphiaConfigProvider.config.vmessProvider ==
+                  VmessProvider.sing.index) ||
           (protocol == 'shadowsocks' &&
-              sphiaConfigProvider.config.shadowsocksProvider == 'sing-box') ||
+              sphiaConfigProvider.config.shadowsocksProvider ==
+                  ShadowsocksProvider.sing.index) ||
           (protocol == 'trojan' &&
-              sphiaConfigProvider.config.trojanProvider == 'sing-box') ||
+              sphiaConfigProvider.config.trojanProvider ==
+                  TrojanProvider.sing.index) ||
           (protocol == 'hysteria' &&
-              sphiaConfigProvider.config.hysteriaProvider == 'sing-box')) {
+              sphiaConfigProvider.config.hysteriaProvider ==
+                  HysteriaProvider.sing.index)) {
         core = SingBoxCore()..configFileName = exportFileName;
+      } else if (protocol == 'hysteria' &&
+          sphiaConfigProvider.config.hysteriaProvider ==
+              HysteriaProvider.hysteria.index) {
+        core = HysteriaCore()..configFileName = exportFileName;
       }
       await core.configure(server);
     } else {

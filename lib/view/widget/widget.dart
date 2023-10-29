@@ -106,19 +106,19 @@ class WidgetBuild {
   }
 
   static Widget buildItemsCard(
-    String value,
+    int value,
     String title,
     List<String> items,
-    void Function(String?) update,
+    void Function(int?) update,
     BuildContext context,
   ) {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     return ListTile(
       shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
       title: Text(title),
-      trailing: Text(value),
+      trailing: Text(items[value]),
       onTap: () async {
-        String? newValue = await showDialog<String>(
+        int? newValue = await showDialog<int>(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -132,10 +132,10 @@ class WidgetBuild {
                     return ListTile(
                       title: Text(items[index]),
                       trailing: Icon(
-                        items[index] == value ? Icons.check : null,
+                        index == value ? Icons.check : null,
                       ),
                       onTap: () {
-                        Navigator.of(context).pop(items[index]);
+                        Navigator.of(context).pop(index);
                       },
                     );
                   },

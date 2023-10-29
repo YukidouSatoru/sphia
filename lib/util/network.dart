@@ -15,7 +15,7 @@ class NetworkUtil {
     final coreProvider = GetIt.I.get<CoreProvider>();
     final client = HttpClient();
     // init userAgent
-    final userAgent = userAgents[sphiaConfig.userAgent]!;
+    final userAgent = userAgents[UserAgent.values[sphiaConfig.userAgent].name];
     client.userAgent = userAgent;
     if (coreProvider.coreRunning &&
         (sphiaConfig.updateThroughProxy ||
@@ -23,7 +23,7 @@ class NetworkUtil {
             url.contains('sphia'))) {
       client.findProxy = (uri) {
         return 'PROXY ${sphiaConfig.listen}:'
-            '${sphiaConfig.routingProvider == 'sing-box' ? sphiaConfig.mixedPort : sphiaConfig.httpPort}';
+            '${sphiaConfig.routingProvider == RoutingProvider.singbox.index ? sphiaConfig.mixedPort : sphiaConfig.httpPort}';
       };
     }
     final uri = Uri.parse(url);

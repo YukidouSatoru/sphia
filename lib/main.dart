@@ -82,8 +82,8 @@ Future<void> configureApp() async {
   Sphia - a Proxy Handling Intuitive Application
   Full version: $sphiaFullVersion
   Last commit hash: $sphiaLastCommitHash
-  OS: ${SystemUtil.os}
-  Architecture: ${SystemUtil.architecture}
+  OS: ${SystemUtil.os.name}
+  Architecture: ${SystemUtil.architecture.name}
   App Path: $appPath
   Exec Path: $execPath
   Bin path: $binPath

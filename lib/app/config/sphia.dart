@@ -2,13 +2,40 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'sphia.g.dart';
 
+enum NavigationStyle { rail, drawer }
+
+enum UserAgent { chrome, firefox, safari, edge, none }
+
+// ignore: constant_identifier_names
+enum DomainStrategy { AsIs, IPIfNonMatch, IPOnDemand }
+
+enum DomainMatcher { hybrid, linear }
+
+enum LogLevel { none, warning, debug, error, info }
+
+enum RoutingProvider { singbox, xray }
+
+enum VmessProvider { sing, xray }
+
+enum VlessProvider { sing, xray }
+
+enum ShadowsocksProvider { sing, xray, ssrust }
+
+enum TrojanProvider { sing, xray }
+
+enum HysteriaProvider { sing, hysteria }
+
+enum TunProvider { sing }
+
+enum TunStack { system, gvisor }
+
 @JsonSerializable(includeIfNull: false)
 class SphiaConfig {
   /* Sphia */
   bool startOnBoot;
   bool autoRunServer;
   bool useMaterial3;
-  String navigationStyle;
+  int navigationStyle;
   bool darkMode;
   int themeColor;
   bool showAddress;
@@ -16,7 +43,7 @@ class SphiaConfig {
   bool enableSpeedChart;
   int updateSubscribeInterval;
   bool updateThroughProxy;
-  String userAgent;
+  int userAgent;
 
   /* Proxy */
   bool autoGetIp;
@@ -37,30 +64,30 @@ class SphiaConfig {
   bool configureDns;
   String remoteDns;
   String directDns;
-  String domainStrategy;
-  String domainMatcher;
+  int domainStrategy;
+  int domainMatcher;
   bool enableCoreLog;
-  String logLevel;
+  int logLevel;
   int maxLogCount;
   bool saveCoreLog;
 
   /* Provider */
-  String routingProvider;
-  String vmessProvider;
-  String vlessProvider;
-  String shadowsocksProvider;
-  String trojanProvider;
-  String hysteriaProvider;
+  int routingProvider;
+  int vmessProvider;
+  int vlessProvider;
+  int shadowsocksProvider;
+  int trojanProvider;
+  int hysteriaProvider;
   int additionalSocksPort;
 
   /* Tun */
-  String tunProvider;
+  int tunProvider;
   bool enableIpv4;
   String ipv4Address;
   bool enableIpv6;
   String ipv6Address;
   int mtu;
-  String stack;
+  int stack;
   bool autoRoute;
   bool strictRoute;
 
@@ -122,7 +149,7 @@ class SphiaConfig {
       startOnBoot: false,
       autoRunServer: false,
       useMaterial3: false,
-      navigationStyle: 'rail',
+      navigationStyle: NavigationStyle.rail.index,
       darkMode: false,
       themeColor: 4278430196,
       showAddress: false,
@@ -130,7 +157,7 @@ class SphiaConfig {
       enableSpeedChart: false,
       updateSubscribeInterval: -1,
       updateThroughProxy: false,
-      userAgent: 'chrome',
+      userAgent: UserAgent.chrome.index,
       autoGetIp: false,
       autoConfigureSystemProxy: false,
       enableTun: false,
@@ -147,26 +174,26 @@ class SphiaConfig {
       configureDns: true,
       remoteDns: 'https://dns.google/dns-query',
       directDns: 'https+local://doh.pub/dns-query',
-      domainStrategy: 'IPIfNonMatch',
-      domainMatcher: 'hybrid',
+      domainStrategy: DomainStrategy.IPIfNonMatch.index,
+      domainMatcher: DomainMatcher.hybrid.index,
       enableCoreLog: true,
-      logLevel: 'warning',
+      logLevel: LogLevel.warning.index,
       maxLogCount: 64,
       saveCoreLog: false,
-      routingProvider: 'sing-box',
-      vmessProvider: 'sing-box',
-      vlessProvider: 'sing-box',
-      shadowsocksProvider: 'sing-box',
-      trojanProvider: 'sing-box',
-      hysteriaProvider: 'sing-box',
+      routingProvider: RoutingProvider.singbox.index,
+      vmessProvider: VmessProvider.sing.index,
+      vlessProvider: VlessProvider.sing.index,
+      shadowsocksProvider: ShadowsocksProvider.sing.index,
+      trojanProvider: TrojanProvider.sing.index,
+      hysteriaProvider: HysteriaProvider.sing.index,
       additionalSocksPort: 11114,
-      tunProvider: 'sing-box',
+      tunProvider: TunProvider.sing.index,
       enableIpv4: true,
       ipv4Address: '172.19.0.1/30',
       enableIpv6: false,
       ipv6Address: 'fdfe:dcba:9876::1/126',
       mtu: 9000,
-      stack: 'system',
+      stack: TunStack.system.index,
       autoRoute: true,
       strictRoute: false,
     );

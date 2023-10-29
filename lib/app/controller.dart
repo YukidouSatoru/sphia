@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:get_it/get_it.dart';
+import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/core.dart';
@@ -48,49 +49,52 @@ class SphiaController {
     } else {
       switch (protocol) {
         case 'vmess':
-          if (sphiaConfig.vmessProvider == 'xray-core') {
+          if (sphiaConfig.vmessProvider == VmessProvider.xray.index) {
             newCores.add(XrayCore());
           } else {
             newCores.add(SingBoxCore());
           }
           break;
         case 'vless':
-          if (sphiaConfig.vlessProvider == 'xray-core') {
+          if (sphiaConfig.vlessProvider == VlessProvider.xray.index) {
             newCores.add(XrayCore());
           } else {
             newCores.add(SingBoxCore());
           }
           break;
         case 'shadowsocks':
-          if (sphiaConfig.shadowsocksProvider == 'xray-core') {
+          if (sphiaConfig.shadowsocksProvider ==
+              ShadowsocksProvider.xray.index) {
             newCores.add(XrayCore());
-          } else if (sphiaConfig.shadowsocksProvider == 'sing-box') {
+          } else if (sphiaConfig.shadowsocksProvider ==
+              ShadowsocksProvider.sing.index) {
             newCores.add(SingBoxCore());
           } else {
             newCores.add(ShadowsocksRustCore());
           }
           break;
         case 'trojan':
-          if (sphiaConfig.trojanProvider == 'xray-core') {
+          if (sphiaConfig.trojanProvider == TrojanProvider.xray.index) {
             newCores.add(XrayCore());
           } else {
             newCores.add(SingBoxCore());
           }
           break;
         case 'hysteria':
-          if (sphiaConfig.hysteriaProvider == 'sing-box') {
+          if (sphiaConfig.hysteriaProvider == HysteriaProvider.sing.index) {
             newCores.add(SingBoxCore());
           } else {
             newCores.add(HysteriaCore());
           }
           break;
       }
-      if (sphiaConfig.routingProvider != newCores[0].coreName) {
+      if (getProviderCoreName(sphiaConfig.routingProvider) !=
+          newCores[0].coreName) {
         additionalServerBase = XrayServer.defaults()
           ..remark = 'Additional Socks Server'
           ..protocol = 'socks'
           ..address = sphiaConfig.listen;
-        if (sphiaConfig.routingProvider == 'sing-box') {
+        if (sphiaConfig.routingProvider == RoutingProvider.singbox.index) {
           newCores.add(SingBoxCore());
           if (newCores[0].coreName == 'xray-core') {
             additionalServerBase.port = sphiaConfig.socksPort;
@@ -121,7 +125,8 @@ class SphiaController {
           await coreProvider.cores[0].start(server);
         } else {
           for (var core in coreProvider.cores) {
-            if (core.coreName == sphiaConfig.routingProvider &&
+            if (core.coreName ==
+                    getProviderCoreName(sphiaConfig.routingProvider) &&
                 additionalServerBase != null) {
               final additionalServer = Server(
                 id: -1,
@@ -180,4 +185,7 @@ class SphiaController {
       coreProvider.updateCoreRunning(true);
     }
   }
+
+  static String getProviderCoreName(int providerIndex) =>
+      providerIndex == RoutingProvider.singbox.index ? 'sing-box' : 'xray-core';
 }

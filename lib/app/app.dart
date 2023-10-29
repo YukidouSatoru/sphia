@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/theme.dart';
@@ -51,7 +52,7 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
     final sphiaConfig = sphiaConfigProvider.config;
     dynamic navigation;
 
-    if (sphiaConfig.navigationStyle == 'rail') {
+    if (sphiaConfig.navigationStyle == NavigationStyle.rail.index) {
       navigation = _getNavigationRail(context);
     } else {
       navigation = _getNavigationDrawer(context);
@@ -98,18 +99,20 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
             )
           ],
         ),
-        floatingActionButton: sphiaConfig.navigationStyle == 'drawer'
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  SphiaUpdatWidget().updatWidget(),
-                  _getDrawerFloatingButton(),
-                ],
-              )
-            : null,
-        floatingActionButtonLocation: sphiaConfig.navigationStyle == 'drawer'
-            ? FloatingActionButtonLocation.miniStartFloat
-            : null,
+        floatingActionButton:
+            sphiaConfig.navigationStyle == NavigationStyle.drawer.index
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      SphiaUpdatWidget().updatWidget(),
+                      _getDrawerFloatingButton(),
+                    ],
+                  )
+                : null,
+        floatingActionButtonLocation:
+            sphiaConfig.navigationStyle == NavigationStyle.drawer.index
+                ? FloatingActionButtonLocation.miniStartFloat
+                : null,
       ),
     );
   }

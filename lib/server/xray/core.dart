@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:core';
 
 import 'package:path/path.dart' as p;
+import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/server/core_base.dart';
 import 'package:sphia/server/server_base.dart';
@@ -25,10 +26,12 @@ class XrayCore extends CoreBase {
 
   @override
   Future<String> generateConfig(ServerBase server) async {
-    final log = XrayGenerate.log(coreLogPath, sphiaConfig.logLevel);
+    final log = XrayGenerate.log(
+        coreLogPath, LogLevel.values[sphiaConfig.logLevel].name);
 
     Dns? dns;
-    if (sphiaConfig.configureDns && sphiaConfig.routingProvider == coreName) {
+    if (sphiaConfig.configureDns &&
+        sphiaConfig.routingProvider == RoutingProvider.xray.index) {
       dns = XrayGenerate.dns(sphiaConfig.remoteDns, sphiaConfig.directDns);
     }
 
@@ -62,7 +65,7 @@ class XrayCore extends CoreBase {
     ];
 
     if (sphiaConfig.enableStatistics &&
-        sphiaConfig.routingProvider == coreName) {
+        sphiaConfig.routingProvider == RoutingProvider.xray.index) {
       inbounds.add(
         Inbound(
           tag: 'api',
@@ -75,10 +78,10 @@ class XrayCore extends CoreBase {
     }
 
     Routing? routing;
-    if (sphiaConfig.routingProvider == coreName) {
+    if (sphiaConfig.routingProvider == RoutingProvider.xray.index) {
       routing = XrayGenerate.routing(
-        sphiaConfig.domainStrategy,
-        sphiaConfig.domainMatcher,
+        DomainStrategy.values[sphiaConfig.domainStrategy].name,
+        DomainMatcher.values[sphiaConfig.domainMatcher].name,
         await SphiaDatabase.ruleDao
             .getXrayRulesByGroupId(ruleConfig.selectedRuleGroupId),
         sphiaConfig.enableStatistics,
@@ -89,7 +92,7 @@ class XrayCore extends CoreBase {
     Policy? policy;
     Stats? stats;
     if (sphiaConfig.enableStatistics &&
-        sphiaConfig.routingProvider == coreName) {
+        sphiaConfig.routingProvider == RoutingProvider.xray.index) {
       api = Api(
         tag: 'api',
         services: ['StatsService'],
