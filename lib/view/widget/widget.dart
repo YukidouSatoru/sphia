@@ -130,6 +130,7 @@ class WidgetBuild {
                   itemCount: items.length,
                   itemBuilder: (BuildContext context, int index) {
                     return ListTile(
+                      shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
                       title: Text(items[index]),
                       trailing: Icon(
                         index == value ? Icons.check : null,
@@ -180,6 +181,7 @@ class WidgetBuild {
                   itemBuilder: (BuildContext context, int index) {
                     final color = items.keys.elementAt(index);
                     return ListTile(
+                      shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
                       title: Text(
                         "❖ ${items[color]}",
                         style: TextStyle(
