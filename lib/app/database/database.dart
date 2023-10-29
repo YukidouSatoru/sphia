@@ -142,7 +142,18 @@ class SphiaConfigDao {
           data[key] = value;
         }
       });
-      return SphiaConfig.fromJson(data);
+      late final SphiaConfig sphiaConfig;
+      try {
+        sphiaConfig = SphiaConfig.fromJson(data);
+      } catch (e) {
+        logger.wtf('Failed to load sphia config: $e');
+        logger.i('Resetting sphia config');
+        sphiaConfig = defaultConfig;
+        await (_db.update(_db.config)
+              ..where((tbl) => tbl.id.equals(sphiaConfigId)))
+            .write(ConfigCompanion(config: Value(jsonEncode(sphiaConfig))));
+      }
+      return sphiaConfig;
     } on Exception catch (e) {
       logger.wtf('Failed to load sphia config: $e');
       rethrow;
