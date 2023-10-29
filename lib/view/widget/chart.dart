@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 
@@ -53,6 +54,10 @@ class _NetworkChartState extends State<NetworkChart> {
   }
 
   void _startTimer() {
+    if (_timer != null) {
+      return;
+    }
+    logger.i('Start speed chart timer');
     // just keep lastest 60s
     _timer = Timer.periodic(const Duration(milliseconds: 25), (timer) {
       final nowStamp = DateTime.now().millisecondsSinceEpoch;
@@ -76,6 +81,7 @@ class _NetworkChartState extends State<NetworkChart> {
   }
 
   void _stopTimer() {
+    logger.i('Stop speed chart timer');
     _timer?.cancel();
     _timer = null;
     _maxY = 0;
@@ -86,8 +92,7 @@ class _NetworkChartState extends State<NetworkChart> {
   void _shouldStartTimer() {
     if (_sphiaConfigProvider.config.enableStatistics &&
         _coreProvider.coreRunning &&
-        _sphiaConfigProvider.config.enableSpeedChart &&
-        _timer == null) {
+        _sphiaConfigProvider.config.enableSpeedChart) {
       _startTimer();
     } else {
       _stopTimer();
