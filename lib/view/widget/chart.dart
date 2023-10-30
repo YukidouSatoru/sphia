@@ -81,6 +81,9 @@ class _NetworkChartState extends State<NetworkChart> {
   }
 
   void _stopTimer() {
+    if (_timer == null) {
+      return;
+    }
     logger.i('Stop speed chart timer');
     _timer?.cancel();
     _timer = null;
