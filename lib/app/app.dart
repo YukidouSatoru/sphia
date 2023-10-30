@@ -45,6 +45,9 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
 
   void _init() async {
     await windowManager.setPreventClose(true);
+    if (SystemUtil.os != OS.macos) {
+      await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+    }
     setState(() {});
   }
 

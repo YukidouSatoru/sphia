@@ -139,16 +139,13 @@ Future<void> configureApp() async {
   const windowOptions = WindowOptions(
     size: Size(1152, 720),
     center: true,
-    title: 'Sphia - $sphiaVersion',
+    titleBarStyle: TitleBarStyle.hidden,
     minimumSize: Size(980, 720),
   );
 
   windowManager.waitUntilReadyToShow(windowOptions, () async {
     await windowManager.setAlignment(Alignment.center);
     await windowManager.setMinimumSize(const Size(980, 720));
-    if (SystemUtil.os != OS.macos) {
-      await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
-    }
     await windowManager.show();
     await windowManager.focus();
   });
