@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/view/page/wrapper.dart';
 
-const sphiaVersion = '0.7.5';
-const sphiaBuildNumber = 6;
+const sphiaVersion = '0.7.6';
+const sphiaBuildNumber = 7;
 const sphiaFullVersion = '$sphiaVersion+$sphiaBuildNumber';
 const sphiaLastCommitHash = 'SELF_BUILD';
 
