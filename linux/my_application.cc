@@ -52,8 +52,8 @@ static void my_application_activate(GApplication* application) {
       gtk_window_set_title(window, "Sphia");
     }
     
-    gtk_window_set_decorated(GTK_WINDOW(window), FALSE);
     gtk_window_set_default_size(window, 1152, 720);
+    gtk_widget_set_size_request(GTK_WIDGET(window), 980, 720);
     gtk_widget_show(GTK_WIDGET(window));
 
     if (g_file_test("assets", G_FILE_TEST_IS_DIR)) {
