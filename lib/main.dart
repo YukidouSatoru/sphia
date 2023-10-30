@@ -136,11 +136,12 @@ Future<void> configureApp() async {
 
   await windowManager.ensureInitialized();
 
-  const windowOptions = WindowOptions(
-    size: Size(1152, 720),
+  final windowOptions = WindowOptions(
+    size: const Size(1152, 720),
     center: true,
-    titleBarStyle: TitleBarStyle.hidden,
-    minimumSize: Size(980, 720),
+    titleBarStyle: SystemUtil.os != OS.macos ? TitleBarStyle.hidden : null,
+    minimumSize: const Size(980, 720),
+    title: SystemUtil.os == OS.macos ? 'Sphia - $sphiaVersion' : null,
   );
 
   windowManager.waitUntilReadyToShow(windowOptions, () async {
