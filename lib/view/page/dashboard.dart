@@ -470,6 +470,7 @@ class _DashboardState extends State<Dashboard> {
 
   Widget _buildCard(CardData cardData) {
     return Card(
+      elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),

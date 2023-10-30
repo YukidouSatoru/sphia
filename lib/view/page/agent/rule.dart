@@ -6,6 +6,8 @@ import 'package:quiver/collection.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/rule_config.dart';
+import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:sphia/app/theme.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/server/xray/config.dart';
 import 'package:sphia/view/dialog/rule.dart';
@@ -223,6 +225,7 @@ class RuleAgent {
   }
 
   Future<bool> reorderGroup() async {
+    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     final ruleConfigProvider = GetIt.I.get<RuleConfigProvider>();
     final ruleGroups = ruleConfigProvider.ruleGroups;
     final oldOrder = ruleGroups.map((e) => e.id).toList();
@@ -232,15 +235,28 @@ class RuleAgent {
         return AlertDialog(
           title: Text(S.of(context).reorderGroup),
           content: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.15,
-            height: ruleGroups.length * 50.0,
+            width: double.minPositive,
             child: ReorderableListView.builder(
+              buildDefaultDragHandles: false,
+              proxyDecorator: (child, index, animation) => child,
+              shrinkWrap: true,
               itemCount: ruleGroups.length,
               itemBuilder: (context, index) {
                 final group = ruleGroups[index];
-                return ListTile(
-                  key: Key(group.name),
-                  title: Text(group.name),
+                return RepaintBoundary(
+                  key: ValueKey(group.name),
+                  child: ReorderableDragStartListener(
+                    index: index,
+                    child: Card(
+                      color: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      child: ListTile(
+                        shape:
+                            SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
+                        title: Text(group.name),
+                      ),
+                    ),
+                  ),
                 );
               },
               onReorder: (int oldIndex, int newIndex) async {

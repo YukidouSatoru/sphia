@@ -11,6 +11,7 @@ import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:sphia/app/theme.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/server/core_base.dart';
 import 'package:sphia/server/hysteria/core.dart';
@@ -457,8 +458,8 @@ class ServerAgent {
         showSnackBar('${S.current.updatingGroup}: $groupName');
         try {
           List<String> uris;
-          uris = await UriUtil.importUriFromSubscribe(
-              subscribe, userAgents[UserAgent.values[sphiaConfig.userAgent].name]!);
+          uris = await UriUtil.importUriFromSubscribe(subscribe,
+              userAgents[UserAgent.values[sphiaConfig.userAgent].name]!);
           final newServer = uris
               .map((e) => UriUtil.parseUri(e))
               .whereType<ServerBase>()
@@ -491,8 +492,8 @@ class ServerAgent {
           final groupName = serverGroup.name;
           try {
             List<String> uris;
-            uris = await UriUtil.importUriFromSubscribe(
-                subscribe, userAgents[UserAgent.values[sphiaConfig.userAgent].name]!);
+            uris = await UriUtil.importUriFromSubscribe(subscribe,
+                userAgents[UserAgent.values[sphiaConfig.userAgent].name]!);
             final newServer = uris
                 .map((e) => UriUtil.parseUri(e))
                 .whereType<ServerBase>()
@@ -544,6 +545,7 @@ class ServerAgent {
   }
 
   Future<bool> reorderGroup() async {
+    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     final serverGroups = serverConfigProvider.serverGroups;
     final oldOrder = serverGroups.map((e) => e.id).toList();
@@ -553,15 +555,28 @@ class ServerAgent {
         return AlertDialog(
           title: Text(S.of(context).reorderGroup),
           content: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.15,
-            height: serverGroups.length * 50.0,
+            width: double.minPositive,
             child: ReorderableListView.builder(
+              buildDefaultDragHandles: false,
+              proxyDecorator: (child, index, animation) => child,
+              shrinkWrap: true,
               itemCount: serverGroups.length,
               itemBuilder: (context, index) {
                 final group = serverGroups[index];
-                return ListTile(
-                  key: Key(group.name),
-                  title: Text(group.name),
+                return RepaintBoundary(
+                  key: ValueKey(group.name),
+                  child: ReorderableDragStartListener(
+                    index: index,
+                    child: Card(
+                      color: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      child: ListTile(
+                        shape:
+                            SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
+                        title: Text(group.name),
+                      ),
+                    ),
+                  ),
                 );
               },
               onReorder: (int oldIndex, int newIndex) {
