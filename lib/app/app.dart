@@ -6,6 +6,7 @@ import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
+import 'package:sphia/util/system.dart';
 import 'package:sphia/view/page/about.dart';
 import 'package:sphia/view/page/dashboard.dart';
 import 'package:sphia/view/page/log.dart';
@@ -14,6 +15,7 @@ import 'package:sphia/view/page/server.dart';
 import 'package:sphia/view/page/setting.dart';
 import 'package:sphia/view/page/update.dart';
 import 'package:sphia/view/widget/updat.dart';
+import 'package:sphia/view/widget/window_caption.dart';
 import 'package:window_manager/window_manager.dart';
 
 class SphiaApp extends StatefulWidget {
@@ -58,6 +60,25 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
       navigation = _getNavigationDrawer(context);
     }
 
+    final titleBar = PreferredSize(
+      preferredSize: const Size.fromHeight(kWindowCaptionHeight),
+      child: SystemUtil.os == OS.macos
+          ? Container()
+          : SphiaWindowCaption(
+              title: Text(
+                'Sphia - $sphiaVersion',
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      fontSize: 14.5,
+                      fontFamily: 'Verdana',
+                      color: Colors.grey[500],
+                    ),
+                textAlign: TextAlign.center,
+              ),
+              backgroundColor: Colors.transparent,
+              brightness: sphiaConfig.darkMode ? Brightness.dark : Brightness.light,
+            ),
+    );
+
     return MaterialApp(
       localizationsDelegates: const [
         S.delegate,
@@ -73,6 +94,7 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
         context,
       ),
       home: Scaffold(
+        appBar: titleBar,
         body: Column(
           children: <Widget>[
             Expanded(

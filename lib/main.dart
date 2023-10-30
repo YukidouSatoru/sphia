@@ -137,20 +137,21 @@ Future<void> configureApp() async {
   await windowManager.ensureInitialized();
 
   const windowOptions = WindowOptions(
-    size: Size(1200, 720),
+    size: Size(1152, 720),
     center: true,
-    // maximumSize: Size(1200, 720),
-    minimumSize: Size(980, 600),
     title: 'Sphia - $sphiaVersion',
   );
 
   windowManager.waitUntilReadyToShow(windowOptions, () async {
-    // await windowManager.setAsFrameless();
+    await windowManager.setAlignment(Alignment.center);
+    if (SystemUtil.os == OS.macos) {
+      await windowManager.setResizable(false);
+    } else {
+      await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+      await windowManager.setAsFrameless();
+    }
     await windowManager.show();
     await windowManager.focus();
-    // await windowManager.setMaximumSize(const Size(1200, 720));
-    await windowManager.setAlignment(Alignment.center);
-    await windowManager.setMinimumSize(const Size(980, 600));
   });
 
   // Run app
