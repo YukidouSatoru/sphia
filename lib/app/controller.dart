@@ -94,7 +94,7 @@ class SphiaController {
           ..remark = 'Additional Socks Server'
           ..protocol = 'socks'
           ..address = sphiaConfig.listen;
-        if (sphiaConfig.routingProvider == RoutingProvider.singbox.index) {
+        if (sphiaConfig.routingProvider == RoutingProvider.sing.index) {
           newCores.add(SingBoxCore());
           if (newCores[0].coreName == 'xray-core') {
             additionalServerBase.port = sphiaConfig.socksPort;
@@ -187,5 +187,5 @@ class SphiaController {
   }
 
   static String getProviderCoreName(int providerIndex) =>
-      providerIndex == RoutingProvider.singbox.index ? 'sing-box' : 'xray-core';
+      providerIndex == RoutingProvider.sing.index ? 'sing-box' : 'xray-core';
 }

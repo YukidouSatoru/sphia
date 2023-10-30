@@ -40,7 +40,7 @@ class SingBoxCore extends CoreBase {
     Dns? dns;
     if (sphiaConfig.enableTun ||
         (sphiaConfig.configureDns &&
-            sphiaConfig.routingProvider == RoutingProvider.singbox.index)) {
+            sphiaConfig.routingProvider == RoutingProvider.sing.index)) {
       dns = await SingBoxGenerate.dns(
         sphiaConfig.remoteDns,
         sphiaConfig.directDns,
@@ -80,7 +80,7 @@ class SingBoxCore extends CoreBase {
     Route? route;
     if (sphiaConfig.enableTun ||
         (!sphiaConfig.enableTun &&
-            sphiaConfig.routingProvider == RoutingProvider.singbox.index)) {
+            sphiaConfig.routingProvider == RoutingProvider.sing.index)) {
       route = SingBoxGenerate.route(
         await SphiaDatabase.ruleDao
             .getXrayRulesByGroupId(ruleConfig.selectedRuleGroupId),
@@ -113,7 +113,7 @@ class SingBoxCore extends CoreBase {
 
     Experimental? experimental;
     if (sphiaConfig.enableStatistics &&
-        sphiaConfig.routingProvider == RoutingProvider.singbox.index) {
+        sphiaConfig.routingProvider == RoutingProvider.sing.index) {
       experimental = Experimental(
         clashApi: ClashApi(
           externalController: '127.0.0.1:${sphiaConfig.coreApiPort}',

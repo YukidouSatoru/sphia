@@ -439,7 +439,7 @@ class ServerAgent {
 
   Future<bool> updateGroup(
       String type, int groupId, void Function(String) showSnackBar) async {
-    final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
+    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     switch (type) {
       case 'CurrentGroup':
         final serverGroup =
@@ -458,7 +458,7 @@ class ServerAgent {
         try {
           List<String> uris;
           uris = await UriUtil.importUriFromSubscribe(
-              subscribe, userAgents[sphiaConfigProvider.config.userAgent]!);
+              subscribe, userAgents[UserAgent.values[sphiaConfig.userAgent].name]!);
           final newServer = uris
               .map((e) => UriUtil.parseUri(e))
               .whereType<ServerBase>()
@@ -492,7 +492,7 @@ class ServerAgent {
           try {
             List<String> uris;
             uris = await UriUtil.importUriFromSubscribe(
-                subscribe, userAgents[sphiaConfigProvider.config.userAgent]!);
+                subscribe, userAgents[UserAgent.values[sphiaConfig.userAgent].name]!);
             final newServer = uris
                 .map((e) => UriUtil.parseUri(e))
                 .whereType<ServerBase>()

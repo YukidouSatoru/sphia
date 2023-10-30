@@ -49,7 +49,7 @@ class SubscribeTask {
   }
 
   static void updateSubscribe() async {
-    final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
+    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     serverConfigProvider.config.updatedSubscribeTime =
         DateTime.now().millisecondsSinceEpoch;
@@ -63,7 +63,7 @@ class SubscribeTask {
       try {
         List<String> uris;
         uris = await UriUtil.importUriFromSubscribe(
-            subscribe, userAgents[sphiaConfigProvider.config.userAgent]!);
+            subscribe, userAgents[UserAgent.values[sphiaConfig.userAgent].name]!);
         final servers = uris
             .map((e) => UriUtil.parseUri(e))
             .whereType<ServerBase>()

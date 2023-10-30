@@ -13,7 +13,7 @@ enum DomainMatcher { hybrid, linear }
 
 enum LogLevel { none, warning, debug, error, info }
 
-enum RoutingProvider { singbox, xray }
+enum RoutingProvider { sing, xray }
 
 enum VmessProvider { sing, xray }
 
@@ -180,7 +180,7 @@ class SphiaConfig {
       logLevel: LogLevel.warning.index,
       maxLogCount: 64,
       saveCoreLog: false,
-      routingProvider: RoutingProvider.singbox.index,
+      routingProvider: RoutingProvider.sing.index,
       vmessProvider: VmessProvider.sing.index,
       vlessProvider: VlessProvider.sing.index,
       shadowsocksProvider: ShadowsocksProvider.sing.index,

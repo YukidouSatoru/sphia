@@ -160,7 +160,7 @@ class XrayGenerate {
 
   static Outbound shadowsocksOutbound(ShadowsocksServer server) {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
-    final userAgent = userAgents[sphiaConfig.userAgent]!;
+    final userAgent = userAgents[UserAgent.values[sphiaConfig.userAgent].name]!;
     StreamSettings? streamSettings;
     String? network;
     String security = 'none';
