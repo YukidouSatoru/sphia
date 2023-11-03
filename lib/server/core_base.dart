@@ -59,26 +59,11 @@ abstract class CoreBase {
       throw Exception('Core Process is null');
     }
 
-    coreProcess!.stdout.transform(utf8.decoder).listen((data) {
-      if (data.trim().isNotEmpty) {
-        logStreamController.add(data);
-        if (isPreLog) {
-          _preLogList.add(data);
-        }
-      }
-    });
-
-    coreProcess!.stderr.transform(utf8.decoder).listen((data) {
-      if (data.trim().isNotEmpty) {
-        logStreamController.add(data);
-        if (isPreLog) {
-          _preLogList.add(data);
-        }
-      }
-    });
+    listenToProcessStream(coreProcess!.stdout);
+    listenToProcessStream(coreProcess!.stderr);
 
     try {
-      if (await coreProcess!.exitCode
+      if (await coreProcess?.exitCode
               .timeout(const Duration(milliseconds: 500)) !=
           0) {
         throw Exception('\n${_preLogList.join('\n')}');
@@ -91,30 +76,40 @@ abstract class CoreBase {
   Future<void> stop() async {
     if (coreProcess != null) {
       logger.i('Stopping core: $coreName');
-      coreProcess!.kill(ProcessSignal.sigterm);
-      await coreProcess!.exitCode.timeout(const Duration(milliseconds: 500),
+      coreProcess?.kill(ProcessSignal.sigterm);
+      await coreProcess?.exitCode.timeout(const Duration(milliseconds: 500),
           onTimeout: () {
-        coreProcess!.kill(ProcessSignal.sigkill);
+        coreProcess?.kill(ProcessSignal.sigkill);
         return Future.error(
             'Failed to stop $coreName, force killed the process.');
       });
       coreProcess = null;
     }
-    if (configFileName.isNotEmpty) {
-      if (await configFile.exists()) {
-        logger.i('Deleting config file: $configFileName');
-        await configFile.delete();
-      }
-    }
+    deleteFileIfExists(configFile, 'Deleting config file: $configFileName');
     if (coreName == 'sing-box') {
-      logger.i('Deleting cache file: cache.db');
       final cacheFile = File(p.join(tempPath, 'cache.db'));
-      if (await cacheFile.exists()) {
-        await cacheFile.delete();
-      }
+      deleteFileIfExists(cacheFile, 'Deleting cache file: cache.db');
     }
     if (!logStreamController.isClosed) {
       await logStreamController.close();
+    }
+  }
+
+  void listenToProcessStream(Stream<List<int>> stream) {
+    stream.transform(utf8.decoder).listen((data) {
+      if (data.trim().isNotEmpty) {
+        logStreamController.add(data);
+        if (isPreLog) {
+          _preLogList.add(data);
+        }
+      }
+    });
+  }
+
+  Future<void> deleteFileIfExists(File file, String logMessage) async {
+    if (await file.exists()) {
+      logger.i(logMessage);
+      await file.delete();
     }
   }
 
