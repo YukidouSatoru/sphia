@@ -181,6 +181,7 @@ class _UpdatePageState extends State<UpdatePage> {
           return;
         }
       }
+      logger.i('Latest version of $coreName: $latestVersion');
       setState(() {
         _latestVersions[coreName] = latestVersion;
       });

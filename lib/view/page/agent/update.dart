@@ -54,8 +54,8 @@ class UpdateAgent {
         showSnackBar('${S.current.updateFailed}: $coreName\n$e');
         throw Exception('Failed to update: $coreName\n$e');
       }
-      logger.i('Updated successfully: $coreName');
-      showSnackBar('${S.current.updatedSuccessfully}: $coreName');
+      logger.i('Updated $coreName to $latestVersion successfully');
+      showSnackBar(S.current.updatedSuccessfully(coreName, latestVersion));
       final versionConfigProvider = GetIt.I.get<VersionConfigProvider>();
       versionConfigProvider.updateVersion(coreName, latestVersion);
     } else {
@@ -83,8 +83,8 @@ class UpdateAgent {
         showSnackBar('${S.current.updateFailed}: $coreName\n$e');
         throw Exception('Failed to update: $coreName\n$e');
       }
-      logger.i('Updated successfully: $coreName');
-      showSnackBar('${S.current.updatedSuccessfully}: $coreName');
+      logger.i('Updated $coreName to $latestVersion successfully');
+      showSnackBar(S.current.updatedSuccessfully(coreName, latestVersion));
       final versionConfigProvider = GetIt.I.get<VersionConfigProvider>();
       versionConfigProvider.updateVersion(coreName, latestVersion);
     }

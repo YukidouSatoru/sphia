@@ -20,6 +20,8 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'zh_CN';
 
+  static String m0(coreName, version) => "更新 ${coreName} 到 ${version} 成功";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "about": MessageLookupByLibrary.simpleMessage("关于"),
@@ -286,7 +288,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "通过代理更新，默认关闭。开启后，会通过代理服务器更新核心和订阅 (需要有活动的服务器)"),
         "updatedGroupSuccessfully":
             MessageLookupByLibrary.simpleMessage("更新分组成功"),
-        "updatedSuccessfully": MessageLookupByLibrary.simpleMessage("更新成功"),
+        "updatedSuccessfully": m0,
         "updating": MessageLookupByLibrary.simpleMessage("正在更新"),
         "updatingAllGroups": MessageLookupByLibrary.simpleMessage("更新所有分组"),
         "updatingGroup": MessageLookupByLibrary.simpleMessage("更新分组"),

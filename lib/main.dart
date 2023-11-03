@@ -125,7 +125,10 @@ Future<void> configureApp() async {
   getIt.registerSingleton<VersionConfigProvider>(versionConfigProvider);
 
   // Print versions of cores
-  logger.i(versionConfigProvider.generateLog());
+  final versions = versionConfigProvider.generateLog();
+  if (versions.isNotEmpty) {
+    logger.i(versions);
+  }
 
   // Init tray
   SphiaTray.init();

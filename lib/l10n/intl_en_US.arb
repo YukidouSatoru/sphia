@@ -216,7 +216,7 @@
   "updateThroughProxy": "Update Through Proxy",
   "updateThroughProxyMsg": "Update through proxy, default off. When it's on, updates for the core and subscriptions will be done through a proxy server (requires an active server)",
   "updatedGroupSuccessfully": "Updated group successfully",
-  "updatedSuccessfully": "Updated successfully",
+  "updatedSuccessfully": "Updated {coreName} to {version} successfully",
   "updating": "Updating",
   "updatingAllGroups": "Updating all groups",
   "updatingGroup": "Updating group",

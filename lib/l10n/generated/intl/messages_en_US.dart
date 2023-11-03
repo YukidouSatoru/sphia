@@ -20,6 +20,9 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en_US';
 
+  static String m0(coreName, version) =>
+      "Updated ${coreName} to ${version} successfully";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "about": MessageLookupByLibrary.simpleMessage("About"),
@@ -347,8 +350,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "Update through proxy, default off. When it\'s on, updates for the core and subscriptions will be done through a proxy server (requires an active server)"),
         "updatedGroupSuccessfully":
             MessageLookupByLibrary.simpleMessage("Updated group successfully"),
-        "updatedSuccessfully":
-            MessageLookupByLibrary.simpleMessage("Updated successfully"),
+        "updatedSuccessfully": m0,
         "updating": MessageLookupByLibrary.simpleMessage("Updating"),
         "updatingAllGroups":
             MessageLookupByLibrary.simpleMessage("Updating all groups"),

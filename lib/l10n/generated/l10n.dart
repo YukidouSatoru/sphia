@@ -2210,13 +2210,13 @@ class S {
     );
   }
 
-  /// `Updated successfully`
-  String get updatedSuccessfully {
+  /// `Updated {coreName} to {version} successfully`
+  String updatedSuccessfully(Object coreName, Object version) {
     return Intl.message(
-      'Updated successfully',
+      'Updated $coreName to $version successfully',
       name: 'updatedSuccessfully',
       desc: '',
-      args: [],
+      args: [coreName, version],
     );
   }
 

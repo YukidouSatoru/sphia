@@ -216,7 +216,7 @@
   "updateThroughProxy": "通过代理更新",
   "updateThroughProxyMsg": "通过代理更新，默认关闭。开启后，会通过代理服务器更新核心和订阅 (需要有活动的服务器)",
   "updatedGroupSuccessfully": "更新分组成功",
-  "updatedSuccessfully": "更新成功",
+  "updatedSuccessfully": "更新 {coreName} 到 {version} 成功",
   "updating": "正在更新",
   "updatingAllGroups": "更新所有分组",
   "updatingGroup": "更新分组",
