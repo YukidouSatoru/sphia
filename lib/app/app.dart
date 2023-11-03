@@ -47,6 +47,8 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
     await windowManager.setPreventClose(true);
     if (SystemUtil.os != OS.macos) {
       await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+    } else {
+      await windowManager.setTitle('Sphia - $sphiaVersion');
     }
     setState(() {});
   }
@@ -78,7 +80,8 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
                 textAlign: TextAlign.center,
               ),
               backgroundColor: Colors.transparent,
-              brightness: sphiaConfig.darkMode ? Brightness.dark : Brightness.light,
+              brightness:
+                  sphiaConfig.darkMode ? Brightness.dark : Brightness.light,
             ),
     );
 
