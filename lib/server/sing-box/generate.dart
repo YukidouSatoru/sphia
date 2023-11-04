@@ -11,33 +11,28 @@ import 'package:sphia/server/xray/server.dart';
 import 'package:sphia/util/system.dart';
 
 class SingBoxGenerate {
-  static Future<Dns> dns(String remoteDns, String directDns,
-      String serverAddress, bool ipv4Only) async {
-    final remoteDnsHost = Uri.parse(remoteDns).host;
-    if (!RegExp(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
-            .hasMatch(remoteDnsHost) &&
-        remoteDnsHost.isNotEmpty) {
+  static const ipRegExp = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}';
+
+  static Future<String> resolveDns(String dns) async {
+    final dnsHost = Uri.parse(dns).host;
+    if (!RegExp(ipRegExp).hasMatch(dnsHost) && dnsHost.isNotEmpty) {
       try {
-        final remoteDnsIp = (await InternetAddress.lookup(remoteDnsHost)
+        final dnsIp = (await InternetAddress.lookup(dnsHost)
                 .timeout(const Duration(seconds: 2)))
             .first;
-        remoteDns = remoteDns.replaceFirst(remoteDnsHost, remoteDnsIp.address);
+        return dns.replaceFirst(dnsHost, dnsIp.address);
       } on Exception catch (_) {
-        throw Exception('Failed to resolve remote DNS server address');
+        throw Exception('Failed to resolve DNS server address: $dns');
       }
     }
+    return dns;
+  }
 
-    final directDnsHost = Uri.parse(directDns).host;
-    if (!RegExp(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
-            .hasMatch(directDnsHost) &&
-        directDnsHost.isNotEmpty) {
-      try {
-        final directDnsIp = (await InternetAddress.lookup(directDnsHost)).first;
-        directDns = directDns.replaceFirst(directDnsHost, directDnsIp.address);
-      } on Exception catch (_) {
-        throw Exception('Failed to resolve direct DNS server address');
-      }
-    }
+  static Future<Dns> dns(String remoteDns, String directDns,
+      String serverAddress, bool ipv4Only) async {
+    remoteDns = await resolveDns(remoteDns);
+    directDns = await resolveDns(directDns);
+
     if (directDns.contains('+local://')) {
       directDns = directDns.replaceFirst('+local', '');
     }
@@ -49,8 +44,7 @@ class SingBoxGenerate {
       ),
     ];
 
-    if (!RegExp(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
-            .hasMatch(serverAddress) &&
+    if (!RegExp(ipRegExp).hasMatch(serverAddress) &&
         serverAddress != '127.0.0.1') {
       dnsRules.add(
         DnsRule(
@@ -189,26 +183,35 @@ class SingBoxGenerate {
 
   static Outbound generateOutbound(ServerBase server) {
     late Outbound outbound;
-    if (server is XrayServer) {
-      if (server.protocol == 'socks') {
-        outbound = socksOutbound(server);
-      } else if (server.protocol == 'vmess' || server.protocol == 'vless') {
-        outbound = xrayOutbound(server);
-      } else {
+    switch (server.runtimeType) {
+      case XrayServer:
+        outbound = xrayOutbound(server as XrayServer);
+        break;
+      case ShadowsocksServer:
+        outbound = shadowsocksOutbound(server as ShadowsocksServer);
+        break;
+      case TrojanServer:
+        outbound = trojanOutbound(server as TrojanServer);
+        break;
+      case HysteriaServer:
+        outbound = hysteriaOutbound(server as HysteriaServer);
+        break;
+      default:
         throw Exception(
             'Sing-Box does not support this server type: ${server.protocol}');
-      }
-    } else if (server is ShadowsocksServer) {
-      outbound = shadowsocksOutbound(server);
-    } else if (server is TrojanServer) {
-      outbound = trojanOutbound(server);
-    } else if (server is HysteriaServer) {
-      outbound = hysteriaOutbound(server);
+    }
+    return outbound;
+  }
+
+  static Outbound xrayOutbound(XrayServer server) {
+    if (server.protocol == 'socks') {
+      return socksOutbound(server);
+    } else if (server.protocol == 'vmess' || server.protocol == 'vless') {
+      return vProtocolOutbound(server);
     } else {
       throw Exception(
           'Sing-Box does not support this server type: ${server.protocol}');
     }
-    return outbound;
   }
 
   static Outbound socksOutbound(XrayServer server) {
@@ -221,7 +224,7 @@ class SingBoxGenerate {
     );
   }
 
-  static Outbound xrayOutbound(XrayServer server) {
+  static Outbound vProtocolOutbound(XrayServer server) {
     final utls = UTls(
       enabled: server.fingerPrint != null && server.fingerPrint != 'none',
       fingerprint: server.fingerPrint,

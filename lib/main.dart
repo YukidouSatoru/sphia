@@ -70,10 +70,10 @@ Future<void> configureApp() async {
   }
 
   // Check dir exists
-  SystemUtil.createDir(binPath);
-  SystemUtil.createDir(configPath);
-  SystemUtil.createDir(logPath);
-  SystemUtil.createDir(tempPath);
+  SystemUtil.createDirectory(binPath);
+  SystemUtil.createDirectory(configPath);
+  SystemUtil.createDirectory(logPath);
+  SystemUtil.createDirectory(tempPath);
 
   // Init SystemUtil
   SystemUtil.init();

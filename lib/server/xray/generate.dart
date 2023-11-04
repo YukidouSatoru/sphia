@@ -27,19 +27,16 @@ class XrayGenerate {
     );
   }
 
-  static Log log(String? logPath, String level) {
-    return Log(access: logPath, loglevel: level);
-  }
-
   static Inbound inbound(
-      String protocol,
-      int port,
-      String listen,
-      bool enableSniffing,
-      bool isAuth,
-      String user,
-      String pass,
-      bool enableUdp) {
+    String protocol,
+    int port,
+    String listen,
+    bool enableSniffing,
+    bool isAuth,
+    String user,
+    String pass,
+    bool enableUdp,
+  ) {
     return Inbound(
       port: port,
       listen: listen,
@@ -60,26 +57,44 @@ class XrayGenerate {
     );
   }
 
+  static Inbound dokodemoInbound(int apiPort) {
+    return Inbound(
+      tag: 'api',
+      port: apiPort,
+      listen: '127.0.0.1',
+      protocol: 'dokodemo-door',
+      settings: InboundSetting(address: '127.0.0.1'),
+    );
+  }
+
   static Outbound generateOutbound(ServerBase server) {
     late Outbound outbound;
-    if (server is XrayServer) {
-      if (server.protocol == 'socks') {
-        outbound = socksOutbound(server);
-      } else if (server.protocol == 'vmess' || server.protocol == 'vless') {
-        outbound = xrayOutbound(server);
-      } else {
+    switch (server.runtimeType) {
+      case XrayServer:
+        outbound = xrayOutbound(server as XrayServer);
+        break;
+      case ShadowsocksServer:
+        outbound = shadowsocksOutbound(server as ShadowsocksServer);
+        break;
+      case TrojanServer:
+        outbound = trojanOutbound(server as TrojanServer);
+        break;
+      default:
         throw Exception(
             'Xray-Core does not support this server type: ${server.protocol}');
-      }
-    } else if (server is ShadowsocksServer) {
-      outbound = shadowsocksOutbound(server);
-    } else if (server is TrojanServer) {
-      outbound = trojanOutbound(server);
+    }
+    return outbound;
+  }
+
+  static Outbound xrayOutbound(XrayServer server) {
+    if (server.protocol == 'socks') {
+      return socksOutbound(server);
+    } else if (server.protocol == 'vmess' || server.protocol == 'vless') {
+      return vProtocolOutbound(server);
     } else {
       throw Exception(
           'Xray-Core does not support this server type: ${server.protocol}');
     }
-    return outbound;
   }
 
   static Outbound socksOutbound(XrayServer server) {
@@ -97,7 +112,7 @@ class XrayGenerate {
     );
   }
 
-  static Outbound xrayOutbound(XrayServer server) {
+  static Outbound vProtocolOutbound(XrayServer server) {
     String security = server.tls;
     final tlsSettings = security == 'tls'
         ? TlsSettings(

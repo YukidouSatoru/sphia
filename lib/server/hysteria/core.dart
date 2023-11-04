@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:core';
 
+import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
+import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/server/core_base.dart';
 import 'package:sphia/server/hysteria/config.dart';
 import 'package:sphia/server/hysteria/server.dart';
@@ -22,6 +24,7 @@ class HysteriaCore extends CoreBase {
   @override
   Future<String> generateConfig(ServerBase server) async {
     if (server is HysteriaServer) {
+      final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
       final hysteriaConfig = HysteriaConfig(
         server: '${server.address}:${server.port}',
         protocol: server.hysteriaProtocol,

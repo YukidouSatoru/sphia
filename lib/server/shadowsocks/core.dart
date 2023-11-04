@@ -1,5 +1,7 @@
 import 'dart:core';
 
+import 'package:get_it/get_it.dart';
+import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/server/core_base.dart';
 import 'package:sphia/server/server_base.dart';
 import 'package:sphia/server/shadowsocks/server.dart';
@@ -10,6 +12,7 @@ class ShadowsocksRustCore extends CoreBase {
   @override
   Future<void> configure(ServerBase server) async {
     if (server is ShadowsocksServer) {
+      final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
       final arguments = [
         '-s',
         '${server.address}:${server.port}',

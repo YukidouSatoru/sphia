@@ -1,9 +1,13 @@
 import 'dart:convert';
 import 'dart:core';
 
+import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
 import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/database/database.dart';
+import 'package:sphia/app/log.dart';
+import 'package:sphia/app/provider/rule_config.dart';
+import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/server/core_base.dart';
 import 'package:sphia/server/server_base.dart';
 import 'package:sphia/server/sing-box/config.dart';
@@ -26,6 +30,8 @@ class SingBoxCore extends CoreBase {
 
   @override
   Future<String> generateConfig(ServerBase server) async {
+    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+
     String level = LogLevel.values[sphiaConfig.logLevel].name;
     if (level == 'warning') {
       level = 'warn';
@@ -33,7 +39,7 @@ class SingBoxCore extends CoreBase {
     final log = Log(
       disabled: level == 'none',
       level: level == 'none' ? null : level,
-      output: sphiaConfig.saveCoreLog ? coreLogPath : null,
+      output: sphiaConfig.saveCoreLog ? SphiaLog.getLogPath(coreName) : null,
       timestamp: true,
     );
 
@@ -77,6 +83,7 @@ class SingBoxCore extends CoreBase {
       );
     }
 
+    final ruleConfig = GetIt.I.get<RuleConfigProvider>().config;
     Route? route;
     if (sphiaConfig.enableTun ||
         (!sphiaConfig.enableTun &&

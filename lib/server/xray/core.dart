@@ -1,9 +1,13 @@
 import 'dart:convert';
 import 'dart:core';
 
+import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
 import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/database/database.dart';
+import 'package:sphia/app/log.dart';
+import 'package:sphia/app/provider/rule_config.dart';
+import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/server/core_base.dart';
 import 'package:sphia/server/server_base.dart';
 import 'package:sphia/server/xray/config.dart';
@@ -26,20 +30,18 @@ class XrayCore extends CoreBase {
 
   @override
   Future<String> generateConfig(ServerBase server) async {
-    final log = XrayGenerate.log(
-        coreLogPath, LogLevel.values[sphiaConfig.logLevel].name);
+    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+
+    final log = Log(
+      access: SphiaLog.getLogPath(coreName),
+      loglevel: LogLevel.values[sphiaConfig.logLevel].name,
+    );
 
     Dns? dns;
     if (sphiaConfig.configureDns &&
         sphiaConfig.routingProvider == RoutingProvider.xray.index) {
       dns = XrayGenerate.dns(sphiaConfig.remoteDns, sphiaConfig.directDns);
     }
-
-    final outbounds = [
-      XrayGenerate.generateOutbound(server),
-      Outbound(tag: 'direct', protocol: 'freedom'),
-      Outbound(tag: 'block', protocol: 'blackhole'),
-    ];
 
     List<Inbound> inbounds = [
       XrayGenerate.inbound(
@@ -64,19 +66,13 @@ class XrayCore extends CoreBase {
       ),
     ];
 
-    if (sphiaConfig.enableStatistics &&
-        sphiaConfig.routingProvider == RoutingProvider.xray.index) {
-      inbounds.add(
-        Inbound(
-          tag: 'api',
-          port: 11110,
-          listen: '127.0.0.1',
-          protocol: 'dokodemo-door',
-          settings: InboundSetting(address: '127.0.0.1'),
-        ),
-      );
-    }
+    final outbounds = [
+      XrayGenerate.generateOutbound(server),
+      Outbound(tag: 'direct', protocol: 'freedom'),
+      Outbound(tag: 'block', protocol: 'blackhole'),
+    ];
 
+    final ruleConfig = GetIt.I.get<RuleConfigProvider>().config;
     Routing? routing;
     if (sphiaConfig.routingProvider == RoutingProvider.xray.index) {
       routing = XrayGenerate.routing(
@@ -104,6 +100,7 @@ class XrayCore extends CoreBase {
         ),
       );
       stats = Stats();
+      inbounds.add(XrayGenerate.dokodemoInbound(sphiaConfig.coreApiPort));
     }
 
     final xrayConfig = XrayConfig(

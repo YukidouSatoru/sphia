@@ -379,14 +379,7 @@ class SystemUtil {
     return fileNames;
   }
 
-  static Future<bool> fileExists(String fileName) async {
-    if (await File(p.join(binPath, fileName)).exists()) {
-      return true;
-    }
-    return false;
-  }
-
-  static void createDir(String dirName) {
+  static void createDirectory(String dirName) {
     final dir = Directory(dirName);
     if (!dir.existsSync()) {
       logger.i('Creating directory: $dirName');
@@ -394,15 +387,27 @@ class SystemUtil {
     }
   }
 
+  static bool fileExists(String fileName) {
+    return File(p.join(binPath, fileName)).existsSync();
+  }
+
+  static void deleteFileIfExists(String filePath, String logMessage) {
+    final file = File(filePath);
+    if (file.existsSync()) {
+      logger.i(logMessage);
+      file.deleteSync();
+    }
+  }
+
   static bool coreExists(String coreName) {
     if (coreName == 'sing-box-rules') {
-      return File(p.join(binPath, 'geoip.db')).existsSync() &&
-          File(p.join(binPath, 'geosite.db')).existsSync();
+      return fileExists(p.join(binPath, 'geoip.db')) &&
+          fileExists(p.join(binPath, 'geosite.db'));
     } else if (coreName == 'v2ray-rules-dat') {
-      return File(p.join(binPath, 'geoip.dat')).existsSync() &&
-          File(p.join(binPath, 'geosite.dat')).existsSync();
+      return fileExists(p.join(binPath, 'geoip.dat')) &&
+          fileExists(p.join(binPath, 'geosite.dat'));
     } else {
-      return File(p.join(binPath, getCoreFileName(coreName))).existsSync();
+      return fileExists(p.join(binPath, getCoreFileName(coreName)));
     }
   }
 }
