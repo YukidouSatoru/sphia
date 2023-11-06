@@ -65,20 +65,26 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
       navigation = _getNavigationDrawer(context);
     }
 
+    final titleTextStyle = Theme.of(context).textTheme.titleLarge!.copyWith(
+          fontSize: 14.5,
+          fontFamily: 'Verdana',
+          color: Colors.grey[500],
+        );
+
+    final titleText = Text(
+      'Sphia - $sphiaVersion',
+      style: titleTextStyle,
+      textAlign: TextAlign.center,
+    );
+
     final titleBar = PreferredSize(
       preferredSize: const Size.fromHeight(kWindowCaptionHeight),
       child: SystemUtil.os == OS.macos
-          ? Container()
+          ? Center(
+              child: titleText,
+            )
           : SphiaWindowCaption(
-              title: Text(
-                'Sphia - $sphiaVersion',
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                      fontSize: 14.5,
-                      fontFamily: 'Verdana',
-                      color: Colors.grey[500],
-                    ),
-                textAlign: TextAlign.center,
-              ),
+              title: titleText,
               backgroundColor: Colors.transparent,
               brightness:
                   sphiaConfig.darkMode ? Brightness.dark : Brightness.light,
