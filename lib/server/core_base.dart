@@ -34,7 +34,10 @@ abstract class CoreBase {
     logger.i('Starting core: $coreName');
     try {
       coreProcess = await Process.start(
-          p.join(binPath, SystemUtil.getCoreFileName(coreName)), coreArgs);
+        p.join(binPath, SystemUtil.getCoreFileName(coreName)),
+        coreArgs,
+        runInShell: true,
+      );
     } on ProcessException catch (e) {
       logger.e('Failed to start $coreName: ${e.message}');
       throw Exception('Failed to start $coreName: ${e.message}');
