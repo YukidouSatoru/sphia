@@ -25,7 +25,7 @@ Sphia uses the following cores as server cores:
 - Trojan
 - Hysteria
 
-VMess and VLESS support tcp, ws, and grpc transmission modes, and support reality.
+VMess and VLESS support tcp, ws, grpc and httpupgrade (provided by sing-box) transmission modes, and support reality.
 
 When using the Shadowsocks protocol, please pay attention to whether the current encryption method is supported by the
 Shadowsocks provider.

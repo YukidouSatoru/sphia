@@ -25,7 +25,7 @@ Sphia 使用以下核心作为服务器核心：
 - Trojan
 - Hysteria
 
-VMess 和 VLESS 支持 tcp、ws、grpc 传输方式，支持 reality。
+VMess 和 VLESS 支持 tcp、ws、grpc、httpupgrade （由 sing-box 提供） 传输方式，支持 reality。
 
 在使用 Shadowsocks 协议时，请注意当前加密方式是否被 Shadowsocks 提供者支持。
 
