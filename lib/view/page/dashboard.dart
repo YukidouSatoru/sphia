@@ -553,6 +553,8 @@ class _DashboardState extends State<Dashboard> {
               _serverId, const JsonEncoder().convert(serverBase.toJson()));
           _totalUpload.value = 0;
           _totalDownload.value = 0;
+          _uploadLastSecond.value = 0;
+          _downloadLastSecond.value = 0;
           final newServer = Server(
             id: server.id,
             groupId: server.groupId,
