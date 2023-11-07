@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/server/trojan/server.dart';
+import 'package:sphia/view/dialog/xray.dart';
 import 'package:sphia/view/widget/widget.dart';
 
 class TrojanServerDialog extends StatefulWidget {
@@ -44,7 +45,10 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
   Widget build(BuildContext context) {
     final widgets = [
       WidgetBuild.buildTextFormField(
-          _remarkController, S.of(context).remark, null),
+        _remarkController,
+        S.of(context).remark,
+        null,
+      ),
       WidgetBuild.buildTextFormField(
         _addressController,
         S.of(context).address,
@@ -91,19 +95,7 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
       WidgetBuild.buildDropdownButtonFormField(
         _fingerPrintController.text,
         S.of(context).fingerPrint,
-        [
-          'none',
-          'random',
-          "randomized",
-          'chrome',
-          'firefox',
-          'safari',
-          'ios',
-          'android',
-          'edge',
-          '360',
-          'qq'
-        ],
+        fingerPrint,
         (value) {
           if (value != null) {
             setState(() {
@@ -115,7 +107,7 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
       WidgetBuild.buildDropdownButtonFormField(
         _allowInsecureController.text,
         S.of(context).allowInsecure,
-        ['false', 'true'],
+        allowInsecure,
         (value) {
           if (value != null) {
             setState(() {

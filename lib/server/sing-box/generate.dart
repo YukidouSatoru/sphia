@@ -243,7 +243,12 @@ class SingBoxGenerate {
     );
     final transport = Transport(
       type: server.transport,
-      path: server.transport == 'ws' ? (server.path ?? '/') : null,
+      host: server.transport == 'httpupgrade'
+          ? (server.host ?? server.address)
+          : null,
+      path: server.transport == 'ws' || server.transport == 'httpupgrade'
+          ? (server.path ?? '/')
+          : null,
       serviceName:
           server.transport == 'grpc' ? (server.serviceName ?? '/') : null,
     );

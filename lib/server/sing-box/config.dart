@@ -366,12 +366,14 @@ class Reality {
 @JsonSerializable(includeIfNull: false)
 class Transport {
   String type;
+  String? host;
   String? path;
   @JsonKey(name: 'service_name')
   String? serviceName;
 
   Transport({
     required this.type,
+    this.host,
     this.path,
     this.serviceName,
   });

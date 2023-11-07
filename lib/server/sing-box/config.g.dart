@@ -420,6 +420,7 @@ Map<String, dynamic> _$RealityToJson(Reality instance) {
 
 Transport _$TransportFromJson(Map<String, dynamic> json) => Transport(
       type: json['type'] as String,
+      host: json['host'] as String?,
       path: json['path'] as String?,
       serviceName: json['service_name'] as String?,
     );
@@ -435,6 +436,7 @@ Map<String, dynamic> _$TransportToJson(Transport instance) {
     }
   }
 
+  writeNotNull('host', instance.host);
   writeNotNull('path', instance.path);
   writeNotNull('service_name', instance.serviceName);
   return val;

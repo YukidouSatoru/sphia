@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/server/hysteria/server.dart';
+import 'package:sphia/view/dialog/xray.dart';
 import 'package:sphia/view/widget/widget.dart';
+
+const hysteriaProtocol = ['udp', 'wechat-video', 'faketcp'];
+const authType = ['none', 'base64', 'str'];
+const disableMtuDiscovery = ['false', 'true'];
 
 class HysteriaServerDialog extends StatefulWidget {
   final String title;
@@ -52,7 +57,10 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
   Widget build(BuildContext context) {
     final widgets = [
       WidgetBuild.buildTextFormField(
-          _remarkController, S.of(context).remark, null),
+        _remarkController,
+        S.of(context).remark,
+        null,
+      ),
       WidgetBuild.buildTextFormField(
         _addressController,
         S.of(context).address,
@@ -82,7 +90,7 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
       WidgetBuild.buildDropdownButtonFormField(
         _hysteriaProtocolController.text,
         S.of(context).hysteriaProtocol,
-        ['udp', 'wechat-video', 'faketcp'],
+        hysteriaProtocol,
         (value) {
           if (value != null) {
             setState(() {
@@ -96,7 +104,7 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
       WidgetBuild.buildDropdownButtonFormField(
         _authTypeController.text,
         S.of(context).authType,
-        ['none', 'base64', 'str'],
+        authType,
         (value) {
           if (value != null) {
             setState(() {
@@ -120,7 +128,7 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
       WidgetBuild.buildDropdownButtonFormField(
         _insecureController.text,
         S.of(context).allowInsecure,
-        ['false', 'true'],
+        allowInsecure,
         (value) {
           if (value != null) {
             setState(() {
@@ -182,7 +190,7 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
       WidgetBuild.buildDropdownButtonFormField(
         _disableMtuDiscoveryController.text,
         S.of(context).disableMtuDiscovery,
-        ['false', 'true'],
+        disableMtuDiscovery,
         (value) {
           if (value != null) {
             setState(() {

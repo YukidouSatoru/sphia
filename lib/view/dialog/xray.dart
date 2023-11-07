@@ -3,6 +3,45 @@ import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/server/xray/server.dart';
 import 'package:sphia/view/widget/widget.dart';
 
+const vmessEncryption = [
+  'auto',
+  'aes-128-gcm',
+  'chacha20-poly1305',
+  'none',
+  'zero',
+];
+const vlessEncryption = ['none'];
+const vlessFlow = ['none', 'xtls-rprx-vision'];
+const vProtocolTransport = ['tcp', 'ws', 'grpc', 'httpupgrade'];
+const grpcMode = ['gun', 'multi'];
+const tls = ['none', 'tls', 'reality'];
+const fingerPrint = [
+  'none',
+  'random',
+  "randomized",
+  'chrome',
+  'firefox',
+  'safari',
+  'ios',
+  'android',
+  'edge',
+  '360',
+  'qq',
+];
+const realityFingerPrint = [
+  'random',
+  "randomized",
+  'chrome',
+  'firefox',
+  'safari',
+  'ios',
+  'android',
+  'edge',
+  '360',
+  'qq',
+];
+const allowInsecure = ['false', 'true'];
+
 class XrayServerDialog extends StatefulWidget {
   final String title;
   final XrayServer server;
@@ -57,27 +96,36 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
   Widget build(BuildContext context) {
     final widgets = [
       WidgetBuild.buildTextFormField(
-          _remarkController, S.of(context).remark, null),
-      WidgetBuild.buildTextFormField(_addressController, S.of(context).address,
-          (value) {
-        if (value == null || value.trim().isEmpty) {
-          return S.of(context).addressEnterMsg;
-        }
-        return null;
-      }),
-      WidgetBuild.buildTextFormField(_portController, S.of(context).port,
-          (value) {
-        if (value == null || value.trim().isEmpty) {
-          return S.of(context).portEnterMsg;
-        }
-        late final int? newValue;
-        if ((newValue = int.tryParse(value)) == null ||
-            newValue! < 0 ||
-            newValue > 65535) {
-          return S.of(context).portInvalidMsg;
-        }
-        return null;
-      }),
+        _remarkController,
+        S.of(context).remark,
+        null,
+      ),
+      WidgetBuild.buildTextFormField(
+        _addressController,
+        S.of(context).address,
+        (value) {
+          if (value == null || value.trim().isEmpty) {
+            return S.of(context).addressEnterMsg;
+          }
+          return null;
+        },
+      ),
+      WidgetBuild.buildTextFormField(
+        _portController,
+        S.of(context).port,
+        (value) {
+          if (value == null || value.trim().isEmpty) {
+            return S.of(context).portEnterMsg;
+          }
+          late final int? newValue;
+          if ((newValue = int.tryParse(value)) == null ||
+              newValue! < 0 ||
+              newValue > 65535) {
+            return S.of(context).portInvalidMsg;
+          }
+          return null;
+        },
+      ),
       WidgetBuild.buildPasswordTextFormField(
         _uuidController,
         S.of(context).uuid,
@@ -94,23 +142,25 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
           });
         },
       ),
-      if (_protocol == 'vmess')
+      if (_protocol == 'vmess') ...[
         WidgetBuild.buildTextFormField(
-            _alterIdController, S.of(context).alterId, (value) {
-          if (value == null || value.trim().isEmpty) {
-            return S.of(context).alterIdEnterMsg;
-          }
-          if (int.tryParse(value) == null) {
-            return S.of(context).alterIdInvalidMsg;
-          }
-          return null;
-        }),
+          _alterIdController,
+          S.of(context).alterId,
+          (value) {
+            if (value == null || value.trim().isEmpty) {
+              return S.of(context).alterIdEnterMsg;
+            }
+            if (int.tryParse(value) == null) {
+              return S.of(context).alterIdInvalidMsg;
+            }
+            return null;
+          },
+        ),
+      ],
       WidgetBuild.buildDropdownButtonFormField(
         _encryptionController.text,
         S.of(context).encryption,
-        _protocol == 'vmess'
-            ? ['auto', 'aes-128-gcm', 'chacha20-poly1305', 'none', 'zero']
-            : ['none'],
+        _protocol == 'vmess' ? vmessEncryption : vlessEncryption,
         (value) {
           if (value != null) {
             setState(() {
@@ -119,11 +169,11 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
           }
         },
       ),
-      if (_protocol == 'vless')
+      if (_protocol == 'vless') ...[
         WidgetBuild.buildDropdownButtonFormField(
           _flowController.text,
           S.of(context).flow,
-          ['none', 'xtls-rprx-vision'],
+          vlessFlow,
           (value) {
             if (value != null) {
               setState(() {
@@ -132,10 +182,11 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
             }
           },
         ),
+      ],
       WidgetBuild.buildDropdownButtonFormField(
         _transportController.text,
         S.of(context).transport,
-        ['tcp', 'ws', 'grpc'],
+        vProtocolTransport,
         (value) {
           if (value != null) {
             setState(() {
@@ -148,7 +199,7 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
         WidgetBuild.buildDropdownButtonFormField(
           _grpcModeController.text,
           S.of(context).grpcMode,
-          ['gun', 'multi'],
+          grpcMode,
           (value) {
             if (value != null) {
               setState(() {
@@ -163,7 +214,8 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
           null,
         ),
       ],
-      if (_transportController.text == 'ws') ...[
+      if (_transportController.text == 'ws' ||
+          _transportController.text == 'httpupgrade') ...[
         WidgetBuild.buildTextFormField(
           _hostController,
           S.of(context).host,
@@ -178,7 +230,7 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
       WidgetBuild.buildDropdownButtonFormField(
         _tlsController.text,
         S.of(context).tls,
-        ['none', 'tls', 'reality'],
+        tls,
         (value) {
           if (value != null) {
             setState(() {
@@ -196,19 +248,7 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
         WidgetBuild.buildDropdownButtonFormField(
           _fingerPrintController.text,
           S.of(context).fingerPrint,
-          [
-            'none',
-            'random',
-            "randomized",
-            'chrome',
-            'firefox',
-            'safari',
-            'ios',
-            'android',
-            'edge',
-            '360',
-            'qq'
-          ],
+          fingerPrint,
           (value) {
             if (value != null) {
               setState(() {
@@ -220,7 +260,7 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
         WidgetBuild.buildDropdownButtonFormField(
           _allowInsecureController.text,
           S.of(context).allowInsecure,
-          ['false', 'true'],
+          allowInsecure,
           (value) {
             if (value != null) {
               setState(() {
@@ -239,18 +279,7 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
         WidgetBuild.buildDropdownButtonFormField(
           _fingerPrintController.text,
           S.of(context).fingerPrint,
-          [
-            'random',
-            "randomized",
-            'chrome',
-            'firefox',
-            'safari',
-            'ios',
-            'android',
-            'edge',
-            '360',
-            'qq'
-          ],
+          realityFingerPrint,
           (value) {
             if (value != null) {
               setState(() {

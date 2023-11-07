@@ -3,6 +3,28 @@ import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/server/shadowsocks/server.dart';
 import 'package:sphia/view/widget/widget.dart';
 
+const shadowsocksEncryption = [
+  'none',
+  'plain',
+  'aes-128-gcm',
+  'aes-192-gcm',
+  'aes-256-gcm',
+  'chacha20-ietf-poly1305',
+  'xchacha20-ietf-poly1305',
+  '2022-blake3-aes-128-gcm',
+  '2022-blake3-aes-256-gcm',
+  '2022-blake3-chacha20-poly1305',
+  'aes-128-ctr',
+  'aes-192-ctr',
+  'aes-256-ctr',
+  'aes-128-cfb',
+  'aes-192-cfb',
+  'aes-256-cfb',
+  'rc4-md5',
+  'chacha20-ietf',
+  'xchacha20',
+];
+
 class ShadowsocksServerDialog extends StatefulWidget {
   final String title;
   final ShadowsocksServer server;
@@ -44,7 +66,10 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
   Widget build(BuildContext context) {
     final widgets = [
       WidgetBuild.buildTextFormField(
-          _remarkController, S.of(context).remark, null),
+        _remarkController,
+        S.of(context).remark,
+        null,
+      ),
       WidgetBuild.buildTextFormField(
         _addressController,
         S.of(context).address,
@@ -90,27 +115,7 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
       WidgetBuild.buildDropdownButtonFormField(
         _encryptionController.text,
         S.of(context).encryption,
-        [
-          'none',
-          'plain',
-          'aes-128-gcm',
-          'aes-192-gcm',
-          'aes-256-gcm',
-          'chacha20-ietf-poly1305',
-          'xchacha20-ietf-poly1305',
-          '2022-blake3-aes-128-gcm',
-          '2022-blake3-aes-256-gcm',
-          '2022-blake3-chacha20-poly1305',
-          'aes-128-ctr',
-          'aes-192-ctr',
-          'aes-256-ctr',
-          'aes-128-cfb',
-          'aes-192-cfb',
-          'aes-256-cfb',
-          'rc4-md5',
-          'chacha20-ietf',
-          'xchacha20',
-        ],
+        shadowsocksEncryption,
         (value) {
           if (value != null) {
             setState(() {
@@ -120,9 +125,15 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
         },
       ),
       WidgetBuild.buildTextFormField(
-          _pluginController, S.of(context).plugin, null),
+        _pluginController,
+        S.of(context).plugin,
+        null,
+      ),
       WidgetBuild.buildTextFormField(
-          _pluginOptsController, S.of(context).pluginOpts, null),
+        _pluginOptsController,
+        S.of(context).pluginOpts,
+        null,
+      ),
     ];
 
     return AlertDialog(
