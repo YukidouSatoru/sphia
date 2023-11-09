@@ -354,12 +354,14 @@ class _SettingPageState extends State<SettingPage> {
         S.of(context).autoConfigureSystemProxy,
         (value) {
           if (value != null) {
-            if (sphiaConfig.enableTun) {
-              return;
-            }
             logger.i(
                 'Updating autoConfigureSystemProxy from ${sphiaConfig.autoConfigureSystemProxy} to $value');
             sphiaConfig.autoConfigureSystemProxy = value;
+            if (value) {
+              sphiaConfig.enableTun = false;
+              logger.i(
+                  'Updating enableTun from ${sphiaConfig.enableTun} to false');
+            }
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
