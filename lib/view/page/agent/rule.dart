@@ -83,7 +83,7 @@ class RuleAgent {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                WidgetBuild.buildTextFormField(
+                SphiaWidget.textInput(
                   groupNameController,
                   S.of(context).groupName,
                   (value) {
@@ -148,7 +148,7 @@ class RuleAgent {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  WidgetBuild.buildTextFormField(
+                  SphiaWidget.textInput(
                     groupNameController,
                     S.of(context).groupName,
                     (value) {

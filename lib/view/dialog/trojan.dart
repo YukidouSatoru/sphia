@@ -25,8 +25,10 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
   final _portController = TextEditingController();
   final _passwordController = TextEditingController();
   final _sniController = TextEditingController();
-  final _fingerPrintController = TextEditingController();
-  final _allowInsecureController = TextEditingController();
+  late String _fingerPrint;
+  late String _allowInsecure;
+  int? _routingProvider;
+  int? _protocolProvider;
   bool _obscureText = true;
 
   @override
@@ -44,12 +46,12 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
   @override
   Widget build(BuildContext context) {
     final widgets = [
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _remarkController,
         S.of(context).remark,
         null,
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _addressController,
         S.of(context).address,
         (value) {
@@ -59,7 +61,7 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
           return null;
         },
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _portController,
         S.of(context).port,
         (value) {
@@ -75,7 +77,7 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
           return null;
         },
       ),
-      WidgetBuild.buildPasswordTextFormField(
+      SphiaWidget.passwordTextInput(
         _passwordController,
         S.of(context).password,
         (value) {
@@ -91,31 +93,46 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
           });
         },
       ),
-      WidgetBuild.buildTextFormField(_sniController, S.of(context).sni, null),
-      WidgetBuild.buildDropdownButtonFormField(
-        _fingerPrintController.text,
+      SphiaWidget.textInput(_sniController, S.of(context).sni, null),
+      SphiaWidget.dropdownButton(
+        _fingerPrint,
         S.of(context).fingerPrint,
         fingerPrint,
         (value) {
           if (value != null) {
             setState(() {
-              _fingerPrintController.text = value;
+              _fingerPrint = value;
             });
           }
         },
       ),
-      WidgetBuild.buildDropdownButtonFormField(
-        _allowInsecureController.text,
+      SphiaWidget.dropdownButton(
+        _allowInsecure,
         S.of(context).allowInsecure,
         allowInsecure,
         (value) {
           if (value != null) {
             setState(() {
-              _allowInsecureController.text = value;
+              _allowInsecure = value;
             });
           }
         },
       ),
+      SphiaWidget.routingDropdownButton(
+        _routingProvider,
+        S.of(context).routingProvider,
+        (value) {
+          setState(() {
+            _routingProvider = value;
+          });
+        },
+      ),
+      SphiaWidget.trojanDropdownButton(
+          _protocolProvider, S.of(context).trojanProvider, (value) {
+        setState(() {
+          _protocolProvider = value;
+        });
+      }),
     ];
 
     return AlertDialog(
@@ -147,10 +164,10 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
                 serverName: _sniController.text.trim().isNotEmpty
                     ? _sniController.text
                     : null,
-                fingerPrint: _fingerPrintController.text != 'none'
-                    ? _fingerPrintController.text
-                    : null,
-                allowInsecure: _allowInsecureController.text == 'true',
+                fingerPrint: _fingerPrint != 'none' ? _fingerPrint : null,
+                allowInsecure: _allowInsecure == 'true',
+                routingProvider: _routingProvider,
+                protocolProvider: _protocolProvider,
               );
               Navigator.pop(context, server);
             }
@@ -168,8 +185,10 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
     _portController.text = server.port.toString();
     _passwordController.text = server.password;
     _sniController.text = server.serverName ?? '';
-    _fingerPrintController.text = server.fingerPrint ?? 'chrome';
-    _allowInsecureController.text = server.allowInsecure.toString();
+    _fingerPrint = server.fingerPrint ?? 'chrome';
+    _allowInsecure = server.allowInsecure.toString();
+    _routingProvider = server.routingProvider;
+    _protocolProvider = server.protocolProvider;
   }
 
   void _disposeControllers() {
@@ -178,7 +197,5 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
     _portController.dispose();
     _passwordController.dispose();
     _sniController.dispose();
-    _fingerPrintController.dispose();
-    _allowInsecureController.dispose();
   }
 }

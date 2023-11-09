@@ -16,6 +16,8 @@ ShadowsocksServer _$ShadowsocksServerFromJson(Map<String, dynamic> json) =>
       encryption: json['encryption'] as String,
       plugin: json['plugin'] as String?,
       pluginOpts: json['pluginOpts'] as String?,
+      routingProvider: json['routingProvider'] as int?,
+      protocolProvider: json['protocolProvider'] as int?,
     )
       ..uplink = json['uplink'] as int?
       ..downlink = json['downlink'] as int?;
@@ -36,6 +38,8 @@ Map<String, dynamic> _$ShadowsocksServerToJson(ShadowsocksServer instance) {
 
   writeNotNull('uplink', instance.uplink);
   writeNotNull('downlink', instance.downlink);
+  writeNotNull('routingProvider', instance.routingProvider);
+  writeNotNull('protocolProvider', instance.protocolProvider);
   val['password'] = instance.password;
   val['encryption'] = instance.encryption;
   writeNotNull('plugin', instance.plugin);

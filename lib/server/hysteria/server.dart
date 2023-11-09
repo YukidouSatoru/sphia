@@ -41,11 +41,15 @@ class HysteriaServer extends ServerBase {
     this.recvWindowConn,
     this.recvWindow,
     required this.disableMtuDiscovery,
+    int? routingProvider,
+    int? protocolProvider,
   }) : super(
           protocol: protocol,
           address: address,
           port: port,
           remark: remark,
+          routingProvider: routingProvider,
+          protocolProvider: protocolProvider,
         );
 
   factory HysteriaServer.defaults() => HysteriaServer(

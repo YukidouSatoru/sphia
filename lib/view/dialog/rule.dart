@@ -41,7 +41,7 @@ class _RuleDialogState extends State<RuleDialog> {
   @override
   Widget build(BuildContext context) {
     final widgets = [
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _nameController,
         S.of(context).name,
         (value) {
@@ -51,7 +51,7 @@ class _RuleDialogState extends State<RuleDialog> {
           return null;
         },
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _typeController,
         'Type',
         (value) {
@@ -61,22 +61,22 @@ class _RuleDialogState extends State<RuleDialog> {
           return null;
         },
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _outboundTagController,
         'Outbound Tag',
         null,
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _domainController,
         'Domain',
         null,
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _ipController,
         'IP',
         null,
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _portController,
         'Port',
         null,

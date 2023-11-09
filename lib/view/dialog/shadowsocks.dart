@@ -45,9 +45,11 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
   final _addressController = TextEditingController();
   final _portController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _encryptionController = TextEditingController();
+  late String _encryption;
   final _pluginController = TextEditingController();
   final _pluginOptsController = TextEditingController();
+  int? _routingProvider;
+  int? _protocolProvider;
   bool _obscureText = true;
 
   @override
@@ -65,12 +67,12 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
   @override
   Widget build(BuildContext context) {
     final widgets = [
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _remarkController,
         S.of(context).remark,
         null,
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _addressController,
         S.of(context).address,
         (value) {
@@ -80,7 +82,7 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
           return null;
         },
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _portController,
         S.of(context).port,
         (value) {
@@ -96,7 +98,7 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
           return null;
         },
       ),
-      WidgetBuild.buildPasswordTextFormField(
+      SphiaWidget.passwordTextInput(
         _passwordController,
         S.of(context).password,
         (value) {
@@ -112,27 +114,45 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
           });
         },
       ),
-      WidgetBuild.buildDropdownButtonFormField(
-        _encryptionController.text,
+      SphiaWidget.dropdownButton(
+        _encryption,
         S.of(context).encryption,
         shadowsocksEncryption,
         (value) {
           if (value != null) {
             setState(() {
-              _encryptionController.text = value;
+              _encryption = value;
             });
           }
         },
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _pluginController,
         S.of(context).plugin,
         null,
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _pluginOptsController,
         S.of(context).pluginOpts,
         null,
+      ),
+      SphiaWidget.routingDropdownButton(
+        _routingProvider,
+        S.of(context).routingProvider,
+        (value) {
+          setState(() {
+            _routingProvider = value;
+          });
+        },
+      ),
+      SphiaWidget.shadowsocksDropdownButton(
+        _protocolProvider,
+        S.of(context).shadowsocksProvider,
+        (value) {
+          setState(() {
+            _protocolProvider = value;
+          });
+        },
       ),
     ];
 
@@ -162,13 +182,15 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
                 port: int.parse(_portController.text),
                 remark: _remarkController.text,
                 password: _passwordController.text,
-                encryption: _encryptionController.text,
+                encryption: _encryption,
                 plugin: _pluginController.text.trim().isNotEmpty
                     ? _pluginController.text
                     : null,
                 pluginOpts: _pluginOptsController.text.trim().isNotEmpty
                     ? _pluginOptsController.text
                     : null,
+                routingProvider: _routingProvider,
+                protocolProvider: _protocolProvider,
               );
               Navigator.pop(context, server);
             }
@@ -185,9 +207,11 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
     _addressController.text = server.address;
     _portController.text = server.port.toString();
     _passwordController.text = server.password;
-    _encryptionController.text = server.encryption;
+    _encryption = server.encryption;
     _pluginController.text = server.plugin ?? '';
     _pluginOptsController.text = server.pluginOpts ?? '';
+    _routingProvider = server.routingProvider;
+    _protocolProvider = server.protocolProvider;
   }
 
   void _disposeControllers() {
@@ -195,7 +219,6 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
     _addressController.dispose();
     _portController.dispose();
     _passwordController.dispose();
-    _encryptionController.dispose();
     _pluginController.dispose();
     _pluginOptsController.dispose();
   }

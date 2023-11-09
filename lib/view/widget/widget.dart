@@ -4,7 +4,7 @@ import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 
-class WidgetBuild {
+class SphiaWidget {
   static SnackBar snackBar(String message, [Duration? duration]) {
     return SnackBar(
       content: Text(
@@ -17,7 +17,7 @@ class WidgetBuild {
     );
   }
 
-  static Widget buildPopupMenuButton({
+  static Widget popupMenuButton({
     required BuildContext context,
     required List<PopupMenuItem<String>> items,
     required void Function(String) onItemSelected,
@@ -28,7 +28,7 @@ class WidgetBuild {
     );
   }
 
-  static PopupMenuItem<String> buildPopupMenuItem({
+  static PopupMenuItem<String> popupMenuItem({
     required String value,
     required Widget child,
   }) {
@@ -38,7 +38,7 @@ class WidgetBuild {
     );
   }
 
-  static Widget buildCheckboxCard(
+  static Widget checkboxCard(
     bool value,
     String title,
     void Function(bool?)? onChanged,
@@ -61,7 +61,7 @@ class WidgetBuild {
     );
   }
 
-  static Widget buildTextCard(
+  static Widget textCard(
     String value,
     String title,
     void Function(String?) update,
@@ -105,7 +105,7 @@ class WidgetBuild {
     );
   }
 
-  static Widget buildItemsCard(
+  static Widget itemsCard(
     int value,
     String title,
     List<String> items,
@@ -150,7 +150,7 @@ class WidgetBuild {
     );
   }
 
-  static Widget buildColorsCard(
+  static Widget colorsCard(
     int value,
     String title,
     Map<int, String> items,
@@ -206,7 +206,7 @@ class WidgetBuild {
     );
   }
 
-  static Widget buildTextFormField(
+  static Widget textInput(
     TextEditingController controller,
     String labelText,
     String? Function(String?)? validator,
@@ -218,7 +218,7 @@ class WidgetBuild {
     );
   }
 
-  static Widget buildPasswordTextFormField(
+  static Widget passwordTextInput(
     TextEditingController controller,
     String labelText,
     String? Function(String?)? validator,
@@ -241,7 +241,7 @@ class WidgetBuild {
     );
   }
 
-  static Widget buildDropdownButtonFormField(
+  static Widget dropdownButton(
     String value,
     String labelText,
     List<String> items,
@@ -259,4 +259,180 @@ class WidgetBuild {
       onChanged: onChanged,
     );
   }
+
+  static Widget routingDropdownButton(
+    int? value,
+    String labelText,
+    void Function(int?) onChanged,
+  ) {
+    final items = List<String>.from(routingProviderList);
+    items.insert(0, '');
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(labelText: labelText),
+      value: items[value != null ? value + 1 : 0],
+      items: items.map((item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value == null) {
+          onChanged(null);
+        } else {
+          final index = items.indexOf(value);
+          onChanged(index != 0 ? index - 1 : null);
+        }
+      },
+    );
+  }
+
+  static Widget vmessDropdownButton(
+    int? value,
+    String labelText,
+    void Function(int?) onChanged,
+  ) {
+    final items = List<String>.from(vmessProviderList);
+    items.insert(0, '');
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(labelText: labelText),
+      value: items[value != null ? value + 1 : 0],
+      items: items.map((item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value == null) {
+          onChanged(null);
+        } else {
+          final index = items.indexOf(value);
+          onChanged(index != 0 ? index - 1 : null);
+        }
+      },
+    );
+  }
+
+  static Widget vlessDropdownButton(
+    int? value,
+    String labelText,
+    void Function(int?) onChanged,
+  ) {
+    final items = List<String>.from(vlessProviderList);
+    items.insert(0, '');
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(labelText: labelText),
+      value: items[value != null ? value + 1 : 0],
+      items: items.map((item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value == null) {
+          onChanged(null);
+        } else {
+          final index = items.indexOf(value);
+          onChanged(index != 0 ? index - 1 : null);
+        }
+      },
+    );
+  }
+
+  static Widget shadowsocksDropdownButton(
+    int? value,
+    String labelText,
+    void Function(int?) onChanged,
+  ) {
+    final items = List<String>.from(shadowsocksProviderList);
+    items.insert(0, '');
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(labelText: labelText),
+      value: items[value != null ? value + 1 : 0],
+      items: items.map((item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value == null) {
+          onChanged(null);
+        } else {
+          final index = items.indexOf(value);
+          onChanged(index != 0 ? index - 1 : null);
+        }
+      },
+    );
+  }
+
+  static Widget trojanDropdownButton(
+    int? value,
+    String labelText,
+    void Function(int?) onChanged,
+  ) {
+    final items = List<String>.from(trojanProviderList);
+    items.insert(0, '');
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(labelText: labelText),
+      value: items[value != null ? value + 1 : 0],
+      items: items.map((item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value == null) {
+          onChanged(null);
+        } else {
+          final index = items.indexOf(value);
+          onChanged(index != 0 ? index - 1 : null);
+        }
+      },
+    );
+  }
+
+  static Widget hysteriaDropdownButton(
+    int? value,
+    String labelText,
+    void Function(int?) onChanged,
+  ) {
+    final items = List<String>.from(hysteriaProviderList);
+    items.insert(0, '');
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(labelText: labelText),
+      value: items[value != null ? value + 1 : 0],
+      items: items.map((item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value == null) {
+          onChanged(null);
+        } else {
+          final index = items.indexOf(value);
+          onChanged(index != 0 ? index - 1 : null);
+        }
+      },
+    );
+  }
 }
+
+const navigationStyleList = ['rail', 'drawer'];
+const userAgentList = ['chrome', 'firefox', 'safari', 'edge', 'none'];
+const domainStrategyList = ['AsIs', 'IPIfNonMatch', 'IPOnDemand'];
+const domainMatcherList = ['hybrid', 'linear'];
+const logLevelList = ['none', 'warning', 'debug', 'error', 'info'];
+const routingProviderList = ['sing-box', 'xray-core'];
+const vmessProviderList = ['sing-box', 'xray-core'];
+const vlessProviderList = ['sing-box', 'xray-core'];
+const shadowsocksProviderList = ['sing-box', 'xray-core', 'shadowsocks-rust'];
+const trojanProviderList = ['sing-box', 'xray-core'];
+const hysteriaProviderList = ['sing-box', 'hysteria'];
+const tunProviderList = ['sing-box'];
+const tunStackList = ['system', 'gvisor'];

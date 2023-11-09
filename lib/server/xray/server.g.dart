@@ -27,6 +27,8 @@ XrayServer _$XrayServerFromJson(Map<String, dynamic> json) => XrayServer(
       shortId: json['shortId'] as String?,
       spiderX: json['spiderX'] as String?,
       allowInsecure: json['allowInsecure'] as bool,
+      routingProvider: json['routingProvider'] as int?,
+      protocolProvider: json['protocolProvider'] as int?,
     )
       ..uplink = json['uplink'] as int?
       ..downlink = json['downlink'] as int?;
@@ -47,6 +49,8 @@ Map<String, dynamic> _$XrayServerToJson(XrayServer instance) {
 
   writeNotNull('uplink', instance.uplink);
   writeNotNull('downlink', instance.downlink);
+  writeNotNull('routingProvider', instance.routingProvider);
+  writeNotNull('protocolProvider', instance.protocolProvider);
   val['uuid'] = instance.uuid;
   writeNotNull('alterId', instance.alterId);
   val['encryption'] = instance.encryption;

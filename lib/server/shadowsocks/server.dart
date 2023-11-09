@@ -19,11 +19,15 @@ class ShadowsocksServer extends ServerBase {
     required this.encryption,
     this.plugin,
     this.pluginOpts,
+    int? routingProvider,
+    int? protocolProvider,
   }) : super(
           protocol: protocol,
           address: address,
           port: port,
           remark: remark,
+          routingProvider: routingProvider,
+          protocolProvider: protocolProvider,
         );
 
   factory ShadowsocksServer.defaults() => ShadowsocksServer(

@@ -58,26 +58,28 @@ class XrayServerDialog extends StatefulWidget {
 
 class _XrayServerDialogState extends State<XrayServerDialog> {
   final _formKey = GlobalKey<FormState>();
+  late final String _protocol;
   final _remarkController = TextEditingController();
   final _addressController = TextEditingController();
   final _portController = TextEditingController();
   final _uuidController = TextEditingController();
   final _alterIdController = TextEditingController();
-  final _encryptionController = TextEditingController();
-  final _flowController = TextEditingController();
-  final _transportController = TextEditingController();
+  late String _encryption;
+  late String _flow;
+  late String _transport;
   final _hostController = TextEditingController();
   final _pathController = TextEditingController();
-  final _grpcModeController = TextEditingController();
+  late String _grpcMode;
   final _serviceNameController = TextEditingController();
-  final _tlsController = TextEditingController();
+  late String _tls;
   final _sniController = TextEditingController();
-  final _fingerPrintController = TextEditingController();
+  late String _fingerPrint;
   final _publicKeyController = TextEditingController();
   final _shortIdController = TextEditingController();
   final _spiderXController = TextEditingController();
-  final _allowInsecureController = TextEditingController();
-  late final String _protocol;
+  late String _allowInsecure;
+  int? _routingProvider;
+  int? _protocolProvider;
   bool _obscureText = true;
 
   @override
@@ -95,12 +97,12 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
   @override
   Widget build(BuildContext context) {
     final widgets = [
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _remarkController,
         S.of(context).remark,
         null,
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _addressController,
         S.of(context).address,
         (value) {
@@ -110,7 +112,7 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
           return null;
         },
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _portController,
         S.of(context).port,
         (value) {
@@ -126,7 +128,7 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
           return null;
         },
       ),
-      WidgetBuild.buildPasswordTextFormField(
+      SphiaWidget.passwordTextInput(
         _uuidController,
         S.of(context).uuid,
         (value) {
@@ -143,7 +145,7 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
         },
       ),
       if (_protocol == 'vmess') ...[
-        WidgetBuild.buildTextFormField(
+        SphiaWidget.textInput(
           _alterIdController,
           S.of(context).alterId,
           (value) {
@@ -157,138 +159,137 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
           },
         ),
       ],
-      WidgetBuild.buildDropdownButtonFormField(
-        _encryptionController.text,
+      SphiaWidget.dropdownButton(
+        _encryption,
         S.of(context).encryption,
         _protocol == 'vmess' ? vmessEncryption : vlessEncryption,
         (value) {
           if (value != null) {
             setState(() {
-              _encryptionController.text = value;
+              _encryption = value;
             });
           }
         },
       ),
       if (_protocol == 'vless') ...[
-        WidgetBuild.buildDropdownButtonFormField(
-          _flowController.text,
+        SphiaWidget.dropdownButton(
+          _flow,
           S.of(context).flow,
           vlessFlow,
           (value) {
             if (value != null) {
               setState(() {
-                _flowController.text = value;
+                _flow = value;
               });
             }
           },
         ),
       ],
-      WidgetBuild.buildDropdownButtonFormField(
-        _transportController.text,
+      SphiaWidget.dropdownButton(
+        _transport,
         S.of(context).transport,
         vProtocolTransport,
         (value) {
           if (value != null) {
             setState(() {
-              _transportController.text = value;
+              _transport = value;
             });
           }
         },
       ),
-      if (_transportController.text == 'grpc') ...[
-        WidgetBuild.buildDropdownButtonFormField(
-          _grpcModeController.text,
+      if (_transport == 'grpc') ...[
+        SphiaWidget.dropdownButton(
+          _grpcMode,
           S.of(context).grpcMode,
           grpcMode,
           (value) {
             if (value != null) {
               setState(() {
-                _grpcModeController.text = value;
+                _grpcMode = value;
               });
             }
           },
         ),
-        WidgetBuild.buildTextFormField(
+        SphiaWidget.textInput(
           _serviceNameController,
           S.of(context).grpcServiceName,
           null,
         ),
       ],
-      if (_transportController.text == 'ws' ||
-          _transportController.text == 'httpupgrade') ...[
-        WidgetBuild.buildTextFormField(
+      if (_transport == 'ws' || _transport == 'httpupgrade') ...[
+        SphiaWidget.textInput(
           _hostController,
           S.of(context).host,
           null,
         ),
-        WidgetBuild.buildTextFormField(
+        SphiaWidget.textInput(
           _pathController,
           S.of(context).path,
           null,
         ),
       ],
-      WidgetBuild.buildDropdownButtonFormField(
-        _tlsController.text,
+      SphiaWidget.dropdownButton(
+        _tls,
         S.of(context).tls,
         tls,
         (value) {
           if (value != null) {
             setState(() {
-              _tlsController.text = value;
+              _tls = value;
             });
           }
         },
       ),
-      if (_tlsController.text == 'tls') ...[
-        WidgetBuild.buildTextFormField(
+      if (_tls == 'tls') ...[
+        SphiaWidget.textInput(
           _sniController,
           S.of(context).sni,
           null,
         ),
-        WidgetBuild.buildDropdownButtonFormField(
-          _fingerPrintController.text,
+        SphiaWidget.dropdownButton(
+          _fingerPrint,
           S.of(context).fingerPrint,
           fingerPrint,
           (value) {
             if (value != null) {
               setState(() {
-                _fingerPrintController.text = value;
+                _fingerPrint = value;
               });
             }
           },
         ),
-        WidgetBuild.buildDropdownButtonFormField(
-          _allowInsecureController.text,
+        SphiaWidget.dropdownButton(
+          _allowInsecure,
           S.of(context).allowInsecure,
           allowInsecure,
           (value) {
             if (value != null) {
               setState(() {
-                _allowInsecureController.text = value;
+                _allowInsecure = value;
               });
             }
           },
         ),
       ],
-      if (_tlsController.text == 'reality') ...[
-        WidgetBuild.buildTextFormField(
+      if (_tls == 'reality') ...[
+        SphiaWidget.textInput(
           _sniController,
           S.of(context).sni,
           null,
         ),
-        WidgetBuild.buildDropdownButtonFormField(
-          _fingerPrintController.text,
+        SphiaWidget.dropdownButton(
+          _fingerPrint,
           S.of(context).fingerPrint,
           realityFingerPrint,
           (value) {
             if (value != null) {
               setState(() {
-                _fingerPrintController.text = value;
+                _fingerPrint = value;
               });
             }
           },
         ),
-        WidgetBuild.buildTextFormField(
+        SphiaWidget.textInput(
           _publicKeyController,
           S.of(context).publicKey,
           (value) {
@@ -298,17 +299,48 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
             return null;
           },
         ),
-        WidgetBuild.buildTextFormField(
+        SphiaWidget.textInput(
           _shortIdController,
           S.of(context).shortId,
           null,
         ),
-        WidgetBuild.buildTextFormField(
+        SphiaWidget.textInput(
           _spiderXController,
           S.of(context).spiderX,
           null,
         ),
-      ]
+      ],
+      SphiaWidget.routingDropdownButton(
+        _routingProvider,
+        S.of(context).routingProvider,
+        (value) {
+          setState(() {
+            _routingProvider = value;
+          });
+        },
+      ),
+      if (_protocol == 'vmess') ...[
+        SphiaWidget.vmessDropdownButton(
+          _protocolProvider,
+          S.of(context).vmessProvider,
+          (value) {
+            setState(() {
+              _protocolProvider = value;
+            });
+          },
+        ),
+      ],
+      if (_protocol == 'vless') ...[
+        SphiaWidget.vlessDropdownButton(
+          _protocolProvider,
+          S.of(context).vlessProvider,
+          (value) {
+            setState(() {
+              _protocolProvider = value;
+            });
+          },
+        ),
+      ],
     ];
 
     return AlertDialog(
@@ -340,56 +372,53 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
                 alterId: _protocol == 'vmess'
                     ? int.parse(_alterIdController.text)
                     : null,
-                encryption:
-                    _protocol == 'vmess' ? _encryptionController.text : 'none',
+                encryption: _protocol == 'vmess' ? _encryption : 'none',
                 flow: _protocol == 'vless'
-                    ? _flowController.text != 'none'
-                        ? _flowController.text
+                    ? _flow != 'none'
+                        ? _flow
                         : null
                     : null,
-                transport: _transportController.text,
-                host: _transportController.text == 'ws'
+                transport: _transport,
+                host: _transport == 'ws'
                     ? (_hostController.text.trim().isNotEmpty
                         ? _hostController.text
                         : null)
                     : null,
-                path: _transportController.text == 'ws'
+                path: _transport == 'ws'
                     ? (_pathController.text.trim().isNotEmpty
                         ? _pathController.text
                         : null)
                     : null,
-                grpcMode: _transportController.text == 'grpc'
-                    ? _grpcModeController.text
-                    : null,
-                serviceName: _transportController.text == 'grpc'
+                grpcMode: _transport == 'grpc' ? _grpcMode : null,
+                serviceName: _transport == 'grpc'
                     ? (_serviceNameController.text.trim().isNotEmpty
                         ? _serviceNameController.text
                         : null)
                     : null,
-                tls: _tlsController.text,
+                tls: _tls,
                 serverName: _sniController.text.trim().isNotEmpty
                     ? _sniController.text
                     : null,
-                fingerPrint: _tlsController.text == 'tls' ||
-                        _tlsController.text == 'reality'
-                    ? _fingerPrintController.text != 'none'
-                        ? _fingerPrintController.text
+                fingerPrint: _tls == 'tls' || _tls == 'reality'
+                    ? _fingerPrint != 'none'
+                        ? _fingerPrint
                         : null
                     : null,
-                publicKey: _tlsController.text == 'reality'
-                    ? _publicKeyController.text.trim()
-                    : null,
-                shortId: _tlsController.text == 'reality'
+                publicKey:
+                    _tls == 'reality' ? _publicKeyController.text.trim() : null,
+                shortId: _tls == 'reality'
                     ? (_shortIdController.text.trim().isNotEmpty
                         ? _shortIdController.text
                         : null)
                     : null,
-                spiderX: _tlsController.text == 'reality'
+                spiderX: _tls == 'reality'
                     ? (_spiderXController.text.trim().isNotEmpty
                         ? _spiderXController.text
                         : null)
                     : null,
-                allowInsecure: _allowInsecureController.text == 'true',
+                allowInsecure: _allowInsecure == 'true',
+                routingProvider: _routingProvider,
+                protocolProvider: _protocolProvider,
               );
               Navigator.pop(context, server);
             }
@@ -409,21 +438,22 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
     _uuidController.text = server.uuid;
     _alterIdController.text =
         server.alterId == null ? '0' : server.alterId.toString();
-    _encryptionController.text =
-        _protocol == 'vmess' ? server.encryption : 'none';
-    _flowController.text = server.flow ?? 'none';
-    _transportController.text = server.transport;
+    _encryption = _protocol == 'vmess' ? server.encryption : 'none';
+    _flow = server.flow ?? 'none';
+    _transport = server.transport;
     _hostController.text = server.host ?? '';
     _pathController.text = server.path ?? '';
-    _grpcModeController.text = server.grpcMode ?? 'gun';
+    _grpcMode = server.grpcMode ?? 'gun';
     _serviceNameController.text = server.serviceName ?? '';
-    _tlsController.text = server.tls;
+    _tls = server.tls;
     _sniController.text = server.serverName ?? '';
-    _fingerPrintController.text = server.fingerPrint ?? 'chrome';
+    _fingerPrint = server.fingerPrint ?? 'chrome';
     _publicKeyController.text = server.publicKey ?? '';
     _shortIdController.text = server.shortId ?? '';
     _spiderXController.text = server.spiderX ?? '';
-    _allowInsecureController.text = server.allowInsecure.toString();
+    _allowInsecure = server.allowInsecure.toString();
+    _routingProvider = server.routingProvider;
+    _protocolProvider = server.protocolProvider;
   }
 
   void _disposeControllers() {
@@ -432,19 +462,12 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
     _portController.dispose();
     _uuidController.dispose();
     _alterIdController.dispose();
-    _encryptionController.dispose();
-    _flowController.dispose();
-    _transportController.dispose();
     _hostController.dispose();
     _pathController.dispose();
-    _grpcModeController.dispose();
     _serviceNameController.dispose();
-    _tlsController.dispose();
     _sniController.dispose();
-    _fingerPrintController.dispose();
     _publicKeyController.dispose();
     _shortIdController.dispose();
     _spiderXController.dispose();
-    _allowInsecureController.dispose();
   }
 }

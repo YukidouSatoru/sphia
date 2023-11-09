@@ -73,7 +73,7 @@ class _UpdatePageState extends State<UpdatePage> {
                                 logger.e('Failed to launch url: $e');
                                 _scaffoldMessengerKey.currentState!
                                     .showSnackBar(
-                                  WidgetBuild.snackBar(
+                                  SphiaWidget.snackBar(
                                       '${S.current.launchUrlFailed}: $e'),
                                 );
                               }
@@ -111,7 +111,7 @@ class _UpdatePageState extends State<UpdatePage> {
                                 coreName, _latestVersions[coreName]!,
                                 (message) {
                               _scaffoldMessengerKey.currentState!.showSnackBar(
-                                WidgetBuild.snackBar(message),
+                                SphiaWidget.snackBar(message),
                               );
                             });
                             _latestVersions.remove(coreName);
@@ -143,7 +143,7 @@ class _UpdatePageState extends State<UpdatePage> {
       if (versionConfigProvider.getVersion(coreName) == hysteriaLatestVersion &&
           coreExists) {
         _scaffoldMessengerKey.currentState?.showSnackBar(
-          WidgetBuild.snackBar(
+          SphiaWidget.snackBar(
               '${S.of(context).alreadyLatestVersion}: $coreName'),
         );
         return;
@@ -155,7 +155,7 @@ class _UpdatePageState extends State<UpdatePage> {
     }
     logger.i('Checking update: $coreName');
     _scaffoldMessengerKey.currentState?.showSnackBar(
-      WidgetBuild.snackBar('${S.of(context).checkingUpdate}: $coreName'),
+      SphiaWidget.snackBar('${S.of(context).checkingUpdate}: $coreName'),
     );
     try {
       // check github connection
@@ -166,7 +166,7 @@ class _UpdatePageState extends State<UpdatePage> {
       } on Exception catch (e) {
         logger.e('Failed to connect to Github: $e');
         _scaffoldMessengerKey.currentState!.showSnackBar(
-          WidgetBuild.snackBar('${S.current.connectToGithubFailed}: $e'),
+          SphiaWidget.snackBar('${S.current.connectToGithubFailed}: $e'),
         );
         return;
       }
@@ -175,7 +175,7 @@ class _UpdatePageState extends State<UpdatePage> {
         if (versionConfigProvider.getVersion(coreName) == latestVersion &&
             coreExists) {
           _scaffoldMessengerKey.currentState?.showSnackBar(
-            WidgetBuild.snackBar(
+            SphiaWidget.snackBar(
                 '${S.of(context).alreadyLatestVersion}: $coreName'),
           );
           return;
@@ -188,7 +188,7 @@ class _UpdatePageState extends State<UpdatePage> {
     } on Exception catch (e) {
       logger.e('Failed to check update: $e');
       _scaffoldMessengerKey.currentState!.showSnackBar(
-        WidgetBuild.snackBar('${S.current.checkUpdateFailed} $e'),
+        SphiaWidget.snackBar('${S.current.checkUpdateFailed} $e'),
       );
       return;
     }

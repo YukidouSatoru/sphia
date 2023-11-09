@@ -19,11 +19,15 @@ class TrojanServer extends ServerBase {
     this.serverName,
     this.fingerPrint,
     required this.allowInsecure,
+    int? routingProvider,
+    int? protocolProvider,
   }) : super(
           protocol: protocol,
           address: address,
           port: port,
           remark: remark,
+          routingProvider: routingProvider,
+          protocolProvider: protocolProvider,
         );
 
   factory TrojanServer.defaults() => TrojanServer(

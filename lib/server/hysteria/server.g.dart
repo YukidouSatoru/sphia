@@ -24,6 +24,8 @@ HysteriaServer _$HysteriaServerFromJson(Map<String, dynamic> json) =>
       recvWindowConn: json['recv_window_conn'] as int?,
       recvWindow: json['recv_window'] as int?,
       disableMtuDiscovery: json['disable_mtu_discovery'] as bool,
+      routingProvider: json['routingProvider'] as int?,
+      protocolProvider: json['protocolProvider'] as int?,
     )
       ..uplink = json['uplink'] as int?
       ..downlink = json['downlink'] as int?;
@@ -44,6 +46,8 @@ Map<String, dynamic> _$HysteriaServerToJson(HysteriaServer instance) {
 
   writeNotNull('uplink', instance.uplink);
   writeNotNull('downlink', instance.downlink);
+  writeNotNull('routingProvider', instance.routingProvider);
+  writeNotNull('protocolProvider', instance.protocolProvider);
   val['hysteriaProtocol'] = instance.hysteriaProtocol;
   writeNotNull('obfs', instance.obfs);
   writeNotNull('alpn', instance.alpn);

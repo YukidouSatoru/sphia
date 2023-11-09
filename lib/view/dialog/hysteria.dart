@@ -27,18 +27,20 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
   final _remarkController = TextEditingController();
   final _addressController = TextEditingController();
   final _portController = TextEditingController();
-  final _hysteriaProtocolController = TextEditingController();
+  late String _hysteriaProtocol;
   final _obfsController = TextEditingController();
   final _alpnController = TextEditingController();
-  final _authTypeController = TextEditingController();
+  late String _authType;
   final _authPayloadController = TextEditingController();
   final _sniController = TextEditingController();
-  final _insecureController = TextEditingController();
+  late String _insecure;
   final _upMbpsController = TextEditingController();
   final _downMbpsController = TextEditingController();
   final _recvWindowConnController = TextEditingController();
   final _recvWindowController = TextEditingController();
-  final _disableMtuDiscoveryController = TextEditingController();
+  late String _disableMtuDiscovery;
+  int? _routingProvider;
+  int? _protocolProvider;
   bool _obscureText = true;
 
   @override
@@ -56,12 +58,12 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
   @override
   Widget build(BuildContext context) {
     final widgets = [
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _remarkController,
         S.of(context).remark,
         null,
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _addressController,
         S.of(context).address,
         (value) {
@@ -71,7 +73,7 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
           return null;
         },
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _portController,
         S.of(context).port,
         (value) {
@@ -87,33 +89,33 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
           return null;
         },
       ),
-      WidgetBuild.buildDropdownButtonFormField(
-        _hysteriaProtocolController.text,
+      SphiaWidget.dropdownButton(
+        _hysteriaProtocol,
         S.of(context).hysteriaProtocol,
         hysteriaProtocol,
         (value) {
           if (value != null) {
             setState(() {
-              _hysteriaProtocolController.text = value;
+              _hysteriaProtocol = value;
             });
           }
         },
       ),
-      WidgetBuild.buildTextFormField(_obfsController, S.of(context).obfs, null),
-      WidgetBuild.buildTextFormField(_alpnController, S.of(context).alpn, null),
-      WidgetBuild.buildDropdownButtonFormField(
-        _authTypeController.text,
+      SphiaWidget.textInput(_obfsController, S.of(context).obfs, null),
+      SphiaWidget.textInput(_alpnController, S.of(context).alpn, null),
+      SphiaWidget.dropdownButton(
+        _authType,
         S.of(context).authType,
         authType,
         (value) {
           if (value != null) {
             setState(() {
-              _authTypeController.text = value;
+              _authType = value;
             });
           }
         },
       ),
-      WidgetBuild.buildPasswordTextFormField(
+      SphiaWidget.passwordTextInput(
         _authPayloadController,
         S.of(context).authPayload,
         null,
@@ -124,20 +126,20 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
           });
         },
       ),
-      WidgetBuild.buildTextFormField(_sniController, S.of(context).sni, null),
-      WidgetBuild.buildDropdownButtonFormField(
-        _insecureController.text,
+      SphiaWidget.textInput(_sniController, S.of(context).sni, null),
+      SphiaWidget.dropdownButton(
+        _insecure,
         S.of(context).allowInsecure,
         allowInsecure,
         (value) {
           if (value != null) {
             setState(() {
-              _insecureController.text = value;
+              _insecure = value;
             });
           }
         },
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _upMbpsController,
         S.of(context).upMbps,
         (value) {
@@ -150,7 +152,7 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
           return null;
         },
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _downMbpsController,
         S.of(context).downMbps,
         (value) {
@@ -163,7 +165,7 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
           return null;
         },
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _recvWindowConnController,
         S.of(context).recvWindowConn,
         (value) {
@@ -175,7 +177,7 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
           return null;
         },
       ),
-      WidgetBuild.buildTextFormField(
+      SphiaWidget.textInput(
         _recvWindowController,
         S.of(context).recvWindow,
         (value) {
@@ -187,16 +189,34 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
           return null;
         },
       ),
-      WidgetBuild.buildDropdownButtonFormField(
-        _disableMtuDiscoveryController.text,
+      SphiaWidget.dropdownButton(
+        _disableMtuDiscovery,
         S.of(context).disableMtuDiscovery,
         disableMtuDiscovery,
         (value) {
           if (value != null) {
             setState(() {
-              _disableMtuDiscoveryController.text = value;
+              _disableMtuDiscovery = value;
             });
           }
+        },
+      ),
+      SphiaWidget.routingDropdownButton(
+        _routingProvider,
+        S.of(context).routingProvider,
+        (value) {
+          setState(() {
+            _routingProvider = value;
+          });
+        },
+      ),
+      SphiaWidget.hysteriaDropdownButton(
+        _protocolProvider,
+        S.of(context).hysteriaProvider,
+        (value) {
+          setState(() {
+            _protocolProvider = value;
+          });
         },
       ),
     ];
@@ -226,21 +246,21 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
                 address: _addressController.text,
                 port: int.parse(_portController.text),
                 remark: _remarkController.text,
-                hysteriaProtocol: _hysteriaProtocolController.text,
+                hysteriaProtocol: _hysteriaProtocol,
                 obfs: _obfsController.text.trim().isNotEmpty
                     ? _obfsController.text
                     : null,
                 alpn: _alpnController.text.trim().isNotEmpty
                     ? _alpnController.text
                     : null,
-                authType: _authTypeController.text,
+                authType: _authType,
                 authPayload: _authPayloadController.text.trim().isNotEmpty
                     ? _authPayloadController.text
                     : null,
                 serverName: _sniController.text.trim().isNotEmpty
                     ? _sniController.text
                     : null,
-                insecure: _insecureController.text == 'true',
+                insecure: _insecure == 'true',
                 upMbps: int.parse(_upMbpsController.text),
                 downMbps: int.parse(_downMbpsController.text),
                 recvWindowConn: _recvWindowConnController.text.trim().isNotEmpty
@@ -249,8 +269,9 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
                 recvWindow: _recvWindowController.text.trim().isNotEmpty
                     ? int.parse(_recvWindowController.text)
                     : null,
-                disableMtuDiscovery:
-                    _disableMtuDiscoveryController.text == 'true',
+                disableMtuDiscovery: _disableMtuDiscovery == 'true',
+                routingProvider: _routingProvider,
+                protocolProvider: _protocolProvider,
               );
               Navigator.pop(context, server);
             }
@@ -266,37 +287,35 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
     _remarkController.text = server.remark;
     _addressController.text = server.address;
     _portController.text = server.port.toString();
-    _hysteriaProtocolController.text = server.hysteriaProtocol;
+    _hysteriaProtocol = server.hysteriaProtocol;
     _obfsController.text = server.obfs ?? '';
     _alpnController.text = server.alpn ?? '';
-    _authTypeController.text = server.authType;
+    _authType = server.authType;
     _authPayloadController.text = server.authPayload ?? '';
     _sniController.text = server.serverName ?? '';
-    _insecureController.text = server.insecure.toString();
+    _insecure = server.insecure.toString();
     _upMbpsController.text = server.upMbps.toString();
     _downMbpsController.text = server.downMbps.toString();
     _recvWindowConnController.text =
         server.recvWindowConn != null ? server.recvWindowConn.toString() : '';
     _recvWindowController.text =
         server.recvWindow != null ? server.recvWindow.toString() : '';
-    _disableMtuDiscoveryController.text = server.disableMtuDiscovery.toString();
+    _disableMtuDiscovery = server.disableMtuDiscovery.toString();
+    _routingProvider = server.routingProvider;
+    _protocolProvider = server.protocolProvider;
   }
 
   void _disposeControllers() {
     _remarkController.dispose();
     _addressController.dispose();
     _portController.dispose();
-    _hysteriaProtocolController.dispose();
     _obfsController.dispose();
     _alpnController.dispose();
-    _authTypeController.dispose();
     _authPayloadController.dispose();
     _sniController.dispose();
-    _insecureController.dispose();
     _upMbpsController.dispose();
     _downMbpsController.dispose();
     _recvWindowConnController.dispose();
     _recvWindowController.dispose();
-    _disableMtuDiscoveryController.dispose();
   }
 }

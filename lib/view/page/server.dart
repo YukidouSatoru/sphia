@@ -147,10 +147,10 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
       ),
       elevation: 0,
       actions: [
-        WidgetBuild.buildPopupMenuButton(
+        SphiaWidget.popupMenuButton(
           context: context,
           items: [
-            WidgetBuild.buildPopupMenuItem(
+            SphiaWidget.popupMenuItem(
               value: 'AddServer',
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -160,15 +160,15 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                 ],
               ),
             ),
-            WidgetBuild.buildPopupMenuItem(
+            SphiaWidget.popupMenuItem(
               value: 'AddGroup',
               child: Text(S.of(context).addGroup),
             ),
-            WidgetBuild.buildPopupMenuItem(
+            SphiaWidget.popupMenuItem(
               value: 'EditGroup',
               child: Text(S.of(context).editGroup),
             ),
-            WidgetBuild.buildPopupMenuItem(
+            SphiaWidget.popupMenuItem(
               value: 'UpdateGroup',
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -178,15 +178,15 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                 ],
               ),
             ),
-            WidgetBuild.buildPopupMenuItem(
+            SphiaWidget.popupMenuItem(
               value: 'DeleteGroup',
               child: Text(S.of(context).deleteGroup),
             ),
-            WidgetBuild.buildPopupMenuItem(
+            SphiaWidget.popupMenuItem(
               value: 'ReorderGroup',
               child: Text(S.of(context).reorderGroup),
             ),
-            WidgetBuild.buildPopupMenuItem(
+            SphiaWidget.popupMenuItem(
               value: 'ClearTraffic',
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -296,7 +296,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                           value, serverConfigProvider.serverGroups[_index].id,
                           (message) {
                         _scaffoldMessengerKey.currentState!
-                            .showSnackBar(WidgetBuild.snackBar(message));
+                            .showSnackBar(SphiaWidget.snackBar(message));
                       })) {
                         await _loadServers();
                         SphiaTray.generateServerItems();
@@ -529,7 +529,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                     server.id,
                     (message) {
                       _scaffoldMessengerKey.currentState!.showSnackBar(
-                        WidgetBuild.snackBar(message),
+                        SphiaWidget.snackBar(message),
                       );
                     },
                   ),
@@ -617,7 +617,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
         await SphiaController.stopCores();
       } else {
         _scaffoldMessengerKey.currentState!
-            .showSnackBar(WidgetBuild.snackBar(S.current.noServerSelected));
+            .showSnackBar(SphiaWidget.snackBar(S.current.noServerSelected));
         logger.w('No server selected');
         setState(() {});
       }
@@ -634,7 +634,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
         _isLoading = false;
       });
       _scaffoldMessengerKey.currentState!.showSnackBar(
-          WidgetBuild.snackBar('${S.current.coreStartFailed}: $e'));
+          SphiaWidget.snackBar('${S.current.coreStartFailed}: $e'));
     }
     setState(() {
       _isLoading = false;

@@ -286,7 +286,7 @@ class ServerAgent {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                WidgetBuild.buildTextFormField(
+                SphiaWidget.textInput(
                   groupNameController,
                   S.of(context).groupName,
                   (value) {
@@ -296,12 +296,12 @@ class ServerAgent {
                     return null;
                   },
                 ),
-                WidgetBuild.buildTextFormField(
+                SphiaWidget.textInput(
                   subscribeController,
                   S.of(context).subscribe,
                   null,
                 ),
-                WidgetBuild.buildDropdownButtonFormField(
+                SphiaWidget.dropdownButton(
                   S.of(context).no,
                   S.of(context).fetchSubscribe,
                   [S.of(context).no, S.of(context).yes],
@@ -376,7 +376,7 @@ class ServerAgent {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  WidgetBuild.buildTextFormField(
+                  SphiaWidget.textInput(
                     groupNameController,
                     S.of(context).groupName,
                     (value) {
@@ -386,7 +386,7 @@ class ServerAgent {
                       return null;
                     },
                   ),
-                  WidgetBuild.buildTextFormField(
+                  SphiaWidget.textInput(
                     subscribeController,
                     S.of(context).subscribe,
                     null,

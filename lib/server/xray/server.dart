@@ -44,11 +44,15 @@ class XrayServer extends ServerBase {
     this.shortId,
     this.spiderX,
     required this.allowInsecure,
+    int? routingProvider,
+    int? protocolProvider,
   }) : super(
           protocol: protocol,
           address: address,
           port: port,
           remark: remark,
+          routingProvider: routingProvider,
+          protocolProvider: protocolProvider,
         );
 
   factory XrayServer.defaults() => XrayServer(

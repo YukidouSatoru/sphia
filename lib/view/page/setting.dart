@@ -38,7 +38,7 @@ class _SettingPageState extends State<SettingPage> {
     final sphiaConfig = sphiaConfigProvider.config;
 
     final sphiaWidgets = [
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.startOnBoot,
         S.of(context).startOnBoot,
         (value) {
@@ -49,14 +49,14 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfigProvider.saveConfig();
             SystemUtil.configureStartup();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).startOnBootMsg,
               ),
             );
           }
         },
       ),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.autoRunServer,
         S.of(context).autoRunServer,
         (value) {
@@ -66,7 +66,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.autoRunServer = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).autoRunServerMsg,
               ),
             );
@@ -74,7 +74,7 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       const Divider(),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.useMaterial3,
         S.of(context).useMaterial3,
         (value) {
@@ -84,17 +84,17 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.useMaterial3 = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).useMaterial3Msg,
               ),
             );
           }
         },
       ),
-      WidgetBuild.buildItemsCard(
+      SphiaWidget.itemsCard(
         sphiaConfig.navigationStyle,
         S.of(context).navigationStyle,
-        ['rail', 'drawer'],
+        navigationStyleList,
         (value) {
           if (value != null) {
             logger.i(
@@ -102,7 +102,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.navigationStyle = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).navigationStyleMsg,
               ),
             );
@@ -110,7 +110,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.darkMode,
         S.of(context).darkMode,
         (value) {
@@ -120,14 +120,14 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.darkMode = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).darkModeMsg,
               ),
             );
           }
         },
       ),
-      WidgetBuild.buildColorsCard(
+      SphiaWidget.colorsCard(
         sphiaConfig.themeColor,
         S.of(context).themeColor,
         {
@@ -147,7 +147,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.themeColor = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).themeColorMsg,
               ),
             );
@@ -155,7 +155,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildTextCard(
+      SphiaWidget.textCard(
         "${sphiaConfig.themeColor >> 24},${(sphiaConfig.themeColor >> 16) & 0xFF},${(sphiaConfig.themeColor >> 8) & 0xFF},${sphiaConfig.themeColor & 0xFF}",
         S.of(context).themeColorArgb,
         (value) {
@@ -168,7 +168,7 @@ class _SettingPageState extends State<SettingPage> {
               b = int.parse(value.split(',')[3]);
             } on Exception catch (_) {
               _scaffoldMessengerKey.currentState?.showSnackBar(
-                WidgetBuild.snackBar(
+                SphiaWidget.snackBar(
                   S.of(context).themeColorWarn,
                 ),
               );
@@ -185,13 +185,13 @@ class _SettingPageState extends State<SettingPage> {
               sphiaConfig.themeColor = argbValue;
               sphiaConfigProvider.saveConfig();
               _scaffoldMessengerKey.currentState?.showSnackBar(
-                WidgetBuild.snackBar(
+                SphiaWidget.snackBar(
                   S.of(context).themeColorMsg,
                 ),
               );
             } else {
               _scaffoldMessengerKey.currentState?.showSnackBar(
-                WidgetBuild.snackBar(
+                SphiaWidget.snackBar(
                   S.of(context).themeColorWarn,
                 ),
               );
@@ -201,7 +201,7 @@ class _SettingPageState extends State<SettingPage> {
         context,
       ),
       const Divider(),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.showAddress,
         S.of(context).showAddress,
         (value) {
@@ -211,7 +211,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.showAddress = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).showAddressMsg,
               ),
             );
@@ -219,7 +219,7 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       const Divider(),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.enableStatistics,
         S.of(context).enableStatistics,
         (value) {
@@ -229,14 +229,14 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.enableStatistics = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).enableStatisticsMsg,
               ),
             );
           }
         },
       ),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.enableSpeedChart,
         S.of(context).enableSpeedChart,
         (value) {
@@ -246,7 +246,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.enableSpeedChart = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).enableSpeedChartMsg,
               ),
             );
@@ -254,7 +254,7 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       const Divider(),
-      WidgetBuild.buildTextCard(
+      SphiaWidget.textCard(
         sphiaConfig.updateSubscribeInterval.toString(),
         S.of(context).updateSubscribeInterval,
         (value) {
@@ -262,7 +262,7 @@ class _SettingPageState extends State<SettingPage> {
             late final int? newValue;
             if ((newValue = int.tryParse(value)) == null) {
               _scaffoldMessengerKey.currentState?.showSnackBar(
-                WidgetBuild.snackBar(
+                SphiaWidget.snackBar(
                   S.of(context).updateSubscribeIntervalWarn,
                 ),
               );
@@ -270,7 +270,7 @@ class _SettingPageState extends State<SettingPage> {
             }
             if (newValue! < 0 && newValue != -1) {
               _scaffoldMessengerKey.currentState?.showSnackBar(
-                WidgetBuild.snackBar(
+                SphiaWidget.snackBar(
                   S.of(context).updateSubscribeIntervalWarn,
                 ),
               );
@@ -286,7 +286,7 @@ class _SettingPageState extends State<SettingPage> {
               SphiaTask.cancelTask(SubscribeTask.name);
             }
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).updateSubscribeIntervalMsg,
               ),
             );
@@ -294,7 +294,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.updateThroughProxy,
         S.of(context).updateThroughProxy,
         (value) {
@@ -304,17 +304,17 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.updateThroughProxy = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).updateThroughProxyMsg,
               ),
             );
           }
         },
       ),
-      WidgetBuild.buildItemsCard(
+      SphiaWidget.itemsCard(
         sphiaConfig.userAgent,
         S.of(context).userAgent,
-        ['chrome', 'firefox', 'safari', 'edge', 'none'],
+        userAgentList,
         (value) {
           if (value != null) {
             logger.i(
@@ -322,7 +322,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.userAgent = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).userAgentMsg,
               ),
             );
@@ -332,7 +332,7 @@ class _SettingPageState extends State<SettingPage> {
       ),
     ];
     final proxyWidgets = [
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.autoGetIp,
         S.of(context).autoGetIp,
         (value) {
@@ -342,14 +342,14 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.autoGetIp = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).autoGetIpMsg,
               ),
             );
           }
         },
       ),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.autoConfigureSystemProxy,
         S.of(context).autoConfigureSystemProxy,
         (value) {
@@ -362,14 +362,14 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.autoConfigureSystemProxy = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).autoConfigureSystemProxyMsg,
               ),
             );
           }
         },
       ),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.enableTun,
         S.of(context).enableTun,
         (value) {
@@ -384,7 +384,7 @@ class _SettingPageState extends State<SettingPage> {
             }
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).enableTunMsg,
               ),
             );
@@ -392,7 +392,7 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       const Divider(),
-      WidgetBuild.buildTextCard(
+      SphiaWidget.textCard(
         sphiaConfig.socksPort.toString(),
         S.of(context).socksPort,
         (value) {
@@ -402,7 +402,7 @@ class _SettingPageState extends State<SettingPage> {
                 newValue! < 0 ||
                 newValue > 65535) {
               _scaffoldMessengerKey.currentState?.showSnackBar(
-                WidgetBuild.snackBar(
+                SphiaWidget.snackBar(
                   S.of(context).portInvalidMsg,
                 ),
               );
@@ -413,7 +413,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.socksPort = newValue;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).socksPortMsg,
               ),
             );
@@ -421,7 +421,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildTextCard(
+      SphiaWidget.textCard(
         sphiaConfig.httpPort.toString(),
         S.of(context).httpPort,
         (value) {
@@ -431,7 +431,7 @@ class _SettingPageState extends State<SettingPage> {
                 newValue! < 0 ||
                 newValue > 65535) {
               _scaffoldMessengerKey.currentState?.showSnackBar(
-                WidgetBuild.snackBar(
+                SphiaWidget.snackBar(
                   S.of(context).portInvalidMsg,
                 ),
               );
@@ -442,7 +442,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.httpPort = newValue;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).httpPortMsg,
               ),
             );
@@ -450,7 +450,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildTextCard(
+      SphiaWidget.textCard(
           sphiaConfig.mixedPort.toString(), S.of(context).mixedPort, (value) {
         if (value != null) {
           late final int? newValue;
@@ -458,7 +458,7 @@ class _SettingPageState extends State<SettingPage> {
               newValue! < 0 ||
               newValue > 65535) {
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).portInvalidMsg,
               ),
             );
@@ -470,26 +470,25 @@ class _SettingPageState extends State<SettingPage> {
           sphiaConfig.mixedPort = newValue;
           sphiaConfigProvider.saveConfig();
           _scaffoldMessengerKey.currentState?.showSnackBar(
-            WidgetBuild.snackBar(
+            SphiaWidget.snackBar(
               S.of(context).mixedPortMsg,
             ),
           );
         }
       }, context),
-      WidgetBuild.buildTextCard(sphiaConfig.listen, S.of(context).listen,
-          (value) {
+      SphiaWidget.textCard(sphiaConfig.listen, S.of(context).listen, (value) {
         if (value != null) {
           logger.i('Updating listen from ${sphiaConfig.listen} to $value');
           sphiaConfig.listen = value;
           sphiaConfigProvider.saveConfig();
           _scaffoldMessengerKey.currentState?.showSnackBar(
-            WidgetBuild.snackBar(
+            SphiaWidget.snackBar(
               S.of(context).listenMsg,
             ),
           );
         }
       }, context),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.enableUdp,
         S.of(context).enableUdp,
         (value) {
@@ -499,7 +498,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.enableUdp = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).enableUdpMsg,
               ),
             );
@@ -507,7 +506,7 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       const Divider(),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.authentication,
         S.of(context).authentication,
         (value) {
@@ -517,14 +516,14 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.authentication = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).authenticationMsg,
               ),
             );
           }
         },
       ),
-      WidgetBuild.buildTextCard(
+      SphiaWidget.textCard(
         sphiaConfig.user,
         S.of(context).user,
         (value) {
@@ -533,7 +532,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.user = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).userMsg,
               ),
             );
@@ -541,7 +540,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildTextCard(
+      SphiaWidget.textCard(
         sphiaConfig.password,
         S.of(context).password,
         (value) {
@@ -551,7 +550,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.password = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).passwordMsg,
               ),
             );
@@ -561,7 +560,7 @@ class _SettingPageState extends State<SettingPage> {
       ),
     ];
     final coreWidgets = [
-      WidgetBuild.buildTextCard(
+      SphiaWidget.textCard(
         sphiaConfig.coreApiPort.toString(),
         S.of(context).coreApiPort,
         (value) {
@@ -571,7 +570,7 @@ class _SettingPageState extends State<SettingPage> {
                 newValue! < 0 ||
                 newValue > 65535) {
               _scaffoldMessengerKey.currentState?.showSnackBar(
-                WidgetBuild.snackBar(
+                SphiaWidget.snackBar(
                   S.of(context).portInvalidMsg,
                 ),
               );
@@ -582,7 +581,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.coreApiPort = newValue;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).coreApiPortMsg,
               ),
             );
@@ -591,7 +590,7 @@ class _SettingPageState extends State<SettingPage> {
         context,
       ),
       const Divider(),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.enableSniffing,
         S.of(context).enableSniffing,
         (value) {
@@ -601,14 +600,14 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.enableSniffing = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).enableSniffingMsg,
               ),
             );
           }
         },
       ),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.configureDns,
         S.of(context).configureDns,
         (value) {
@@ -618,14 +617,14 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.configureDns = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).configureDnsMsg,
               ),
             );
           }
         },
       ),
-      WidgetBuild.buildTextCard(
+      SphiaWidget.textCard(
         sphiaConfig.remoteDns,
         S.of(context).remoteDns,
         (value) {
@@ -635,7 +634,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.remoteDns = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).remoteDnsMsg,
               ),
             );
@@ -643,7 +642,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildTextCard(
+      SphiaWidget.textCard(
         sphiaConfig.directDns,
         S.of(context).directDns,
         (value) {
@@ -653,7 +652,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.directDns = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).directDnsMsg,
               ),
             );
@@ -662,10 +661,10 @@ class _SettingPageState extends State<SettingPage> {
         context,
       ),
       const Divider(),
-      WidgetBuild.buildItemsCard(
+      SphiaWidget.itemsCard(
         sphiaConfig.domainStrategy,
         S.of(context).domainStrategy,
-        ['AsIs', 'IPIfNonMatch', 'IPOnDemand'],
+        domainStrategyList,
         (value) {
           if (value != null) {
             logger.i(
@@ -673,7 +672,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.domainStrategy = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).domainStrategyMsg,
               ),
             );
@@ -681,10 +680,10 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildItemsCard(
+      SphiaWidget.itemsCard(
         sphiaConfig.domainMatcher,
         S.of(context).domainMatcher,
-        ['hybrid', 'linear'],
+        domainMatcherList,
         (value) {
           if (value != null) {
             logger.i(
@@ -692,7 +691,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.domainMatcher = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).domainMatcherMsg,
               ),
             );
@@ -701,7 +700,7 @@ class _SettingPageState extends State<SettingPage> {
         context,
       ),
       const Divider(),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.enableCoreLog,
         S.of(context).enableCoreLog,
         (value) {
@@ -711,17 +710,17 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.enableCoreLog = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).enableCoreLogMsg,
               ),
             );
           }
         },
       ),
-      WidgetBuild.buildItemsCard(
+      SphiaWidget.itemsCard(
         sphiaConfig.logLevel,
         S.of(context).logLevel,
-        ['none', 'warning', 'debug', 'error', 'info'],
+        logLevelList,
         (value) {
           if (value != null) {
             logger
@@ -729,7 +728,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.logLevel = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).logLevelMsg,
               ),
             );
@@ -737,7 +736,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildTextCard(
+      SphiaWidget.textCard(
         sphiaConfig.maxLogCount.toString(),
         S.of(context).maxLogCount,
         (value) {
@@ -745,7 +744,7 @@ class _SettingPageState extends State<SettingPage> {
             late final int? newValue;
             if ((newValue = int.tryParse(value)) == null || newValue! < 0) {
               _scaffoldMessengerKey.currentState?.showSnackBar(
-                WidgetBuild.snackBar(
+                SphiaWidget.snackBar(
                   S.of(context).enterValidNumberMsg,
                 ),
               );
@@ -756,7 +755,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.maxLogCount = newValue;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).maxLogCountMsg,
               ),
             );
@@ -764,7 +763,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.saveCoreLog,
         S.of(context).saveCoreLog,
         (value) {
@@ -774,7 +773,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.saveCoreLog = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).saveCoreLogMsg,
               ),
             );
@@ -784,10 +783,10 @@ class _SettingPageState extends State<SettingPage> {
     ];
 
     final providerWidgets = [
-      WidgetBuild.buildItemsCard(
+      SphiaWidget.itemsCard(
         sphiaConfig.routingProvider,
         S.of(context).routingProvider,
-        ['sing-box', 'xray-core'],
+        routingProviderList,
         (value) {
           if (value != null) {
             logger.i(
@@ -795,7 +794,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.routingProvider = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).routingProviderMsg,
               ),
             );
@@ -803,10 +802,10 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildItemsCard(
+      SphiaWidget.itemsCard(
         sphiaConfig.vmessProvider,
         S.of(context).vmessProvider,
-        ['sing-box', 'xray-core'],
+        vmessProviderList,
         (value) {
           if (value != null) {
             logger.i(
@@ -814,7 +813,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.vmessProvider = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).vmessProviderMsg,
               ),
             );
@@ -822,10 +821,10 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildItemsCard(
+      SphiaWidget.itemsCard(
         sphiaConfig.vlessProvider,
         S.of(context).vlessProvider,
-        ['sing-box', 'xray-core'],
+        vlessProviderList,
         (value) {
           if (value != null) {
             logger.i(
@@ -833,7 +832,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.vlessProvider = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).vlessProviderMsg,
               ),
             );
@@ -841,10 +840,10 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildItemsCard(
+      SphiaWidget.itemsCard(
         sphiaConfig.shadowsocksProvider,
         S.of(context).shadowsocksProvider,
-        ['sing-box', 'xray-core', 'shadowsocks-rust'],
+        shadowsocksProviderList,
         (value) {
           if (value != null) {
             logger.i(
@@ -852,7 +851,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.shadowsocksProvider = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).shadowsocksProviderMsg,
               ),
             );
@@ -860,10 +859,10 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildItemsCard(
+      SphiaWidget.itemsCard(
         sphiaConfig.trojanProvider,
         S.of(context).trojanProvider,
-        ['sing-box', 'xray-core'],
+        trojanProviderList,
         (value) {
           if (value != null) {
             logger.i(
@@ -871,7 +870,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.trojanProvider = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).trojanProviderMsg,
               ),
             );
@@ -879,7 +878,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildItemsCard(
+      SphiaWidget.itemsCard(
         sphiaConfig.hysteriaProvider,
         S.of(context).hysteriaProvider,
         ['sing-box', 'hysteria'],
@@ -890,7 +889,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.hysteriaProvider = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).hysteriaProviderMsg,
               ),
             );
@@ -899,7 +898,7 @@ class _SettingPageState extends State<SettingPage> {
         context,
       ),
       const Divider(),
-      WidgetBuild.buildTextCard(
+      SphiaWidget.textCard(
         sphiaConfig.additionalSocksPort.toString(),
         S.of(context).additionalSocksPort,
         (value) {
@@ -909,7 +908,7 @@ class _SettingPageState extends State<SettingPage> {
                 newValue! < 0 ||
                 newValue > 65535) {
               _scaffoldMessengerKey.currentState?.showSnackBar(
-                WidgetBuild.snackBar(
+                SphiaWidget.snackBar(
                   S.of(context).portInvalidMsg,
                 ),
               );
@@ -920,7 +919,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.additionalSocksPort = newValue;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).additionalSocksPortMsg,
               ),
             );
@@ -930,10 +929,10 @@ class _SettingPageState extends State<SettingPage> {
       ),
     ];
     final tunWidgets = [
-      WidgetBuild.buildItemsCard(
+      SphiaWidget.itemsCard(
         sphiaConfig.tunProvider,
         S.of(context).tunProvider,
-        ['sing-box'],
+        tunProviderList,
         (value) {
           if (value != null) {
             logger.i(
@@ -941,7 +940,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.tunProvider = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).tunProviderMsg,
               ),
             );
@@ -950,20 +949,20 @@ class _SettingPageState extends State<SettingPage> {
         context,
       ),
       const Divider(),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.enableIpv4,
         S.of(context).enableIpv4,
         (value) {
           if (value != null) {
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).enableIpv4Msg,
               ),
             );
           }
         },
       ),
-      WidgetBuild.buildTextCard(
+      SphiaWidget.textCard(
         sphiaConfig.ipv4Address,
         S.of(context).ipv4Address,
         (value) {
@@ -973,7 +972,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.ipv4Address = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).ipv4AddressMsg,
               ),
             );
@@ -981,7 +980,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.enableIpv6,
         S.of(context).enableIpv6,
         (value) {
@@ -991,14 +990,14 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.enableIpv6 = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).enableIpv6Msg,
               ),
             );
           }
         },
       ),
-      WidgetBuild.buildTextCard(
+      SphiaWidget.textCard(
         sphiaConfig.ipv6Address,
         S.of(context).ipv6Address,
         (value) {
@@ -1008,7 +1007,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.ipv4Address = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).ipv6AddressMsg,
               ),
             );
@@ -1017,7 +1016,7 @@ class _SettingPageState extends State<SettingPage> {
         context,
       ),
       const Divider(),
-      WidgetBuild.buildTextCard(
+      SphiaWidget.textCard(
         sphiaConfig.mtu.toString(),
         S.of(context).mtu,
         (value) {
@@ -1025,7 +1024,7 @@ class _SettingPageState extends State<SettingPage> {
             late final int? newValue;
             if ((newValue = int.tryParse(value)) == null) {
               _scaffoldMessengerKey.currentState?.showSnackBar(
-                WidgetBuild.snackBar(
+                SphiaWidget.snackBar(
                   S.of(context).enterValidNumberMsg,
                 ),
               );
@@ -1035,7 +1034,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.mtu = newValue!;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).mtuMsg,
               ),
             );
@@ -1043,17 +1042,17 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildItemsCard(
+      SphiaWidget.itemsCard(
         sphiaConfig.stack,
         S.of(context).stack,
-        ['system', 'gvisor'],
+        tunStackList,
         (value) {
           if (value != null) {
             logger.i('Updating stack from ${sphiaConfig.stack} to $value');
             sphiaConfig.stack = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).stackMsg,
               ),
             );
@@ -1061,7 +1060,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.autoRoute,
         S.of(context).autoRoute,
         (value) {
@@ -1071,14 +1070,14 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.autoRoute = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).autoRouteMsg,
               ),
             );
           }
         },
       ),
-      WidgetBuild.buildCheckboxCard(
+      SphiaWidget.checkboxCard(
         sphiaConfig.strictRoute,
         S.of(context).strictRoute,
         (value) {
@@ -1088,7 +1087,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.strictRoute = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              WidgetBuild.snackBar(
+              SphiaWidget.snackBar(
                 S.of(context).strictRouteMsg,
               ),
             );

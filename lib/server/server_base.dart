@@ -10,6 +10,8 @@ abstract class ServerBase {
   String remark;
   int? uplink;
   int? downlink;
+  int? routingProvider;
+  int? protocolProvider;
 
   ServerBase({
     required this.protocol,
@@ -18,6 +20,8 @@ abstract class ServerBase {
     required this.remark,
     this.uplink,
     this.downlink,
+    this.routingProvider,
+    this.protocolProvider,
   });
 
   // factory Server.fromJson(Map<String, dynamic> json) => _$ServerFromJson(json);

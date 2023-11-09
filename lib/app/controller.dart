@@ -38,8 +38,12 @@ class SphiaController {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     final coreProvider = GetIt.I.get<CoreProvider>();
     final protocol = jsonDecode(server.data)['protocol'];
+    final int routingProvider = jsonDecode(server.data)['routingProvider'] ??
+        sphiaConfig.routingProvider;
+    late final int protocolProvider;
     List<CoreBase> newCores = [];
     late final XrayServer? additionalServerBase;
+
     if (sphiaConfig.enableTun) {
       if (!SystemUtil.isRoot) {
         logger.e('Tun mode requires administrator privileges');
@@ -49,52 +53,59 @@ class SphiaController {
     } else {
       switch (protocol) {
         case 'vmess':
-          if (sphiaConfig.vmessProvider == VmessProvider.xray.index) {
+          protocolProvider = jsonDecode(server.data)['protocolProvider'] ??
+              sphiaConfig.vmessProvider;
+          if (protocolProvider == VmessProvider.xray.index) {
             newCores.add(XrayCore());
           } else {
             newCores.add(SingBoxCore());
           }
           break;
         case 'vless':
-          if (sphiaConfig.vlessProvider == VlessProvider.xray.index) {
+          protocolProvider = jsonDecode(server.data)['protocolProvider'] ??
+              sphiaConfig.vlessProvider;
+          if (protocolProvider == VlessProvider.xray.index) {
             newCores.add(XrayCore());
           } else {
             newCores.add(SingBoxCore());
           }
           break;
         case 'shadowsocks':
-          if (sphiaConfig.shadowsocksProvider ==
-              ShadowsocksProvider.xray.index) {
+          protocolProvider = jsonDecode(server.data)['protocolProvider'] ??
+              sphiaConfig.shadowsocksProvider;
+          if (protocolProvider == ShadowsocksProvider.xray.index) {
             newCores.add(XrayCore());
-          } else if (sphiaConfig.shadowsocksProvider ==
-              ShadowsocksProvider.sing.index) {
+          } else if (protocolProvider == ShadowsocksProvider.sing.index) {
             newCores.add(SingBoxCore());
           } else {
             newCores.add(ShadowsocksRustCore());
           }
           break;
         case 'trojan':
-          if (sphiaConfig.trojanProvider == TrojanProvider.xray.index) {
+          protocolProvider = jsonDecode(server.data)['protocolProvider'] ??
+              sphiaConfig.trojanProvider;
+          if (protocolProvider == TrojanProvider.xray.index) {
             newCores.add(XrayCore());
           } else {
             newCores.add(SingBoxCore());
           }
           break;
         case 'hysteria':
-          if (sphiaConfig.hysteriaProvider == HysteriaProvider.sing.index) {
+          protocolProvider = jsonDecode(server.data)['protocolProvider'] ??
+              sphiaConfig.hysteriaProvider;
+          if (protocolProvider == HysteriaProvider.sing.index) {
             newCores.add(SingBoxCore());
           } else {
             newCores.add(HysteriaCore());
           }
           break;
       }
-      if (getProviderCoreName(sphiaConfig.routingProvider) !=
-          newCores[0].coreName) {
+      if (getProviderCoreName(routingProvider) != newCores[0].coreName) {
         additionalServerBase = XrayServer.defaults()
           ..remark = 'Additional Socks Server'
           ..protocol = 'socks'
           ..address = sphiaConfig.listen;
-        if (sphiaConfig.routingProvider == RoutingProvider.sing.index) {
+        if (routingProvider == RoutingProvider.sing.index) {
           newCores.add(SingBoxCore());
           if (newCores[0].coreName == 'xray-core') {
             additionalServerBase.port = sphiaConfig.socksPort;
@@ -125,8 +136,7 @@ class SphiaController {
           await coreProvider.cores[0].start(server);
         } else {
           for (var core in coreProvider.cores) {
-            if (core.coreName ==
-                    getProviderCoreName(sphiaConfig.routingProvider) &&
+            if (core.coreName == getProviderCoreName(routingProvider) &&
                 additionalServerBase != null) {
               final additionalServer = Server(
                 id: -1,

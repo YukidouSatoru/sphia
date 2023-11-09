@@ -15,6 +15,8 @@ TrojanServer _$TrojanServerFromJson(Map<String, dynamic> json) => TrojanServer(
       serverName: json['serverName'] as String?,
       fingerPrint: json['fingerPrint'] as String?,
       allowInsecure: json['allowInsecure'] as bool,
+      routingProvider: json['routingProvider'] as int?,
+      protocolProvider: json['protocolProvider'] as int?,
     )
       ..uplink = json['uplink'] as int?
       ..downlink = json['downlink'] as int?;
@@ -35,6 +37,8 @@ Map<String, dynamic> _$TrojanServerToJson(TrojanServer instance) {
 
   writeNotNull('uplink', instance.uplink);
   writeNotNull('downlink', instance.downlink);
+  writeNotNull('routingProvider', instance.routingProvider);
+  writeNotNull('protocolProvider', instance.protocolProvider);
   val['password'] = instance.password;
   writeNotNull('serverName', instance.serverName);
   writeNotNull('fingerPrint', instance.fingerPrint);

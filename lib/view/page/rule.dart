@@ -101,22 +101,22 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
       ),
       elevation: 0,
       actions: [
-        WidgetBuild.buildPopupMenuButton(
+        SphiaWidget.popupMenuButton(
           context: context,
           items: [
-            WidgetBuild.buildPopupMenuItem(
+            SphiaWidget.popupMenuItem(
               value: 'AddGroup',
               child: Text(S.of(context).addGroup),
             ),
-            WidgetBuild.buildPopupMenuItem(
+            SphiaWidget.popupMenuItem(
               value: 'EditGroup',
               child: Text(S.of(context).editGroup),
             ),
-            WidgetBuild.buildPopupMenuItem(
+            SphiaWidget.popupMenuItem(
               value: 'DeleteGroup',
               child: Text(S.of(context).deleteGroup),
             ),
-            WidgetBuild.buildPopupMenuItem(
+            SphiaWidget.popupMenuItem(
               value: 'ReorderGroup',
               child: Text(S.of(context).reorderGroup),
             ),
