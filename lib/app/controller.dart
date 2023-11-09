@@ -166,7 +166,7 @@ class SphiaController {
     final coreProvider = GetIt.I.get<CoreProvider>();
     if (coreProvider.cores.isNotEmpty) {
       logger.i('Stopping cores');
-      if (sphiaConfig.autoConfigureSystemProxy) {
+      if (sphiaConfig.autoConfigureSystemProxy || SystemUtil.getSystemProxy()) {
         SystemUtil.configureSystemProxy(false);
       }
       coreProvider.updateCoreRunning(false);

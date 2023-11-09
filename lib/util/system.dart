@@ -100,6 +100,54 @@ class SystemUtil {
     }
   }
 
+  static bool getSystemProxy() {
+    switch (os) {
+      case OS.windows:
+        final result = Process.runSync('reg', [
+          'query',
+          'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings',
+          '/v',
+          'ProxyEnable',
+        ]);
+        if (result.exitCode == 0) {
+          final regex = RegExp(r'ProxyEnable\s+REG_DWORD\s+(0x\d)');
+          final match = regex.firstMatch(result.stdout.toString());
+          if (match != null) {
+            return match.group(1) == '0x1';
+          } else {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      case OS.linux:
+        final result = Process.runSync('gsettings', [
+          'get',
+          'org.gnome.system.proxy',
+          'mode',
+        ]);
+        if (result.exitCode == 0) {
+          final value = result.stdout.toString().trim();
+          return value == '\'manual\'';
+        } else {
+          return false;
+        }
+      case OS.macos:
+        final result =
+            Process.runSync('networksetup', ['-getwebproxy', 'wi-fi']);
+        if (result.exitCode == 0) {
+          final value = result.stdout
+              .toString()
+              .trim()
+              .split('\n')[0]
+              .split(RegExp(r'\s+'))[1];
+          return value == 'Yes';
+        } else {
+          return false;
+        }
+    }
+  }
+
   static void configureSystemProxy(bool enable) {
     final sphiaCnfig = GetIt.I.get<SphiaConfigProvider>().config;
     if (enable) {
