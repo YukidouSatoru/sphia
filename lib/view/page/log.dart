@@ -43,8 +43,8 @@ class _LogPageState extends State<LogPage> {
     final coreProvider = Provider.of<CoreProvider>(context);
     if (_previousCoreRunning != coreProvider.coreRunning) {
       _previousCoreRunning = coreProvider.coreRunning;
-      if (sphiaConfigProvider.config.enableCoreLog &&
-          coreProvider.coreRunning) {
+      if (coreProvider.coreRunning &&
+          sphiaConfigProvider.config.enableCoreLog) {
         _scrollController.addListener(() {
           if (_scrollController.position.userScrollDirection !=
               ScrollDirection.idle) {
@@ -71,8 +71,8 @@ class _LogPageState extends State<LogPage> {
               surfaceTintColor: Colors.transparent,
               elevation: 2,
               margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-              child: sphiaConfigProvider.config.enableCoreLog &&
-                      coreProvider.cores.isNotEmpty
+              child: coreProvider.coreRunning &&
+                      sphiaConfigProvider.config.enableCoreLog
                   ? SingleChildScrollView(
                       controller: _scrollController,
                       child: SelectableText(
