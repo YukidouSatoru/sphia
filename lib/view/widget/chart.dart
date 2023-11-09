@@ -87,14 +87,16 @@ class _NetworkChartState extends State<NetworkChart> {
     logger.i('Stop speed chart timer');
     _timer?.cancel();
     _timer = null;
-    _maxY = 0;
-    widget.uploadSpots.clear();
-    widget.downloadSpots.clear();
+    setState(() {
+      widget.uploadSpots.clear();
+      widget.downloadSpots.clear();
+      _maxY = 0;
+    });
   }
 
   void _shouldStartTimer() {
-    if (_sphiaConfigProvider.config.enableStatistics &&
-        _coreProvider.coreRunning &&
+    if (_coreProvider.coreRunning &&
+        _sphiaConfigProvider.config.enableStatistics &&
         _sphiaConfigProvider.config.enableSpeedChart) {
       _startTimer();
     } else {
