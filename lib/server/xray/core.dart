@@ -33,7 +33,7 @@ class XrayCore extends CoreBase {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
 
     final log = Log(
-      access: SphiaLog.getLogPath(coreName),
+      access: sphiaConfig.saveCoreLog ? SphiaLog.getLogPath(coreName) : null,
       loglevel: LogLevel.values[sphiaConfig.logLevel].name,
     );
 
