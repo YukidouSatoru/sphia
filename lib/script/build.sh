@@ -30,6 +30,7 @@ if [[ "$(uname)" == "Linux" ]]; then
     mv $appimage dist/sphia-linux-amd64.AppImage
 else
     echo "Installing dependencies"
+    sudo -H pip install setuptools
     npm install -g appdmg
 
     echo "Building Sphia"
