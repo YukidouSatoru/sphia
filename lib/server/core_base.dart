@@ -31,12 +31,15 @@ abstract class CoreBase {
 
     await configure(serverBase);
 
+    if (!SystemUtil.coreExists(coreName)) {
+      logger.e('Core $coreName does not exist');
+      throw Exception('Core $coreName does not exist');
+    }
     logger.i('Starting core: $coreName');
     try {
       coreProcess = await Process.start(
         p.join(binPath, SystemUtil.getCoreFileName(coreName)),
         coreArgs,
-        runInShell: true,
       );
     } on ProcessException catch (e) {
       logger.e('Failed to start $coreName: ${e.message}');
