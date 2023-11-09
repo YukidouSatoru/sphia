@@ -12,14 +12,15 @@ abstract class CoreBase {
   String coreName;
   List<String> coreArgs;
   late String configFileName;
-  late File configFile = File(p.join(tempPath, configFileName));
-  Process? coreProcess;
-  bool isPreLog = true;
+  late final File _configFile = File(p.join(tempPath, configFileName));
+  Process? _coreProcess;
+  bool _isPreLog = true;
   final List<String> preLogList = [];
-  final logStreamController = StreamController<String>.broadcast();
+  final _logStreamController = StreamController<String>.broadcast();
   late final Server runningServer;
+  bool isRouting = false;
 
-  Stream<String> get logStream => logStreamController.stream;
+  Stream<String> get logStream => _logStreamController.stream;
 
   CoreBase(this.coreName, this.coreArgs, this.configFileName);
 
@@ -37,7 +38,7 @@ abstract class CoreBase {
     }
     logger.i('Starting core: $coreName');
     try {
-      coreProcess = await Process.start(
+      _coreProcess = await Process.start(
         p.join(binPath, SystemUtil.getCoreFileName(coreName)),
         coreArgs,
       );
@@ -46,52 +47,52 @@ abstract class CoreBase {
       throw Exception('Failed to start $coreName: ${e.message}');
     }
 
-    if (coreProcess == null) {
+    if (_coreProcess == null) {
       throw Exception('Core Process is null');
     }
 
-    listenToProcessStream(coreProcess!.stdout);
-    listenToProcessStream(coreProcess!.stderr);
+    listenToProcessStream(_coreProcess!.stdout);
+    listenToProcessStream(_coreProcess!.stderr);
 
     try {
-      if (await coreProcess?.exitCode
+      if (await _coreProcess?.exitCode
               .timeout(const Duration(milliseconds: 500)) !=
           0) {
         throw Exception('\n${preLogList.join('\n')}');
       }
     } on TimeoutException catch (_) {
-      isPreLog = false;
+      _isPreLog = false;
     }
   }
 
   Future<void> stop() async {
-    if (coreProcess != null) {
+    if (_coreProcess != null) {
       logger.i('Stopping core: $coreName');
-      coreProcess?.kill(ProcessSignal.sigterm);
-      await coreProcess?.exitCode.timeout(const Duration(milliseconds: 500),
+      _coreProcess?.kill(ProcessSignal.sigterm);
+      await _coreProcess?.exitCode.timeout(const Duration(milliseconds: 500),
           onTimeout: () {
-        coreProcess?.kill(ProcessSignal.sigkill);
+        _coreProcess?.kill(ProcessSignal.sigkill);
         return Future.error(
             'Failed to stop $coreName, force killed the process.');
       });
-      coreProcess = null;
+      _coreProcess = null;
     }
     SystemUtil.deleteFileIfExists(
-        configFile.path, 'Deleting config file: $configFileName');
+        _configFile.path, 'Deleting config file: $configFileName');
     if (coreName == 'sing-box') {
       SystemUtil.deleteFileIfExists(
           p.join(tempPath, 'cache.db'), 'Deleting cache file: cache.db');
     }
-    if (!logStreamController.isClosed) {
-      await logStreamController.close();
+    if (!_logStreamController.isClosed) {
+      await _logStreamController.close();
     }
   }
 
   void listenToProcessStream(Stream<List<int>> stream) {
     stream.transform(utf8.decoder).listen((data) {
       if (data.trim().isNotEmpty) {
-        logStreamController.add(data);
-        if (isPreLog) {
+        _logStreamController.add(data);
+        if (_isPreLog) {
           preLogList.add(data);
         }
       }
@@ -104,7 +105,7 @@ abstract class CoreBase {
 
   Future<void> writeConfig(String jsonString) async {
     SystemUtil.deleteFileIfExists(
-        configFile.path, 'Deleting config file: $configFileName');
-    await configFile.writeAsString(jsonString);
+        _configFile.path, 'Deleting config file: $configFileName');
+    await _configFile.writeAsString(jsonString);
   }
 }

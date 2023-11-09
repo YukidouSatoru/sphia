@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:get_it/get_it.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:path/path.dart' as p;
-import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/view/page/agent/update.dart';
@@ -148,41 +147,37 @@ class SystemUtil {
     }
   }
 
-  static void configureSystemProxy(bool enable) {
-    final sphiaCnfig = GetIt.I.get<SphiaConfigProvider>().config;
-    if (enable) {
-      logger.i('Enabling system proxy');
-      final listen = sphiaCnfig.listen;
-      final httpPort = sphiaCnfig.routingProvider == RoutingProvider.xray.index
-          ? sphiaCnfig.httpPort
-          : sphiaCnfig.mixedPort;
-      final socksPort = sphiaCnfig.routingProvider == RoutingProvider.xray.index
-          ? sphiaCnfig.socksPort
-          : sphiaCnfig.mixedPort;
-      switch (os) {
-        case OS.windows:
-          enableWindowsProxy(listen, httpPort);
-          break;
-        case OS.linux:
-          enableLinuxProxy(listen, httpPort, socksPort);
-          break;
-        case OS.macos:
-          enableMacOSProxy(listen, httpPort);
-          break;
-      }
-    } else {
-      logger.i('Disabling system proxy');
-      switch (os) {
-        case OS.windows:
-          disableWindowsProxy();
-          break;
-        case OS.linux:
-          disableLinuxProxy();
-          break;
-        case OS.macos:
-          disableMacOSProxy();
-          break;
-      }
+  static void enableSystemProxy(
+    String listen,
+    int socksPort,
+    int httpPort,
+  ) {
+    logger.i('Enabling system proxy');
+    switch (os) {
+      case OS.windows:
+        enableWindowsProxy(listen, httpPort);
+        break;
+      case OS.linux:
+        enableLinuxProxy(listen, socksPort, httpPort);
+        break;
+      case OS.macos:
+        enableMacOSProxy(listen, httpPort);
+        break;
+    }
+  }
+
+  static void disableSystemProxy() {
+    logger.i('Disabling system proxy');
+    switch (os) {
+      case OS.windows:
+        disableWindowsProxy();
+        break;
+      case OS.linux:
+        disableLinuxProxy();
+        break;
+      case OS.macos:
+        disableMacOSProxy();
+        break;
     }
   }
 
@@ -233,7 +228,10 @@ class SystemUtil {
   }
 
   static void enableLinuxProxy(
-      String listen, int httpPort, int socksPort) async {
+    String listen,
+    int socksPort,
+    int httpPort,
+  ) async {
     await runCommand('gsettings', [
       'set',
       'org.gnome.system.proxy.http',

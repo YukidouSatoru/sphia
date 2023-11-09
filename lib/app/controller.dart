@@ -49,7 +49,7 @@ class SphiaController {
         logger.e('Tun mode requires administrator privileges');
         throw Exception('Tun mode requires administrator privileges');
       }
-      newCores.add(SingBoxCore());
+      newCores.add(SingBoxCore()..isRouting = true);
     } else {
       switch (protocol) {
         case 'vmess':
@@ -106,20 +106,22 @@ class SphiaController {
           ..protocol = 'socks'
           ..address = sphiaConfig.listen;
         if (routingProvider == RoutingProvider.sing.index) {
-          newCores.add(SingBoxCore());
+          newCores.add(SingBoxCore()..isRouting = true);
           if (newCores[0].coreName == 'xray-core') {
             additionalServerBase.port = sphiaConfig.socksPort;
           } else {
             additionalServerBase.port = sphiaConfig.additionalSocksPort;
           }
         } else {
-          newCores.add(XrayCore());
+          newCores.add(XrayCore()..isRouting = true);
           if (newCores[0].coreName == 'sing-box') {
             additionalServerBase.port = sphiaConfig.mixedPort;
           } else {
             additionalServerBase.port = sphiaConfig.additionalSocksPort;
           }
         }
+      } else {
+        newCores.last.isRouting = true;
       }
     }
 
@@ -156,8 +158,18 @@ class SphiaController {
       rethrow;
     }
     coreProvider.updateCoreRunning(true);
+    int socksPort = sphiaConfig.socksPort;
+    int httpPort = sphiaConfig.httpPort;
+    if (routingProvider == RoutingProvider.sing.index) {
+      socksPort = sphiaConfig.mixedPort;
+      httpPort = sphiaConfig.mixedPort;
+    }
     if (sphiaConfig.autoConfigureSystemProxy) {
-      SystemUtil.configureSystemProxy(true);
+      SystemUtil.enableSystemProxy(
+        sphiaConfig.listen,
+        socksPort,
+        httpPort,
+      );
     }
   }
 
@@ -167,7 +179,7 @@ class SphiaController {
     if (coreProvider.cores.isNotEmpty) {
       logger.i('Stopping cores');
       if (sphiaConfig.autoConfigureSystemProxy || SystemUtil.getSystemProxy()) {
-        SystemUtil.configureSystemProxy(false);
+        SystemUtil.disableSystemProxy();
       }
       coreProvider.updateCoreRunning(false);
       // wait traffic to stop

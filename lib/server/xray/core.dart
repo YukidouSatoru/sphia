@@ -38,8 +38,7 @@ class XrayCore extends CoreBase {
     );
 
     Dns? dns;
-    if (sphiaConfig.configureDns &&
-        sphiaConfig.routingProvider == RoutingProvider.xray.index) {
+    if (sphiaConfig.configureDns && isRouting) {
       dns = XrayGenerate.dns(sphiaConfig.remoteDns, sphiaConfig.directDns);
     }
 
@@ -74,7 +73,7 @@ class XrayCore extends CoreBase {
 
     final ruleConfig = GetIt.I.get<RuleConfigProvider>().config;
     Routing? routing;
-    if (sphiaConfig.routingProvider == RoutingProvider.xray.index) {
+    if (isRouting) {
       routing = XrayGenerate.routing(
         DomainStrategy.values[sphiaConfig.domainStrategy].name,
         DomainMatcher.values[sphiaConfig.domainMatcher].name,
@@ -87,8 +86,7 @@ class XrayCore extends CoreBase {
     Api? api;
     Policy? policy;
     Stats? stats;
-    if (sphiaConfig.enableStatistics &&
-        sphiaConfig.routingProvider == RoutingProvider.xray.index) {
+    if (sphiaConfig.enableStatistics && isRouting) {
       api = Api(
         tag: 'api',
         services: ['StatsService'],

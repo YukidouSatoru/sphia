@@ -23,7 +23,7 @@ class NetworkUtil {
             url.contains('sphia'))) {
       client.findProxy = (uri) {
         return 'PROXY ${sphiaConfig.listen}:'
-            '${sphiaConfig.routingProvider == RoutingProvider.sing.index ? sphiaConfig.mixedPort : sphiaConfig.httpPort}';
+            '${coreProvider.cores.last.coreName == 'sing-box' ? sphiaConfig.mixedPort : sphiaConfig.httpPort}';
       };
     }
     final uri = Uri.parse(url);
