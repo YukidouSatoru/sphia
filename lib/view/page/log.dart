@@ -72,7 +72,8 @@ class _LogPageState extends State<LogPage> {
               elevation: 2,
               margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
               child: coreProvider.coreRunning &&
-                      sphiaConfigProvider.config.enableCoreLog
+                      sphiaConfigProvider.config.enableCoreLog &&
+                      (!sphiaConfigProvider.config.saveCoreLog)
                   ? SingleChildScrollView(
                       controller: _scrollController,
                       child: SelectableText(
