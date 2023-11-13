@@ -448,6 +448,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                             sphiaConfig.useMaterial3,
                             sphiaConfig.themeColor,
                             sphiaConfig.showAddress,
+                            server.id == serverConfig.selectedServerId,
                           ),
                         ),
                       );
@@ -475,20 +476,16 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
   }
 
   Widget _buildCard(Server server, int index, bool useMaterial3,
-      int themeColorInt, bool showAddress) {
+      int themeColorInt, bool showAddress, bool isSelected) {
     final themeColor = Color(themeColorInt);
-    final serverConfigProvider =
-        Provider.of<ServerConfigProvider>(context, listen: false);
-    final serverConfig = serverConfigProvider.config;
-    final serverBase = ServerBase.fromJson(
-        jsonDecode(serverConfigProvider.servers[index].data));
+    final serverBase = ServerBase.fromJson(jsonDecode(server.data));
     return Column(
       children: [
         Card(
           key: index == 0 ? _cardKey : null,
           elevation: 2,
           margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-          color: server.id == serverConfig.selectedServerId ? themeColor : null,
+          color: isSelected ? themeColor : null,
           child: ListTile(
             shape: SphiaTheme.listTileShape(useMaterial3),
             title: Text(serverBase.remark),
@@ -515,10 +512,15 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                   onPressed: () async {
                     late final Server? newServer;
                     if ((newServer = await _agent.editServer(server)) != null) {
-                      serverConfigProvider.servers[index] = newServer!;
-                      SphiaTray.replaceServerItem(newServer);
-                      SphiaTray.setMenu();
-                      setState(() {});
+                      if (context.mounted) {
+                        final serverConfigProvider =
+                            Provider.of<ServerConfigProvider>(context,
+                                listen: false);
+                        serverConfigProvider.servers[index] = newServer!;
+                        SphiaTray.replaceServerItem(newServer);
+                        SphiaTray.setMenu();
+                        setState(() {});
+                      }
                     }
                   },
                 ),
@@ -554,10 +556,15 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                   icon: const Icon(Icons.delete),
                   onPressed: () async {
                     if (await _agent.deleteServer(server.id)) {
-                      serverConfigProvider.servers.removeAt(index);
-                      SphiaTray.removeServerItem(server.id);
-                      SphiaTray.setMenu();
-                      setState(() {});
+                      if (context.mounted) {
+                        final serverConfigProvider =
+                            Provider.of<ServerConfigProvider>(context,
+                                listen: false);
+                        serverConfigProvider.servers.removeAt(index);
+                        SphiaTray.removeServerItem(server.id);
+                        SphiaTray.setMenu();
+                        setState(() {});
+                      }
                     }
                   },
                 ),
@@ -566,14 +573,18 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
             onTap: () {
               setState(
                 () {
-                  if (server.id == serverConfig.selectedServerId) {
+                  final serverConfigProvider =
+                      Provider.of<ServerConfigProvider>(context, listen: false);
+                  if (server.id ==
+                      serverConfigProvider.config.selectedServerId) {
                     SphiaTray.setMenuItem('server-${server.id}', false);
-                    serverConfig.selectedServerId = 0;
+                    serverConfigProvider.config.selectedServerId = 0;
                     serverConfigProvider.saveConfig();
                   } else {
                     SphiaTray.setMenuItem(
-                        'server-${serverConfig.selectedServerId}', false);
-                    serverConfig.selectedServerId = server.id;
+                        'server-${serverConfigProvider.config.selectedServerId}',
+                        false);
+                    serverConfigProvider.config.selectedServerId = server.id;
                     SphiaTray.setMenuItem('server-${server.id}', true);
                     serverConfigProvider.saveConfig();
                   }
