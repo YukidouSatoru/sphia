@@ -475,8 +475,14 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildCard(Server server, int index, bool useMaterial3,
-      int themeColorInt, bool showAddress, bool isSelected) {
+  Widget _buildCard(
+    Server server,
+    int index,
+    bool useMaterial3,
+    int themeColorInt,
+    bool showAddress,
+    bool isSelected,
+  ) {
     final themeColor = Color(themeColorInt);
     final serverBase = ServerBase.fromJson(jsonDecode(server.data));
     return Column(

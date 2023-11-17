@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:quiver/collection.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/provider/rule_config.dart';
+import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:sphia/app/theme.dart';
 import 'package:sphia/app/tray.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/server/xray/config.dart';
@@ -94,6 +96,7 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final sphiaConfig = Provider.of<SphiaConfigProvider>(context).config;
     final ruleConfigProvider = Provider.of<RuleConfigProvider>(context);
     final appBar = AppBar(
       title: Text(
@@ -218,7 +221,11 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
                         key: Key('${ruleGroup.id}-$index'),
                         child: ReorderableDragStartListener(
                           index: index,
-                          child: _buildCard(rule, index),
+                          child: _buildCard(
+                            rule,
+                            index,
+                            sphiaConfig.useMaterial3,
+                          ),
                         ),
                       );
                     },
@@ -246,7 +253,7 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildCard(Rule rule, int index) {
+  Widget _buildCard(Rule rule, int index, bool useMaterial3) {
     final xrayRule = XrayRule.fromJson(
       jsonDecode(rule.data),
     );
@@ -256,6 +263,7 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
           elevation: 2,
           margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
           child: ListTile(
+            shape: SphiaTheme.listTileShape(useMaterial3),
             title: Text(xrayRule.name ?? 'Rule'),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -303,6 +311,7 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
                 ),
               ],
             ),
+            onTap: () {},
           ),
         ),
       ],
