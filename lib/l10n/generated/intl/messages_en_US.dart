@@ -151,6 +151,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "enableUdpMsg": MessageLookupByLibrary.simpleMessage(
             "Enable UDP, only applicable to local Socks server"),
         "encryption": MessageLookupByLibrary.simpleMessage("Encryption"),
+        "endpointIndependentNat":
+            MessageLookupByLibrary.simpleMessage("Endpoint Independent NAT"),
+        "endpointIndependentNatMsg": MessageLookupByLibrary.simpleMessage(
+            "Endpoint Independent NAT, default off"),
         "enterValidNumberMsg":
             MessageLookupByLibrary.simpleMessage("Please enter a valid number"),
         "exit": MessageLookupByLibrary.simpleMessage("Exit"),

@@ -87,6 +87,7 @@ class SphiaConfig {
   bool enableIpv6;
   String ipv6Address;
   int mtu;
+  bool endpointIndependentNat;
   int stack;
   bool autoRoute;
   bool strictRoute;
@@ -139,6 +140,7 @@ class SphiaConfig {
     required this.enableIpv6,
     required this.ipv6Address,
     required this.mtu,
+    required this.endpointIndependentNat,
     required this.stack,
     required this.autoRoute,
     required this.strictRoute,
@@ -193,6 +195,7 @@ class SphiaConfig {
       enableIpv6: false,
       ipv6Address: 'fdfe:dcba:9876::1/126',
       mtu: 9000,
+      endpointIndependentNat: false,
       stack: TunStack.system.index,
       autoRoute: true,
       strictRoute: false,

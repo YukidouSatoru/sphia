@@ -127,6 +127,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "enableUdpMsg":
             MessageLookupByLibrary.simpleMessage("启用 UDP，仅适用于本地 Socks 服务器"),
         "encryption": MessageLookupByLibrary.simpleMessage("加密"),
+        "endpointIndependentNat":
+            MessageLookupByLibrary.simpleMessage("Endpoint Independent NAT"),
+        "endpointIndependentNatMsg": MessageLookupByLibrary.simpleMessage(
+            "Endpoint Independent NAT，默认关闭"),
         "enterValidNumberMsg": MessageLookupByLibrary.simpleMessage("请输入有效的数字"),
         "exit": MessageLookupByLibrary.simpleMessage("退出"),
         "exportToClipboard": MessageLookupByLibrary.simpleMessage("导出到剪贴板"),

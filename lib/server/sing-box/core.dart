@@ -77,6 +77,7 @@ class SingBoxCore extends CoreBase {
           sphiaConfig.autoRoute,
           sphiaConfig.strictRoute,
           sphiaConfig.enableSniffing,
+          sphiaConfig.endpointIndependentNat,
         ),
       );
     }

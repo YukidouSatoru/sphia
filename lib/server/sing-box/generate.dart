@@ -167,8 +167,16 @@ class SingBoxGenerate {
     );
   }
 
-  static Inbound tunInbound(String? inet4Address, String? inet6Address, int mtu,
-      String stack, bool autoRoute, bool strictRoute, bool sniff) {
+  static Inbound tunInbound(
+    String? inet4Address,
+    String? inet6Address,
+    int mtu,
+    String stack,
+    bool autoRoute,
+    bool strictRoute,
+    bool sniff,
+    bool endpointIndependentNat,
+  ) {
     return Inbound(
       type: 'tun',
       inet4Address: inet4Address,
@@ -178,6 +186,7 @@ class SingBoxGenerate {
       strictRoute: strictRoute,
       stack: stack,
       sniff: sniff,
+      endpointIndependentNat: endpointIndependentNat,
     );
   }
 

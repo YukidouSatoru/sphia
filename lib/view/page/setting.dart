@@ -1044,6 +1044,23 @@ class _SettingPageState extends State<SettingPage> {
         },
         context,
       ),
+      SphiaWidget.checkboxCard(
+        sphiaConfig.endpointIndependentNat,
+        S.of(context).endpointIndependentNat,
+        (value) {
+          if (value != null) {
+            logger.i(
+                'Updating endpointIndependentNat from ${sphiaConfig.endpointIndependentNat} to $value');
+            sphiaConfig.endpointIndependentNat = value;
+            sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
+              SphiaWidget.snackBar(
+                S.of(context).endpointIndependentNatMsg,
+              ),
+            );
+          }
+        },
+      ),
       SphiaWidget.itemsCard(
         sphiaConfig.stack,
         S.of(context).stack,

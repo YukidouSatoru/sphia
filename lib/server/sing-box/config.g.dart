@@ -246,6 +246,7 @@ Inbound _$InboundFromJson(Map<String, dynamic> json) => Inbound(
       strictRoute: json['strict_route'] as bool?,
       stack: json['stack'] as String?,
       sniff: json['sniff'] as bool?,
+      endpointIndependentNat: json['endpoint_independent_nat'] as bool?,
     );
 
 Map<String, dynamic> _$InboundToJson(Inbound instance) {
@@ -271,6 +272,7 @@ Map<String, dynamic> _$InboundToJson(Inbound instance) {
   writeNotNull('strict_route', instance.strictRoute);
   writeNotNull('stack', instance.stack);
   writeNotNull('sniff', instance.sniff);
+  writeNotNull('endpoint_independent_nat', instance.endpointIndependentNat);
   return val;
 }
 

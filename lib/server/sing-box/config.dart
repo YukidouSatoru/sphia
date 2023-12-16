@@ -212,6 +212,8 @@ class Inbound {
   bool? strictRoute;
   String? stack;
   bool? sniff;
+  @JsonKey(name: 'endpoint_independent_nat')
+  bool? endpointIndependentNat;
 
   Inbound({
     required this.type,
@@ -227,6 +229,7 @@ class Inbound {
     this.strictRoute,
     this.stack,
     this.sniff,
+    this.endpointIndependentNat,
   });
 
   factory Inbound.fromJson(Map<String, dynamic> json) =>
