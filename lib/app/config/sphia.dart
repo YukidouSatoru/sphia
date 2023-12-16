@@ -27,7 +27,7 @@ enum HysteriaProvider { sing, hysteria }
 
 enum TunProvider { sing }
 
-enum TunStack { system, gvisor }
+enum TunStack { system, gvisor, mixed }
 
 @JsonSerializable(includeIfNull: false)
 class SphiaConfig {
