@@ -21,7 +21,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.13.2'
+          flutter-version: '3.16.5'
       - name: Build
         run: |
           bash -c "lib/script/build.sh"
@@ -40,7 +40,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.13.2'
+          flutter-version: '3.16.5'
       - name: Build
         run: |
           powershell -Command "lib\script\build.ps1"
@@ -59,7 +59,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.13.2'
+          flutter-version: '3.16.5'
       - name: Build
         run: |
           bash -c "lib/script/build.sh"
