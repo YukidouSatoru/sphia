@@ -16,8 +16,8 @@ import 'package:sphia/view/widget/widget.dart';
 
 class RulePage extends StatefulWidget {
   const RulePage({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _RulePageState();

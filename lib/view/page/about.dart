@@ -9,8 +9,8 @@ const sphiaLastCommitHash = 'SELF_BUILD';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

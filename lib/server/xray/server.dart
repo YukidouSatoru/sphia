@@ -24,10 +24,10 @@ class XrayServer extends ServerBase {
   bool allowInsecure;
 
   XrayServer({
-    required String protocol,
-    required String address,
-    required int port,
-    required String remark,
+    required super.protocol,
+    required super.address,
+    required super.port,
+    required super.remark,
     required this.uuid,
     this.alterId,
     required this.encryption,
@@ -44,16 +44,9 @@ class XrayServer extends ServerBase {
     this.shortId,
     this.spiderX,
     required this.allowInsecure,
-    int? routingProvider,
-    int? protocolProvider,
-  }) : super(
-          protocol: protocol,
-          address: address,
-          port: port,
-          remark: remark,
-          routingProvider: routingProvider,
-          protocolProvider: protocolProvider,
-        );
+    super.routingProvider,
+    super.protocolProvider,
+  });
 
   factory XrayServer.defaults() => XrayServer(
         protocol: '',

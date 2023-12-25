@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,8 +24,8 @@ import 'package:sphia/view/widget/widget.dart';
 
 class ServerPage extends StatefulWidget {
   const ServerPage({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _ServerPageState();
@@ -662,15 +663,13 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
     if (uplink == 0 && downlink == 0) {
       return '';
     }
-    int uplinkUnitIndex = 0, downlinkUnitIndex = 0;
-    while (uplink > 1024) {
-      uplink /= 1024;
-      uplinkUnitIndex += 1;
-    }
-    while (downlink > 1024) {
-      downlink /= 1024;
-      downlinkUnitIndex += 1;
-    }
+    int uplinkUnitIndex = uplink > 0 ? (log(uplink) / log(1024)).floor() : 0;
+    int downlinkUnitIndex =
+        downlink > 0 ? (log(downlink) / log(1024)).floor() : 0;
+
+    uplink = uplink / unitRates[uplinkUnitIndex];
+    downlink = downlink / unitRates[downlinkUnitIndex];
+
     return '${uplink.toStringAsFixed(2)}${units[uplinkUnitIndex]}↑ ${downlink.toStringAsFixed(2)}${units[downlinkUnitIndex]}↓';
   }
 }

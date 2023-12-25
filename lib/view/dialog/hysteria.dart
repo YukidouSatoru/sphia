@@ -13,10 +13,10 @@ class HysteriaServerDialog extends StatefulWidget {
   final HysteriaServer server;
 
   const HysteriaServerDialog({
-    Key? key,
+    super.key,
     required this.title,
     required this.server,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _HysteriaServerDialogState();

@@ -146,7 +146,7 @@ class SphiaConfigDao {
       try {
         sphiaConfig = SphiaConfig.fromJson(data);
       } catch (e) {
-        logger.wtf('Failed to load sphia config: $e');
+        logger.f('Failed to load sphia config: $e');
         logger.i('Resetting sphia config');
         sphiaConfig = defaultConfig;
         await (_db.update(_db.config)
@@ -155,7 +155,7 @@ class SphiaConfigDao {
       }
       return sphiaConfig;
     } on Exception catch (e) {
-      logger.wtf('Failed to load sphia config: $e');
+      logger.f('Failed to load sphia config: $e');
       rethrow;
     }
   }
@@ -206,7 +206,7 @@ class ServerConfigDao {
       });
       return ServerConfig.fromJson(data);
     } on Exception catch (e) {
-      logger.wtf('Failed to load server config: $e');
+      logger.f('Failed to load server config: $e');
       rethrow;
     }
   }
@@ -258,7 +258,7 @@ class RuleConfigDao {
       });
       return RuleConfig.fromJson(data);
     } on Exception catch (e) {
-      logger.wtf('Failed to load rule config: $e');
+      logger.f('Failed to load rule config: $e');
       rethrow;
     }
   }
@@ -300,7 +300,7 @@ class VersionConfigDao {
       var data = jsonDecode(json);
       return VersionConfig.fromJson(data);
     } on Exception catch (e) {
-      logger.wtf('Failed to load version config: $e');
+      logger.f('Failed to load version config: $e');
       rethrow;
     }
   }

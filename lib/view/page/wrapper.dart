@@ -14,8 +14,7 @@ class PageWrapper extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
 
-  const PageWrapper({Key? key, required this.child, this.padding})
-      : super(key: key);
+  const PageWrapper({super.key, required this.child, this.padding});
 
   @override
   Widget build(BuildContext context) {

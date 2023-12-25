@@ -25,10 +25,10 @@ class HysteriaServer extends ServerBase {
   bool disableMtuDiscovery;
 
   HysteriaServer({
-    required String protocol,
-    required String address,
-    required int port,
-    required String remark,
+    required super.protocol,
+    required super.address,
+    required super.port,
+    required super.remark,
     required this.hysteriaProtocol,
     this.obfs,
     this.alpn,
@@ -41,16 +41,9 @@ class HysteriaServer extends ServerBase {
     this.recvWindowConn,
     this.recvWindow,
     required this.disableMtuDiscovery,
-    int? routingProvider,
-    int? protocolProvider,
-  }) : super(
-          protocol: protocol,
-          address: address,
-          port: port,
-          remark: remark,
-          routingProvider: routingProvider,
-          protocolProvider: protocolProvider,
-        );
+    super.routingProvider,
+    super.protocolProvider,
+  });
 
   factory HysteriaServer.defaults() => HysteriaServer(
         protocol: 'hysteria',

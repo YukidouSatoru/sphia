@@ -24,7 +24,7 @@ class SphiaLog {
 
   static void initLogger(bool saveLog, int methodCount, int errorMethodCount) {
     logger = Logger(
-      level: Level.verbose,
+      level: Level.trace,
       filter: MyFilter(),
       printer: PrettyPrinter(
         colors: false,

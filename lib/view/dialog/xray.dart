@@ -47,10 +47,10 @@ class XrayServerDialog extends StatefulWidget {
   final XrayServer server;
 
   const XrayServerDialog({
-    Key? key,
+    super.key,
     required this.title,
     required this.server,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _XrayServerDialogState();

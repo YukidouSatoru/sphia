@@ -11,8 +11,8 @@ import 'package:sphia/view/page/wrapper.dart';
 
 class LogPage extends StatefulWidget {
   const LogPage({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _LogPageState();

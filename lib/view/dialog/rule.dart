@@ -8,10 +8,10 @@ class RuleDialog extends StatefulWidget {
   final XrayRule rule;
 
   const RuleDialog({
-    Key? key,
+    super.key,
     required this.title,
     required this.rule,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _RuleDialogState();

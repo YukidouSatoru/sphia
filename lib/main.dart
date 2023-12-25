@@ -18,6 +18,11 @@ import 'package:sphia/util/system.dart';
 import 'package:sphia/view/page/about.dart';
 import 'package:window_manager/window_manager.dart';
 
+const methodCount = 2;
+const errorMethodCount = 2;
+const debugMethodCount = 5;
+const debugErrorMethodCount = 5;
+
 Future<void> getAppPath() async {
   if (Platform.isLinux && Platform.environment.containsKey('APPIMAGE')) {
     execPath = Platform.environment['APPIMAGE']!;
@@ -25,24 +30,8 @@ Future<void> getAppPath() async {
     execPath = Platform.resolvedExecutable;
   }
   if (const bool.fromEnvironment('dart.vm.product')) {
-    if (Platform.isLinux) {
-      final linuxAppPath = (await getApplicationSupportDirectory()).path;
-      final int firstIndex = linuxAppPath.indexOf('/root/');
-      if (firstIndex != -1) {
-        appPath = linuxAppPath.replaceFirst('/root/',
-            '/home/${Platform.environment['SUDO_USER']}/', firstIndex);
-      } else {
-        appPath = linuxAppPath;
-      }
-    } else if (Platform.isMacOS) {
-      final macAppPath = (await getApplicationSupportDirectory()).path;
-      final int firstIndex = macAppPath.indexOf('/var/root/');
-      if (firstIndex != -1) {
-        appPath = macAppPath.replaceFirst('/var/root/',
-            '/Users/${Platform.environment['SUDO_USER']}/', firstIndex);
-      } else {
-        appPath = macAppPath;
-      }
+    if (Platform.isLinux || Platform.isMacOS) {
+      appPath = await getAppPathForUnix();
     } else {
       appPath =
           execPath.substring(0, execPath.lastIndexOf(Platform.pathSeparator));
@@ -58,15 +47,29 @@ Future<void> getAppPath() async {
   }
 }
 
+Future<String> getAppPathForUnix() async {
+  final rootPath = Platform.isLinux ? '/root/' : '/var/root/';
+  final userPath = Platform.isLinux
+      ? '/home/${Platform.environment['SUDO_USER']}/'
+      : '/Users/${Platform.environment['SUDO_USER']}/';
+  final appPath = (await getApplicationSupportDirectory()).path;
+  final rootIndex = appPath.indexOf(rootPath);
+  if (rootIndex != -1) {
+    return appPath.replaceFirst(rootPath, userPath, rootIndex);
+  } else {
+    return appPath;
+  }
+}
+
 Future<void> configureApp() async {
   // Get app path
   await getAppPath();
 
   // Init logger
   if (const bool.fromEnvironment('dart.vm.product')) {
-    SphiaLog.initLogger(true, 2, 2);
+    SphiaLog.initLogger(true, methodCount, errorMethodCount);
   } else {
-    SphiaLog.initLogger(false, 5, 5);
+    SphiaLog.initLogger(false, debugMethodCount, debugErrorMethodCount);
   }
 
   // Check dir exists
@@ -132,10 +135,6 @@ Future<void> configureApp() async {
 
   // Init tray
   SphiaTray.init();
-
-  // Configure system proxy and startup
-  // SystemUtil.configureSystemProxy();
-  // SystemUtil.configureStartup();
 
   await windowManager.ensureInitialized();
 

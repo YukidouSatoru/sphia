@@ -23,8 +23,8 @@ class NetworkChart extends StatefulWidget {
   final downloadSpots = <FlSpot>[];
 
   NetworkChart({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<NetworkChart> createState() => _NetworkChartState();
@@ -62,16 +62,13 @@ class _NetworkChartState extends State<NetworkChart> {
     _timer = Timer.periodic(const Duration(milliseconds: 25), (timer) {
       final nowStamp = DateTime.now().millisecondsSinceEpoch;
       setState(() {
-        double axisY = [
-          ...widget.uploadSpots,
-          ...widget.downloadSpots,
-        ].fold(0, (maxY, spot) => max(maxY, spot.y));
+        final double maxUploadY =
+            widget.uploadSpots.fold(0, (maxY, spot) => max(maxY, spot.y));
+        final double maxDownloadY =
+            widget.downloadSpots.fold(0, (maxY, spot) => max(maxY, spot.y));
+        final double axisY = max(maxUploadY, maxDownloadY);
         _maxY = axisY;
-        _unitIndex = 0;
-        while (axisY > 1024) {
-          axisY /= 1024;
-          _unitIndex += 1;
-        }
+        _unitIndex = axisY > 1024 ? (log(axisY) / log(1024)).floor() : 0;
         widget.uploadSpots
             .removeWhere((element) => nowStamp - element.x > 60000);
         widget.downloadSpots

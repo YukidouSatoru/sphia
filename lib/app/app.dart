@@ -20,8 +20,8 @@ import 'package:window_manager/window_manager.dart';
 
 class SphiaApp extends StatefulWidget {
   const SphiaApp({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _SphiaAppState();

@@ -192,18 +192,18 @@ class SingBoxGenerate {
 
   static Outbound generateOutbound(ServerBase server) {
     late Outbound outbound;
-    switch (server.runtimeType) {
-      case XrayServer:
-        outbound = xrayOutbound(server as XrayServer);
+    switch (server) {
+      case XrayServer _:
+        outbound = xrayOutbound(server);
         break;
-      case ShadowsocksServer:
-        outbound = shadowsocksOutbound(server as ShadowsocksServer);
+      case ShadowsocksServer _:
+        outbound = shadowsocksOutbound(server);
         break;
-      case TrojanServer:
-        outbound = trojanOutbound(server as TrojanServer);
+      case TrojanServer _:
+        outbound = trojanOutbound(server);
         break;
-      case HysteriaServer:
-        outbound = hysteriaOutbound(server as HysteriaServer);
+      case HysteriaServer _:
+        outbound = hysteriaOutbound(server);
         break;
       default:
         throw Exception(

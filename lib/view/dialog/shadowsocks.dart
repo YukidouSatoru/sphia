@@ -30,10 +30,10 @@ class ShadowsocksServerDialog extends StatefulWidget {
   final ShadowsocksServer server;
 
   const ShadowsocksServerDialog({
-    Key? key,
+    super.key,
     required this.title,
     required this.server,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _ShadowsocksServerDialogState();

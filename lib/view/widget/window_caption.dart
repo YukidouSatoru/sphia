@@ -9,11 +9,11 @@ import 'package:window_manager/src/window_manager.dart';
 
 class SphiaWindowCaption extends StatefulWidget {
   const SphiaWindowCaption({
-    Key? key,
+    super.key,
     this.title,
     this.backgroundColor,
     this.brightness,
-  }) : super(key: key);
+  });
 
   final Widget? title;
   final Color? backgroundColor;

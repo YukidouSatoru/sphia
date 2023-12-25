@@ -11,8 +11,8 @@ import 'package:sphia/view/widget/widget.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _SettingPageState();

@@ -13,8 +13,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 class UpdatePage extends StatefulWidget {
   const UpdatePage({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _UpdatePageState();
