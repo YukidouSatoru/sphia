@@ -20,7 +20,6 @@ class RuleDialog extends StatefulWidget {
 class _RuleDialogState extends State<RuleDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _typeController = TextEditingController();
   final _outboundTagController = TextEditingController();
   final _domainController = TextEditingController();
   final _ipController = TextEditingController();
@@ -47,16 +46,6 @@ class _RuleDialogState extends State<RuleDialog> {
         (value) {
           if (value == null || value.trim().isEmpty) {
             return S.of(context).nameEnterMsg;
-          }
-          return null;
-        },
-      ),
-      SphiaWidget.textInput(
-        _typeController,
-        'Type',
-        (value) {
-          if (value == null || value.trim().isEmpty || value != 'field') {
-            return '${S.of(context).typeInvalidMsg} field';
           }
           return null;
         },
@@ -105,7 +94,6 @@ class _RuleDialogState extends State<RuleDialog> {
               final rule = XrayRule(
                 name: _nameController.text,
                 enabled: widget.rule.enabled,
-                type: _typeController.text,
                 outboundTag: _outboundTagController.text,
                 domain: _domainController.text.trim().isNotEmpty
                     ? _domainController.text.trim().split(',')
@@ -128,7 +116,6 @@ class _RuleDialogState extends State<RuleDialog> {
 
   void _initControllers() {
     _nameController.text = widget.rule.name ?? 'Rule';
-    _typeController.text = widget.rule.type;
     _outboundTagController.text = widget.rule.outboundTag ?? '';
     _domainController.text = widget.rule.domain?.join(',') ?? '';
     _ipController.text = widget.rule.ip?.join(',') ?? '';
@@ -137,7 +124,6 @@ class _RuleDialogState extends State<RuleDialog> {
 
   void _disposeControllers() {
     _nameController.dispose();
-    _typeController.dispose();
     _outboundTagController.dispose();
     _domainController.dispose();
     _ipController.dispose();

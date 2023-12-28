@@ -602,14 +602,13 @@ Map<String, dynamic> _$RoutingToJson(Routing instance) => <String, dynamic>{
 XrayRule _$XrayRuleFromJson(Map<String, dynamic> json) => XrayRule(
       name: json['name'] as String?,
       enabled: json['enabled'] as bool,
-      type: json['type'] as String,
       inboundTag: json['inboundTag'] as String?,
       outboundTag: json['outboundTag'] as String?,
       domain:
           (json['domain'] as List<dynamic>?)?.map((e) => e as String).toList(),
       ip: (json['ip'] as List<dynamic>?)?.map((e) => e as String).toList(),
       port: json['port'] as String?,
-    );
+    )..type = json['type'] as String;
 
 Map<String, dynamic> _$XrayRuleToJson(XrayRule instance) {
   final val = <String, dynamic>{};

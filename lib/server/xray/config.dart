@@ -527,7 +527,7 @@ class Routing {
 class XrayRule {
   String? name;
   bool enabled;
-  String type;
+  String type = 'field';
   String? inboundTag;
   String? outboundTag;
   List<String>? domain;
@@ -537,7 +537,6 @@ class XrayRule {
   XrayRule({
     this.name,
     required this.enabled,
-    required this.type,
     this.inboundTag,
     this.outboundTag,
     this.domain,

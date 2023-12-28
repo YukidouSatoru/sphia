@@ -203,7 +203,6 @@
   "trojanProviderMsg": "Trojan provider, default is sing-box",
   "tunProvider": "Tun Provider",
   "tunProviderMsg": "Tun provider, default is sing-box",
-  "typeInvalidMsg": "Type must be",
   "unknown": "Unknown",
   "update": "Update",
   "updatedGroupSuccessfully": "Updated group successfully",

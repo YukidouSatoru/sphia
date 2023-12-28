@@ -24,7 +24,6 @@ class RuleAgent {
       XrayRule(
         name: '',
         enabled: true,
-        type: 'field',
       ),
     );
     if (rule == null) {

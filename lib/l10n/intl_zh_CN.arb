@@ -203,7 +203,6 @@
   "trojanProviderMsg": "Trojan 提供者，默认为 sing-box",
   "tunProvider": "Tun 提供者",
   "tunProviderMsg": "Tun 提供者，默认为 sing-box",
-  "typeInvalidMsg": "类型必须为",
   "unknown": "未知",
   "update": "更新",
   "updatedGroupSuccessfully": "更新分组成功",

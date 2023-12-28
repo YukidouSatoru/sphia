@@ -329,7 +329,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "tunProvider": MessageLookupByLibrary.simpleMessage("Tun Provider"),
         "tunProviderMsg": MessageLookupByLibrary.simpleMessage(
             "Tun provider, default is sing-box"),
-        "typeInvalidMsg": MessageLookupByLibrary.simpleMessage("Type must be"),
         "unknown": MessageLookupByLibrary.simpleMessage("Unknown"),
         "upMbps": MessageLookupByLibrary.simpleMessage("Up Mbps"),
         "upMbpsEnterMsg":

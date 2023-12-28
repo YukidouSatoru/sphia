@@ -285,7 +285,6 @@ class XrayGenerate {
     return XrayRule(
       name: null,
       enabled: rule.enabled,
-      type: rule.type,
       outboundTag: rule.outboundTag,
       domain: rule.domain,
       ip: rule.ip,
@@ -300,7 +299,6 @@ class XrayGenerate {
       convertedRules.add(
         XrayRule(
           enabled: true,
-          type: 'field',
           inboundTag: 'api',
           outboundTag: 'api',
         ),

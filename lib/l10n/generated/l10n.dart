@@ -1,6 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import 'intl/messages_all.dart';
 
 // **************************************************************************
@@ -2080,16 +2081,6 @@ class S {
     );
   }
 
-  /// `Type must be`
-  String get typeInvalidMsg {
-    return Intl.message(
-      'Type must be',
-      name: 'typeInvalidMsg',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Unknown`
   String get unknown {
     return Intl.message(
@@ -2443,8 +2434,10 @@ class AppLocalizationDelegate extends LocalizationsDelegate<S> {
 
   @override
   bool isSupported(Locale locale) => _isSupported(locale);
+
   @override
   Future<S> load(Locale locale) => S.load(locale);
+
   @override
   bool shouldReload(AppLocalizationDelegate old) => false;
 

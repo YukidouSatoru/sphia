@@ -268,7 +268,6 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Type: ${xrayRule.type}'),
                 Text('Outbound Tag: ${xrayRule.outboundTag}'),
               ],
             ),

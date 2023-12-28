@@ -25,9 +25,10 @@ class $ConfigTable extends Config with TableInfo<$ConfigTable, ConfigData> {
   @override
   List<GeneratedColumn> get $columns => [id, config];
   @override
-  String get aliasedName => _alias ?? 'config';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'config';
+  String get actualTableName => $name;
+  static const String $name = 'config';
   @override
   VerificationContext validateIntegrity(Insertable<ConfigData> instance,
       {bool isInserting = false}) {
@@ -202,9 +203,10 @@ class $ServerGroupsTable extends ServerGroups
   @override
   List<GeneratedColumn> get $columns => [id, name, subscribe];
   @override
-  String get aliasedName => _alias ?? 'server_groups';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'server_groups';
+  String get actualTableName => $name;
+  static const String $name = 'server_groups';
   @override
   VerificationContext validateIntegrity(Insertable<ServerGroup> instance,
       {bool isInserting = false}) {
@@ -408,9 +410,10 @@ class $ServersTable extends Servers with TableInfo<$ServersTable, Server> {
   @override
   List<GeneratedColumn> get $columns => [id, groupId, data];
   @override
-  String get aliasedName => _alias ?? 'servers';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'servers';
+  String get actualTableName => $name;
+  static const String $name = 'servers';
   @override
   VerificationContext validateIntegrity(Insertable<Server> instance,
       {bool isInserting = false}) {
@@ -607,9 +610,10 @@ class $RuleGroupsTable extends RuleGroups
   @override
   List<GeneratedColumn> get $columns => [id, name];
   @override
-  String get aliasedName => _alias ?? 'rule_groups';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'rule_groups';
+  String get actualTableName => $name;
+  static const String $name = 'rule_groups';
   @override
   VerificationContext validateIntegrity(Insertable<RuleGroup> instance,
       {bool isInserting = false}) {
@@ -781,9 +785,10 @@ class $RulesTable extends Rules with TableInfo<$RulesTable, Rule> {
   @override
   List<GeneratedColumn> get $columns => [id, groupId, data];
   @override
-  String get aliasedName => _alias ?? 'rules';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'rules';
+  String get actualTableName => $name;
+  static const String $name = 'rules';
   @override
   VerificationContext validateIntegrity(Insertable<Rule> instance,
       {bool isInserting = false}) {
@@ -980,9 +985,10 @@ class $GroupsOrderTable extends GroupsOrder
   @override
   List<GeneratedColumn> get $columns => [id, data];
   @override
-  String get aliasedName => _alias ?? 'groups_order';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'groups_order';
+  String get actualTableName => $name;
+  static const String $name = 'groups_order';
   @override
   VerificationContext validateIntegrity(Insertable<GroupsOrderData> instance,
       {bool isInserting = false}) {
@@ -1157,9 +1163,10 @@ class $ServersOrderTable extends ServersOrder
   @override
   List<GeneratedColumn> get $columns => [id, groupId, data];
   @override
-  String get aliasedName => _alias ?? 'servers_order';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'servers_order';
+  String get actualTableName => $name;
+  static const String $name = 'servers_order';
   @override
   VerificationContext validateIntegrity(Insertable<ServersOrderData> instance,
       {bool isInserting = false}) {
@@ -1365,9 +1372,10 @@ class $RulesOrderTable extends RulesOrder
   @override
   List<GeneratedColumn> get $columns => [id, groupId, data];
   @override
-  String get aliasedName => _alias ?? 'rules_order';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'rules_order';
+  String get actualTableName => $name;
+  static const String $name = 'rules_order';
   @override
   VerificationContext validateIntegrity(Insertable<RulesOrderData> instance,
       {bool isInserting = false}) {

@@ -272,7 +272,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "tunProvider": MessageLookupByLibrary.simpleMessage("Tun 提供者"),
         "tunProviderMsg":
             MessageLookupByLibrary.simpleMessage("Tun 提供者，默认为 sing-box"),
-        "typeInvalidMsg": MessageLookupByLibrary.simpleMessage("类型必须为"),
         "unknown": MessageLookupByLibrary.simpleMessage("未知"),
         "upMbps": MessageLookupByLibrary.simpleMessage("上行速率 (Mbps)"),
         "upMbpsEnterMsg": MessageLookupByLibrary.simpleMessage("请输入上行速率"),
