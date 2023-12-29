@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/server/xray/config.dart';
+import 'package:sphia/server/rule/mixed.dart';
 import 'package:sphia/view/widget/widget.dart';
 
 class RuleDialog extends StatefulWidget {
   final String title;
-  final XrayRule rule;
+  final MixedRule rule;
 
   const RuleDialog({
     super.key,
@@ -20,10 +20,12 @@ class RuleDialog extends StatefulWidget {
 class _RuleDialogState extends State<RuleDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _inboundTagController = TextEditingController();
   final _outboundTagController = TextEditingController();
   final _domainController = TextEditingController();
   final _ipController = TextEditingController();
   final _portController = TextEditingController();
+  final _processNameController = TextEditingController();
 
   @override
   void initState() {
@@ -51,6 +53,12 @@ class _RuleDialogState extends State<RuleDialog> {
         },
       ),
       SphiaWidget.textInput(
+        _inboundTagController,
+        'Inbound Tag',
+        null,
+        false,
+      ),
+      SphiaWidget.textInput(
         _outboundTagController,
         'Outbound Tag',
         null,
@@ -69,7 +77,12 @@ class _RuleDialogState extends State<RuleDialog> {
         _portController,
         'Port',
         null,
-      )
+      ),
+      SphiaWidget.textInput(
+        _processNameController,
+        'Process Name',
+        null,
+      ),
     ];
     return AlertDialog(
       title: Text(widget.title),
@@ -91,9 +104,10 @@ class _RuleDialogState extends State<RuleDialog> {
         ElevatedButton(
           onPressed: () {
             if (_formKey.currentState?.validate() == true) {
-              final rule = XrayRule(
+              final rule = MixedRule(
                 name: _nameController.text,
                 enabled: widget.rule.enabled,
+                inboundTag: _inboundTagController.text,
                 outboundTag: _outboundTagController.text,
                 domain: _domainController.text.trim().isNotEmpty
                     ? _domainController.text.trim().split(',')
@@ -102,7 +116,10 @@ class _RuleDialogState extends State<RuleDialog> {
                     ? _ipController.text.trim().split(',')
                     : null,
                 port: _portController.text.trim().isNotEmpty
-                    ? _portController.text.trim()
+                    ? _portController.text.trim().split(',')
+                    : null,
+                processName: _processNameController.text.trim().isNotEmpty
+                    ? _processNameController.text.trim().split(',')
                     : null,
               );
               Navigator.pop(context, rule);
@@ -115,18 +132,22 @@ class _RuleDialogState extends State<RuleDialog> {
   }
 
   void _initControllers() {
-    _nameController.text = widget.rule.name ?? 'Rule';
+    _nameController.text = widget.rule.name;
+    _inboundTagController.text = widget.rule.inboundTag ?? '';
     _outboundTagController.text = widget.rule.outboundTag ?? '';
     _domainController.text = widget.rule.domain?.join(',') ?? '';
     _ipController.text = widget.rule.ip?.join(',') ?? '';
-    _portController.text = widget.rule.port?.toString() ?? '';
+    _portController.text = widget.rule.port?.join(',') ?? '';
+    _processNameController.text = widget.rule.processName?.join(',') ?? '';
   }
 
   void _disposeControllers() {
     _nameController.dispose();
+    _inboundTagController.dispose();
     _outboundTagController.dispose();
     _domainController.dispose();
     _ipController.dispose();
     _portController.dispose();
+    _processNameController.dispose();
   }
 }

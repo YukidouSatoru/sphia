@@ -209,12 +209,14 @@ class SphiaWidget {
   static Widget textInput(
     TextEditingController controller,
     String labelText,
-    String? Function(String?)? validator,
-  ) {
+    String? Function(String?)? validator, [
+    bool isEditable = true,
+  ]) {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(labelText: labelText),
       validator: validator,
+      enabled: isEditable,
     );
   }
 

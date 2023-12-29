@@ -78,7 +78,7 @@ class XrayCore extends CoreBase {
         DomainStrategy.values[sphiaConfig.domainStrategy].name,
         DomainMatcher.values[sphiaConfig.domainMatcher].name,
         await SphiaDatabase.ruleDao
-            .getXrayRulesByGroupId(ruleConfig.selectedRuleGroupId),
+            .getMixedRulesByGroupId(ruleConfig.selectedRuleGroupId),
         sphiaConfig.enableStatistics,
       );
     }

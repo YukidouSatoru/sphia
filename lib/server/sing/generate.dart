@@ -2,11 +2,12 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 import 'package:sphia/server/hysteria/server.dart';
+import 'package:sphia/server/rule/mixed.dart';
+import 'package:sphia/server/rule/sing.dart';
 import 'package:sphia/server/server_base.dart';
 import 'package:sphia/server/shadowsocks/server.dart';
-import 'package:sphia/server/sing-box/config.dart';
+import 'package:sphia/server/sing/config.dart';
 import 'package:sphia/server/trojan/server.dart';
-import 'package:sphia/server/xray/config.dart' as xray_config;
 import 'package:sphia/server/xray/server.dart';
 import 'package:sphia/util/system.dart';
 
@@ -37,8 +38,8 @@ class SingBoxGenerate {
       directDns = directDns.replaceFirst('+local', '');
     }
 
-    List<DnsRule> dnsRules = [
-      DnsRule(
+    List<SingBoxDnsRule> dnsRules = [
+      SingBoxDnsRule(
         domain: ['geosite:cn'],
         server: 'local',
       ),
@@ -47,7 +48,7 @@ class SingBoxGenerate {
     if (!RegExp(ipRegExp).hasMatch(serverAddress) &&
         serverAddress != '127.0.0.1') {
       dnsRules.add(
-        DnsRule(
+        SingBoxDnsRule(
           domain: [serverAddress],
           server: 'local',
         ),
@@ -73,88 +74,28 @@ class SingBoxGenerate {
     );
   }
 
-  static Route route(List<xray_config.XrayRule> rules, bool configureDns) {
-    List<RouteRule> routeRules = [];
+  static Route route(List<MixedRule> rules, bool configureDns) {
+    List<SingBoxRule> singBoxRules = [];
     if (configureDns) {
-      routeRules.add(
-        RouteRule(
+      singBoxRules.add(
+        SingBoxRule(
           protocol: 'dns',
           outbound: 'dns-out',
         ),
       );
     }
-    routeRules.addAll(convertRules(rules));
+    for (var rule in rules) {
+      if (rule.enabled) {
+        singBoxRules.add(rule.toSingBoxRule());
+      }
+    }
     return Route(
       geoip: Geoip(path: p.join(binPath, 'geoip.db')),
       geosite: Geosite(path: p.join(binPath, 'geosite.db')),
-      rules: routeRules,
+      rules: singBoxRules,
       autoDetectInterface: true,
       finalTag: 'proxy',
     );
-  }
-
-  static List<RouteRule> convertRules(List<xray_config.XrayRule> xrayRules) {
-    List<RouteRule> result = [];
-    result.add(
-      RouteRule(
-        processName: SystemUtil.getCoreFileNames(),
-        outbound: 'direct',
-      ),
-    );
-    for (var xrayRule in xrayRules) {
-      if (xrayRule.enabled) {
-        List<String>? geosite;
-        List<String>? domain;
-        List<String>? geoip;
-        List<String>? ipCidr;
-        List<int>? port;
-        List<String>? portRange;
-        if (xrayRule.domain != null) {
-          for (var domainItem in xrayRule.domain!) {
-            if (domainItem.startsWith('geosite:')) {
-              geosite ??= [];
-              geosite.add(domainItem.replaceFirst('geosite:', ''));
-            } else {
-              domain ??= [];
-              domain.add(domainItem);
-            }
-          }
-        }
-        if (xrayRule.ip != null) {
-          for (var ipItem in xrayRule.ip!) {
-            if (ipItem.startsWith('geoip:')) {
-              geoip ??= [];
-              geoip.add(ipItem.replaceFirst('geoip:', ''));
-            } else {
-              ipCidr ??= [];
-              ipCidr.add(ipItem);
-            }
-          }
-        }
-        if (xrayRule.port != null) {
-          List<String> tempPort = xrayRule.port!.split(',');
-          for (var portItem in tempPort) {
-            if (portItem.contains('-')) {
-              portRange ??= [];
-              portRange.add(portItem.replaceAll('-', ':'));
-            } else {
-              port ??= [];
-              port.add(int.parse(portItem));
-            }
-          }
-        }
-        result.add(RouteRule(
-          geosite: geosite,
-          domain: domain,
-          geoip: geoip,
-          ipCidr: ipCidr,
-          port: port,
-          portRange: portRange,
-          outbound: xrayRule.outboundTag,
-        ));
-      }
-    }
-    return result;
   }
 
   static Inbound mixedInbound(

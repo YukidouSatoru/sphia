@@ -9,7 +9,7 @@ import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/server/xray/config.dart';
+import 'package:sphia/server/rule/mixed.dart';
 import 'package:sphia/view/dialog/rule.dart';
 import 'package:sphia/view/widget/widget.dart';
 
@@ -19,11 +19,12 @@ class RuleAgent {
   RuleAgent(this.context);
 
   Future<Rule?> addRule(int groupId) async {
-    XrayRule? rule = await _showEditRuleDialog(
+    MixedRule? rule = await _showEditRuleDialog(
       '${S.of(context).add} ${S.of(context).rule}',
-      XrayRule(
+      MixedRule(
         name: '',
         enabled: true,
+        inboundTag: 'proxy',
       ),
     );
     if (rule == null) {
@@ -41,19 +42,19 @@ class RuleAgent {
   }
 
   Future<Rule?> editRule(Rule rule) async {
-    final xrayRule = XrayRule.fromJson(jsonDecode(rule.data));
-    XrayRule? newXrayRule = await _showEditRuleDialog(
-        '${S.of(context).edit} ${S.of(context).rule}', xrayRule);
-    if (newXrayRule == null || newXrayRule == xrayRule) {
+    final mixedRule = MixedRule.fromJson(jsonDecode(rule.data));
+    MixedRule? newMixedRule = await _showEditRuleDialog(
+        '${S.of(context).edit} ${S.of(context).rule}', mixedRule);
+    if (newMixedRule == null || newMixedRule == mixedRule) {
       return null;
     }
     logger.i('Editing Rule: ${rule.id}');
-    await SphiaDatabase.ruleDao
-        .updateRule(rule.id, const JsonEncoder().convert(newXrayRule.toJson()));
+    await SphiaDatabase.ruleDao.updateRule(
+        rule.id, const JsonEncoder().convert(newMixedRule.toJson()));
     return Rule(
       id: rule.id,
       groupId: rule.groupId,
-      data: const JsonEncoder().convert(newXrayRule.toJson()),
+      data: const JsonEncoder().convert(newMixedRule.toJson()),
     );
   }
 
@@ -280,8 +281,8 @@ class RuleAgent {
     return true;
   }
 
-  Future<XrayRule?> _showEditRuleDialog(String title, XrayRule rule) async {
-    return showDialog<XrayRule>(
+  Future<MixedRule?> _showEditRuleDialog(String title, MixedRule rule) async {
+    return showDialog<MixedRule>(
       context: context,
       builder: (context) => RuleDialog(title: title, rule: rule),
     );

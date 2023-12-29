@@ -9,7 +9,7 @@ import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/server/core_base.dart';
 import 'package:sphia/server/hysteria/core.dart';
 import 'package:sphia/server/shadowsocks/core.dart';
-import 'package:sphia/server/sing-box/core.dart';
+import 'package:sphia/server/sing/core.dart';
 import 'package:sphia/server/xray/core.dart';
 import 'package:sphia/server/xray/server.dart';
 import 'package:sphia/util/system.dart';

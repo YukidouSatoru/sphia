@@ -10,8 +10,8 @@ import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/server/core_base.dart';
 import 'package:sphia/server/server_base.dart';
-import 'package:sphia/server/sing-box/config.dart';
-import 'package:sphia/server/sing-box/generate.dart';
+import 'package:sphia/server/sing/config.dart';
+import 'package:sphia/server/sing/generate.dart';
 import 'package:sphia/util/system.dart';
 
 class SingBoxCore extends CoreBase {
@@ -87,7 +87,7 @@ class SingBoxCore extends CoreBase {
     if (sphiaConfig.enableTun || (!sphiaConfig.enableTun && isRouting)) {
       route = SingBoxGenerate.route(
         await SphiaDatabase.ruleDao
-            .getXrayRulesByGroupId(ruleConfig.selectedRuleGroupId),
+            .getMixedRulesByGroupId(ruleConfig.selectedRuleGroupId),
         sphiaConfig.configureDns,
       );
     }

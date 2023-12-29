@@ -18,7 +18,7 @@ import 'package:sphia/server/hysteria/core.dart';
 import 'package:sphia/server/hysteria/server.dart';
 import 'package:sphia/server/server_base.dart';
 import 'package:sphia/server/shadowsocks/server.dart';
-import 'package:sphia/server/sing-box/core.dart';
+import 'package:sphia/server/sing/core.dart';
 import 'package:sphia/server/trojan/server.dart';
 import 'package:sphia/server/xray/core.dart';
 import 'package:sphia/server/xray/server.dart';

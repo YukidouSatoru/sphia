@@ -9,7 +9,7 @@ import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/app/tray.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/server/xray/config.dart';
+import 'package:sphia/server/rule/mixed.dart';
 import 'package:sphia/view/page/agent/rule.dart';
 import 'package:sphia/view/page/wrapper.dart';
 import 'package:sphia/view/widget/widget.dart';
@@ -254,7 +254,7 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
   }
 
   Widget _buildCard(Rule rule, int index, bool useMaterial3) {
-    final xrayRule = XrayRule.fromJson(
+    final mixedRule = MixedRule.fromJson(
       jsonDecode(rule.data),
     );
     return Column(
@@ -264,27 +264,28 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
           margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
           child: ListTile(
             shape: SphiaTheme.listTileShape(useMaterial3),
-            title: Text(xrayRule.name ?? 'Rule'),
+            title: Text(mixedRule.name),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Outbound Tag: ${xrayRule.outboundTag}'),
+                Text('Inbound Tag: ${mixedRule.inboundTag}'),
+                Text('Outbound Tag: ${mixedRule.outboundTag}'),
               ],
             ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Switch(
-                  value: xrayRule.enabled,
+                  value: mixedRule.enabled,
                   onChanged: (bool value) async {
                     _rules[index] = rule.copyWith(
                       data: jsonEncode(
-                        xrayRule..enabled = value,
+                        mixedRule..enabled = value,
                       ),
                     );
                     await SphiaDatabase.ruleDao.updateRule(
                       rule.id,
-                      jsonEncode(xrayRule..enabled = value),
+                      jsonEncode(mixedRule..enabled = value),
                     );
                     setState(() {});
                   },

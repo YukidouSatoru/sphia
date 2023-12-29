@@ -75,7 +75,7 @@ Dns _$DnsFromJson(Map<String, dynamic> json) => Dns(
           .map((e) => DnsServer.fromJson(e as Map<String, dynamic>))
           .toList(),
       rules: (json['rules'] as List<dynamic>)
-          .map((e) => DnsRule.fromJson(e as Map<String, dynamic>))
+          .map((e) => SingBoxDnsRule.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
@@ -110,79 +110,6 @@ Map<String, dynamic> _$DnsServerToJson(DnsServer instance) {
   return val;
 }
 
-RouteRule _$RouteRuleFromJson(Map<String, dynamic> json) => RouteRule(
-      protocol: json['protocol'] as String?,
-      geosite:
-          (json['geosite'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      geoip:
-          (json['geoip'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      domain:
-          (json['domain'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      ipCidr:
-          (json['ip_cidr'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      port: (json['port'] as List<dynamic>?)?.map((e) => e as int).toList(),
-      portRange: (json['port_range'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
-      outbound: json['outbound'] as String?,
-      processName: (json['process_name'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
-    );
-
-Map<String, dynamic> _$RouteRuleToJson(RouteRule instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('protocol', instance.protocol);
-  writeNotNull('geosite', instance.geosite);
-  writeNotNull('geoip', instance.geoip);
-  writeNotNull('domain', instance.domain);
-  writeNotNull('ip_cidr', instance.ipCidr);
-  writeNotNull('port', instance.port);
-  writeNotNull('port_range', instance.portRange);
-  writeNotNull('outbound', instance.outbound);
-  writeNotNull('process_name', instance.processName);
-  return val;
-}
-
-DnsRule _$DnsRuleFromJson(Map<String, dynamic> json) => DnsRule(
-      geosite:
-          (json['geosite'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      geoip:
-          (json['geoip'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      domain:
-          (json['domain'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      server: json['server'] as String?,
-      disableCache: json['disable_cache'] as bool?,
-      outbound: (json['outbound'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
-    );
-
-Map<String, dynamic> _$DnsRuleToJson(DnsRule instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('geosite', instance.geosite);
-  writeNotNull('geoip', instance.geoip);
-  writeNotNull('domain', instance.domain);
-  writeNotNull('server', instance.server);
-  writeNotNull('disable_cache', instance.disableCache);
-  writeNotNull('outbound', instance.outbound);
-  return val;
-}
-
 Route _$RouteFromJson(Map<String, dynamic> json) => Route(
       geoip: json['geoip'] == null
           ? null
@@ -190,8 +117,8 @@ Route _$RouteFromJson(Map<String, dynamic> json) => Route(
       geosite: json['geosite'] == null
           ? null
           : Geosite.fromJson(json['geosite'] as Map<String, dynamic>),
-      rules: (json['rules'] as List<dynamic>?)
-          ?.map((e) => RouteRule.fromJson(e as Map<String, dynamic>))
+      rules: (json['rules'] as List<dynamic>)
+          .map((e) => SingBoxRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       autoDetectInterface: json['auto_detect_interface'] as bool,
       finalTag: json['final'] as String?,
@@ -208,7 +135,7 @@ Map<String, dynamic> _$RouteToJson(Route instance) {
 
   writeNotNull('geoip', instance.geoip);
   writeNotNull('geosite', instance.geosite);
-  writeNotNull('rules', instance.rules);
+  val['rules'] = instance.rules;
   val['auto_detect_interface'] = instance.autoDetectInterface;
   writeNotNull('final', instance.finalTag);
   return val;

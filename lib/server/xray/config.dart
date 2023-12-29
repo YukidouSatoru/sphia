@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:sphia/server/rule/xray.dart';
 
 part 'config.g.dart';
 
@@ -521,33 +522,6 @@ class Routing {
       _$RoutingFromJson(json);
 
   Map<String, dynamic> toJson() => _$RoutingToJson(this);
-}
-
-@JsonSerializable(includeIfNull: false)
-class XrayRule {
-  String? name;
-  bool enabled;
-  String type = 'field';
-  String? inboundTag;
-  String? outboundTag;
-  List<String>? domain;
-  List<String>? ip;
-  String? port;
-
-  XrayRule({
-    this.name,
-    required this.enabled,
-    this.inboundTag,
-    this.outboundTag,
-    this.domain,
-    this.ip,
-    this.port,
-  });
-
-  factory XrayRule.fromJson(Map<String, dynamic> json) =>
-      _$XrayRuleFromJson(json);
-
-  Map<String, dynamic> toJson() => _$XrayRuleToJson(this);
 }
 
 @JsonSerializable(includeIfNull: false)

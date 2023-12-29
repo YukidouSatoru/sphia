@@ -1,6 +1,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:sphia/server/rule/mixed.dart';
+import 'package:sphia/server/rule/xray.dart';
 import 'package:sphia/server/server_base.dart';
 import 'package:sphia/server/shadowsocks/server.dart';
 import 'package:sphia/server/trojan/server.dart';
@@ -281,35 +283,26 @@ class XrayGenerate {
     );
   }
 
-  static XrayRule _rule(XrayRule rule) {
-    return XrayRule(
-      name: null,
-      enabled: rule.enabled,
-      outboundTag: rule.outboundTag,
-      domain: rule.domain,
-      ip: rule.ip,
-      port: rule.port,
-    );
-  }
-
   static Routing routing(String domainStrategy, String domainMatcher,
-      List<XrayRule> rules, bool enableApi) {
-    List<XrayRule> convertedRules = [];
+      List<MixedRule> rules, bool enableApi) {
+    List<XrayRule> xrayRules = [];
     if (enableApi) {
-      convertedRules.add(
+      xrayRules.add(
         XrayRule(
-          enabled: true,
           inboundTag: 'api',
           outboundTag: 'api',
         ),
       );
     }
-    convertedRules.addAll(
-        rules.map(_rule).where((rule) => rule.enabled != false).toList());
+    for (var rule in rules) {
+      if (rule.enabled) {
+        xrayRules.add(rule.toXrayRule());
+      }
+    }
     return Routing(
       domainStrategy: domainStrategy,
       domainMatcher: domainMatcher,
-      rules: convertedRules,
+      rules: xrayRules,
     );
   }
 }

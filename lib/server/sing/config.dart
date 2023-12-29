@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:sphia/server/rule/sing.dart';
 
 part 'config.g.dart';
 
@@ -48,7 +49,7 @@ class Log {
 @JsonSerializable(includeIfNull: false)
 class Dns {
   List<DnsServer> servers;
-  List<DnsRule> rules;
+  List<SingBoxDnsRule> rules;
 
   Dns({
     required this.servers,
@@ -84,68 +85,10 @@ class DnsServer {
 }
 
 @JsonSerializable(includeIfNull: false)
-class RouteRule {
-  String? protocol;
-  List<String>? geosite;
-  List<String>? geoip;
-  List<String>? domain;
-  @JsonKey(name: 'ip_cidr')
-  List<String>? ipCidr;
-  List<int>? port;
-  @JsonKey(name: 'port_range')
-  List<String>? portRange;
-  String? outbound;
-  @JsonKey(name: 'process_name')
-  List<String>? processName;
-
-  RouteRule({
-    this.protocol,
-    this.geosite,
-    this.geoip,
-    this.domain,
-    this.ipCidr,
-    this.port,
-    this.portRange,
-    this.outbound,
-    this.processName,
-  });
-
-  factory RouteRule.fromJson(Map<String, dynamic> json) =>
-      _$RouteRuleFromJson(json);
-
-  Map<String, dynamic> toJson() => _$RouteRuleToJson(this);
-}
-
-@JsonSerializable(includeIfNull: false)
-class DnsRule {
-  List<String>? geosite;
-  List<String>? geoip;
-  List<String>? domain;
-  String? server;
-  @JsonKey(name: 'disable_cache')
-  bool? disableCache;
-  List<String>? outbound;
-
-  DnsRule({
-    this.geosite,
-    this.geoip,
-    this.domain,
-    this.server,
-    this.disableCache,
-    this.outbound,
-  });
-
-  factory DnsRule.fromJson(Map<String, dynamic> json) =>
-      _$DnsRuleFromJson(json);
-
-  Map<String, dynamic> toJson() => _$DnsRuleToJson(this);
-}
-
-@JsonSerializable(includeIfNull: false)
 class Route {
   Geoip? geoip;
   Geosite? geosite;
-  List<RouteRule>? rules;
+  List<SingBoxRule> rules;
   @JsonKey(name: 'auto_detect_interface')
   bool autoDetectInterface;
   @JsonKey(name: 'final')
@@ -154,7 +97,7 @@ class Route {
   Route({
     this.geoip,
     this.geosite,
-    this.rules,
+    required this.rules,
     required this.autoDetectInterface,
     this.finalTag,
   });

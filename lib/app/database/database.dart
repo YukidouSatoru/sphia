@@ -16,8 +16,8 @@ import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/provider/version_config.dart';
+import 'package:sphia/server/rule/mixed.dart';
 import 'package:sphia/server/server_base.dart';
-import 'package:sphia/server/xray/config.dart';
 import 'package:sphia/util/system.dart';
 
 part 'database.g.dart';
@@ -648,9 +648,9 @@ class RuleDao {
     return orderedRules;
   }
 
-  Future<List<XrayRule>> getXrayRulesByGroupId(int groupId) async {
+  Future<List<MixedRule>> getMixedRulesByGroupId(int groupId) async {
     final rules = await getOrderedRulesByGroupId(groupId);
-    return rules.map((e) => XrayRule.fromJson(jsonDecode(e.data))).toList();
+    return rules.map((e) => MixedRule.fromJson(jsonDecode(e.data))).toList();
   }
 
   Future<Rule?> getRuleById(int id) {
@@ -658,12 +658,12 @@ class RuleDao {
         .getSingleOrNull();
   }
 
-  Future<XrayRule?> getXrayRuleById(int id) async {
+  Future<MixedRule?> getMixedRuleById(int id) async {
     final rule = await getRuleById(id);
     if (rule == null) {
       return null;
     }
-    return XrayRule.fromJson(jsonDecode(rule.data));
+    return MixedRule.fromJson(jsonDecode(rule.data));
   }
 
   Future<int> getLastRuleId() async {

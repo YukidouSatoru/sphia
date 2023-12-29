@@ -599,37 +599,6 @@ Map<String, dynamic> _$RoutingToJson(Routing instance) => <String, dynamic>{
       'rules': instance.rules,
     };
 
-XrayRule _$XrayRuleFromJson(Map<String, dynamic> json) => XrayRule(
-      name: json['name'] as String?,
-      enabled: json['enabled'] as bool,
-      inboundTag: json['inboundTag'] as String?,
-      outboundTag: json['outboundTag'] as String?,
-      domain:
-          (json['domain'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      ip: (json['ip'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      port: json['port'] as String?,
-    )..type = json['type'] as String;
-
-Map<String, dynamic> _$XrayRuleToJson(XrayRule instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('name', instance.name);
-  val['enabled'] = instance.enabled;
-  val['type'] = instance.type;
-  writeNotNull('inboundTag', instance.inboundTag);
-  writeNotNull('outboundTag', instance.outboundTag);
-  writeNotNull('domain', instance.domain);
-  writeNotNull('ip', instance.ip);
-  writeNotNull('port', instance.port);
-  return val;
-}
-
 Api _$ApiFromJson(Map<String, dynamic> json) => Api(
       tag: json['tag'] as String,
       services: (json['services'] as List<dynamic>?)
