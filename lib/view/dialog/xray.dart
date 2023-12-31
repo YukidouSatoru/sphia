@@ -379,12 +379,12 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
                         : null
                     : null,
                 transport: _transport,
-                host: _transport == 'ws'
+                host: _transport == 'ws' || _transport == 'httpupgrade'
                     ? (_hostController.text.trim().isNotEmpty
                         ? _hostController.text
                         : null)
                     : null,
-                path: _transport == 'ws'
+                path: _transport == 'ws' || _transport == 'httpupgrade'
                     ? (_pathController.text.trim().isNotEmpty
                         ? _pathController.text
                         : null)
