@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -16,7 +15,6 @@ import 'package:sphia/app/task/task.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/app/tray.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/server/server_base.dart';
 import 'package:sphia/view/page/agent/server.dart';
 import 'package:sphia/view/page/wrapper.dart';
 import 'package:sphia/view/widget/chart.dart';
@@ -239,20 +237,19 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                   elevation: 8.0,
                 ).then((value) async {
                   if (value != null) {
-                    late final Server? newServer;
-                    if ((newServer = await _agent.addServer(
-                            serverConfigProvider.serverGroups[_index].id,
-                            value)) !=
-                        null) {
+                    final Server? newServer = await _agent.addServer(
+                        serverConfigProvider.serverGroups[_index].id, value);
+                    if (newServer != null) {
+                      serverConfigProvider.servers.add(newServer);
+                      SphiaTray.addServerItem(newServer);
+                      setState(() {});
+                    } else {
                       if (value == 'clipboard') {
                         await _loadServers();
                         SphiaTray.generateServerItems();
                         SphiaTray.setMenu();
-                      } else {
-                        serverConfigProvider.servers.add(newServer!);
-                        SphiaTray.addServerItem(newServer);
+                        setState(() {});
                       }
-                      setState(() {});
                     }
                   }
                 });
@@ -485,7 +482,6 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
     bool isSelected,
   ) {
     final themeColor = Color(themeColorInt);
-    final serverBase = ServerBase.fromJson(jsonDecode(server.data));
     return Column(
       children: [
         Card(
@@ -495,23 +491,22 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
           color: isSelected ? themeColor : null,
           child: ListTile(
             shape: SphiaTheme.listTileShape(useMaterial3),
-            title: Text(serverBase.remark),
+            title: Text(server.remark),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(serverBase.protocol),
-                if (showAddress)
-                  Text('${serverBase.address}:${serverBase.port}')
+                Text(server.protocol),
+                if (showAddress) Text('${server.address}:${server.port}')
               ],
             ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (serverBase.uplink != null && serverBase.downlink != null)
+                if (server.uplink != null && server.downlink != null)
                   Text(
                     _getServerTraffic(
-                      serverBase.uplink!.toDouble(),
-                      serverBase.downlink!.toDouble(),
+                      server.uplink!.toDouble(),
+                      server.downlink!.toDouble(),
                     ),
                   ),
                 IconButton(

@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
@@ -12,16 +12,12 @@ import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/theme.dart';
+import 'package:sphia/core/core_base.dart';
+import 'package:sphia/core/hysteria/core.dart';
+import 'package:sphia/core/server/defaults.dart';
+import 'package:sphia/core/sing/core.dart';
+import 'package:sphia/core/xray/core.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/server/core_base.dart';
-import 'package:sphia/server/hysteria/core.dart';
-import 'package:sphia/server/hysteria/server.dart';
-import 'package:sphia/server/server_base.dart';
-import 'package:sphia/server/shadowsocks/server.dart';
-import 'package:sphia/server/sing/core.dart';
-import 'package:sphia/server/trojan/server.dart';
-import 'package:sphia/server/xray/core.dart';
-import 'package:sphia/server/xray/server.dart';
 import 'package:sphia/util/system.dart';
 import 'package:sphia/util/uri/uri.dart';
 import 'package:sphia/view/dialog/hysteria.dart';
@@ -36,7 +32,7 @@ class ServerAgent {
   ServerAgent(this.context);
 
   Future<Server?> addServer(int groupId, String protocol) async {
-    late final ServerBase? newServer;
+    late final Server? newServer;
     switch (protocol) {
       case 'vmess':
       case 'vless':
@@ -44,49 +40,47 @@ class ServerAgent {
           protocol == 'vmess'
               ? '${S.current.add} VMess ${S.current.server}'
               : '${S.current.add} Vless ${S.current.server}',
-          XrayServer.defaults()
-            ..protocol = protocol
-            ..encryption = (protocol == 'vmess' ? 'auto' : 'none'),
+          ServerDefaults.xrayDefaults(groupId, -1).copyWith(
+              protocol: protocol,
+              encryption: Value((protocol == 'vmess' ? 'auto' : 'none'))),
         );
         break;
       case 'shadowsocks':
         newServer = await _showEditServerDialog(
           '${S.current.add} Shadowsocks ${S.current.server}',
-          ShadowsocksServer.defaults(),
+          ServerDefaults.shadowsocksDefaults(groupId, -1),
         );
         break;
       case 'trojan':
         newServer = await _showEditServerDialog(
           '${S.current.add} Trojan ${S.current.server}',
-          TrojanServer.defaults(),
+          ServerDefaults.trojanDefaults(groupId, -1),
         );
         break;
       case 'hysteria':
         newServer = await _showEditServerDialog(
           '${S.current.add} Hysteria ${S.current.server}',
-          HysteriaServer.defaults(),
+          ServerDefaults.hysteriaDefaults(groupId, -1),
         );
         break;
       case 'clipboard':
         List<String> uris = await UriUtil.importUriFromClipboard();
         if (uris.isNotEmpty) {
-          List<ServerBase> newServerBase = uris
-              .map((e) => UriUtil.parseUri(e))
-              .whereType<ServerBase>()
-              .toList();
-          final serverJsons = newServerBase
-              .map((e) => const JsonEncoder().convert(e.toJson()))
-              .toList();
-          await SphiaDatabase.serverDao.insertServers(groupId, serverJsons);
+          List<Server> newServer = [];
+          for (var uri in uris) {
+            try {
+              final server = UriUtil.parseUri(uri);
+              if (server != null) {
+                newServer.add(server);
+              }
+            } on Exception catch (e) {
+              logger.e('Failed to parse uri: $uri\n$e');
+            }
+          }
+          await SphiaDatabase.serverDao.insertServers(groupId, newServer);
           await SphiaDatabase.serverDao.refreshServersOrderByGroupId(groupId);
-          return const Server(
-            id: -1,
-            groupId: -1,
-            data: '',
-          );
-        } else {
-          return null;
         }
+        return null;
       default:
         return null;
     }
@@ -94,37 +88,25 @@ class ServerAgent {
       return null;
     }
     logger.i('Adding Server: ${newServer.remark}');
-    final newData = const JsonEncoder().convert(newServer.toJson());
-    await SphiaDatabase.serverDao.insertServer(groupId, newData);
+    final serverId = await SphiaDatabase.serverDao.insertServer(newServer);
     await SphiaDatabase.serverDao.refreshServersOrderByGroupId(groupId);
-    return Server(
-      id: await SphiaDatabase.serverDao.getLastServerId(),
-      groupId: groupId,
-      data: newData,
-    );
+    return newServer.copyWith(id: serverId);
   }
 
   Future<Server?> editServer(Server server) async {
-    final serverBase = ServerBase.fromJson(jsonDecode(server.data));
-    ServerBase? editedServer = await _getEditedServer(serverBase);
-    if (editedServer == null || editedServer == serverBase) {
+    Server? editedServer = await _getEditedServer(server);
+    if (editedServer == null || editedServer == server) {
       return null;
     }
-    editedServer
-      ..uplink = serverBase.uplink
-      ..downlink = serverBase.downlink;
+    editedServer = editedServer.copyWith(
+        uplink: Value(server.uplink), downlink: Value(server.downlink));
     logger.i('Editing Server: ${server.id}');
-    final newData = const JsonEncoder().convert(editedServer.toJson());
-    await SphiaDatabase.serverDao.updateServer(server.id, newData);
-    return Server(
-      id: server.id,
-      groupId: server.groupId,
-      data: newData,
-    );
+    await SphiaDatabase.serverDao.updateServer(editedServer);
+    return editedServer;
   }
 
-  Future<ServerBase?> _getEditedServer(ServerBase server) async {
-    if (server is XrayServer) {
+  Future<Server?> _getEditedServer(Server server) async {
+    if (server.protocol == 'vmess' || server.protocol == 'vless') {
       switch (server.protocol) {
         case 'vmess':
         case 'vless':
@@ -135,17 +117,17 @@ class ServerAgent {
             server,
           );
       }
-    } else if (server is ShadowsocksServer) {
+    } else if (server.protocol == 'shadowsocks') {
       return await _showEditServerDialog(
         '${S.current.edit} Shadowsocks ${S.current.server}',
         server,
       );
-    } else if (server is TrojanServer) {
+    } else if (server.protocol == 'trojan') {
       return await _showEditServerDialog(
         '${S.current.edit} Trojan ${S.current.server}',
         server,
       );
-    } else if (server is HysteriaServer) {
+    } else if (server.protocol == 'hysteria') {
       return await _showEditServerDialog(
         '${S.current.edit} Hysteria ${S.current.server}',
         server,
@@ -160,7 +142,7 @@ class ServerAgent {
       return false;
     }
     logger.i('Deleting Server: ${server.id}');
-    await SphiaDatabase.serverDao.deleteServer(server);
+    await SphiaDatabase.serverDao.deleteServer(serverId);
     await SphiaDatabase.serverDao.refreshServersOrderByGroupId(server.groupId);
     return true;
   }
@@ -168,8 +150,7 @@ class ServerAgent {
   // TODO: Fix the position of snackbar
   Future<void> shareServer(
       String option, int serverId, void Function(String) showSnackBar) async {
-    final serverBase =
-        await SphiaDatabase.serverDao.getServerBaseById(serverId);
+    final serverBase = await SphiaDatabase.serverDao.getServerById(serverId);
     if (serverBase == null) {
       return;
     }
@@ -216,13 +197,13 @@ class ServerAgent {
   }
 
   void _shareConfiguration(
-      ServerBase server, void Function(String) showSnackBar) async {
+      Server server, void Function(String) showSnackBar) async {
     final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
     String exportFileName;
-    if ((server is XrayServer) ||
-        (server is ShadowsocksServer) ||
-        (server is TrojanServer) ||
-        (server is HysteriaServer)) {
+    if ((server.protocol == 'vmess' || server.protocol == 'vless') ||
+        (server.protocol == 'shadowsocks') ||
+        (server.protocol == 'trojan') ||
+        (server.protocol == 'hysteria')) {
       exportFileName = 'export.json';
       final protocol = server.protocol;
       logger.i('Export to File: ${p.join(tempPath, exportFileName)}');
@@ -340,18 +321,17 @@ class ServerAgent {
       return false;
     }
     logger.i('Adding Server Group: $newGroupName');
-    await SphiaDatabase.serverGroupDao
+    final groupId = await SphiaDatabase.serverGroupDao
         .insertServerGroup(newGroupName, subscribe);
     await SphiaDatabase.serverGroupDao.refreshServerGroupsOrder();
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-    final id = await SphiaDatabase.serverGroupDao.getLastServerGroupId();
     serverConfigProvider.serverGroups.add(ServerGroup(
-      id: id,
+      id: groupId,
       name: newGroupName,
       subscribe: subscribe,
     ));
     if (fetchSubscribe && subscribe.trim().isNotEmpty) {
-      await updateGroup('CurrentGroup', id, (value) {});
+      await updateGroup('CurrentGroup', groupId, (value) {});
     }
     serverConfigProvider.notify();
     return true;
@@ -460,15 +440,10 @@ class ServerAgent {
           List<String> uris;
           uris = await UriUtil.importUriFromSubscribe(subscribe,
               userAgents[UserAgent.values[sphiaConfig.userAgent].name]!);
-          final newServer = uris
-              .map((e) => UriUtil.parseUri(e))
-              .whereType<ServerBase>()
-              .toList();
+          final newServer =
+              uris.map((e) => UriUtil.parseUri(e)).whereType<Server>().toList();
           await SphiaDatabase.serverDao.deleteServerByGroupId(groupId);
-          final serverJsons = newServer
-              .map((e) => const JsonEncoder().convert(e.toJson()))
-              .toList();
-          await SphiaDatabase.serverDao.insertServers(groupId, serverJsons);
+          await SphiaDatabase.serverDao.insertServers(groupId, newServer);
           await SphiaDatabase.serverDao.refreshServersOrderByGroupId(groupId);
           logger.i('Updated group successfully: $groupName');
           showSnackBar('${S.current.updatedGroupSuccessfully}: $groupName');
@@ -496,14 +471,11 @@ class ServerAgent {
                 userAgents[UserAgent.values[sphiaConfig.userAgent].name]!);
             final newServer = uris
                 .map((e) => UriUtil.parseUri(e))
-                .whereType<ServerBase>()
+                .whereType<Server>()
                 .toList();
             await SphiaDatabase.serverDao.deleteServerByGroupId(serverGroup.id);
-            final serverJsons = newServer
-                .map((e) => const JsonEncoder().convert(e.toJson()))
-                .toList();
             await SphiaDatabase.serverDao
-                .insertServers(serverGroup.id, serverJsons);
+                .insertServers(serverGroup.id, newServer);
             await SphiaDatabase.serverDao
                 .refreshServersOrderByGroupId(serverGroup.id);
             logger.i('Updated group successfully: $groupName');
@@ -610,18 +582,12 @@ class ServerAgent {
       if (server == null) {
         return false;
       }
-      final serverBase = ServerBase.fromJson(jsonDecode(server.data));
-      serverBase.uplink = null;
-      serverBase.downlink = null;
-      await SphiaDatabase.serverDao.updateServer(
-        server.id,
-        jsonEncode(serverBase),
+
+      final newServer = server.copyWith(
+        uplink: const Value(null),
+        downlink: const Value(null),
       );
-      final newServer = Server(
-        id: server.id,
-        groupId: server.groupId,
-        data: const JsonEncoder().convert(serverBase.toJson()),
-      );
+      await SphiaDatabase.serverDao.updateServer(newServer);
       final index = serverConfigProvider.servers
           .indexWhere((element) => element.id == server.id);
       if (index != -1) {
@@ -630,45 +596,37 @@ class ServerAgent {
       return true;
     } else if (option == 'CurrentGroup') {
       for (var i = 0; i < serverConfigProvider.servers.length; i++) {
-        final server = serverConfigProvider.servers[i];
-        final serverBase = ServerBase.fromJson(jsonDecode(server.data));
-        serverBase.uplink = null;
-        serverBase.downlink = null;
-        await SphiaDatabase.serverDao.updateServer(
-          server.id,
-          jsonEncode(serverBase),
+        final server = serverConfigProvider.servers[i].copyWith(
+          uplink: const Value(null),
+          downlink: const Value(null),
         );
-        serverConfigProvider.servers[i] = Server(
-          id: server.id,
-          groupId: server.groupId,
-          data: const JsonEncoder().convert(serverBase.toJson()),
-        );
+        await SphiaDatabase.serverDao.updateServer(server);
+        serverConfigProvider.servers[i] = server;
       }
       return true;
     }
     return false;
   }
 
-  Future<ServerBase?> _showEditServerDialog(
-      String title, ServerBase server) async {
-    if (server is XrayServer) {
-      return showDialog<XrayServer>(
+  Future<Server?> _showEditServerDialog(String title, Server server) async {
+    if (server.protocol == 'vmess' || server.protocol == 'vless') {
+      return showDialog<Server>(
         context: context,
         builder: (context) => XrayServerDialog(title: title, server: server),
       );
-    } else if (server is ShadowsocksServer) {
-      return showDialog<ShadowsocksServer>(
+    } else if (server.protocol == 'shadowsocks') {
+      return showDialog<Server>(
         context: context,
         builder: (context) =>
             ShadowsocksServerDialog(title: title, server: server),
       );
-    } else if (server is TrojanServer) {
-      return showDialog<TrojanServer>(
+    } else if (server.protocol == 'trojan') {
+      return showDialog<Server>(
         context: context,
         builder: (context) => TrojanServerDialog(title: title, server: server),
       );
-    } else if (server is HysteriaServer) {
-      return showDialog<HysteriaServer>(
+    } else if (server.protocol == 'hysteria') {
+      return showDialog<Server>(
         context: context,
         builder: (context) =>
             HysteriaServerDialog(title: title, server: server),

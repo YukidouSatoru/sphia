@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,6 @@ import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/app/tray.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/server/server_base.dart';
 import 'package:sphia/util/network.dart';
 import 'package:sphia/util/traffic/traffic.dart';
 import 'package:sphia/view/page/agent/update.dart';
@@ -81,8 +81,6 @@ class _DashboardState extends State<Dashboard> {
               itemCount: coreProvider.cores.length,
               itemBuilder: (BuildContext context, int index) {
                 final coreName = coreProvider.cores[index].coreName;
-                final String runningServerName = jsonDecode(
-                    coreProvider.cores[index].runningServer.data)['remark'];
                 return ListTile(
                   shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
                   title: Text(coreName),
@@ -125,7 +123,7 @@ class _DashboardState extends State<Dashboard> {
                                 ],
                               ),
                               Text(
-                                runningServerName,
+                                coreProvider.cores[index].runningServer.remark,
                               ),
                             ],
                           ),
@@ -541,24 +539,19 @@ class _DashboardState extends State<Dashboard> {
           if (server == null) {
             return;
           }
-          final serverBase = ServerBase.fromJson(jsonDecode(server.data));
-          serverBase.uplink = serverBase.uplink == null
-              ? _totalUpload.value
-              : serverBase.uplink! + _totalUpload.value;
-          serverBase.downlink = serverBase.downlink == null
-              ? _totalDownload.value
-              : serverBase.downlink! + _totalDownload.value;
-          await SphiaDatabase.serverDao.updateServer(
-              _serverId, const JsonEncoder().convert(serverBase.toJson()));
+          final newServer = server.copyWith(
+            uplink: Value(server.uplink == null
+                ? _totalUpload.value
+                : server.uplink! + _totalUpload.value),
+            downlink: Value(server.downlink == null
+                ? _totalDownload.value
+                : server.downlink! + _totalDownload.value),
+          );
+          await SphiaDatabase.serverDao.updateServer(newServer);
           _totalUpload.value = 0;
           _totalDownload.value = 0;
           _uploadLastSecond.value = 0;
           _downloadLastSecond.value = 0;
-          final newServer = Server(
-            id: server.id,
-            groupId: server.groupId,
-            data: const JsonEncoder().convert(serverBase.toJson()),
-          );
           final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
           final index = serverConfigProvider.servers
               .indexWhere((element) => element.id == newServer.id);

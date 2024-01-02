@@ -1,6 +1,7 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
+import 'package:sphia/app/database/database.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/server/shadowsocks/server.dart';
 import 'package:sphia/view/widget/widget.dart';
 
 const shadowsocksEncryption = [
@@ -27,7 +28,7 @@ const shadowsocksEncryption = [
 
 class ShadowsocksServerDialog extends StatefulWidget {
   final String title;
-  final ShadowsocksServer server;
+  final Server server;
 
   const ShadowsocksServerDialog({
     super.key,
@@ -176,21 +177,21 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
         ElevatedButton(
           onPressed: () {
             if (_formKey.currentState?.validate() == true) {
-              final server = ShadowsocksServer(
+              final server = widget.server.copyWith(
                 protocol: widget.server.protocol,
                 address: _addressController.text,
                 port: int.parse(_portController.text),
                 remark: _remarkController.text,
-                password: _passwordController.text,
-                encryption: _encryption,
-                plugin: _pluginController.text.trim().isNotEmpty
+                authPayload: _passwordController.text,
+                encryption: Value(_encryption),
+                plugin: Value(_pluginController.text.trim().isNotEmpty
                     ? _pluginController.text
-                    : null,
-                pluginOpts: _pluginOptsController.text.trim().isNotEmpty
+                    : null),
+                pluginOpts: Value(_pluginOptsController.text.trim().isNotEmpty
                     ? _pluginOptsController.text
-                    : null,
-                routingProvider: _routingProvider,
-                protocolProvider: _protocolProvider,
+                    : null),
+                routingProvider: Value(_routingProvider),
+                protocolProvider: Value(_protocolProvider),
               );
               Navigator.pop(context, server);
             }
@@ -206,8 +207,8 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
     _remarkController.text = server.remark;
     _addressController.text = server.address;
     _portController.text = server.port.toString();
-    _passwordController.text = server.password;
-    _encryption = server.encryption;
+    _passwordController.text = server.authPayload;
+    _encryption = server.encryption ?? 'aes-128-gcm';
     _pluginController.text = server.plugin ?? '';
     _pluginOptsController.text = server.pluginOpts ?? '';
     _routingProvider = server.routingProvider;

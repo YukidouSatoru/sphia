@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:get_it/get_it.dart';
 import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/database/database.dart';
@@ -8,7 +6,6 @@ import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/task/task.dart';
 import 'package:sphia/app/tray.dart';
-import 'package:sphia/server/server_base.dart';
 import 'package:sphia/util/uri/uri.dart';
 
 class SubscribeTask {
@@ -62,17 +59,12 @@ class SubscribeTask {
       final groupName = group.name;
       try {
         List<String> uris;
-        uris = await UriUtil.importUriFromSubscribe(
-            subscribe, userAgents[UserAgent.values[sphiaConfig.userAgent].name]!);
-        final servers = uris
-            .map((e) => UriUtil.parseUri(e))
-            .whereType<ServerBase>()
-            .toList();
+        uris = await UriUtil.importUriFromSubscribe(subscribe,
+            userAgents[UserAgent.values[sphiaConfig.userAgent].name]!);
+        final servers =
+            uris.map((e) => UriUtil.parseUri(e)).whereType<Server>().toList();
         await SphiaDatabase.serverDao.deleteServerByGroupId(group.id);
-        final serverJsons = servers
-            .map((e) => const JsonEncoder().convert(e.toJson()))
-            .toList();
-        await SphiaDatabase.serverDao.insertServers(group.id, serverJsons);
+        await SphiaDatabase.serverDao.insertServers(group.id, servers);
         await SphiaDatabase.serverDao.refreshServersOrderByGroupId(group.id);
         logger.i('Updated group successfully: $groupName');
       } on Exception catch (e) {

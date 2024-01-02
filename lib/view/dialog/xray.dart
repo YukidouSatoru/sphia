@@ -1,6 +1,7 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
+import 'package:sphia/app/database/database.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/server/xray/server.dart';
 import 'package:sphia/view/widget/widget.dart';
 
 const vmessEncryption = [
@@ -44,7 +45,7 @@ const allowInsecure = ['false', 'true'];
 
 class XrayServerDialog extends StatefulWidget {
   final String title;
-  final XrayServer server;
+  final Server server;
 
   const XrayServerDialog({
     super.key,
@@ -363,62 +364,63 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
         ElevatedButton(
           onPressed: () {
             if (_formKey.currentState?.validate() == true) {
-              final server = XrayServer(
+              final server = widget.server.copyWith(
                 protocol: _protocol,
                 address: _addressController.text,
                 port: int.parse(_portController.text),
                 remark: _remarkController.text,
-                uuid: _uuidController.text,
-                alterId: _protocol == 'vmess'
+                authPayload: _uuidController.text,
+                alterId: Value(_protocol == 'vmess'
                     ? int.parse(_alterIdController.text)
-                    : null,
-                encryption: _protocol == 'vmess' ? _encryption : 'none',
-                flow: _protocol == 'vless'
+                    : null),
+                encryption: Value(_protocol == 'vmess' ? _encryption : 'none'),
+                flow: Value(_protocol == 'vless'
                     ? _flow != 'none'
                         ? _flow
                         : null
-                    : null,
-                transport: _transport,
-                host: _transport == 'ws' || _transport == 'httpupgrade'
+                    : null),
+                transport: Value(_transport),
+                host: Value(_transport == 'ws' || _transport == 'httpupgrade'
                     ? (_hostController.text.trim().isNotEmpty
                         ? _hostController.text
                         : null)
-                    : null,
-                path: _transport == 'ws' || _transport == 'httpupgrade'
+                    : null),
+                path: Value(_transport == 'ws' || _transport == 'httpupgrade'
                     ? (_pathController.text.trim().isNotEmpty
                         ? _pathController.text
                         : null)
-                    : null,
-                grpcMode: _transport == 'grpc' ? _grpcMode : null,
-                serviceName: _transport == 'grpc'
+                    : null),
+                grpcMode: Value(_transport == 'grpc' ? _grpcMode : null),
+                serviceName: Value(_transport == 'grpc'
                     ? (_serviceNameController.text.trim().isNotEmpty
                         ? _serviceNameController.text
                         : null)
-                    : null,
-                tls: _tls,
-                serverName: _sniController.text.trim().isNotEmpty
+                    : null),
+                tls: Value(_tls),
+                serverName: Value(_sniController.text.trim().isNotEmpty
                     ? _sniController.text
-                    : null,
-                fingerPrint: _tls == 'tls' || _tls == 'reality'
+                    : null),
+                fingerprint: Value(_tls == 'tls' || _tls == 'reality'
                     ? _fingerPrint != 'none'
                         ? _fingerPrint
                         : null
-                    : null,
-                publicKey:
-                    _tls == 'reality' ? _publicKeyController.text.trim() : null,
-                shortId: _tls == 'reality'
+                    : null),
+                publicKey: Value(_tls == 'reality'
+                    ? _publicKeyController.text.trim()
+                    : null),
+                shortId: Value(_tls == 'reality'
                     ? (_shortIdController.text.trim().isNotEmpty
                         ? _shortIdController.text
                         : null)
-                    : null,
-                spiderX: _tls == 'reality'
+                    : null),
+                spiderX: Value(_tls == 'reality'
                     ? (_spiderXController.text.trim().isNotEmpty
                         ? _spiderXController.text
                         : null)
-                    : null,
-                allowInsecure: _allowInsecure == 'true',
-                routingProvider: _routingProvider,
-                protocolProvider: _protocolProvider,
+                    : null),
+                allowInsecure: Value(_allowInsecure == 'true'),
+                routingProvider: Value(_routingProvider),
+                protocolProvider: Value(_protocolProvider),
               );
               Navigator.pop(context, server);
             }
@@ -435,19 +437,20 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
     _remarkController.text = server.remark;
     _addressController.text = server.address;
     _portController.text = server.port.toString();
-    _uuidController.text = server.uuid;
+    _uuidController.text = server.authPayload;
     _alterIdController.text =
         server.alterId == null ? '0' : server.alterId.toString();
-    _encryption = _protocol == 'vmess' ? server.encryption : 'none';
+    _encryption =
+        server.encryption ?? (server.protocol == 'vmess' ? 'auto' : 'none');
     _flow = server.flow ?? 'none';
-    _transport = server.transport;
+    _transport = server.transport ?? 'tcp';
     _hostController.text = server.host ?? '';
     _pathController.text = server.path ?? '';
     _grpcMode = server.grpcMode ?? 'gun';
     _serviceNameController.text = server.serviceName ?? '';
-    _tls = server.tls;
+    _tls = server.tls ?? 'none';
     _sniController.text = server.serverName ?? '';
-    _fingerPrint = server.fingerPrint ?? 'chrome';
+    _fingerPrint = server.fingerprint ?? 'chrome';
     _publicKeyController.text = server.publicKey ?? '';
     _shortIdController.text = server.shortId ?? '';
     _spiderXController.text = server.spiderX ?? '';

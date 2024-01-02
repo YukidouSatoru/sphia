@@ -1,12 +1,13 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
+import 'package:sphia/app/database/database.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/server/trojan/server.dart';
 import 'package:sphia/view/dialog/xray.dart';
 import 'package:sphia/view/widget/widget.dart';
 
 class TrojanServerDialog extends StatefulWidget {
   final String title;
-  final TrojanServer server;
+  final Server server;
 
   const TrojanServerDialog({
     super.key,
@@ -155,19 +156,20 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
         ElevatedButton(
           onPressed: () {
             if (_formKey.currentState?.validate() == true) {
-              final server = TrojanServer(
+              final server = widget.server.copyWith(
                 protocol: widget.server.protocol,
                 address: _addressController.text,
                 port: int.parse(_portController.text),
                 remark: _remarkController.text,
-                password: _passwordController.text,
-                serverName: _sniController.text.trim().isNotEmpty
+                authPayload: _passwordController.text,
+                serverName: Value(_sniController.text.trim().isNotEmpty
                     ? _sniController.text
-                    : null,
-                fingerPrint: _fingerPrint != 'none' ? _fingerPrint : null,
-                allowInsecure: _allowInsecure == 'true',
-                routingProvider: _routingProvider,
-                protocolProvider: _protocolProvider,
+                    : null),
+                fingerprint:
+                    Value(_fingerPrint != 'none' ? _fingerPrint : null),
+                allowInsecure: Value(_allowInsecure == 'true'),
+                routingProvider: Value(_routingProvider),
+                protocolProvider: Value(_protocolProvider),
               );
               Navigator.pop(context, server);
             }
@@ -183,9 +185,9 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
     _remarkController.text = server.remark;
     _addressController.text = server.address;
     _portController.text = server.port.toString();
-    _passwordController.text = server.password;
+    _passwordController.text = server.authPayload;
     _sniController.text = server.serverName ?? '';
-    _fingerPrint = server.fingerPrint ?? 'chrome';
+    _fingerPrint = server.fingerprint ?? 'chrome';
     _allowInsecure = server.allowInsecure.toString();
     _routingProvider = server.routingProvider;
     _protocolProvider = server.protocolProvider;

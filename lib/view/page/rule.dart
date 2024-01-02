@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quiver/collection.dart';
@@ -9,7 +7,6 @@ import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/app/tray.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/server/rule/mixed.dart';
 import 'package:sphia/view/page/agent/rule.dart';
 import 'package:sphia/view/page/wrapper.dart';
 import 'package:sphia/view/widget/widget.dart';
@@ -254,9 +251,6 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
   }
 
   Widget _buildCard(Rule rule, int index, bool useMaterial3) {
-    final mixedRule = MixedRule.fromJson(
-      jsonDecode(rule.data),
-    );
     return Column(
       children: [
         Card(
@@ -264,28 +258,25 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
           margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
           child: ListTile(
             shape: SphiaTheme.listTileShape(useMaterial3),
-            title: Text(mixedRule.name),
+            title: Text(rule.name),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Inbound Tag: ${mixedRule.inboundTag}'),
-                Text('Outbound Tag: ${mixedRule.outboundTag}'),
+                // Text('Inbound Tag: $rule.inboundTag}'),
+                Text('Outbound Tag: ${rule.outboundTag}'),
               ],
             ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Switch(
-                  value: mixedRule.enabled,
+                  value: rule.enabled,
                   onChanged: (bool value) async {
                     _rules[index] = rule.copyWith(
-                      data: jsonEncode(
-                        mixedRule..enabled = value,
-                      ),
+                      enabled: value,
                     );
                     await SphiaDatabase.ruleDao.updateRule(
-                      rule.id,
-                      jsonEncode(mixedRule..enabled = value),
+                      _rules[index],
                     );
                     setState(() {});
                   },

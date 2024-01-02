@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
-import 'package:sphia/server/server_base.dart';
 import 'package:sphia/util/network.dart';
 import 'package:sphia/util/uri/hysteria.dart';
 import 'package:sphia/util/uri/shadowsocks.dart';
@@ -27,7 +27,7 @@ class UriUtil {
     return null;
   }
 
-  static ServerBase? parseUri(String uri) {
+  static Server? parseUri(String uri) {
     try {
       uri = uri.trim();
       String scheme = uri.split('://')[0];

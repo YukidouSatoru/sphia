@@ -1,14 +1,10 @@
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
-import 'package:sphia/server/hysteria/server.dart';
-import 'package:sphia/server/rule/mixed.dart';
-import 'package:sphia/server/rule/sing.dart';
-import 'package:sphia/server/server_base.dart';
-import 'package:sphia/server/shadowsocks/server.dart';
-import 'package:sphia/server/sing/config.dart';
-import 'package:sphia/server/trojan/server.dart';
-import 'package:sphia/server/xray/server.dart';
+import 'package:sphia/app/database/database.dart';
+import 'package:sphia/core/rule/extension.dart';
+import 'package:sphia/core/rule/sing.dart';
+import 'package:sphia/core/sing/config.dart';
 import 'package:sphia/util/system.dart';
 
 class SingBoxGenerate {
@@ -74,7 +70,7 @@ class SingBoxGenerate {
     );
   }
 
-  static Route route(List<MixedRule> rules, bool configureDns) {
+  static Route route(List<Rule> rules, bool configureDns) {
     List<SingBoxRule> singBoxRules = [];
     if (configureDns) {
       singBoxRules.add(
@@ -131,19 +127,20 @@ class SingBoxGenerate {
     );
   }
 
-  static Outbound generateOutbound(ServerBase server) {
+  static Outbound generateOutbound(Server server) {
     late Outbound outbound;
-    switch (server) {
-      case XrayServer _:
+    switch (server.protocol) {
+      case 'vmess':
+      case 'vless':
         outbound = xrayOutbound(server);
         break;
-      case ShadowsocksServer _:
+      case 'shadowsocks':
         outbound = shadowsocksOutbound(server);
         break;
-      case TrojanServer _:
+      case 'trojan':
         outbound = trojanOutbound(server);
         break;
-      case HysteriaServer _:
+      case 'hysteria':
         outbound = hysteriaOutbound(server);
         break;
       default:
@@ -153,7 +150,7 @@ class SingBoxGenerate {
     return outbound;
   }
 
-  static Outbound xrayOutbound(XrayServer server) {
+  static Outbound xrayOutbound(Server server) {
     if (server.protocol == 'socks') {
       return socksOutbound(server);
     } else if (server.protocol == 'vmess' || server.protocol == 'vless') {
@@ -164,7 +161,7 @@ class SingBoxGenerate {
     }
   }
 
-  static Outbound socksOutbound(XrayServer server) {
+  static Outbound socksOutbound(Server server) {
     return Outbound(
       type: 'socks',
       tag: 'proxy',
@@ -174,10 +171,10 @@ class SingBoxGenerate {
     );
   }
 
-  static Outbound vProtocolOutbound(XrayServer server) {
+  static Outbound vProtocolOutbound(Server server) {
     final utls = UTls(
-      enabled: server.fingerPrint != null && server.fingerPrint != 'none',
-      fingerprint: server.fingerPrint,
+      enabled: server.fingerprint != null && server.fingerprint != 'none',
+      fingerprint: server.fingerprint,
     );
     final reality = Reality(
       enabled: server.tls == 'reality',
@@ -187,12 +184,12 @@ class SingBoxGenerate {
     final tls = Tls(
       enabled: server.tls == 'tls',
       serverName: server.serverName ?? server.address,
-      insecure: server.allowInsecure,
+      insecure: server.allowInsecure ?? false,
       utls: utls,
       reality: reality,
     );
     final transport = Transport(
-      type: server.transport,
+      type: server.transport ?? 'tcp',
       host: server.transport == 'httpupgrade'
           ? (server.host ?? server.address)
           : null,
@@ -207,7 +204,7 @@ class SingBoxGenerate {
       tag: 'proxy',
       server: server.address,
       serverPort: server.port,
-      uuid: server.uuid,
+      uuid: server.authPayload,
       flow: server.flow,
       alterId: server.protocol == 'vmess' ? server.alterId : null,
       security: server.protocol == 'vmess' ? server.encryption : null,
@@ -216,41 +213,41 @@ class SingBoxGenerate {
     );
   }
 
-  static Outbound shadowsocksOutbound(ShadowsocksServer server) {
+  static Outbound shadowsocksOutbound(Server server) {
     return Outbound(
       type: 'shadowsocks',
       tag: 'proxy',
       server: server.address,
       serverPort: server.port,
       method: server.encryption,
-      password: server.password,
+      password: server.authPayload,
       plugin: server.plugin,
       pluginOpts: server.plugin,
     );
   }
 
-  static Outbound trojanOutbound(TrojanServer server) {
+  static Outbound trojanOutbound(Server server) {
     final tls = Tls(
       enabled: true,
       serverName: server.serverName ?? server.address,
-      insecure: server.allowInsecure,
+      insecure: server.allowInsecure ?? false,
     );
     return Outbound(
       type: 'trojan',
       tag: 'proxy',
       server: server.address,
       serverPort: server.port,
-      password: server.password,
+      password: server.authPayload,
       network: 'tcp',
       tls: tls,
     );
   }
 
-  static Outbound hysteriaOutbound(HysteriaServer server) {
+  static Outbound hysteriaOutbound(Server server) {
     final tls = Tls(
       enabled: true,
       serverName: server.serverName ?? server.address,
-      insecure: server.insecure,
+      insecure: server.allowInsecure ?? false,
       alpn: server.alpn?.split(','),
     );
     return Outbound(

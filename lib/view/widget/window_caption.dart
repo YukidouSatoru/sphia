@@ -1,7 +1,6 @@
 // ignore_for_file: implementation_imports
 
 import 'package:flutter/material.dart';
-
 import 'package:window_manager/src/widgets/drag_to_move_area.dart';
 import 'package:window_manager/src/widgets/window_caption_button.dart';
 import 'package:window_manager/src/window_listener.dart';

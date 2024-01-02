@@ -1,10 +1,12 @@
 import 'dart:core';
 
-import 'package:sphia/server/trojan/server.dart';
+import 'package:drift/drift.dart' show Value;
+import 'package:sphia/app/database/database.dart';
+import 'package:sphia/core/server/defaults.dart';
 import 'package:sphia/util/uri/uri.dart';
 
 class TrojanUtil {
-  static String getUri(TrojanServer server) {
+  static String getUri(Server server) {
     final parameters = getParameters(server);
 
     final parameterComponent = parameters.entries
@@ -15,36 +17,40 @@ class TrojanUtil {
         ? '#${Uri.encodeComponent(server.remark)}'
         : '';
 
-    return 'trojan://${Uri.encodeComponent(server.password)}@${server.address}:${server.port}?$parameterComponent$remarkComponent';
+    return 'trojan://${Uri.encodeComponent(server.authPayload)}@${server.address}:${server.port}?$parameterComponent$remarkComponent';
   }
 
-  static TrojanServer parseUri(String uri) {
-    TrojanServer server = TrojanServer.defaults();
+  static Server parseUri(String uri) {
+    String remark = '';
+    String address = '';
+    int port = 0;
+    String password = '';
+    String? serverName;
+    bool allowInsecure = false;
 
     uri = uri.replaceAll('/?', '?');
 
     if (uri.contains('#')) {
-      String remark = UriUtil.extractComponent(uri, '#');
-      server.remark = remark.isEmpty ? '' : remark;
+      String parseRemark = UriUtil.extractComponent(uri, '#');
+      remark = parseRemark;
       uri = uri.split('#')[0];
-      //
     }
 
     if (uri.contains('?')) {
       final parameters = UriUtil.extractParameters(uri);
 
       if (parameters.containsKey('sni')) {
-        server.serverName = parameters['sni'] != null
+        serverName = parameters['sni'] != null
             ? Uri.decodeComponent(parameters['sni']!)
             : null;
       } else if (parameters.containsKey('peer')) {
-        server.serverName = parameters['peer'] != null
+        serverName = parameters['peer'] != null
             ? Uri.decodeComponent(parameters['peer']!)
             : null;
       }
 
       if (parameters.containsKey('allowInsecure')) {
-        server.allowInsecure = parameters['allowInsecure'] == '1';
+        allowInsecure = parameters['allowInsecure'] == '1';
       }
 
       uri = uri.split('?')[0];
@@ -59,21 +65,28 @@ class TrojanUtil {
       throw const FormatException('Failed to parse trojan URI');
     }
 
-    server.address = match.namedGroup('address')!;
-    server.port = int.parse(match.namedGroup('port')!);
-    server.password = match.namedGroup('password')!;
-    return server;
+    address = match.namedGroup('address')!;
+    port = int.parse(match.namedGroup('port')!);
+    password = match.namedGroup('password')!;
+    return ServerDefaults.trojanDefaults(-1, -1).copyWith(
+      remark: remark,
+      address: address,
+      port: port,
+      authPayload: password,
+      serverName: Value(serverName),
+      allowInsecure: Value(allowInsecure),
+    );
   }
 
-  static Map<String, dynamic> tlsParameters(TrojanServer server) {
+  static Map<String, dynamic> tlsParameters(Server server) {
     return {
       'sni': server.serverName,
-      'fp': server.fingerPrint,
-      'allowInsecure': server.allowInsecure ? '1' : '0',
+      'fp': server.fingerprint,
+      'allowInsecure': server.allowInsecure,
     };
   }
 
-  static Map<String, String?> getParameters(TrojanServer server) {
+  static Map<String, String?> getParameters(Server server) {
     return {
       ...tlsParameters(server).map((k, v) => MapEntry(k, v?.toString())),
     }..removeWhere((key, value) => value == null || value.isEmpty);

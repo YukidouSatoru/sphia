@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:get_it/get_it.dart';
 import 'package:sphia/app/controller.dart';
 import 'package:sphia/app/database/database.dart';
@@ -8,7 +6,6 @@ import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/server/server_base.dart';
 import 'package:sphia/util/system.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:window_manager/window_manager.dart';
@@ -79,10 +76,9 @@ class Tray {
 
   void addServerItem(Server server) {
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-    final serverBase = ServerBase.fromJson(jsonDecode(server.data));
     serverItems.add(
       MenuItemCheckbox(
-        label: serverBase.remark,
+        label: server.remark,
         name: 'server-${server.id}',
         onClicked: (menuItem) async {
           if (!menuItem.checked) {
@@ -106,9 +102,8 @@ class Tray {
 
   void replaceServerItem(Server server) {
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-    final serverBase = ServerBase.fromJson(jsonDecode(server.data));
     final newServerItem = MenuItemCheckbox(
-      label: serverBase.remark,
+      label: server.remark,
       name: 'server-${server.id}',
       onClicked: (menuItem) async {
         if (!menuItem.checked) {
@@ -149,10 +144,9 @@ class Tray {
     final servers = serverConfigProvider.servers;
     serverItems = [];
     for (var server in servers) {
-      final serverBase = ServerBase.fromJson(jsonDecode(server.data));
       serverItems.add(
         MenuItemCheckbox(
-          label: serverBase.remark,
+          label: server.remark,
           name: 'server-${server.id}',
           onClicked: (menuItem) async {
             if (!menuItem.checked) {

@@ -1,17 +1,15 @@
-import 'dart:convert';
-
 import 'package:get_it/get_it.dart';
 import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/server/core_base.dart';
-import 'package:sphia/server/hysteria/core.dart';
-import 'package:sphia/server/shadowsocks/core.dart';
-import 'package:sphia/server/sing/core.dart';
-import 'package:sphia/server/xray/core.dart';
-import 'package:sphia/server/xray/server.dart';
+import 'package:sphia/core/core_base.dart';
+import 'package:sphia/core/hysteria/core.dart';
+import 'package:sphia/core/server/defaults.dart';
+import 'package:sphia/core/shadowsocks/core.dart';
+import 'package:sphia/core/sing/core.dart';
+import 'package:sphia/core/xray/core.dart';
 import 'package:sphia/util/system.dart';
 
 class SphiaController {
@@ -37,12 +35,12 @@ class SphiaController {
   static Future<void> startCores(Server server) async {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     final coreProvider = GetIt.I.get<CoreProvider>();
-    final protocol = jsonDecode(server.data)['protocol'];
-    final int routingProvider = jsonDecode(server.data)['routingProvider'] ??
-        sphiaConfig.routingProvider;
+    final protocol = server.protocol;
+    final int routingProvider =
+        server.routingProvider ?? sphiaConfig.routingProvider;
     late final int protocolProvider;
     List<CoreBase> newCores = [];
-    late final XrayServer? additionalServerBase;
+    late final Server? additionalServer;
 
     if (sphiaConfig.enableTun) {
       if (!SystemUtil.isRoot) {
@@ -53,8 +51,8 @@ class SphiaController {
     } else {
       switch (protocol) {
         case 'vmess':
-          protocolProvider = jsonDecode(server.data)['protocolProvider'] ??
-              sphiaConfig.vmessProvider;
+          protocolProvider =
+              server.protocolProvider ?? sphiaConfig.vmessProvider;
           if (protocolProvider == VmessProvider.xray.index) {
             newCores.add(XrayCore());
           } else {
@@ -62,8 +60,8 @@ class SphiaController {
           }
           break;
         case 'vless':
-          protocolProvider = jsonDecode(server.data)['protocolProvider'] ??
-              sphiaConfig.vlessProvider;
+          protocolProvider =
+              server.protocolProvider ?? sphiaConfig.vlessProvider;
           if (protocolProvider == VlessProvider.xray.index) {
             newCores.add(XrayCore());
           } else {
@@ -71,8 +69,8 @@ class SphiaController {
           }
           break;
         case 'shadowsocks':
-          protocolProvider = jsonDecode(server.data)['protocolProvider'] ??
-              sphiaConfig.shadowsocksProvider;
+          protocolProvider =
+              server.protocolProvider ?? sphiaConfig.shadowsocksProvider;
           if (protocolProvider == ShadowsocksProvider.xray.index) {
             newCores.add(XrayCore());
           } else if (protocolProvider == ShadowsocksProvider.sing.index) {
@@ -82,8 +80,8 @@ class SphiaController {
           }
           break;
         case 'trojan':
-          protocolProvider = jsonDecode(server.data)['protocolProvider'] ??
-              sphiaConfig.trojanProvider;
+          protocolProvider =
+              server.protocolProvider ?? sphiaConfig.trojanProvider;
           if (protocolProvider == TrojanProvider.xray.index) {
             newCores.add(XrayCore());
           } else {
@@ -91,8 +89,8 @@ class SphiaController {
           }
           break;
         case 'hysteria':
-          protocolProvider = jsonDecode(server.data)['protocolProvider'] ??
-              sphiaConfig.hysteriaProvider;
+          protocolProvider =
+              server.protocolProvider ?? sphiaConfig.hysteriaProvider;
           if (protocolProvider == HysteriaProvider.sing.index) {
             newCores.add(SingBoxCore());
           } else {
@@ -101,25 +99,28 @@ class SphiaController {
           break;
       }
       if (getProviderCoreName(routingProvider) != newCores[0].coreName) {
-        additionalServerBase = XrayServer.defaults()
-          ..remark = 'Additional Socks Server'
-          ..protocol = 'socks'
-          ..address = sphiaConfig.listen;
+        late final int additionalServerPort;
         if (routingProvider == RoutingProvider.sing.index) {
           newCores.add(SingBoxCore()..isRouting = true);
           if (newCores[0].coreName == 'xray-core') {
-            additionalServerBase.port = sphiaConfig.socksPort;
+            additionalServerPort = sphiaConfig.socksPort;
           } else {
-            additionalServerBase.port = sphiaConfig.additionalSocksPort;
+            additionalServerPort = sphiaConfig.additionalSocksPort;
           }
         } else {
           newCores.add(XrayCore()..isRouting = true);
           if (newCores[0].coreName == 'sing-box') {
-            additionalServerBase.port = sphiaConfig.mixedPort;
+            additionalServerPort = sphiaConfig.mixedPort;
           } else {
-            additionalServerBase.port = sphiaConfig.additionalSocksPort;
+            additionalServerPort = sphiaConfig.additionalSocksPort;
           }
         }
+        additionalServer = ServerDefaults.xrayDefaults(-1, -1).copyWith(
+          remark: 'Additional Socks Server',
+          protocol: 'socks',
+          address: sphiaConfig.listen,
+          port: additionalServerPort,
+        );
       } else {
         newCores.last.isRouting = true;
       }
@@ -139,13 +140,7 @@ class SphiaController {
         } else {
           for (var core in coreProvider.cores) {
             if (core.coreName == getProviderCoreName(routingProvider) &&
-                additionalServerBase != null) {
-              final additionalServer = Server(
-                id: -1,
-                groupId: -1,
-                data:
-                    const JsonEncoder().convert(additionalServerBase.toJson()),
-              );
+                additionalServer != null) {
               await core.start(additionalServer);
             } else {
               await core.start(server);

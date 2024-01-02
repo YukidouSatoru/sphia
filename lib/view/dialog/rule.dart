@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:sphia/app/database/database.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/server/rule/mixed.dart';
 import 'package:sphia/view/widget/widget.dart';
 
 class RuleDialog extends StatefulWidget {
   final String title;
-  final MixedRule rule;
+  final Rule rule;
 
   const RuleDialog({
     super.key,
@@ -104,23 +104,26 @@ class _RuleDialogState extends State<RuleDialog> {
         ElevatedButton(
           onPressed: () {
             if (_formKey.currentState?.validate() == true) {
-              final rule = MixedRule(
-                name: _nameController.text,
+              final rule = Rule(
+                id: widget.rule.id,
+                groupId: widget.rule.groupId,
                 enabled: widget.rule.enabled,
-                inboundTag: _inboundTagController.text,
-                outboundTag: _outboundTagController.text,
-                domain: _domainController.text.trim().isNotEmpty
-                    ? _domainController.text.trim().split(',')
-                    : null,
-                ip: _ipController.text.trim().isNotEmpty
-                    ? _ipController.text.trim().split(',')
-                    : null,
-                port: _portController.text.trim().isNotEmpty
-                    ? _portController.text.trim().split(',')
-                    : null,
-                processName: _processNameController.text.trim().isNotEmpty
-                    ? _processNameController.text.trim().split(',')
-                    : null,
+                name: _nameController.text,
+                inboundTag: _inboundTagController.text.isEmpty
+                    ? null
+                    : _inboundTagController.text,
+                outboundTag: _outboundTagController.text.isEmpty
+                    ? null
+                    : _outboundTagController.text,
+                domain: _domainController.text.isEmpty
+                    ? null
+                    : _domainController.text,
+                ip: _ipController.text.isEmpty ? null : _ipController.text,
+                port:
+                    _portController.text.isEmpty ? null : _portController.text,
+                processName: _processNameController.text.isEmpty
+                    ? null
+                    : _processNameController.text,
               );
               Navigator.pop(context, rule);
             }
@@ -135,10 +138,10 @@ class _RuleDialogState extends State<RuleDialog> {
     _nameController.text = widget.rule.name;
     _inboundTagController.text = widget.rule.inboundTag ?? '';
     _outboundTagController.text = widget.rule.outboundTag ?? '';
-    _domainController.text = widget.rule.domain?.join(',') ?? '';
-    _ipController.text = widget.rule.ip?.join(',') ?? '';
-    _portController.text = widget.rule.port?.join(',') ?? '';
-    _processNameController.text = widget.rule.processName?.join(',') ?? '';
+    _domainController.text = widget.rule.domain ?? '';
+    _ipController.text = widget.rule.ip ?? '';
+    _portController.text = widget.rule.port ?? '';
+    _processNameController.text = widget.rule.processName ?? '';
   }
 
   void _disposeControllers() {

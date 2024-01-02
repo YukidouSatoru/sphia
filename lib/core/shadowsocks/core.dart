@@ -1,17 +1,16 @@
 import 'dart:core';
 
 import 'package:get_it/get_it.dart';
+import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/server/core_base.dart';
-import 'package:sphia/server/server_base.dart';
-import 'package:sphia/server/shadowsocks/server.dart';
+import 'package:sphia/core/core_base.dart';
 
 class ShadowsocksRustCore extends CoreBase {
   ShadowsocksRustCore() : super('shadowsocks-rust', [], '');
 
   @override
-  Future<void> configure(ServerBase server) async {
-    if (server is ShadowsocksServer) {
+  Future<void> configure(Server server) async {
+    if (server.protocol == 'shadowsocks') {
       final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
       final arguments = [
         '-s',
@@ -19,9 +18,9 @@ class ShadowsocksRustCore extends CoreBase {
         '-b',
         '127.0.0.1:${sphiaConfig.additionalSocksPort}',
         '-m',
-        server.encryption,
+        server.encryption ?? 'aes-128-gcm',
         '-k',
-        server.password,
+        server.authPayload,
       ];
       coreArgs.addAll(arguments);
     } else {
@@ -31,7 +30,7 @@ class ShadowsocksRustCore extends CoreBase {
   }
 
   @override
-  Future<String> generateConfig(ServerBase server) async {
+  Future<String> generateConfig(Server server) async {
     throw UnimplementedError();
   }
 

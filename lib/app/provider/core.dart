@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sphia/app/tray.dart';
+import 'package:sphia/core/core_base.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/server/core_base.dart';
 
 class CoreProvider extends ChangeNotifier {
   List<CoreBase> cores = [];

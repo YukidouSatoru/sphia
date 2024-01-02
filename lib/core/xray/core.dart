@@ -8,10 +8,9 @@ import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/server/core_base.dart';
-import 'package:sphia/server/server_base.dart';
-import 'package:sphia/server/xray/config.dart';
-import 'package:sphia/server/xray/generate.dart';
+import 'package:sphia/core/core_base.dart';
+import 'package:sphia/core/xray/config.dart';
+import 'package:sphia/core/xray/generate.dart';
 import 'package:sphia/util/system.dart';
 
 class XrayCore extends CoreBase {
@@ -23,13 +22,13 @@ class XrayCore extends CoreBase {
         );
 
   @override
-  Future<void> configure(ServerBase server) async {
+  Future<void> configure(Server server) async {
     final jsonString = await generateConfig(server);
     await writeConfig(jsonString);
   }
 
   @override
-  Future<String> generateConfig(ServerBase server) async {
+  Future<String> generateConfig(Server server) async {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
 
     final log = Log(
@@ -78,7 +77,7 @@ class XrayCore extends CoreBase {
         DomainStrategy.values[sphiaConfig.domainStrategy].name,
         DomainMatcher.values[sphiaConfig.domainMatcher].name,
         await SphiaDatabase.ruleDao
-            .getMixedRulesByGroupId(ruleConfig.selectedRuleGroupId),
+            .getRulesByGroupId(ruleConfig.selectedRuleGroupId),
         sphiaConfig.enableStatistics,
       );
     }

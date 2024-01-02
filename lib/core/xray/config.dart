@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:sphia/server/rule/xray.dart';
+import 'package:sphia/core/rule/xray.dart';
 
 part 'config.g.dart';
 

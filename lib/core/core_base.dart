@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
-import 'package:sphia/server/server_base.dart';
 import 'package:sphia/util/system.dart';
 
 abstract class CoreBase {
@@ -25,12 +24,9 @@ abstract class CoreBase {
   CoreBase(this.coreName, this.coreArgs, this.configFileName);
 
   Future<void> start(Server server) async {
-    late final ServerBase serverBase;
-
     runningServer = server;
-    serverBase = ServerBase.fromJson(jsonDecode(server.data));
 
-    await configure(serverBase);
+    await configure(server);
 
     if (!SystemUtil.coreExists(coreName)) {
       logger.e('Core $coreName does not exist');
@@ -99,9 +95,9 @@ abstract class CoreBase {
     });
   }
 
-  Future<void> configure(ServerBase server);
+  Future<void> configure(Server server);
 
-  Future<String> generateConfig(ServerBase server);
+  Future<String> generateConfig(Server server);
 
   Future<void> writeConfig(String jsonString) async {
     SystemUtil.deleteFileIfExists(

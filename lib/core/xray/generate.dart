@@ -1,13 +1,10 @@
 import 'package:get_it/get_it.dart';
 import 'package:sphia/app/config/sphia.dart';
+import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/server/rule/mixed.dart';
-import 'package:sphia/server/rule/xray.dart';
-import 'package:sphia/server/server_base.dart';
-import 'package:sphia/server/shadowsocks/server.dart';
-import 'package:sphia/server/trojan/server.dart';
-import 'package:sphia/server/xray/config.dart';
-import 'package:sphia/server/xray/server.dart';
+import 'package:sphia/core/rule/extension.dart';
+import 'package:sphia/core/rule/xray.dart';
+import 'package:sphia/core/xray/config.dart';
 import 'package:sphia/util/uri/uri.dart';
 
 class XrayGenerate {
@@ -69,16 +66,17 @@ class XrayGenerate {
     );
   }
 
-  static Outbound generateOutbound(ServerBase server) {
+  static Outbound generateOutbound(Server server) {
     late Outbound outbound;
-    switch (server) {
-      case XrayServer _:
+    switch (server.protocol) {
+      case 'vmess':
+      case 'vless':
         outbound = xrayOutbound(server);
         break;
-      case ShadowsocksServer _:
+      case 'shadowsocks':
         outbound = shadowsocksOutbound(server);
         break;
-      case TrojanServer _:
+      case 'trojan':
         outbound = trojanOutbound(server);
         break;
       default:
@@ -88,7 +86,7 @@ class XrayGenerate {
     return outbound;
   }
 
-  static Outbound xrayOutbound(XrayServer server) {
+  static Outbound xrayOutbound(Server server) {
     if (server.protocol == 'socks') {
       return socksOutbound(server);
     } else if (server.protocol == 'vmess' || server.protocol == 'vless') {
@@ -99,7 +97,7 @@ class XrayGenerate {
     }
   }
 
-  static Outbound socksOutbound(XrayServer server) {
+  static Outbound socksOutbound(Server server) {
     return Outbound(
       protocol: 'socks',
       tag: 'proxy',
@@ -114,26 +112,26 @@ class XrayGenerate {
     );
   }
 
-  static Outbound vProtocolOutbound(XrayServer server) {
-    String security = server.tls;
+  static Outbound vProtocolOutbound(Server server) {
+    String security = server.tls ?? 'none';
     final tlsSettings = security == 'tls'
         ? TlsSettings(
-            allowInsecure: server.allowInsecure,
+            allowInsecure: server.allowInsecure ?? false,
             serverName: server.serverName ?? server.address,
-            fingerprint: server.fingerPrint,
+            fingerprint: server.fingerprint,
           )
         : null;
     final realitySettings = security == 'reality'
         ? RealitySettings(
             serverName: server.serverName ?? server.address,
-            fingerprint: server.fingerPrint ?? 'chrome',
+            fingerprint: server.fingerprint ?? 'chrome',
             shortID: server.shortId,
             publicKey: server.publicKey ?? '',
             spiderX: server.spiderX,
           )
         : null;
     final streamSettings = StreamSettings(
-      network: server.transport,
+      network: server.transport ?? 'tcp',
       security: security,
       tlsSettings: tlsSettings,
       realitySettings: realitySettings,
@@ -160,7 +158,7 @@ class XrayGenerate {
             port: server.port,
             users: [
               User(
-                id: server.uuid,
+                id: server.authPayload,
                 encryption:
                     server.protocol == 'vless' ? server.encryption : null,
                 flow: server.flow,
@@ -175,7 +173,7 @@ class XrayGenerate {
     );
   }
 
-  static Outbound shadowsocksOutbound(ShadowsocksServer server) {
+  static Outbound shadowsocksOutbound(Server server) {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     final userAgent = userAgents[UserAgent.values[sphiaConfig.userAgent].name]!;
     StreamSettings? streamSettings;
@@ -249,8 +247,8 @@ class XrayGenerate {
           Shadowsocks(
             address: server.address,
             port: server.port,
-            method: server.encryption,
-            password: server.password,
+            method: server.encryption ?? 'aes-128-gcm',
+            password: server.authPayload,
           )
         ],
       ),
@@ -258,12 +256,12 @@ class XrayGenerate {
     );
   }
 
-  static Outbound trojanOutbound(TrojanServer server) {
+  static Outbound trojanOutbound(Server server) {
     final streamSettings = StreamSettings(
       network: 'tcp',
       security: 'tls',
       tlsSettings: TlsSettings(
-        allowInsecure: server.allowInsecure,
+        allowInsecure: server.allowInsecure ?? false,
         serverName: server.serverName ?? server.address,
       ),
     );
@@ -275,7 +273,7 @@ class XrayGenerate {
           Trojan(
             address: server.address,
             port: server.port,
-            password: server.password,
+            password: server.authPayload,
           ),
         ],
       ),
@@ -284,7 +282,7 @@ class XrayGenerate {
   }
 
   static Routing routing(String domainStrategy, String domainMatcher,
-      List<MixedRule> rules, bool enableApi) {
+      List<Rule> rules, bool enableApi) {
     List<XrayRule> xrayRules = [];
     if (enableApi) {
       xrayRules.add(

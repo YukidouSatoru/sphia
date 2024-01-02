@@ -1,29 +1,40 @@
 import 'dart:convert';
 import 'dart:core';
 
-import 'package:sphia/server/shadowsocks/server.dart';
+import 'package:drift/drift.dart' show Value;
+import 'package:sphia/app/database/database.dart';
+import 'package:sphia/core/server/defaults.dart';
 import 'package:sphia/util/uri/uri.dart';
 
 class ShadowsocksUtil {
-  static String getUri(ShadowsocksServer server) {
+  static String getUri(Server server) {
     String uri =
-        'ss://${base64Url.encode(utf8.encode('${server.encryption}:${server.password}'))}@${server.address}:${server.port}';
+        'ss://${base64Url.encode(utf8.encode('${server.encryption}:${server.authPayload}'))}@${server.address}:${server.port}';
     if (server.plugin != null) {
       uri += '/?plugin=${server.plugin}';
       if (server.pluginOpts != null) {
         uri += Uri.encodeComponent(';${server.pluginOpts}');
       }
     }
-    return '$uri#${Uri.encodeComponent(server.remark)}';
+    final remarkComponent = server.remark.isNotEmpty
+        ? '#${Uri.encodeComponent(server.remark)}'
+        : '';
+    return '$uri$remarkComponent';
   }
 
-  static ShadowsocksServer parseUri(String uri) {
-    ShadowsocksServer server = ShadowsocksServer.defaults();
+  static Server parseUri(String uri) {
+    String remark = '';
+    String address = '';
+    int port = 0;
+    String encryption = '';
+    String password = '';
+    String? plugin;
+    String? pluginOpts;
 
     uri = uri.replaceAll('/?', '?');
 
-    final remark = UriUtil.extractComponent(uri, '#');
-    server.remark = remark.isEmpty ? '' : remark;
+    final parseRemark = UriUtil.extractComponent(uri, '#');
+    remark = parseRemark;
 
     uri = uri.split('#')[0];
 
@@ -35,30 +46,30 @@ class ShadowsocksUtil {
       }
       final plugins = UriUtil.extractComponent(uri, '?');
       if (plugins.isNotEmpty) {
-        String plugin = '';
-        String pluginOpts = '';
+        String parsePlugin = '';
+        String parsePluginOpts = '';
         if (plugins.contains(';')) {
-          plugin =
+          parsePlugin =
               plugins.substring(plugins.indexOf('=') + 1, plugins.indexOf(';'));
-          pluginOpts = plugins.substring(plugins.indexOf(';') + 1);
+          parsePluginOpts = plugins.substring(plugins.indexOf(';') + 1);
         } else {
-          plugin = plugins.substring(plugins.indexOf('=') + 1);
+          parsePlugin = plugins.substring(plugins.indexOf('=') + 1);
         }
-        switch (plugin) {
+        switch (parsePlugin) {
           case 'obfs-local':
           case 'simple-obfs':
-            if (!pluginOpts.contains('obfs=')) {
-              pluginOpts = 'obfs=http;obfs-host=$pluginOpts';
+            if (!parsePluginOpts.contains('obfs=')) {
+              parsePluginOpts = 'obfs=http;obfs-host=$parsePluginOpts';
             }
             break;
           case 'simple-obfs-tls':
-            if (!pluginOpts.contains('obfs=')) {
-              pluginOpts = 'obfs=tls;obfs-host=$pluginOpts';
+            if (!parsePluginOpts.contains('obfs=')) {
+              parsePluginOpts = 'obfs=tls;obfs-host=$parsePluginOpts';
             }
             break;
         }
-        server.plugin = plugin;
-        server.pluginOpts = pluginOpts;
+        plugin = parsePlugin;
+        pluginOpts = parsePluginOpts;
       }
       uri = match.namedGroup('data')!;
     }
@@ -71,8 +82,8 @@ class ShadowsocksUtil {
       if (match == null) {
         throw const FormatException('Failed to parse shadowsocks URI');
       }
-      server.address = match.namedGroup('address')!;
-      server.port = int.parse(match.namedGroup('port')!);
+      address = match.namedGroup('address')!;
+      port = int.parse(match.namedGroup('port')!);
       String base64;
       try {
         base64 = utf8.decode(base64Url.decode(match.namedGroup('base64')!));
@@ -88,8 +99,8 @@ class ShadowsocksUtil {
       if (match == null) {
         throw const FormatException('Failed to parse shadowsocks URI');
       }
-      server.encryption = match.namedGroup('encryption')!;
-      server.password = match.namedGroup('password')!;
+      encryption = match.namedGroup('encryption')!;
+      password = match.namedGroup('password')!;
     } else {
       final parser = RegExp(
           r'^((?<encryption>.+?):(?<password>.+)@(?<address>.+):(?<port>\d+))');
@@ -98,10 +109,10 @@ class ShadowsocksUtil {
       if (match == null) {
         throw const FormatException('Failed to parse shadowsocks URI');
       }
-      server.address = match.namedGroup('address')!;
-      server.port = int.parse(match.namedGroup('port')!);
-      server.encryption = match.namedGroup('encryption')!;
-      server.password = match.namedGroup('password')!;
+      address = match.namedGroup('address')!;
+      port = int.parse(match.namedGroup('port')!);
+      encryption = match.namedGroup('encryption')!;
+      password = match.namedGroup('password')!;
     }
 
     final encryptions = [
@@ -126,11 +137,19 @@ class ShadowsocksUtil {
       'xchacha20',
     ];
 
-    if (!encryptions.contains(server.encryption)) {
+    if (!encryptions.contains(encryption)) {
       throw FormatException(
-          'Shadowsocks does not support this encryption: ${server.encryption}');
+          'Shadowsocks does not support this encryption: $encryption');
     }
 
-    return server;
+    return ServerDefaults.shadowsocksDefaults(-1, -1).copyWith(
+      remark: remark,
+      address: address,
+      port: port,
+      encryption: Value(encryption),
+      authPayload: password,
+      plugin: Value(plugin),
+      pluginOpts: Value(pluginOpts),
+    );
   }
 }

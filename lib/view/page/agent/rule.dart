@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:quiver/collection.dart';
@@ -9,7 +7,6 @@ import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/server/rule/mixed.dart';
 import 'package:sphia/view/dialog/rule.dart';
 import 'package:sphia/view/widget/widget.dart';
 
@@ -19,9 +16,11 @@ class RuleAgent {
   RuleAgent(this.context);
 
   Future<Rule?> addRule(int groupId) async {
-    MixedRule? rule = await _showEditRuleDialog(
-      '${S.of(context).add} ${S.of(context).rule}',
-      MixedRule(
+    Rule? rule = await _showEditRuleDialog(
+      '${S.current.add} ${S.current.rule}',
+      Rule(
+        id: -1,
+        groupId: groupId,
         name: '',
         enabled: true,
         inboundTag: 'proxy',
@@ -31,31 +30,21 @@ class RuleAgent {
       return null;
     }
     logger.i('Adding Rule: ${rule.name}');
-    await SphiaDatabase.ruleDao
-        .insertRule(groupId, const JsonEncoder().convert(rule.toJson()));
+    final ruleId = await SphiaDatabase.ruleDao.insertRule(rule);
     await SphiaDatabase.ruleDao.refreshRulesOrderByGroupId(groupId);
-    return Rule(
-      id: await SphiaDatabase.ruleDao.getLastRuleId(),
-      groupId: groupId,
-      data: const JsonEncoder().convert(rule.toJson()),
-    );
+    return rule.copyWith(id: ruleId);
   }
 
   Future<Rule?> editRule(Rule rule) async {
-    final mixedRule = MixedRule.fromJson(jsonDecode(rule.data));
-    MixedRule? newMixedRule = await _showEditRuleDialog(
-        '${S.of(context).edit} ${S.of(context).rule}', mixedRule);
-    if (newMixedRule == null || newMixedRule == mixedRule) {
+    Rule? newRule = await _showEditRuleDialog(
+        '${S.of(context).edit} ${S.of(context).rule}', rule);
+    if (newRule == null || newRule == rule) {
       return null;
     }
     logger.i('Editing Rule: ${rule.id}');
-    await SphiaDatabase.ruleDao.updateRule(
-        rule.id, const JsonEncoder().convert(newMixedRule.toJson()));
-    return Rule(
-      id: rule.id,
-      groupId: rule.groupId,
-      data: const JsonEncoder().convert(newMixedRule.toJson()),
-    );
+    await SphiaDatabase.ruleDao.updateRule(newRule);
+    // await SphiaDatabase.ruleDao.refreshRulesOrderByGroupId(newRule.groupId);
+    return newRule;
   }
 
   Future<bool> deleteRule(int ruleId) async {
@@ -64,7 +53,7 @@ class RuleAgent {
       return false;
     }
     logger.i('Deleting Rule: ${rule.id}');
-    await SphiaDatabase.ruleDao.deleteRule(rule);
+    await SphiaDatabase.ruleDao.deleteRule(ruleId);
     await SphiaDatabase.ruleDao.refreshRulesOrderByGroupId(rule.groupId);
     return true;
   }
@@ -121,11 +110,12 @@ class RuleAgent {
       return false;
     }
     logger.i('Adding Rule Group: $newGroupName');
-    await SphiaDatabase.ruleGroupDao.insertRuleGroup(newGroupName);
+    final groupId =
+        await SphiaDatabase.ruleGroupDao.insertRuleGroup(newGroupName);
     await SphiaDatabase.ruleGroupDao.refreshRuleGroupsOrder();
     final ruleConfigProvider = GetIt.I.get<RuleConfigProvider>();
     ruleConfigProvider.ruleGroups.add(RuleGroup(
-      id: await SphiaDatabase.ruleGroupDao.getLastRuleGroupId(),
+      id: groupId,
       name: newGroupName,
     ));
     ruleConfigProvider.notify();
@@ -281,8 +271,8 @@ class RuleAgent {
     return true;
   }
 
-  Future<MixedRule?> _showEditRuleDialog(String title, MixedRule rule) async {
-    return showDialog<MixedRule>(
+  Future<Rule?> _showEditRuleDialog(String title, Rule rule) async {
+    return showDialog<Rule>(
       context: context,
       builder: (context) => RuleDialog(title: title, rule: rule),
     );
