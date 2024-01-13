@@ -213,6 +213,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "mtu": MessageLookupByLibrary.simpleMessage("MTU"),
         "mtuMsg":
             MessageLookupByLibrary.simpleMessage("Tun MTU, default is 9000"),
+        "multiOutboundSupport":
+            MessageLookupByLibrary.simpleMessage("Multi Outbound Support"),
+        "multiOutboundSupportMsg": MessageLookupByLibrary.simpleMessage(
+            "Multi outbound support, default off. Sing-Box does not support traffic statistics when this option is enabled"),
         "name": MessageLookupByLibrary.simpleMessage("Name"),
         "nameEnterMsg":
             MessageLookupByLibrary.simpleMessage("Please enter a name"),

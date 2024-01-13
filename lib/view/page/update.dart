@@ -171,15 +171,16 @@ class _UpdatePageState extends State<UpdatePage> {
         return;
       }
       final latestVersion = await NetworkUtil.getLatestVersion(coreName);
-      if (context.mounted) {
-        if (versionConfigProvider.getVersion(coreName) == latestVersion &&
-            coreExists) {
-          _scaffoldMessengerKey.currentState?.showSnackBar(
-            SphiaWidget.snackBar(
-                '${S.of(context).alreadyLatestVersion}: $coreName'),
-          );
-          return;
-        }
+      if (!context.mounted) {
+        return;
+      }
+      if (versionConfigProvider.getVersion(coreName) == latestVersion &&
+          coreExists) {
+        _scaffoldMessengerKey.currentState?.showSnackBar(
+          SphiaWidget.snackBar(
+              '${S.of(context).alreadyLatestVersion}: $coreName'),
+        );
+        return;
       }
       logger.i('Latest version of $coreName: $latestVersion');
       setState(() {

@@ -1,6 +1,10 @@
 import 'package:drift/drift.dart';
+import 'package:get_it/get_it.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
+import 'package:sphia/app/provider/server_config.dart';
+
+const additionalServerId = -1;
 
 class ServerDao {
   final Database _db;
@@ -9,6 +13,10 @@ class ServerDao {
 
   Future<List<Server>> getServers() {
     return _db.select(_db.servers).get();
+  }
+
+  Future<List<Server>> getServersById(List<int> id) {
+    return (_db.select(_db.servers)..where((tbl) => tbl.id.isIn(id))).get();
   }
 
   Future<List<Server>> getServersByGroupId(int groupId) {
@@ -29,9 +37,52 @@ class ServerDao {
     return orderedServers;
   }
 
+  Future<List<int>> getServerIds() {
+    return _db.select(_db.servers).get().then((value) {
+      if (value.isEmpty) {
+        return [];
+      }
+      return value.map((e) => e.id).toList();
+    });
+  }
+
+  Future<String?> getServerRemarkById(int id) {
+    return (_db.select(_db.servers)..where((tbl) => tbl.id.equals(id)))
+        .getSingleOrNull()
+        .then((value) => value?.remark);
+  }
+
+  Future<List<String>> getServerRemarks() {
+    return (_db.select(_db.servers)
+          ..where((tbl) => tbl.id.isNotIn([additionalServerId])))
+        .get()
+        .then((value) => value.map((e) => e.remark).toList());
+  }
+
+  Future<bool> checkServerExists(int id) {
+    return (_db.select(_db.servers)..where((tbl) => tbl.id.equals(id)))
+        .getSingleOrNull()
+        .then((value) => value != null);
+  }
+
   Future<Server?> getServerById(int id) {
     return (_db.select(_db.servers)..where((tbl) => tbl.id.equals(id)))
         .getSingleOrNull();
+  }
+
+  Future<Server?> getSelectedServer() async {
+    final selectedServerId =
+        GetIt.I.get<ServerConfigProvider>().config.selectedServerId;
+    return getServerById(selectedServerId);
+  }
+
+  Future<List<String>> getServerRemarksById(List<int> id) {
+    if (id.length == 1 && id[0] == additionalServerId) {
+      return Future.value(['Additional Socks Server']);
+    }
+    return (_db.select(_db.servers)..where((tbl) => tbl.id.isIn(id)))
+        .get()
+        .then((value) => value.map((e) => e.remark).toList());
   }
 
   Future<int> insertServer(Server server) {

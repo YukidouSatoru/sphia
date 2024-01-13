@@ -105,8 +105,6 @@ class Rules extends Table {
 
   BoolColumn get enabled => boolean()();
 
-  TextColumn get inboundTag => text().nullable()();
-
   TextColumn get outboundTag => text().nullable()();
 
   TextColumn get domain => text().nullable()();

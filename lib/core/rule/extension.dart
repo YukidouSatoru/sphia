@@ -7,7 +7,6 @@ extension RuleExtension on Rule {
     final domain = this.domain?.split(',');
     final ip = this.ip?.split(',');
     return XrayRule(
-      inboundTag: inboundTag,
       outboundTag: outboundTag,
       domain: domain,
       ip: ip,

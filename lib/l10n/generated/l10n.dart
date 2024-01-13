@@ -1290,6 +1290,26 @@ class S {
     );
   }
 
+  /// `Multi Outbound Support`
+  String get multiOutboundSupport {
+    return Intl.message(
+      'Multi Outbound Support',
+      name: 'multiOutboundSupport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Multi outbound support, default off. Sing-Box does not support traffic statistics when this option is enabled`
+  String get multiOutboundSupportMsg {
+    return Intl.message(
+      'Multi outbound support, default off. Sing-Box does not support traffic statistics when this option is enabled',
+      name: 'multiOutboundSupportMsg',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Name`
   String get name {
     return Intl.message(

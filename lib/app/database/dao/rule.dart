@@ -28,6 +28,18 @@ class RuleDao {
     return orderedRules;
   }
 
+  Future<List<int>> getRuleOutboundTagsByGroupId(List<Rule> rules) async {
+    final outboundTags = <int>[];
+    for (final rule in rules) {
+      if (rule.outboundTag != 'proxy' &&
+          rule.outboundTag != 'direct' &&
+          rule.outboundTag != 'block') {
+        outboundTags.add(int.parse(rule.outboundTag!));
+      }
+    }
+    return outboundTags;
+  }
+
   Future<Rule?> getRuleById(int id) {
     return (_db.select(_db.rules)..where((tbl) => tbl.id.equals(id)))
         .getSingleOrNull();
@@ -39,7 +51,6 @@ class RuleDao {
             groupId: rule.groupId,
             name: rule.name,
             enabled: rule.enabled,
-            inboundTag: Value(rule.inboundTag),
             outboundTag: Value(rule.outboundTag),
             domain: Value(rule.domain),
             ip: Value(rule.ip),

@@ -100,21 +100,21 @@ Future<void> configureApp() async {
   await SphiaDatabase.init();
 
   // Load config
-  final sphiaConfig = await SphiaDatabase.sphiaConfigDao.loadConfig();
-  final serverConfig = await SphiaDatabase.serverConfigDao.loadConfig();
-  final ruleConfig = await SphiaDatabase.ruleConfigDao.loadConfig();
-  final versionConfig = await SphiaDatabase.versionConfigDao.loadConfig();
+  final sphiaConfig = await sphiaConfigDao.loadConfig();
+  final serverConfig = await serverConfigDao.loadConfig();
+  final ruleConfig = await ruleConfigDao.loadConfig();
+  final versionConfig = await versionConfigDao.loadConfig();
 
   final sphiaConfigProvider = SphiaConfigProvider(sphiaConfig);
   final coreProvider = CoreProvider();
   final taskProvider = TaskProvider();
   final serverConfigProvider = ServerConfigProvider(
     serverConfig,
-    await SphiaDatabase.serverGroupDao.getOrderedServerGroups(),
+    await serverGroupDao.getOrderedServerGroups(),
   );
   final ruleConfigProvider = RuleConfigProvider(
     ruleConfig,
-    await SphiaDatabase.ruleGroupDao.getOrderedRuleGroups(),
+    await ruleGroupDao.getOrderedRuleGroups(),
   );
   final versionConfigProvider = VersionConfigProvider(versionConfig);
 

@@ -82,14 +82,14 @@ class Tray {
         name: 'server-${server.id}',
         onClicked: (menuItem) async {
           if (!menuItem.checked) {
-            await SphiaController.toggleCores(server);
+            serverConfigProvider.config.selectedServerId = server.id;
+            serverConfigProvider.saveConfig();
+            await SphiaController.toggleCores();
             setMenuItem(
               'server-${serverConfigProvider.config.selectedServerId}',
               false,
             );
             await menuItem.setCheck(true);
-            serverConfigProvider.config.selectedServerId = server.id;
-            serverConfigProvider.saveConfig();
           } else {
             await SphiaController.stopCores();
           }
@@ -107,14 +107,14 @@ class Tray {
       name: 'server-${server.id}',
       onClicked: (menuItem) async {
         if (!menuItem.checked) {
-          await SphiaController.toggleCores(server);
+          serverConfigProvider.config.selectedServerId = server.id;
+          serverConfigProvider.saveConfig();
+          await SphiaController.toggleCores();
           setMenuItem(
             'server-${serverConfigProvider.config.selectedServerId}',
             false,
           );
           await menuItem.setCheck(true);
-          serverConfigProvider.config.selectedServerId = server.id;
-          serverConfigProvider.saveConfig();
         } else {
           await SphiaController.stopCores();
           setMenuItem(
@@ -150,14 +150,14 @@ class Tray {
           name: 'server-${server.id}',
           onClicked: (menuItem) async {
             if (!menuItem.checked) {
-              await SphiaController.toggleCores(server);
+              serverConfigProvider.config.selectedServerId = server.id;
+              serverConfigProvider.saveConfig();
+              await SphiaController.toggleCores();
               setMenuItem(
                 'server-${serverConfigProvider.config.selectedServerId}',
                 false,
               );
               await menuItem.setCheck(true);
-              serverConfigProvider.config.selectedServerId = server.id;
-              serverConfigProvider.saveConfig();
             } else {
               await SphiaController.stopCores();
               setMenuItem(
@@ -232,13 +232,12 @@ class Tray {
         label: S.current.coreStart,
         name: S.current.coreStart,
         onClicked: (menuItem) async {
-          final server = await SphiaDatabase.serverDao
-              .getServerById(serverConfigProvider.config.selectedServerId);
-          if (server == null) {
+          if (!await serverDao.checkServerExists(
+              serverConfigProvider.config.selectedServerId)) {
+            logger.w('Selected server not exists');
             return;
           }
-          serverConfigProvider.config.selectedServerId = server.id;
-          await SphiaController.toggleCores(server);
+          await SphiaController.toggleCores();
           if (coreProvider.coreRunning) {
             await menuItem.setCheck(true);
           } else {

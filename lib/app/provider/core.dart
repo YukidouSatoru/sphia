@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:sphia/app/tray.dart';
-import 'package:sphia/core/core_base.dart';
+import 'package:sphia/core/core.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 
 class CoreProvider extends ChangeNotifier {
-  List<CoreBase> cores = [];
+  List<Core> cores = [];
   bool coreRunning = false;
-
-  void updateCores(List<CoreBase> newCores) {
-    cores = newCores;
-  }
 
   void updateCoreRunning(bool newCoreRunning) {
     coreRunning = newCoreRunning;

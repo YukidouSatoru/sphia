@@ -82,7 +82,16 @@ class SingBoxGenerate {
     }
     for (var rule in rules) {
       if (rule.enabled) {
-        singBoxRules.add(rule.toSingBoxRule());
+        if (rule.outboundTag != 'proxy' &&
+            rule.outboundTag != 'direct' &&
+            rule.outboundTag != 'block') {
+          // multi-outbound
+          singBoxRules.add(
+            rule.toSingBoxRule()..outbound = 'proxy-${rule.outboundTag}',
+          );
+        } else {
+          singBoxRules.add(rule.toSingBoxRule());
+        }
       }
     }
     return Route(
@@ -130,6 +139,7 @@ class SingBoxGenerate {
   static Outbound generateOutbound(Server server) {
     late Outbound outbound;
     switch (server.protocol) {
+      case 'socks':
       case 'vmess':
       case 'vless':
         outbound = xrayOutbound(server);
@@ -164,7 +174,6 @@ class SingBoxGenerate {
   static Outbound socksOutbound(Server server) {
     return Outbound(
       type: 'socks',
-      tag: 'proxy',
       server: server.address,
       serverPort: server.port,
       version: '5',
@@ -201,7 +210,6 @@ class SingBoxGenerate {
     );
     return Outbound(
       type: server.protocol,
-      tag: 'proxy',
       server: server.address,
       serverPort: server.port,
       uuid: server.authPayload,
@@ -216,7 +224,6 @@ class SingBoxGenerate {
   static Outbound shadowsocksOutbound(Server server) {
     return Outbound(
       type: 'shadowsocks',
-      tag: 'proxy',
       server: server.address,
       serverPort: server.port,
       method: server.encryption,
@@ -234,7 +241,6 @@ class SingBoxGenerate {
     );
     return Outbound(
       type: 'trojan',
-      tag: 'proxy',
       server: server.address,
       serverPort: server.port,
       password: server.authPayload,
@@ -252,7 +258,6 @@ class SingBoxGenerate {
     );
     return Outbound(
       type: 'hysteria',
-      tag: 'proxy',
       server: server.address,
       serverPort: server.port,
       upMbps: server.upMbps,

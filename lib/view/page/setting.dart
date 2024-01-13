@@ -350,6 +350,23 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       SphiaWidget.checkboxCard(
+        sphiaConfig.multiOutboundSupport,
+        S.of(context).multiOutboundSupport,
+        (value) {
+          if (value != null) {
+            logger.i(
+                'Updating multiOutboundSupport from ${sphiaConfig.multiOutboundSupport} to $value');
+            sphiaConfig.multiOutboundSupport = value;
+            sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
+              SphiaWidget.snackBar(
+                S.of(context).multiOutboundSupportMsg,
+              ),
+            );
+          }
+        },
+      ),
+      SphiaWidget.checkboxCard(
         sphiaConfig.autoConfigureSystemProxy,
         S.of(context).autoConfigureSystemProxy,
         (value) {

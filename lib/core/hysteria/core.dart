@@ -5,23 +5,25 @@ import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/core/core_base.dart';
+import 'package:sphia/core/core.dart';
 import 'package:sphia/core/hysteria/config.dart';
 import 'package:sphia/util/system.dart';
 
-class HysteriaCore extends CoreBase {
+class HysteriaCore extends Core {
   HysteriaCore()
       : super('hysteria', ['-c', p.join(tempPath, 'hysteria.json')],
             'hysteria.json');
 
   @override
-  Future<void> configure(Server server) async {
-    final jsonString = await generateConfig(server);
+  Future<void> configure(Server selectedServer) async {
+    serverId = [selectedServer.id];
+    final jsonString = await generateConfig([selectedServer]);
     await writeConfig(jsonString);
   }
 
   @override
-  Future<String> generateConfig(Server server) async {
+  Future<String> generateConfig(List<Server> servers) async {
+    final server = servers.first; // Only supports single server
     if (server.protocol == 'hysteria') {
       final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
       final hysteriaConfig = HysteriaConfig(

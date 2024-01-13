@@ -8,7 +8,7 @@ class VersionConfigProvider extends ChangeNotifier {
   VersionConfigProvider(this.config);
 
   void saveConfig() {
-    SphiaDatabase.versionConfigDao.saveConfig();
+    versionConfigDao.saveConfig();
     notifyListeners();
   }
 

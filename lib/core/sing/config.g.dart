@@ -225,8 +225,8 @@ Outbound _$OutboundFromJson(Map<String, dynamic> json) => Outbound(
       transport: json['transport'] == null
           ? null
           : Transport.fromJson(json['transport'] as Map<String, dynamic>),
-      upMbps: json['upMbps'] as int?,
-      downMbps: json['downMbps'] as int?,
+      upMbps: json['up_mbps'] as int?,
+      downMbps: json['down_mbps'] as int?,
       obfs: json['obfs'] as String?,
       auth: json['auth'] as String?,
       authStr: json['auth_str'] as String?,
@@ -262,8 +262,8 @@ Map<String, dynamic> _$OutboundToJson(Outbound instance) {
   writeNotNull('network', instance.network);
   writeNotNull('tls', instance.tls);
   writeNotNull('transport', instance.transport);
-  writeNotNull('upMbps', instance.upMbps);
-  writeNotNull('downMbps', instance.downMbps);
+  writeNotNull('up_mbps', instance.upMbps);
+  writeNotNull('down_mbps', instance.downMbps);
   writeNotNull('obfs', instance.obfs);
   writeNotNull('auth', instance.auth);
   writeNotNull('auth_str', instance.authStr);
@@ -394,6 +394,9 @@ Experimental _$ExperimentalFromJson(Map<String, dynamic> json) => Experimental(
       clashApi: json['clash_api'] == null
           ? null
           : ClashApi.fromJson(json['clash_api'] as Map<String, dynamic>),
+      cacheFile: json['cache_file'] == null
+          ? null
+          : CacheFile.fromJson(json['cache_file'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ExperimentalToJson(Experimental instance) {
@@ -406,19 +409,19 @@ Map<String, dynamic> _$ExperimentalToJson(Experimental instance) {
   }
 
   writeNotNull('clash_api', instance.clashApi);
+  writeNotNull('cache_file', instance.cacheFile);
   return val;
 }
 
 ClashApi _$ClashApiFromJson(Map<String, dynamic> json) => ClashApi(
       externalController: json['external_controller'] as String,
-      storeSelected: json['store_selected'] as bool,
+      storeSelected: json['store_selected'] as bool?,
       cacheFile: json['cache_file'] as String?,
     );
 
 Map<String, dynamic> _$ClashApiToJson(ClashApi instance) {
   final val = <String, dynamic>{
     'external_controller': instance.externalController,
-    'store_selected': instance.storeSelected,
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -427,6 +430,17 @@ Map<String, dynamic> _$ClashApiToJson(ClashApi instance) {
     }
   }
 
+  writeNotNull('store_selected', instance.storeSelected);
   writeNotNull('cache_file', instance.cacheFile);
   return val;
 }
+
+CacheFile _$CacheFileFromJson(Map<String, dynamic> json) => CacheFile(
+      enabled: json['enabled'] as bool,
+      path: json['path'] as String,
+    );
+
+Map<String, dynamic> _$CacheFileToJson(CacheFile instance) => <String, dynamic>{
+      'enabled': instance.enabled,
+      'path': instance.path,
+    };

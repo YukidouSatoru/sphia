@@ -48,7 +48,7 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
   Future<void> _loadRules() async {
     final ruleConfigProvider =
         Provider.of<RuleConfigProvider>(context, listen: false);
-    _rules = await SphiaDatabase.ruleDao
+    _rules = await ruleDao
         .getOrderedRulesByGroupId(ruleConfigProvider.ruleGroups[_index].id);
   }
 
@@ -206,7 +206,7 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
                       if (listsEqual(oldOrder, newOrder)) {
                         return;
                       }
-                      await SphiaDatabase.ruleDao.updateRulesOrderByGroupId(
+                      await ruleDao.updateRulesOrderByGroupId(
                         ruleGroup.id,
                         newOrder,
                       );
@@ -262,8 +262,19 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Text('Inbound Tag: $rule.inboundTag}'),
-                Text('Outbound Tag: ${rule.outboundTag}'),
+                // TODO: Add outboundTag
+                if (rule.domain != null)
+                  Text(
+                    'Domain: ${rule.domain}',
+                  ),
+                if (rule.ip != null)
+                  Text(
+                    'IP: ${rule.ip}',
+                  ),
+                if (rule.port != null)
+                  Text(
+                    'Port: ${rule.port}',
+                  ),
               ],
             ),
             trailing: Row(
@@ -275,7 +286,7 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
                     _rules[index] = rule.copyWith(
                       enabled: value,
                     );
-                    await SphiaDatabase.ruleDao.updateRule(
+                    await ruleDao.updateRule(
                       _rules[index],
                     );
                     setState(() {});

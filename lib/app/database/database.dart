@@ -22,6 +22,15 @@ const versionConfigId = 4;
 const serverGroupsOrderId = 1;
 const ruleGroupsOrderId = 2;
 
+final sphiaConfigDao = SphiaDatabase.sphiaConfigDao;
+final serverConfigDao = SphiaDatabase.serverConfigDao;
+final ruleConfigDao = SphiaDatabase.ruleConfigDao;
+final versionConfigDao = SphiaDatabase.versionConfigDao;
+final serverGroupDao = SphiaDatabase.serverGroupDao;
+final ruleGroupDao = SphiaDatabase.ruleGroupDao;
+final serverDao = SphiaDatabase.serverDao;
+final ruleDao = SphiaDatabase.ruleDao;
+
 class SphiaDatabase {
   static late Database _database;
 

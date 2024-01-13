@@ -124,6 +124,8 @@
   "mixedPortMsg": "Mixed port, only applicable to sing-box",
   "mtu": "MTU",
   "mtuMsg": "Tun MTU, default is 9000",
+  "multiOutboundSupport": "Multi Outbound Support",
+  "multiOutboundSupportMsg": "Multi outbound support, default off. Sing-Box does not support traffic statistics when this option is enabled",
   "name": "Name",
   "nameEnterMsg": "Please enter a name",
   "navigationStyle": "Navigation Style",

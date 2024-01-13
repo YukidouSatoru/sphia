@@ -13,6 +13,7 @@ class SingBoxRule {
   List<int>? port;
   @JsonKey(name: 'port_range')
   List<String>? portRange;
+  String? inbound;
   String? outbound;
   @JsonKey(name: 'process_name')
   List<String>? processName;
@@ -25,6 +26,7 @@ class SingBoxRule {
     this.ipCidr,
     this.port,
     this.portRange,
+    this.inbound,
     this.outbound,
     this.processName,
   });

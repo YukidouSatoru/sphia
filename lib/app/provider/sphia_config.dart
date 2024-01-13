@@ -8,11 +8,11 @@ class SphiaConfigProvider extends ChangeNotifier {
   SphiaConfigProvider(this.config);
 
   void saveConfig() {
-    SphiaDatabase.sphiaConfigDao.saveConfig();
+    sphiaConfigDao.saveConfig();
     notifyListeners();
   }
 
   void saveConfigWithoutNotify() {
-    SphiaDatabase.sphiaConfigDao.saveConfig();
+    sphiaConfigDao.saveConfig();
   }
 }

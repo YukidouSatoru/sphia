@@ -9,12 +9,12 @@ class RuleConfigProvider extends ChangeNotifier {
   RuleConfigProvider(this.config, this.ruleGroups);
 
   void saveConfig() {
-    SphiaDatabase.ruleConfigDao.saveConfig();
+    ruleConfigDao.saveConfig();
     notifyListeners();
   }
 
   void saveConfigWithoutNotify() {
-    SphiaDatabase.ruleConfigDao.saveConfig();
+    ruleConfigDao.saveConfig();
   }
 
   void notify() {

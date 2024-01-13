@@ -50,7 +50,7 @@ class SubscribeTask {
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     serverConfigProvider.config.updatedSubscribeTime =
         DateTime.now().millisecondsSinceEpoch;
-    final groups = await SphiaDatabase.serverGroupDao.getOrderedServerGroups();
+    final groups = await serverGroupDao.getOrderedServerGroups();
     for (var group in groups) {
       final subscribe = group.subscribe;
       if (subscribe.isEmpty) {
@@ -63,18 +63,17 @@ class SubscribeTask {
             userAgents[UserAgent.values[sphiaConfig.userAgent].name]!);
         final servers =
             uris.map((e) => UriUtil.parseUri(e)).whereType<Server>().toList();
-        await SphiaDatabase.serverDao.deleteServerByGroupId(group.id);
-        await SphiaDatabase.serverDao.insertServers(group.id, servers);
-        await SphiaDatabase.serverDao.refreshServersOrderByGroupId(group.id);
+        await serverDao.deleteServerByGroupId(group.id);
+        await serverDao.insertServers(group.id, servers);
+        await serverDao.refreshServersOrderByGroupId(group.id);
         logger.i('Updated group successfully: $groupName');
       } on Exception catch (e) {
         logger.e('Failed to update group: $groupName\n$e');
         continue;
       }
     }
-    serverConfigProvider.servers = await SphiaDatabase.serverDao
-        .getOrderedServersByGroupId(
-            serverConfigProvider.config.selectedServerGroupId);
+    serverConfigProvider.servers = await serverDao.getOrderedServersByGroupId(
+        serverConfigProvider.config.selectedServerGroupId);
     SphiaTray.generateServerItems();
     SphiaTray.setMenu();
     serverConfigProvider.saveConfig();

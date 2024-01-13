@@ -69,6 +69,7 @@ class XrayGenerate {
   static Outbound generateOutbound(Server server) {
     late Outbound outbound;
     switch (server.protocol) {
+      case 'socks':
       case 'vmess':
       case 'vless':
         outbound = xrayOutbound(server);
@@ -294,7 +295,15 @@ class XrayGenerate {
     }
     for (var rule in rules) {
       if (rule.enabled) {
-        xrayRules.add(rule.toXrayRule());
+        if (rule.outboundTag != 'proxy' &&
+            rule.outboundTag != 'direct' &&
+            rule.outboundTag != 'block') {
+          xrayRules.add(
+            rule.toXrayRule()..outboundTag = 'proxy-${rule.outboundTag}',
+          );
+        } else {
+          xrayRules.add(rule.toXrayRule());
+        }
       }
     }
     return Routing(

@@ -12,7 +12,7 @@ import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/theme.dart';
-import 'package:sphia/core/core_base.dart';
+import 'package:sphia/core/core.dart';
 import 'package:sphia/core/hysteria/core.dart';
 import 'package:sphia/core/server/defaults.dart';
 import 'package:sphia/core/sing/core.dart';
@@ -77,8 +77,8 @@ class ServerAgent {
               logger.e('Failed to parse uri: $uri\n$e');
             }
           }
-          await SphiaDatabase.serverDao.insertServers(groupId, newServer);
-          await SphiaDatabase.serverDao.refreshServersOrderByGroupId(groupId);
+          await serverDao.insertServers(groupId, newServer);
+          await serverDao.refreshServersOrderByGroupId(groupId);
         }
         return null;
       default:
@@ -88,8 +88,8 @@ class ServerAgent {
       return null;
     }
     logger.i('Adding Server: ${newServer.remark}');
-    final serverId = await SphiaDatabase.serverDao.insertServer(newServer);
-    await SphiaDatabase.serverDao.refreshServersOrderByGroupId(groupId);
+    final serverId = await serverDao.insertServer(newServer);
+    await serverDao.refreshServersOrderByGroupId(groupId);
     return newServer.copyWith(id: serverId);
   }
 
@@ -101,7 +101,7 @@ class ServerAgent {
     editedServer = editedServer.copyWith(
         uplink: Value(server.uplink), downlink: Value(server.downlink));
     logger.i('Editing Server: ${server.id}');
-    await SphiaDatabase.serverDao.updateServer(editedServer);
+    await serverDao.updateServer(editedServer);
     return editedServer;
   }
 
@@ -137,39 +137,39 @@ class ServerAgent {
   }
 
   Future<bool> deleteServer(int serverId) async {
-    final server = await SphiaDatabase.serverDao.getServerById(serverId);
+    final server = await serverDao.getServerById(serverId);
     if (server == null) {
       return false;
     }
     logger.i('Deleting Server: ${server.id}');
-    await SphiaDatabase.serverDao.deleteServer(serverId);
-    await SphiaDatabase.serverDao.refreshServersOrderByGroupId(server.groupId);
+    await serverDao.deleteServer(serverId);
+    await serverDao.refreshServersOrderByGroupId(server.groupId);
     return true;
   }
 
   // TODO: Fix the position of snackbar
   Future<void> shareServer(
       String option, int serverId, void Function(String) showSnackBar) async {
-    final serverBase = await SphiaDatabase.serverDao.getServerById(serverId);
-    if (serverBase == null) {
+    final server = await serverDao.getServerById(serverId);
+    if (server == null) {
       return;
     }
     switch (option) {
       case 'QRCode':
-        String? uri = UriUtil.getUri(serverBase);
+        String? uri = UriUtil.getUri(server);
         if (uri != null) {
           _shareQRCode(uri);
         }
         break;
       case 'ExportToClipboard':
         showSnackBar(S.current.exportToClipboard);
-        String? uri = UriUtil.getUri(serverBase);
+        String? uri = UriUtil.getUri(server);
         if (uri != null) {
           UriUtil.exportUriToClipboard(uri);
         }
         break;
       case 'Configuration':
-        _shareConfiguration(serverBase, showSnackBar);
+        _shareConfiguration(server, showSnackBar);
         break;
       default:
         return;
@@ -209,7 +209,7 @@ class ServerAgent {
       logger.i('Export to File: ${p.join(tempPath, exportFileName)}');
       showSnackBar(
           '${S.of(context).exportToFile}: ${p.join(tempPath, exportFileName)}');
-      late final CoreBase core;
+      late final Core core;
       if ((protocol == 'vless' &&
               sphiaConfigProvider.config.vlessProvider ==
                   VlessProvider.xray.index) ||
@@ -244,7 +244,8 @@ class ServerAgent {
               HysteriaProvider.hysteria.index) {
         core = HysteriaCore()..configFileName = exportFileName;
       }
-      await core.configure(server);
+      final jsonString = await core.generateConfig([server]);
+      await core.writeConfig(jsonString);
     } else {
       showSnackBar(S.of(context).noConfigurationFileGenerated);
     }
@@ -321,9 +322,9 @@ class ServerAgent {
       return false;
     }
     logger.i('Adding Server Group: $newGroupName');
-    final groupId = await SphiaDatabase.serverGroupDao
-        .insertServerGroup(newGroupName, subscribe);
-    await SphiaDatabase.serverGroupDao.refreshServerGroupsOrder();
+    final groupId =
+        await serverGroupDao.insertServerGroup(newGroupName, subscribe);
+    await serverGroupDao.refreshServerGroupsOrder();
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     serverConfigProvider.serverGroups.add(ServerGroup(
       id: groupId,
@@ -402,8 +403,8 @@ class ServerAgent {
         return false;
       }
       logger.i('Editing Server Group: ${serverGroup.id}');
-      await SphiaDatabase.serverGroupDao
-          .updateServerGroup(serverGroup.id, newGroupName, subscribe);
+      await serverGroupDao.updateServerGroup(
+          serverGroup.id, newGroupName, subscribe);
       final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
       serverConfigProvider.serverGroups[serverConfigProvider.serverGroups
           .indexWhere((element) => element.id == serverGroup.id)] = ServerGroup(
@@ -423,8 +424,7 @@ class ServerAgent {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     switch (type) {
       case 'CurrentGroup':
-        final serverGroup =
-            await SphiaDatabase.serverGroupDao.getServerGroupById(groupId);
+        final serverGroup = await serverGroupDao.getServerGroupById(groupId);
         if (serverGroup == null) {
           return false;
         }
@@ -442,9 +442,9 @@ class ServerAgent {
               userAgents[UserAgent.values[sphiaConfig.userAgent].name]!);
           final newServer =
               uris.map((e) => UriUtil.parseUri(e)).whereType<Server>().toList();
-          await SphiaDatabase.serverDao.deleteServerByGroupId(groupId);
-          await SphiaDatabase.serverDao.insertServers(groupId, newServer);
-          await SphiaDatabase.serverDao.refreshServersOrderByGroupId(groupId);
+          await serverDao.deleteServerByGroupId(groupId);
+          await serverDao.insertServers(groupId, newServer);
+          await serverDao.refreshServersOrderByGroupId(groupId);
           logger.i('Updated group successfully: $groupName');
           showSnackBar('${S.current.updatedGroupSuccessfully}: $groupName');
           return true;
@@ -457,8 +457,7 @@ class ServerAgent {
         logger.i('Updating All Server Groups');
         bool flag = false;
         showSnackBar(S.current.updatingAllGroups);
-        final serverGroups =
-            await SphiaDatabase.serverGroupDao.getOrderedServerGroups();
+        final serverGroups = await serverGroupDao.getOrderedServerGroups();
         for (var serverGroup in serverGroups) {
           final subscribe = serverGroup.subscribe;
           if (subscribe.isEmpty) {
@@ -473,11 +472,9 @@ class ServerAgent {
                 .map((e) => UriUtil.parseUri(e))
                 .whereType<Server>()
                 .toList();
-            await SphiaDatabase.serverDao.deleteServerByGroupId(serverGroup.id);
-            await SphiaDatabase.serverDao
-                .insertServers(serverGroup.id, newServer);
-            await SphiaDatabase.serverDao
-                .refreshServersOrderByGroupId(serverGroup.id);
+            await serverDao.deleteServerByGroupId(serverGroup.id);
+            await serverDao.insertServers(serverGroup.id, newServer);
+            await serverDao.refreshServersOrderByGroupId(serverGroup.id);
             logger.i('Updated group successfully: $groupName');
             showSnackBar('${S.current.updatedGroupSuccessfully}: $groupName');
             flag = true;
@@ -494,8 +491,7 @@ class ServerAgent {
   }
 
   Future<bool> deleteGroup(int groupId) async {
-    final groupName =
-        await SphiaDatabase.serverGroupDao.getServerGroupNameById(groupId);
+    final groupName = await serverGroupDao.getServerGroupNameById(groupId);
     if (groupName == null) {
       return false;
     }
@@ -504,8 +500,8 @@ class ServerAgent {
       return false;
     }
     logger.i('Deleting Server Group: $groupId');
-    await SphiaDatabase.serverGroupDao.deleteServerGroup(groupId);
-    await SphiaDatabase.serverGroupDao.refreshServerGroupsOrder();
+    await serverGroupDao.deleteServerGroup(groupId);
+    await serverGroupDao.refreshServerGroupsOrder();
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     serverConfigProvider.serverGroups
         .removeWhere((element) => element.id == groupId);
@@ -569,7 +565,7 @@ class ServerAgent {
     }
 
     logger.i('Reordered Server Groups');
-    await SphiaDatabase.serverGroupDao.updateServerGroupsOrder(newOrder);
+    await serverGroupDao.updateServerGroupsOrder(newOrder);
     serverConfigProvider.notify();
     return true;
   }
@@ -577,8 +573,7 @@ class ServerAgent {
   Future<bool> clearTraffic(String option) async {
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     if (option == 'SelectedServer') {
-      final server = await SphiaDatabase.serverDao
-          .getServerById(serverConfigProvider.config.selectedServerId);
+      final server = await serverDao.getSelectedServer();
       if (server == null) {
         return false;
       }
@@ -587,7 +582,7 @@ class ServerAgent {
         uplink: const Value(null),
         downlink: const Value(null),
       );
-      await SphiaDatabase.serverDao.updateServer(newServer);
+      await serverDao.updateServer(newServer);
       final index = serverConfigProvider.servers
           .indexWhere((element) => element.id == server.id);
       if (index != -1) {
@@ -600,7 +595,7 @@ class ServerAgent {
           uplink: const Value(null),
           downlink: const Value(null),
         );
-        await SphiaDatabase.serverDao.updateServer(server);
+        await serverDao.updateServer(server);
         serverConfigProvider.servers[i] = server;
       }
       return true;

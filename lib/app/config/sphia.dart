@@ -48,6 +48,7 @@ class SphiaConfig {
   /* Proxy */
   bool autoGetIp;
   bool autoConfigureSystemProxy;
+  bool multiOutboundSupport;
   bool enableTun;
   int socksPort;
   int httpPort;
@@ -107,6 +108,7 @@ class SphiaConfig {
     required this.userAgent,
     required this.autoGetIp,
     required this.autoConfigureSystemProxy,
+    required this.multiOutboundSupport,
     required this.enableTun,
     required this.socksPort,
     required this.httpPort,
@@ -162,6 +164,7 @@ class SphiaConfig {
       userAgent: UserAgent.chrome.index,
       autoGetIp: false,
       autoConfigureSystemProxy: false,
+      multiOutboundSupport: false,
       enableTun: false,
       socksPort: 11111,
       httpPort: 11112,

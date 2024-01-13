@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:grpc/grpc.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/util/traffic/xray/command.pbgrpc.dart';
+import 'package:tuple/tuple.dart';
 
 abstract class Traffic {
   int apiPort;
@@ -32,15 +33,13 @@ abstract class Traffic {
 class XrayTraffic extends Traffic {
   late ClientChannel channel;
   late StatsServiceClient client;
-  final uplinkRequest = QueryStatsRequest()
-    ..pattern = 'outbound>>>proxy>>>traffic>>>uplink';
-  final downlinkRequest = QueryStatsRequest()
-    ..pattern = 'outbound>>>proxy>>>traffic>>>downlink';
   int previousUplink = 0;
   int previousDownlink = 0;
   late Timer timer;
+  bool isMultiOutboundSupport;
 
-  XrayTraffic(apiPort) : super(apiPort) {
+  XrayTraffic(int apiPort, this.isMultiOutboundSupport) : super(apiPort) {
+    // the first server is the selected server which tag is 'proxy'
     channel = ClientChannel(
       'localhost',
       port: apiPort,
@@ -69,13 +68,16 @@ class XrayTraffic extends Traffic {
     logger.i('Starting XrayTraffic');
     timer = Timer.periodic(const Duration(seconds: 1), (_) async {
       try {
-        final uplinkResponse = await client.queryStats(uplinkRequest);
-        final downlinkResponse = await client.queryStats(downlinkRequest);
-
-        final uplink =
-            int.parse(uplinkResponse.writeToJsonMap()['1'][0]['2'] ?? '0');
-        final downlink =
-            int.parse(downlinkResponse.writeToJsonMap()['1'][0]['2'] ?? '0');
+        late final int uplink;
+        late final int downlink;
+        if (!isMultiOutboundSupport) {
+          uplink = await queryOutboundUplink('proxy');
+          downlink = await queryOutboundDownlink('proxy');
+        } else {
+          final totalProxyLink = await queryTotalProxyLink();
+          uplink = totalProxyLink.item1;
+          downlink = totalProxyLink.item2;
+        }
 
         final up = uplink - previousUplink;
         final down = downlink - previousDownlink;
@@ -104,6 +106,53 @@ class XrayTraffic extends Traffic {
     await apiStreamController.close();
     await channel.shutdown();
   }
+
+  Future<Tuple2<int, int>> queryTotalProxyLink() async {
+    final uplinkRequest = QueryStatsRequest();
+    final response = await client.queryStats(uplinkRequest);
+    final stats = response.writeToJsonMap()['1'];
+    int totalUplink = 0;
+    int totalDownlink = 0;
+    for (final stat in stats) {
+      final name = stat['1'];
+      final value = stat['2'];
+      // ignore direct and block
+      if (name.contains('direct') || name.contains('block')) {
+        continue;
+      }
+      if (name.contains('uplink')) {
+        totalUplink += int.parse(value ?? '0');
+      } else if (name.contains('downlink')) {
+        totalDownlink += int.parse(value ?? '0');
+      }
+    }
+    return Tuple2(totalUplink, totalDownlink);
+  }
+
+  Future<Tuple2<int, int>> queryProxyLinkByOutboundTag(
+      String outboundTag) async {
+    final uplink = await queryOutboundUplink(outboundTag);
+    final downlink = await queryOutboundDownlink(outboundTag);
+    return Tuple2(uplink, downlink);
+  }
+
+  Future<int> queryOutboundUplink(String outboundTag) {
+    final uplinkRequest = QueryStatsRequest()
+      ..pattern = 'outbound>>>$outboundTag>>>traffic>>>uplink';
+    return client.queryStats(uplinkRequest).then((response) {
+      print(response.writeToJsonMap());
+      return int.parse(response.writeToJsonMap()['1'][0]['2'] ?? '0');
+    });
+  }
+
+  Future<int> queryOutboundDownlink(String outboundTag) {
+    final downlinkRequest = QueryStatsRequest()
+      ..pattern = 'outbound>>>$outboundTag>>>traffic>>>downlink';
+    return client.queryStats(downlinkRequest).then((response) {
+      print(response.writeToJsonMap());
+      return int.parse(response.writeToJsonMap()['1'][0]['2'] ?? '0');
+    });
+  }
 }
 
 class SingBoxTraffic extends Traffic {
@@ -113,7 +162,7 @@ class SingBoxTraffic extends Traffic {
   int downlink = 0;
   late StreamSubscription<String> subscription;
 
-  SingBoxTraffic(apiPort) : super(apiPort) {
+  SingBoxTraffic(int apiPort) : super(apiPort) {
     url = Uri.parse('http://localhost:$apiPort/traffic');
   }
 

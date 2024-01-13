@@ -23,15 +23,15 @@ class RuleAgent {
         groupId: groupId,
         name: '',
         enabled: true,
-        inboundTag: 'proxy',
+        outboundTag: 'proxy',
       ),
     );
     if (rule == null) {
       return null;
     }
     logger.i('Adding Rule: ${rule.name}');
-    final ruleId = await SphiaDatabase.ruleDao.insertRule(rule);
-    await SphiaDatabase.ruleDao.refreshRulesOrderByGroupId(groupId);
+    final ruleId = await ruleDao.insertRule(rule);
+    await ruleDao.refreshRulesOrderByGroupId(groupId);
     return rule.copyWith(id: ruleId);
   }
 
@@ -42,19 +42,19 @@ class RuleAgent {
       return null;
     }
     logger.i('Editing Rule: ${rule.id}');
-    await SphiaDatabase.ruleDao.updateRule(newRule);
-    // await SphiaDatabase.ruleDao.refreshRulesOrderByGroupId(newRule.groupId);
+    await ruleDao.updateRule(newRule);
+    // await ruleDao.refreshRulesOrderByGroupId(newRule.groupId);
     return newRule;
   }
 
   Future<bool> deleteRule(int ruleId) async {
-    final rule = await SphiaDatabase.ruleDao.getRuleById(ruleId);
+    final rule = await ruleDao.getRuleById(ruleId);
     if (rule == null) {
       return false;
     }
     logger.i('Deleting Rule: ${rule.id}');
-    await SphiaDatabase.ruleDao.deleteRule(ruleId);
-    await SphiaDatabase.ruleDao.refreshRulesOrderByGroupId(rule.groupId);
+    await ruleDao.deleteRule(ruleId);
+    await ruleDao.refreshRulesOrderByGroupId(rule.groupId);
     return true;
   }
 
@@ -110,9 +110,8 @@ class RuleAgent {
       return false;
     }
     logger.i('Adding Rule Group: $newGroupName');
-    final groupId =
-        await SphiaDatabase.ruleGroupDao.insertRuleGroup(newGroupName);
-    await SphiaDatabase.ruleGroupDao.refreshRuleGroupsOrder();
+    final groupId = await ruleGroupDao.insertRuleGroup(newGroupName);
+    await ruleGroupDao.refreshRuleGroupsOrder();
     final ruleConfigProvider = GetIt.I.get<RuleConfigProvider>();
     ruleConfigProvider.ruleGroups.add(RuleGroup(
       id: groupId,
@@ -176,8 +175,7 @@ class RuleAgent {
         return false;
       }
       logger.i('Editing Rule Group: ${ruleGroup.id}');
-      await SphiaDatabase.ruleGroupDao
-          .updateRuleGroup(ruleGroup.id, newGroupName);
+      await ruleGroupDao.updateRuleGroup(ruleGroup.id, newGroupName);
       final ruleConfigProvider = GetIt.I.get<RuleConfigProvider>();
       ruleConfigProvider.ruleGroups[ruleConfigProvider.ruleGroups
           .indexWhere((element) => element.id == ruleGroup.id)] = RuleGroup(
@@ -192,8 +190,7 @@ class RuleAgent {
   }
 
   Future<bool> deleteGroup(int groupId) async {
-    final groupName =
-        await SphiaDatabase.ruleGroupDao.getRuleGroupNameById(groupId);
+    final groupName = await ruleGroupDao.getRuleGroupNameById(groupId);
     if (groupName == null) {
       return false;
     }
@@ -202,8 +199,8 @@ class RuleAgent {
       return false;
     }
     logger.i('Deleting Rule Group: $groupId');
-    await SphiaDatabase.ruleGroupDao.deleteRuleGroup(groupId);
-    await SphiaDatabase.ruleGroupDao.refreshRuleGroupsOrder();
+    await ruleGroupDao.deleteRuleGroup(groupId);
+    await ruleGroupDao.refreshRuleGroupsOrder();
     final ruleConfigProvider = GetIt.I.get<RuleConfigProvider>();
     ruleConfigProvider.ruleGroups
         .removeWhere((element) => element.id == groupId);
@@ -266,7 +263,7 @@ class RuleAgent {
       return false;
     }
     logger.i('Reordered Rule Group');
-    await SphiaDatabase.ruleGroupDao.updateRuleGroupsOrder(newOrder);
+    await ruleGroupDao.updateRuleGroupsOrder(newOrder);
     ruleConfigProvider.notify();
     return true;
   }

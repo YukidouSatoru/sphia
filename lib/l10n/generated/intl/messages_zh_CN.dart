@@ -176,6 +176,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("混合端口，仅适用于 sing-box"),
         "mtu": MessageLookupByLibrary.simpleMessage("MTU"),
         "mtuMsg": MessageLookupByLibrary.simpleMessage("Tun MTU，默认为 9000"),
+        "multiOutboundSupport": MessageLookupByLibrary.simpleMessage("多出站支持"),
+        "multiOutboundSupportMsg": MessageLookupByLibrary.simpleMessage(
+            "多出站支持，默认关闭。sing-box 在此选项开启时不支持流量统计"),
         "name": MessageLookupByLibrary.simpleMessage("名称"),
         "nameEnterMsg": MessageLookupByLibrary.simpleMessage("请输入名称"),
         "navigationStyle": MessageLookupByLibrary.simpleMessage("导航栏样式"),

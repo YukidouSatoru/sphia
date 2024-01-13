@@ -124,6 +124,8 @@
   "mixedPortMsg": "混合端口，仅适用于 sing-box",
   "mtu": "MTU",
   "mtuMsg": "Tun MTU，默认为 9000",
+  "multiOutboundSupport": "多出站支持",
+  "multiOutboundSupportMsg": "多出站支持，默认关闭。sing-box 在此选项开启时不支持流量统计",
   "name": "名称",
   "nameEnterMsg": "请输入名称",
   "navigationStyle": "导航栏样式",

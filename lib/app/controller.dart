@@ -4,7 +4,6 @@ import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/core/core_base.dart';
 import 'package:sphia/core/hysteria/core.dart';
 import 'package:sphia/core/server/defaults.dart';
 import 'package:sphia/core/shadowsocks/core.dart';
@@ -13,18 +12,23 @@ import 'package:sphia/core/xray/core.dart';
 import 'package:sphia/util/system.dart';
 
 class SphiaController {
-  static Future<void> toggleCores(Server server) async {
+  static Future<void> toggleCores() async {
     final coreProvider = GetIt.I.get<CoreProvider>();
     try {
+      final selectedServer = await serverDao.getSelectedServer();
+      if (selectedServer == null) {
+        return;
+      }
       if (coreProvider.cores.isNotEmpty) {
-        if (server == coreProvider.cores[0].runningServer) {
+        final runningServer = await getRunningServer();
+        if (selectedServer == runningServer) {
           await stopCores();
         } else {
           await stopCores();
-          await startCores(server);
+          await startCores(selectedServer);
         }
       } else {
-        await startCores(server);
+        await startCores(selectedServer);
       }
     } on Exception catch (_) {
       // logger.e('Failed to start core: $e');
@@ -32,119 +36,119 @@ class SphiaController {
     }
   }
 
-  static Future<void> startCores(Server server) async {
+  static Future<void> startCores(Server selectedServer) async {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     final coreProvider = GetIt.I.get<CoreProvider>();
-    final protocol = server.protocol;
+    final protocol = selectedServer.protocol;
     final int routingProvider =
-        server.routingProvider ?? sphiaConfig.routingProvider;
+        selectedServer.routingProvider ?? sphiaConfig.routingProvider;
     late final int protocolProvider;
-    List<CoreBase> newCores = [];
     late final Server? additionalServer;
+
+    coreProvider.cores = [];
 
     if (sphiaConfig.enableTun) {
       if (!SystemUtil.isRoot) {
         logger.e('Tun mode requires administrator privileges');
         throw Exception('Tun mode requires administrator privileges');
       }
-      newCores.add(SingBoxCore()..isRouting = true);
+      coreProvider.cores.add(SingBoxCore()..isRouting = true);
+    } else if (sphiaConfig.multiOutboundSupport) {
+      if (sphiaConfig.routingProvider == RoutingProvider.sing.index) {
+        coreProvider.cores.add(SingBoxCore()..isRouting = true);
+      } else {
+        coreProvider.cores.add(XrayCore()..isRouting = true);
+      }
     } else {
       switch (protocol) {
         case 'vmess':
           protocolProvider =
-              server.protocolProvider ?? sphiaConfig.vmessProvider;
+              selectedServer.protocolProvider ?? sphiaConfig.vmessProvider;
           if (protocolProvider == VmessProvider.xray.index) {
-            newCores.add(XrayCore());
+            coreProvider.cores.add(XrayCore());
           } else {
-            newCores.add(SingBoxCore());
+            coreProvider.cores.add(SingBoxCore());
           }
           break;
         case 'vless':
           protocolProvider =
-              server.protocolProvider ?? sphiaConfig.vlessProvider;
+              selectedServer.protocolProvider ?? sphiaConfig.vlessProvider;
           if (protocolProvider == VlessProvider.xray.index) {
-            newCores.add(XrayCore());
+            coreProvider.cores.add(XrayCore());
           } else {
-            newCores.add(SingBoxCore());
+            coreProvider.cores.add(SingBoxCore());
           }
           break;
         case 'shadowsocks':
-          protocolProvider =
-              server.protocolProvider ?? sphiaConfig.shadowsocksProvider;
+          protocolProvider = selectedServer.protocolProvider ??
+              sphiaConfig.shadowsocksProvider;
           if (protocolProvider == ShadowsocksProvider.xray.index) {
-            newCores.add(XrayCore());
+            coreProvider.cores.add(XrayCore());
           } else if (protocolProvider == ShadowsocksProvider.sing.index) {
-            newCores.add(SingBoxCore());
+            coreProvider.cores.add(SingBoxCore());
           } else {
-            newCores.add(ShadowsocksRustCore());
+            coreProvider.cores.add(ShadowsocksRustCore());
           }
           break;
         case 'trojan':
           protocolProvider =
-              server.protocolProvider ?? sphiaConfig.trojanProvider;
+              selectedServer.protocolProvider ?? sphiaConfig.trojanProvider;
           if (protocolProvider == TrojanProvider.xray.index) {
-            newCores.add(XrayCore());
+            coreProvider.cores.add(XrayCore());
           } else {
-            newCores.add(SingBoxCore());
+            coreProvider.cores.add(SingBoxCore());
           }
           break;
         case 'hysteria':
           protocolProvider =
-              server.protocolProvider ?? sphiaConfig.hysteriaProvider;
+              selectedServer.protocolProvider ?? sphiaConfig.hysteriaProvider;
           if (protocolProvider == HysteriaProvider.sing.index) {
-            newCores.add(SingBoxCore());
+            coreProvider.cores.add(SingBoxCore());
           } else {
-            newCores.add(HysteriaCore());
+            coreProvider.cores.add(HysteriaCore());
           }
           break;
       }
-      if (getProviderCoreName(routingProvider) != newCores[0].coreName) {
+      if (getProviderCoreName(routingProvider) !=
+          coreProvider.cores.first.coreName) {
         late final int additionalServerPort;
         if (routingProvider == RoutingProvider.sing.index) {
-          newCores.add(SingBoxCore()..isRouting = true);
-          if (newCores[0].coreName == 'xray-core') {
+          coreProvider.cores.add(SingBoxCore()..isRouting = true);
+          if (coreProvider.cores.first.coreName == 'xray-core') {
             additionalServerPort = sphiaConfig.socksPort;
           } else {
             additionalServerPort = sphiaConfig.additionalSocksPort;
           }
         } else {
-          newCores.add(XrayCore()..isRouting = true);
-          if (newCores[0].coreName == 'sing-box') {
+          coreProvider.cores.add(XrayCore()..isRouting = true);
+          if (coreProvider.cores.first.coreName == 'sing-box') {
             additionalServerPort = sphiaConfig.mixedPort;
           } else {
             additionalServerPort = sphiaConfig.additionalSocksPort;
           }
         }
         additionalServer = ServerDefaults.xrayDefaults(-1, -1).copyWith(
-          remark: 'Additional Socks Server',
           protocol: 'socks',
           address: sphiaConfig.listen,
           port: additionalServerPort,
         );
       } else {
-        newCores.last.isRouting = true;
+        coreProvider.cores.first.isRouting = true;
       }
     }
 
-    coreProvider.updateCores(newCores);
-
     try {
       logger.i('Starting cores');
-      if (sphiaConfig.enableTun) {
-        // Only SingBoxCore
-        await coreProvider.cores[0].start(server);
+      if (coreProvider.cores.length == 1) {
+        // Only routing core
+        await coreProvider.cores.first.start(selectedServer);
       } else {
-        // If provider core is route core
-        if (coreProvider.cores.length == 1) {
-          await coreProvider.cores[0].start(server);
-        } else {
-          for (var core in coreProvider.cores) {
-            if (core.coreName == getProviderCoreName(routingProvider) &&
-                additionalServer != null) {
-              await core.start(additionalServer);
-            } else {
-              await core.start(server);
-            }
+        for (var core in coreProvider.cores) {
+          if (core.coreName == getProviderCoreName(routingProvider) &&
+              additionalServer != null) {
+            await core.start(additionalServer);
+          } else {
+            await core.start(selectedServer);
           }
         }
       }
@@ -169,32 +173,32 @@ class SphiaController {
   }
 
   static Future<void> stopCores() async {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     final coreProvider = GetIt.I.get<CoreProvider>();
     if (coreProvider.cores.isNotEmpty) {
       logger.i('Stopping cores');
+      final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
       if (sphiaConfig.autoConfigureSystemProxy || SystemUtil.getSystemProxy()) {
         SystemUtil.disableSystemProxy();
       }
       coreProvider.updateCoreRunning(false);
       // wait traffic to stop
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 1000));
       for (var core in coreProvider.cores) {
         await core.stop();
       }
-      coreProvider.updateCores([]);
+      coreProvider.cores = [];
     }
   }
 
+  // switch to another rule group will restart cores
   static Future<void> restartCores() async {
     final coreProvider = GetIt.I.get<CoreProvider>();
-    late final Server server;
     if (coreProvider.cores.isNotEmpty) {
       logger.i('Restarting cores');
-      server = coreProvider.cores[0].runningServer;
+      final runningServer = await getRunningServer();
       try {
         await stopCores();
-        await startCores(server);
+        await startCores(runningServer);
       } on Exception catch (e) {
         logger.e('Failed to restart cores: $e');
         rethrow;
@@ -205,4 +209,19 @@ class SphiaController {
 
   static String getProviderCoreName(int providerIndex) =>
       providerIndex == RoutingProvider.sing.index ? 'sing-box' : 'xray-core';
+
+  static Future<Server> getRunningServer() async {
+    final coreProvider = GetIt.I.get<CoreProvider>();
+    if (coreProvider.cores.isEmpty) {
+      logger.e('No running server');
+      throw Exception('No running server');
+    }
+    final runningServerId = coreProvider.cores.first.serverId.first;
+    final runningServer = await serverDao.getServerById(runningServerId);
+    if (runningServer == null) {
+      logger.e('Failed to get running server');
+      throw Exception('Failed to get running server');
+    }
+    return runningServer;
+  }
 }

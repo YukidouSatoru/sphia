@@ -3,34 +3,35 @@ import 'dart:core';
 import 'package:get_it/get_it.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/core/core_base.dart';
+import 'package:sphia/core/core.dart';
 
-class ShadowsocksRustCore extends CoreBase {
+class ShadowsocksRustCore extends Core {
   ShadowsocksRustCore() : super('shadowsocks-rust', [], '');
 
   @override
-  Future<void> configure(Server server) async {
-    if (server.protocol == 'shadowsocks') {
+  Future<void> configure(Server selectedServer) async {
+    if (selectedServer.protocol == 'shadowsocks') {
+      serverId = [selectedServer.id];
       final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
       final arguments = [
         '-s',
-        '${server.address}:${server.port}',
+        '${selectedServer.address}:${selectedServer.port}',
         '-b',
         '127.0.0.1:${sphiaConfig.additionalSocksPort}',
         '-m',
-        server.encryption ?? 'aes-128-gcm',
+        selectedServer.encryption ?? 'aes-128-gcm',
         '-k',
-        server.authPayload,
+        selectedServer.authPayload,
       ];
       coreArgs.addAll(arguments);
     } else {
       throw Exception(
-          'Shadowsocks-Rust does not support this server type: ${server.protocol}');
+          'Shadowsocks-Rust does not support this server type: ${selectedServer.protocol}');
     }
   }
 
   @override
-  Future<String> generateConfig(Server server) async {
+  Future<String> generateConfig(List<Server> servers) async {
     throw UnimplementedError();
   }
 

@@ -8,12 +8,12 @@ import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/core/core_base.dart';
+import 'package:sphia/core/core.dart';
 import 'package:sphia/core/xray/config.dart';
 import 'package:sphia/core/xray/generate.dart';
 import 'package:sphia/util/system.dart';
 
-class XrayCore extends CoreBase {
+class XrayCore extends Core {
   XrayCore()
       : super(
           'xray-core',
@@ -22,13 +22,15 @@ class XrayCore extends CoreBase {
         );
 
   @override
-  Future<void> configure(Server server) async {
-    final jsonString = await generateConfig(server);
+  Future<void> configure(Server selectedServer) async {
+    serverId = [selectedServer.id];
+    final jsonString = await generateConfig([selectedServer]);
     await writeConfig(jsonString);
   }
 
   @override
-  Future<String> generateConfig(Server server) async {
+  Future<String> generateConfig(List<Server> servers) async {
+    final server = servers.first;
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
 
     final log = Log(
@@ -64,23 +66,44 @@ class XrayCore extends CoreBase {
       ),
     ];
 
-    final outbounds = [
-      XrayGenerate.generateOutbound(server),
-      Outbound(tag: 'direct', protocol: 'freedom'),
-      Outbound(tag: 'block', protocol: 'blackhole'),
-    ];
-
     final ruleConfig = GetIt.I.get<RuleConfigProvider>().config;
+    List<Rule> rules =
+        await ruleDao.getOrderedRulesByGroupId(ruleConfig.selectedRuleGroupId);
+    rules.removeWhere((rule) => rule.outboundTag == null);
+    List<Outbound> outboundsOnRouting = [];
+    if (!sphiaConfig.multiOutboundSupport) {
+      rules.removeWhere((element) =>
+          element.outboundTag != 'proxy' &&
+          element.outboundTag != 'direct' &&
+          element.outboundTag != 'block');
+    } else {
+      final serversOnRoutingId =
+          await ruleDao.getRuleOutboundTagsByGroupId(rules);
+      final serversOnRouting =
+          await serverDao.getServersById(serversOnRoutingId);
+      for (final server in serversOnRouting) {
+        outboundsOnRouting.add(
+          XrayGenerate.generateOutbound(server)..tag = 'proxy-${server.id}',
+        );
+      }
+      serverId.addAll(serversOnRoutingId);
+    }
     Routing? routing;
     if (isRouting) {
       routing = XrayGenerate.routing(
         DomainStrategy.values[sphiaConfig.domainStrategy].name,
         DomainMatcher.values[sphiaConfig.domainMatcher].name,
-        await SphiaDatabase.ruleDao
-            .getRulesByGroupId(ruleConfig.selectedRuleGroupId),
+        rules,
         sphiaConfig.enableStatistics,
       );
     }
+
+    final outbounds = [
+      XrayGenerate.generateOutbound(server),
+      ...outboundsOnRouting,
+      Outbound(tag: 'direct', protocol: 'freedom'),
+      Outbound(tag: 'block', protocol: 'blackhole'),
+    ];
 
     Api? api;
     Policy? policy;

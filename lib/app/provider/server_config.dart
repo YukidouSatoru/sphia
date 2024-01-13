@@ -10,12 +10,12 @@ class ServerConfigProvider extends ChangeNotifier {
   ServerConfigProvider(this.config, this.serverGroups);
 
   void saveConfig() {
-    SphiaDatabase.serverConfigDao.saveConfig();
+    serverConfigDao.saveConfig();
     notifyListeners();
   }
 
   void saveConfigWithoutNotify() {
-    SphiaDatabase.serverConfigDao.saveConfig();
+    serverConfigDao.saveConfig();
   }
 
   void notify() {

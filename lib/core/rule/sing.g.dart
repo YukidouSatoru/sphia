@@ -20,6 +20,7 @@ SingBoxRule _$SingBoxRuleFromJson(Map<String, dynamic> json) => SingBoxRule(
       portRange: (json['port_range'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
+      inbound: json['inbound'] as String?,
       outbound: json['outbound'] as String?,
       processName: (json['process_name'] as List<dynamic>?)
           ?.map((e) => e as String)
@@ -42,6 +43,7 @@ Map<String, dynamic> _$SingBoxRuleToJson(SingBoxRule instance) {
   writeNotNull('ip_cidr', instance.ipCidr);
   writeNotNull('port', instance.port);
   writeNotNull('port_range', instance.portRange);
+  writeNotNull('inbound', instance.inbound);
   writeNotNull('outbound', instance.outbound);
   writeNotNull('process_name', instance.processName);
   return val;

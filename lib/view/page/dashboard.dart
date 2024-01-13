@@ -6,6 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
+import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/controller.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
@@ -37,7 +38,6 @@ class _DashboardState extends State<Dashboard> {
   String _currentIp = '';
   Traffic? _traffic;
   final _networkChart = NetworkChart();
-  int _serverId = 0;
   final _uploadLastSecond = ValueNotifier<int>(0);
   final _downloadLastSecond = ValueNotifier<int>(0);
   final _totalUpload = ValueNotifier<int>(0);
@@ -85,11 +85,17 @@ class _DashboardState extends State<Dashboard> {
                   shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
                   title: Text(coreName),
                   onTap: () async {
+                    final serverRemark = await serverDao.getServerRemarksById(
+                        coreProvider.cores[index].serverId);
+                    if (!context.mounted) {
+                      return;
+                    }
                     await showDialog<void>(
                       context: context,
                       builder: (BuildContext context) {
                         String repoUrl = coreRepositories[coreName]!;
                         return AlertDialog(
+                          scrollable: true,
                           title: Text(coreName),
                           content: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -122,9 +128,8 @@ class _DashboardState extends State<Dashboard> {
                                   const Expanded(child: Divider()),
                                 ],
                               ),
-                              Text(
-                                coreProvider.cores[index].runningServer.remark,
-                              ),
+                              // all running servers
+                              for (var remark in serverRemark) Text(remark),
                             ],
                           ),
                         );
@@ -141,44 +146,44 @@ class _DashboardState extends State<Dashboard> {
             ),
     );
     final rulesCard = CardData(
-        title: Text(S.of(context).rules),
-        icon: Icons.alt_route,
-        widget: Consumer<RuleConfigProvider>(
-          builder: (context, ruleConfigProvider, child) {
-            return ListView.builder(
-              itemCount: ruleConfigProvider.ruleGroups.length,
-              itemBuilder: (BuildContext context, int index) {
-                final ruleGroup = ruleConfigProvider.ruleGroups[index];
-                return ListTile(
-                  shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
-                  title: Text(
-                    ruleConfigProvider.ruleGroups[index].name,
-                  ),
-                  trailing: Icon(
-                    ruleGroup.id ==
-                            ruleConfigProvider.config.selectedRuleGroupId
-                        ? Icons.check
-                        : null,
-                  ),
-                  onTap: () async {
-                    if (ruleGroup.id !=
-                        ruleConfigProvider.config.selectedRuleGroupId) {
-                      logger.i('Switching to rule group $index');
-                      SphiaTray.setMenuItem(
-                          'rule-${ruleConfigProvider.config.selectedRuleGroupId}',
-                          false);
-                      SphiaTray.setMenuItem('rule-${ruleGroup.id}', true);
-                      ruleConfigProvider.config.selectedRuleGroupId =
-                          ruleGroup.id;
-                      ruleConfigProvider.saveConfig();
-                      await SphiaController.restartCores();
-                    }
-                  },
-                );
-              },
-            );
-          },
-        ));
+      title: Text(S.of(context).rules),
+      icon: Icons.alt_route,
+      widget: Consumer<RuleConfigProvider>(
+        builder: (context, ruleConfigProvider, child) {
+          return ListView.builder(
+            itemCount: ruleConfigProvider.ruleGroups.length,
+            itemBuilder: (BuildContext context, int index) {
+              final ruleGroup = ruleConfigProvider.ruleGroups[index];
+              return ListTile(
+                shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
+                title: Text(
+                  ruleConfigProvider.ruleGroups[index].name,
+                ),
+                trailing: Icon(
+                  ruleGroup.id == ruleConfigProvider.config.selectedRuleGroupId
+                      ? Icons.check
+                      : null,
+                ),
+                onTap: () async {
+                  if (ruleGroup.id !=
+                      ruleConfigProvider.config.selectedRuleGroupId) {
+                    logger.i('Switching to rule group $index');
+                    SphiaTray.setMenuItem(
+                        'rule-${ruleConfigProvider.config.selectedRuleGroupId}',
+                        false);
+                    SphiaTray.setMenuItem('rule-${ruleGroup.id}', true);
+                    ruleConfigProvider.config.selectedRuleGroupId =
+                        ruleGroup.id;
+                    ruleConfigProvider.saveConfig();
+                    await SphiaController.restartCores();
+                  }
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
     final dnsCard = CardData(
       title: Text(S.of(context).dns),
       icon: Icons.dns,
@@ -499,11 +504,11 @@ class _DashboardState extends State<Dashboard> {
     final coreProvider = GetIt.I.get<CoreProvider>();
     final sphiaConfig = sphiaConfigProvider.config;
     if (coreProvider.coreRunning && sphiaConfig.enableStatistics) {
-      _serverId = coreProvider.cores.first.runningServer.id;
       if (coreProvider.cores.last.coreName == 'sing-box') {
         _traffic = SingBoxTraffic(sphiaConfig.coreApiPort);
       } else {
-        _traffic = XrayTraffic(sphiaConfig.coreApiPort);
+        _traffic = XrayTraffic(
+            sphiaConfig.coreApiPort, sphiaConfig.multiOutboundSupport);
       }
       _totalUpload.value = 0;
       _totalDownload.value = 0;
@@ -513,6 +518,7 @@ class _DashboardState extends State<Dashboard> {
         _traffic = null;
         rethrow;
       }
+
       final stream = _traffic!.apiStreamController.stream;
       await for (var dataJson in stream) {
         final data = json.decode(dataJson.toString());
@@ -532,34 +538,70 @@ class _DashboardState extends State<Dashboard> {
       }
     } else {
       if (_traffic != null) {
-        await _traffic!.stop();
-        _traffic = null;
+        if (sphiaConfig.multiOutboundSupport &&
+            sphiaConfig.routingProvider == RoutingProvider.sing.index) {
+          return;
+        }
         if (_totalUpload.value != 0 || _totalDownload.value != 0) {
-          final server = await SphiaDatabase.serverDao.getServerById(_serverId);
-          if (server == null) {
-            return;
-          }
-          final newServer = server.copyWith(
-            uplink: Value(server.uplink == null
-                ? _totalUpload.value
-                : server.uplink! + _totalUpload.value),
-            downlink: Value(server.downlink == null
-                ? _totalDownload.value
-                : server.downlink! + _totalDownload.value),
-          );
-          await SphiaDatabase.serverDao.updateServer(newServer);
-          _totalUpload.value = 0;
-          _totalDownload.value = 0;
-          _uploadLastSecond.value = 0;
-          _downloadLastSecond.value = 0;
-          final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-          final index = serverConfigProvider.servers
-              .indexWhere((element) => element.id == newServer.id);
-          if (index != -1) {
-            serverConfigProvider.servers[index] = newServer;
-            // serverConfigProvider.notify();
+          if (sphiaConfig.multiOutboundSupport) {
+            final serverId = coreProvider.cores.last.serverId;
+            final server = await serverDao.getServersById(serverId);
+            if (server.isEmpty) {
+              return;
+            }
+            for (var s in server) {
+              final outboundTag = s == server.first ? 'proxy' : 'proxy-${s.id}';
+              final proxyLink = await (_traffic as XrayTraffic)
+                  .queryProxyLinkByOutboundTag(outboundTag);
+              final newServer = s.copyWith(
+                uplink: Value(s.uplink == null
+                    ? proxyLink.item1
+                    : s.uplink! + proxyLink.item1),
+                downlink: Value(s.downlink == null
+                    ? proxyLink.item2
+                    : s.downlink! + proxyLink.item2),
+              );
+              await serverDao.updateServer(newServer);
+            }
+
+            final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
+            serverConfigProvider.servers =
+                await serverDao.getOrderedServersByGroupId(
+                    serverConfigProvider.config.selectedServerGroupId);
+            _totalUpload.value = 0;
+            _totalDownload.value = 0;
+            _uploadLastSecond.value = 0;
+            _downloadLastSecond.value = 0;
+          } else {
+            final server = await serverDao
+                .getServerById(coreProvider.cores.last.serverId.first);
+            if (server == null) {
+              return;
+            }
+            final newServer = server.copyWith(
+              uplink: Value(server.uplink == null
+                  ? _totalUpload.value
+                  : server.uplink! + _totalUpload.value),
+              downlink: Value(server.downlink == null
+                  ? _totalDownload.value
+                  : server.downlink! + _totalDownload.value),
+            );
+            await serverDao.updateServer(newServer);
+            _totalUpload.value = 0;
+            _totalDownload.value = 0;
+            _uploadLastSecond.value = 0;
+            _downloadLastSecond.value = 0;
+            final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
+            final index = serverConfigProvider.servers
+                .indexWhere((element) => element.id == newServer.id);
+            if (index != -1) {
+              serverConfigProvider.servers[index] = newServer;
+              // serverConfigProvider.notify();
+            }
           }
         }
+        await _traffic!.stop();
+        _traffic = null;
       }
     }
   }

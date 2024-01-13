@@ -72,7 +72,6 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    SphiaController.stopCores();
     _tabController?.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -81,9 +80,8 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
   Future<void> _loadServers() async {
     final serverConfigProvider =
         Provider.of<ServerConfigProvider>(context, listen: false);
-    serverConfigProvider.servers = await SphiaDatabase.serverDao
-        .getOrderedServersByGroupId(
-            serverConfigProvider.serverGroups[_index].id);
+    serverConfigProvider.servers = await serverDao.getOrderedServersByGroupId(
+        serverConfigProvider.serverGroups[_index].id);
   }
 
   void _updateTabController() {
@@ -267,43 +265,44 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                 }
                 break;
               case 'UpdateGroup':
-                if (context.mounted) {
-                  final position = RelativeRect.fromLTRB(
-                    MediaQuery.of(context).size.width,
-                    0,
-                    0,
-                    0,
-                  );
-                  showMenu(
-                    context: context,
-                    position: position,
-                    items: [
-                      PopupMenuItem(
-                        value: 'CurrentGroup',
-                        child: Text(S.of(context).currentGroup),
-                      ),
-                      PopupMenuItem(
-                        value: 'AllGroups',
-                        child: Text(S.of(context).allGroups),
-                      ),
-                    ],
-                    elevation: 8.0,
-                  ).then((value) async {
-                    if (value != null) {
-                      if (await _agent.updateGroup(
-                          value, serverConfigProvider.serverGroups[_index].id,
-                          (message) {
-                        _scaffoldMessengerKey.currentState!
-                            .showSnackBar(SphiaWidget.snackBar(message));
-                      })) {
-                        await _loadServers();
-                        SphiaTray.generateServerItems();
-                        SphiaTray.setMenu();
-                        setState(() {});
-                      }
-                    }
-                  });
+                if (!context.mounted) {
+                  return;
                 }
+                final position = RelativeRect.fromLTRB(
+                  MediaQuery.of(context).size.width,
+                  0,
+                  0,
+                  0,
+                );
+                showMenu(
+                  context: context,
+                  position: position,
+                  items: [
+                    PopupMenuItem(
+                      value: 'CurrentGroup',
+                      child: Text(S.of(context).currentGroup),
+                    ),
+                    PopupMenuItem(
+                      value: 'AllGroups',
+                      child: Text(S.of(context).allGroups),
+                    ),
+                  ],
+                  elevation: 8.0,
+                ).then((value) async {
+                  if (value != null) {
+                    if (await _agent.updateGroup(
+                        value, serverConfigProvider.serverGroups[_index].id,
+                        (message) {
+                      _scaffoldMessengerKey.currentState!
+                          .showSnackBar(SphiaWidget.snackBar(message));
+                    })) {
+                      await _loadServers();
+                      SphiaTray.generateServerItems();
+                      SphiaTray.setMenu();
+                      setState(() {});
+                    }
+                  }
+                });
                 break;
               case 'DeleteGroup':
                 if (await _agent.deleteGroup(
@@ -330,37 +329,38 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                 }
                 break;
               case 'ClearTraffic':
-                if (context.mounted) {
-                  final position = RelativeRect.fromLTRB(
-                    MediaQuery.of(context).size.width,
-                    0,
-                    0,
-                    0,
-                  );
-                  showMenu(
-                    context: context,
-                    position: position,
-                    items: [
-                      PopupMenuItem(
-                        value: 'SelectedServer',
-                        child: Text(S.of(context).selectedServer),
-                      ),
-                      PopupMenuItem(
-                        value: 'CurrentGroup',
-                        child: Text(S.of(context).currentGroup),
-                      ),
-                    ],
-                    elevation: 8.0,
-                  ).then((value) async {
-                    if (value != null) {
-                      if (await _agent.clearTraffic(
-                        value,
-                      )) {
-                        setState(() {});
-                      }
-                    }
-                  });
+                if (!context.mounted) {
+                  return;
                 }
+                final position = RelativeRect.fromLTRB(
+                  MediaQuery.of(context).size.width,
+                  0,
+                  0,
+                  0,
+                );
+                showMenu(
+                  context: context,
+                  position: position,
+                  items: [
+                    PopupMenuItem(
+                      value: 'SelectedServer',
+                      child: Text(S.of(context).selectedServer),
+                    ),
+                    PopupMenuItem(
+                      value: 'CurrentGroup',
+                      child: Text(S.of(context).currentGroup),
+                    ),
+                  ],
+                  elevation: 8.0,
+                ).then((value) async {
+                  if (value != null) {
+                    if (await _agent.clearTraffic(
+                      value,
+                    )) {
+                      setState(() {});
+                    }
+                  }
+                });
                 break;
               default:
                 break;
@@ -414,7 +414,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                       if (listsEqual(oldOrder, newOrder)) {
                         return;
                       }
-                      await SphiaDatabase.serverDao.updateServersOrderByGroupId(
+                      await serverDao.updateServersOrderByGroupId(
                         serverGroup.id,
                         newOrder,
                       );
@@ -514,15 +514,16 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                   onPressed: () async {
                     late final Server? newServer;
                     if ((newServer = await _agent.editServer(server)) != null) {
-                      if (context.mounted) {
-                        final serverConfigProvider =
-                            Provider.of<ServerConfigProvider>(context,
-                                listen: false);
-                        serverConfigProvider.servers[index] = newServer!;
-                        SphiaTray.replaceServerItem(newServer);
-                        SphiaTray.setMenu();
-                        setState(() {});
+                      if (!context.mounted) {
+                        return;
                       }
+                      final serverConfigProvider =
+                          Provider.of<ServerConfigProvider>(context,
+                              listen: false);
+                      serverConfigProvider.servers[index] = newServer!;
+                      SphiaTray.replaceServerItem(newServer);
+                      SphiaTray.setMenu();
+                      setState(() {});
                     }
                   },
                 ),
@@ -558,15 +559,16 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                   icon: const Icon(Icons.delete),
                   onPressed: () async {
                     if (await _agent.deleteServer(server.id)) {
-                      if (context.mounted) {
-                        final serverConfigProvider =
-                            Provider.of<ServerConfigProvider>(context,
-                                listen: false);
-                        serverConfigProvider.servers.removeAt(index);
-                        SphiaTray.removeServerItem(server.id);
-                        SphiaTray.setMenu();
-                        setState(() {});
+                      if (!context.mounted) {
+                        return;
                       }
+                      final serverConfigProvider =
+                          Provider.of<ServerConfigProvider>(context,
+                              listen: false);
+                      serverConfigProvider.servers.removeAt(index);
+                      SphiaTray.removeServerItem(server.id);
+                      SphiaTray.setMenu();
+                      setState(() {});
                     }
                   },
                 ),
@@ -619,12 +621,8 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
   }
 
   Future<void> _toggleServer() async {
-    final serverConfigProvider =
-        Provider.of<ServerConfigProvider>(context, listen: false);
-    final serverConfig = serverConfigProvider.config;
     final coreProvider = Provider.of<CoreProvider>(context, listen: false);
-    final server = await SphiaDatabase.serverDao
-        .getServerById(serverConfig.selectedServerId);
+    final server = await serverDao.getSelectedServer();
     if (server == null) {
       if (coreProvider.coreRunning) {
         await SphiaController.stopCores();
@@ -640,7 +638,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
       _isLoading = true;
     });
     try {
-      await SphiaController.toggleCores(server);
+      await SphiaController.toggleCores();
       SphiaTray.setMenuItem('server-${server.id}', coreProvider.coreRunning);
     } on Exception catch (e) {
       setState(() {

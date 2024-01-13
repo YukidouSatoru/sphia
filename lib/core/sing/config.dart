@@ -203,7 +203,9 @@ class Outbound {
   String? network;
   Tls? tls;
   Transport? transport;
+  @JsonKey(name: 'up_mbps')
   int? upMbps;
+  @JsonKey(name: 'down_mbps')
   int? downMbps;
   String? obfs;
   String? auth;
@@ -349,9 +351,12 @@ class User {
 class Experimental {
   @JsonKey(name: 'clash_api')
   ClashApi? clashApi;
+  @JsonKey(name: 'cache_file')
+  CacheFile? cacheFile;
 
   Experimental({
     this.clashApi,
+    this.cacheFile,
   });
 
   factory Experimental.fromJson(Map<String, dynamic> json) =>
@@ -365,13 +370,13 @@ class ClashApi {
   @JsonKey(name: 'external_controller')
   String externalController;
   @JsonKey(name: 'store_selected')
-  bool storeSelected;
+  bool? storeSelected; // deprecated since v1.8.0
   @JsonKey(name: 'cache_file')
-  String? cacheFile;
+  String? cacheFile; // deprecated since v1.8.0
 
   ClashApi({
     required this.externalController,
-    required this.storeSelected,
+    this.storeSelected,
     this.cacheFile,
   });
 
@@ -379,4 +384,20 @@ class ClashApi {
       _$ClashApiFromJson(json);
 
   Map<String, dynamic> toJson() => _$ClashApiToJson(this);
+}
+
+@JsonSerializable(includeIfNull: false)
+class CacheFile {
+  bool enabled;
+  String path;
+
+  CacheFile({
+    required this.enabled,
+    required this.path,
+  });
+
+  factory CacheFile.fromJson(Map<String, dynamic> json) =>
+      _$CacheFileFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CacheFileToJson(this);
 }
