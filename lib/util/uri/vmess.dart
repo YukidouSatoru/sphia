@@ -70,6 +70,7 @@ class VMessUtil {
       if (vmess.containsKey('type')) {
         encryption = vmess['type'];
       }
+      transport = vmess['net'];
       switch (transport) {
         case 'grpc':
           serviceName = vmess['path'];
