@@ -139,7 +139,6 @@ class XrayTraffic extends Traffic {
     final uplinkRequest = QueryStatsRequest()
       ..pattern = 'outbound>>>$outboundTag>>>traffic>>>uplink';
     return client.queryStats(uplinkRequest).then((response) {
-      print(response.writeToJsonMap());
       return int.parse(response.writeToJsonMap()['1'][0]['2'] ?? '0');
     });
   }
@@ -148,7 +147,6 @@ class XrayTraffic extends Traffic {
     final downlinkRequest = QueryStatsRequest()
       ..pattern = 'outbound>>>$outboundTag>>>traffic>>>downlink';
     return client.queryStats(downlinkRequest).then((response) {
-      print(response.writeToJsonMap());
       return int.parse(response.writeToJsonMap()['1'][0]['2'] ?? '0');
     });
   }
