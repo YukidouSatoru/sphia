@@ -35,4 +35,6 @@ VMess 和 VLESS 支持 tcp、ws、grpc、httpupgrade （由 sing-box 提供） �
 
 当路由核心和服务器核心不一致时，Sphia 会将路由核心作为服务器核心的上游。**不建议**使用这种组合，此时代理的行为可能会出现不可预料的问题。
 
+启用多出站支持后，Sphia 只会使用 sing-box 或 xray-core 作为路由核心和服务器核心。此时 sing-box 不支持流量统计，仍能提供速度监控。
+
 在 TUN 模式下，Sphia 只会使用 sing-box 同时作为路由核心和服务器核心。

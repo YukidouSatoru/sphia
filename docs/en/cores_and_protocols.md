@@ -38,4 +38,7 @@ Settings page.
 When the routing core and the server core are inconsistent, Sphia will use the routing core as the upstream of the
 server core. **It is not recommended** to use this combination, and the proxy behavior may have unpredictable problems.
 
+After enabling multi-outbound support, Sphia will only use sing-box or xray-core as the routing core and the server
+core. At this time, sing-box does not support traffic statistics, but can still provide speed monitoring.
+
 In TUN mode, Sphia will only use sing-box as both the routing core and the server core.

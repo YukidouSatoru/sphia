@@ -23,7 +23,7 @@ Only displayed when statistics are enabled.
 
 ## Speed chart
 
-Only displayed when statistics are enabled.
+Only displayed when statistics are enabled. When multi-outbound support is enabled, this chart shows the total speed, and the IP address obtained comes from the main proxy server.
 
 # Server page
 
@@ -38,6 +38,9 @@ the group.
 Groups have two properties: name and subscription. The group name cannot be empty. If you want to get the server from
 the subscription, the subscription cannot be empty. Please do not put non-subscription nodes in the subscription group,
 otherwise these nodes **will be deleted** when updating the subscription.
+
+Groups have an option: get subscription. You can enable this option, and Sphia will automatically
+get the subscription after adding the group.
 
 ## Server
 
@@ -63,6 +66,8 @@ Sphia supports xray-core style rules, you can view the syntax of rules
 in [xray-core documentation](https://xtls.github.io/config/routing.html). When using sing-box as the routing core, Sphia
 will automatically convert the rules.
 
+Sphia provides multi-outbound support, corresponding to the `outboundTag` field of the rule, the default tags are `proxy`, `direct` and `block`. The `null` tag will be ignored, and the rule will not be converted. In addition to the default tags, you can add the server as `outboundTag`, at this time Sphia will only use sing-box or xray-core as the routing core and server core, and sing-box does not support traffic statistics.
+
 # Setting page
 
 Sphia provides rich setting options, you can modify the behavior of Sphia here. After modifying and saving any settings,
@@ -82,4 +87,6 @@ When the core log is turned on, you can see the log of the routing core here.
 
 You can view the version, build number and last commit hash of Sphia here.
 
-When a new version is detected, you can click the button to download and install the new version.
+# Update button
+
+When a new version is detected, a update button will be displayed in the navigation bar, you can click this button to update Sphia.
