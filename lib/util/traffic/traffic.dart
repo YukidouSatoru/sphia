@@ -39,7 +39,6 @@ class XrayTraffic extends Traffic {
   bool isMultiOutboundSupport;
 
   XrayTraffic(int apiPort, this.isMultiOutboundSupport) : super(apiPort) {
-    // the first server is the selected server which tag is 'proxy'
     channel = ClientChannel(
       'localhost',
       port: apiPort,

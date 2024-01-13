@@ -116,13 +116,13 @@ class Tray {
           );
           await menuItem.setCheck(true);
         } else {
+          serverConfigProvider.config.selectedServerId = 0;
+          serverConfigProvider.saveConfig();
           await SphiaController.stopCores();
           setMenuItem(
             'server-${serverConfigProvider.config.selectedServerId}',
             false,
           );
-          serverConfigProvider.config.selectedServerId = 0;
-          serverConfigProvider.saveConfig();
         }
       },
       checked: server.id == serverConfigProvider.config.selectedServerId,
@@ -159,13 +159,13 @@ class Tray {
               );
               await menuItem.setCheck(true);
             } else {
+              serverConfigProvider.config.selectedServerId = 0;
+              serverConfigProvider.saveConfig();
               await SphiaController.stopCores();
               setMenuItem(
                 'server-${serverConfigProvider.config.selectedServerId}',
                 false,
               );
-              serverConfigProvider.config.selectedServerId = 0;
-              serverConfigProvider.saveConfig();
             }
           },
           checked: server.id == serverConfigProvider.config.selectedServerId,

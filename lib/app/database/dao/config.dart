@@ -67,7 +67,6 @@ class SphiaConfigDao {
   }
 
   void saveConfig() async {
-    // logger.i('Saving sphia config');
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     final jsonString = jsonEncode(sphiaConfig.toJson());
     try {
@@ -124,7 +123,6 @@ class ServerConfigDao {
   }
 
   void saveConfig() async {
-    // logger.i('Saving server config');
     final serverConfig = GetIt.I.get<ServerConfigProvider>().config;
     final jsonString = jsonEncode(serverConfig.toJson());
     try {
@@ -181,7 +179,6 @@ class RuleConfigDao {
   }
 
   void saveConfig() async {
-    // logger.i('Saving rule config');
     final ruleConfig = GetIt.I.get<RuleConfigProvider>().config;
     final jsonString = jsonEncode(ruleConfig.toJson());
     try {
@@ -229,7 +226,6 @@ class VersionConfigDao {
   }
 
   void saveConfig() async {
-    // logger.i('Saving version config');
     final versionConfig = GetIt.I.get<VersionConfigProvider>().config;
     final jsonString = jsonEncode(versionConfig.toJson());
     try {
