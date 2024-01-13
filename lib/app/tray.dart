@@ -237,11 +237,9 @@ class Tray {
             logger.w('Selected server not exists');
             return;
           }
-          await SphiaController.toggleCores();
-          if (coreProvider.coreRunning) {
+          if (!coreProvider.coreRunning) {
+            await SphiaController.toggleCores();
             await menuItem.setCheck(true);
-          } else {
-            await menuItem.setCheck(false);
           }
         },
         checked: coreProvider.coreRunning,
