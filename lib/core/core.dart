@@ -95,7 +95,7 @@ abstract class Core {
 
   Future<void> configure(Server selectedServer);
 
-  Future<String> generateConfig(List<Server> servers);
+  Future<String> generateConfig(Server mainServer);
 
   Future<void> writeConfig(String jsonString) async {
     SystemUtil.deleteFileIfExists(

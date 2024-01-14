@@ -31,7 +31,7 @@ class ShadowsocksRustCore extends Core {
   }
 
   @override
-  Future<String> generateConfig(List<Server> servers) async {
+  Future<String> generateConfig(Server mainServer) {
     throw UnimplementedError();
   }
 

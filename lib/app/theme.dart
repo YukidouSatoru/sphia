@@ -100,13 +100,6 @@ class SphiaTheme {
             }
           }),
         ),
-        /*
-        cardTheme: const CardTheme(
-          shadowColor: Colors.transparent,
-          surfaceTintColor: Colors.transparent,
-          color: Colors.transparent,
-        ),
-        */
         listTileTheme: const ListTileThemeData(
           iconColor: Colors.white,
         ),
@@ -206,13 +199,6 @@ class SphiaTheme {
             }
           }),
         ),
-        /*
-        cardTheme: const CardTheme(
-          shadowColor: Colors.transparent,
-          surfaceTintColor: Colors.transparent,
-          color: Colors.transparent,
-        ),
-        */
         listTileTheme: const ListTileThemeData(
           iconColor: Colors.black,
         ),

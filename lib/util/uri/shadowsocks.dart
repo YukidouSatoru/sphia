@@ -84,16 +84,11 @@ class ShadowsocksUtil {
       }
       address = match.namedGroup('address')!;
       port = int.parse(match.namedGroup('port')!);
-      String base64;
+      late final String base64;
       try {
-        base64 = utf8.decode(base64Url.decode(match.namedGroup('base64')!));
+        base64 = UriUtil.decodeBase64(match.namedGroup('base64')!);
       } on Exception catch (_) {
-        try {
-          base64 = utf8.decode(base64Url.decode(
-              UriUtil.convertBase64UrlToBase64(match.namedGroup('base64')!)));
-        } on Exception catch (_) {
-          throw const FormatException('Failed to parse shadowsocks URI');
-        }
+        rethrow;
       }
       match = parser.firstMatch(base64);
       if (match == null) {
@@ -115,7 +110,7 @@ class ShadowsocksUtil {
       password = match.namedGroup('password')!;
     }
 
-    final encryptions = [
+    const encryptions = <String>[
       'none',
       'plain',
       'aes-128-gcm',

@@ -26,13 +26,12 @@ class SingBoxCore extends Core {
   @override
   Future<void> configure(Server selectedServer) async {
     serverId = [selectedServer.id];
-    final jsonString = await generateConfig([selectedServer]);
+    final jsonString = await generateConfig(selectedServer);
     await writeConfig(jsonString);
   }
 
   @override
-  Future<String> generateConfig(List<Server> servers) async {
-    final server = servers.first;
+  Future<String> generateConfig(Server mainServer) async {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
 
     String level = LogLevel.values[sphiaConfig.logLevel].name;
@@ -51,7 +50,7 @@ class SingBoxCore extends Core {
       dns = await SingBoxGenerate.dns(
         sphiaConfig.remoteDns,
         sphiaConfig.directDns,
-        server.address,
+        mainServer.address,
         !sphiaConfig.enableIpv6,
       );
     }
@@ -92,10 +91,10 @@ class SingBoxCore extends Core {
     rules.removeWhere((rule) => rule.outboundTag == null);
     List<Outbound> outboundsOnRouting = [];
     if (!sphiaConfig.multiOutboundSupport) {
-      rules.removeWhere((element) =>
-          element.outboundTag != 'proxy' &&
-          element.outboundTag != 'direct' &&
-          element.outboundTag != 'block');
+      rules.removeWhere((rule) =>
+          rule.outboundTag != 'proxy' &&
+          rule.outboundTag != 'direct' &&
+          rule.outboundTag != 'block');
     } else {
       final serversOnRoutingId =
           await ruleDao.getRuleOutboundTagsByGroupId(rules);
@@ -118,7 +117,8 @@ class SingBoxCore extends Core {
     }
 
     final outbounds = [
-      SingBoxGenerate.generateOutbound(server)..tag = 'proxy', // the main proxy
+      SingBoxGenerate.generateOutbound(mainServer)
+        ..tag = 'proxy', // the main proxy
       ...outboundsOnRouting
     ];
 

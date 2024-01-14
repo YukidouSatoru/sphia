@@ -6,16 +6,6 @@ import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/view/widget/widget.dart';
 
-class ServerModel {
-  final int id;
-  final String remark;
-
-  ServerModel({required this.id, required this.remark});
-
-  @override
-  String toString() => remark;
-}
-
 class RuleDialog extends StatefulWidget {
   final String title;
   final Rule rule;
@@ -54,7 +44,6 @@ class _RuleDialogState extends State<RuleDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final sphiaConfig = Provider.of<SphiaConfigProvider>(context).config;
     final widgets = [
       SphiaWidget.textInput(
         _nameController,
@@ -67,62 +56,11 @@ class _RuleDialogState extends State<RuleDialog> {
         },
       ),
       FutureBuilder(
-        future: _determineOutboundTagDisplay(),
+        future: OutboundTagHelper.determineOutboundTagDisplay(_outboundTag),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final outboundTagDisplay = snapshot.data as String;
-            return DropdownSearch<ServerModel>(
-              popupProps: PopupProps.menu(
-                  showSearchBox: true,
-                  constraints: const BoxConstraints.tightFor(height: 270),
-                  containerBuilder: (context, child) {
-                    final color = sphiaConfig.darkMode
-                        ? Color.lerp(Colors.black, Colors.grey[700], 0.6)
-                        : Color.lerp(Colors.white, Colors.grey[300], 0.6);
-                    return Ink(
-                      color: color,
-                      child: child,
-                    );
-                  }),
-              asyncItems: (query) async {
-                List<ServerModel> items = [
-                  ServerModel(
-                    id: -3,
-                    remark: 'null',
-                  ),
-                  ServerModel(
-                    id: -2,
-                    remark: 'proxy',
-                  ),
-                  ServerModel(
-                    id: -1,
-                    remark: 'direct',
-                  ),
-                  ServerModel(
-                    id: 0,
-                    remark: 'block',
-                  ),
-                ];
-                final servers = await serverDao.getServers();
-                for (var i = 0; i < servers.length; i++) {
-                  items.add(ServerModel(
-                      id: servers[i].id, remark: servers[i].remark));
-                }
-                return items;
-              },
-              dropdownDecoratorProps: const DropDownDecoratorProps(
-                dropdownSearchDecoration: InputDecoration(
-                  labelText: 'Outbound Tag',
-                ),
-              ),
-              onChanged: (value) {
-                _outboundTag = _determineOutboundTag(value!.id);
-              },
-              selectedItem: ServerModel(
-                id: _determineOutboundTagId(_outboundTag),
-                remark: outboundTagDisplay,
-              ),
-            );
+            return _buildDropdownSearch(context, outboundTagDisplay);
           } else {
             return const CircularProgressIndicator();
           }
@@ -210,21 +148,88 @@ class _RuleDialogState extends State<RuleDialog> {
     _processNameController.dispose();
   }
 
-  Future<String> _determineOutboundTagDisplay() async {
-    if (_outboundTag == null) {
+  Widget _buildDropdownSearch(BuildContext context, String outboundTagDisplay) {
+    final sphiaConfig = Provider.of<SphiaConfigProvider>(context).config;
+    return DropdownSearch<ServerModel>(
+      popupProps: PopupProps.menu(
+          showSearchBox: true,
+          constraints: const BoxConstraints.tightFor(height: 270),
+          containerBuilder: (context, child) {
+            final color = sphiaConfig.darkMode
+                ? Color.lerp(Colors.black, Colors.grey[700], 0.6)
+                : Color.lerp(Colors.white, Colors.grey[300], 0.6);
+            return Ink(
+              color: color,
+              child: child,
+            );
+          }),
+      asyncItems: (query) async {
+        List<ServerModel> items = [
+          ServerModel(
+            id: -3,
+            remark: 'null',
+          ),
+          ServerModel(
+            id: -2,
+            remark: 'proxy',
+          ),
+          ServerModel(
+            id: -1,
+            remark: 'direct',
+          ),
+          ServerModel(
+            id: 0,
+            remark: 'block',
+          ),
+        ];
+        final servers = await serverDao.getServers();
+        for (var i = 0; i < servers.length; i++) {
+          items.add(ServerModel(id: servers[i].id, remark: servers[i].remark));
+        }
+        return items;
+      },
+      dropdownDecoratorProps: const DropDownDecoratorProps(
+        dropdownSearchDecoration: InputDecoration(
+          labelText: 'Outbound Tag',
+        ),
+      ),
+      onChanged: (value) {
+        _outboundTag = OutboundTagHelper.determineOutboundTag(value!.id);
+      },
+      selectedItem: ServerModel(
+        id: OutboundTagHelper.determineOutboundTagId(_outboundTag),
+        remark: outboundTagDisplay,
+      ),
+    );
+  }
+}
+
+class ServerModel {
+  final int id;
+  final String remark;
+
+  ServerModel({required this.id, required this.remark});
+
+  @override
+  String toString() => remark;
+}
+
+class OutboundTagHelper {
+  static Future<String> determineOutboundTagDisplay(String? outboundTag) async {
+    if (outboundTag == null) {
       return 'null';
-    } else if (_outboundTag == 'proxy' ||
-        _outboundTag == 'direct' ||
-        _outboundTag == 'block') {
-      return _outboundTag!;
+    } else if (outboundTag == 'proxy' ||
+        outboundTag == 'direct' ||
+        outboundTag == 'block') {
+      return outboundTag;
     } else {
       final serverRemark =
-          await serverDao.getServerRemarkById(int.parse(_outboundTag!));
+          await serverDao.getServerRemarkById(int.parse(outboundTag));
       return serverRemark ?? 'null';
     }
   }
 
-  String? _determineOutboundTag(int id) {
+  static String? determineOutboundTag(int id) {
     if (id == -3) {
       return null;
     }
@@ -239,7 +244,7 @@ class _RuleDialogState extends State<RuleDialog> {
     }
   }
 
-  int _determineOutboundTagId(String? outboundTag) {
+  static int determineOutboundTagId(String? outboundTag) {
     if (outboundTag == null) {
       return -3;
     }

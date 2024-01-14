@@ -24,13 +24,13 @@ class XrayCore extends Core {
   @override
   Future<void> configure(Server selectedServer) async {
     serverId = [selectedServer.id];
-    final jsonString = await generateConfig([selectedServer]);
+    final jsonString = await generateConfig(selectedServer);
     await writeConfig(jsonString);
   }
 
   @override
-  Future<String> generateConfig(List<Server> servers) async {
-    final server = servers.first;
+  Future<String> generateConfig(Server mainServer) async {
+    final server = mainServer;
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
 
     final log = Log(
@@ -72,10 +72,10 @@ class XrayCore extends Core {
     rules.removeWhere((rule) => rule.outboundTag == null);
     List<Outbound> outboundsOnRouting = [];
     if (!sphiaConfig.multiOutboundSupport) {
-      rules.removeWhere((element) =>
-          element.outboundTag != 'proxy' &&
-          element.outboundTag != 'direct' &&
-          element.outboundTag != 'block');
+      rules.removeWhere((rule) =>
+          rule.outboundTag != 'proxy' &&
+          rule.outboundTag != 'direct' &&
+          rule.outboundTag != 'block');
     } else {
       final serversOnRoutingId =
           await ruleDao.getRuleOutboundTagsByGroupId(rules);
@@ -99,7 +99,7 @@ class XrayCore extends Core {
     }
 
     final outbounds = [
-      XrayGenerate.generateOutbound(server),
+      XrayGenerate.generateOutbound(server)..tag = 'proxy',
       ...outboundsOnRouting,
       Outbound(tag: 'direct', protocol: 'freedom'),
       Outbound(tag: 'block', protocol: 'blackhole'),

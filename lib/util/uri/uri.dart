@@ -63,16 +63,10 @@ class UriUtil {
           (await response.transform(utf8.decoder).join()).trim();
       String decodedContent;
       try {
-        decodedContent = utf8.decode(base64Url.decode(responseBody));
+        decodedContent = UriUtil.decodeBase64(responseBody);
       } on Exception catch (e) {
         logger.e('Failed to parse response: $e');
-        try {
-          final base64Data = convertBase64UrlToBase64(responseBody);
-          decodedContent = utf8.decode(base64.decode(base64Data));
-        } on Exception catch (e) {
-          logger.e('Failed to parse response: $e');
-          throw Exception('Failed to parse response: $e');
-        }
+        throw Exception('Failed to parse response: $e');
       }
       final text = decodedContent.trim();
       final uris = text.split('\n');
@@ -128,6 +122,20 @@ class UriUtil {
       }
     }
     return opts;
+  }
+
+  static String decodeBase64(String base64UrlString) {
+    try {
+      return utf8.decode(base64Url.decode(base64UrlString));
+    } on Exception catch (_) {
+      try {
+        final base64String = convertBase64UrlToBase64(base64UrlString);
+        return utf8.decode(base64Url.decode(base64String));
+      } on Exception catch (_) {
+        logger.e('Failed to decode base64');
+        throw Exception('Failed to decode base64');
+      }
+    }
   }
 
   static String convertBase64UrlToBase64(String base64Url) {

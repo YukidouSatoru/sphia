@@ -15,9 +15,32 @@ abstract class Traffic {
 
   Traffic(this.apiPort);
 
-  Future<void> start();
+  Future<void> start() async {
+    await _ensureApiAvailability();
+  }
 
   Future<void> stop();
+
+  Future<void> _ensureApiAvailability() async {
+    int tryCount = 0;
+    await Future.doWhile(() async {
+      final isApiAvailable = await checkAvailability();
+      if (!isApiAvailable) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        tryCount++;
+      }
+      if (tryCount > 10) {
+        _logError('Failed to get traffic: API is not available');
+        throw Exception('Failed to get traffic: API is not available');
+      }
+      return !isApiAvailable;
+    });
+  }
+
+  void _logError(String message) {
+    logger.e(message);
+    apiStreamController.addError(message);
+  }
 
   Future<bool> checkAvailability() async {
     try {
@@ -51,19 +74,7 @@ class XrayTraffic extends Traffic {
 
   @override
   Future<void> start() async {
-    int tryCount = 0;
-    await Future.doWhile(() async {
-      final isApiAvailable = await checkAvailability();
-      if (!isApiAvailable) {
-        await Future.delayed(const Duration(milliseconds: 100));
-        tryCount++;
-      }
-      if (tryCount > 10) {
-        logger.e('Failed to get traffic: API is not available');
-        throw Exception('Failed to get traffic: API is not available');
-      }
-      return !isApiAvailable;
-    });
+    await super.start();
     logger.i('Starting XrayTraffic');
     timer = Timer.periodic(const Duration(seconds: 1), (_) async {
       try {
@@ -165,19 +176,7 @@ class SingBoxTraffic extends Traffic {
 
   @override
   Future<void> start() async {
-    int tryCount = 0;
-    await Future.doWhile(() async {
-      final isApiAvailable = await checkAvailability();
-      if (!isApiAvailable) {
-        await Future.delayed(const Duration(milliseconds: 100));
-        tryCount++;
-      }
-      if (tryCount > 10) {
-        logger.e('Failed to get traffic: API is not available');
-        throw Exception('Failed to get traffic: API is not available');
-      }
-      return !isApiAvailable;
-    });
+    await super.start();
     logger.i('Starting SingBoxTraffic');
     try {
       final request = await client.getUrl(url);

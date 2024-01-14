@@ -245,7 +245,7 @@ class ServerAgent {
         core = HysteriaCore()..configFileName = exportFileName;
       }
       core.isRouting = true;
-      final jsonString = await core.generateConfig([server]);
+      final jsonString = await core.generateConfig(server);
       await core.writeConfig(jsonString);
     } else {
       showSnackBar(S.of(context).noConfigurationFileGenerated);

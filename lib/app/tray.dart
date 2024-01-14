@@ -37,7 +37,7 @@ class SphiaTray {
 }
 
 class Tray {
-  final SystemTray _tray = SystemTray();
+  final _tray = SystemTray();
   final _menu = Menu();
   List<MenuItemBase> serverItems = [];
   List<MenuItemBase> ruleItems = [];
