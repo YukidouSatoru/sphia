@@ -427,9 +427,14 @@ class SystemUtil {
 
   static void createDirectory(String dirName) {
     final dir = Directory(dirName);
-    if (!dir.existsSync()) {
-      logger.i('Creating directory: $dirName');
-      dir.createSync();
+    try {
+      if (!dir.existsSync()) {
+        logger.i('Creating directory: $dirName');
+        dir.createSync();
+      }
+    } on Exception catch (e) {
+      logger.e('Failed to create directory: $dirName, $e');
+      throw Exception('Failed to create directory: $dirName, $e');
     }
   }
 

@@ -5,6 +5,10 @@ import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:sphia/app/app.dart';
+import 'package:sphia/app/config/rule.dart';
+import 'package:sphia/app/config/server.dart';
+import 'package:sphia/app/config/sphia.dart';
+import 'package:sphia/app/config/version.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/core.dart';
@@ -72,11 +76,15 @@ Future<void> configureApp() async {
     SphiaLog.initLogger(false, debugMethodCount, debugErrorMethodCount);
   }
 
-  // Check dir exists
-  SystemUtil.createDirectory(binPath);
-  SystemUtil.createDirectory(configPath);
-  SystemUtil.createDirectory(logPath);
-  SystemUtil.createDirectory(tempPath);
+  try {
+    // Check dir exists
+    SystemUtil.createDirectory(binPath);
+    SystemUtil.createDirectory(configPath);
+    SystemUtil.createDirectory(logPath);
+    SystemUtil.createDirectory(tempPath);
+  } on Exception catch (e) {
+    await showErrorMsg(e.toString());
+  }
 
   // Init SystemUtil
   SystemUtil.init();
@@ -99,11 +107,19 @@ Future<void> configureApp() async {
   // Init database
   await SphiaDatabase.init();
 
-  // Load config
-  final sphiaConfig = await sphiaConfigDao.loadConfig();
-  final serverConfig = await serverConfigDao.loadConfig();
-  final ruleConfig = await ruleConfigDao.loadConfig();
-  final versionConfig = await versionConfigDao.loadConfig();
+  late final SphiaConfig sphiaConfig;
+  late final ServerConfig serverConfig;
+  late final RuleConfig ruleConfig;
+  late final VersionConfig versionConfig;
+  try {
+    // Load config
+    sphiaConfig = await sphiaConfigDao.loadConfig();
+    serverConfig = await serverConfigDao.loadConfig();
+    ruleConfig = await ruleConfigDao.loadConfig();
+    versionConfig = await versionConfigDao.loadConfig();
+  } on Exception catch (e) {
+    await showErrorMsg(e.toString());
+  }
 
   final sphiaConfigProvider = SphiaConfigProvider(sphiaConfig);
   final coreProvider = CoreProvider();
@@ -182,4 +198,45 @@ Future<void> configureApp() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await configureApp();
+}
+
+Future<void> showErrorMsg(String errorMsg) async {
+  await windowManager.ensureInitialized();
+  const errorWindowOptions = WindowOptions(
+    size: Size(400, 300),
+    center: true,
+    minimumSize: Size(400, 300),
+    titleBarStyle: TitleBarStyle.hidden,
+  );
+  await windowManager.waitUntilReadyToShow(errorWindowOptions, () async {
+    await windowManager.setAlignment(Alignment.center);
+    await windowManager.setMinimumSize(const Size(400, 300));
+    await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+    await windowManager.show();
+    await windowManager.focus();
+  });
+  runApp(
+    MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                child: Text(errorMsg),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  exit(1);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }
