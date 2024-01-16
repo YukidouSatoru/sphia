@@ -106,16 +106,25 @@ class _UpdatePageState extends State<UpdatePage> {
                               _latestVersions[coreName] == null) {
                             await _checkUpdate(coreName);
                           }
-                          try {
-                            await _agent.updateCore(
-                                coreName, _latestVersions[coreName]!,
-                                (message) {
-                              _scaffoldMessengerKey.currentState!.showSnackBar(
-                                SphiaWidget.snackBar(message),
-                              );
-                            });
-                            _latestVersions.remove(coreName);
-                          } on Exception catch (_) {}
+                          if (_latestVersions[coreName] != null) {
+                            if (_latestVersions[coreName] ==
+                                versionConfigProvider.getVersion(coreName)) {
+                              return;
+                            }
+                            try {
+                              await _agent.updateCore(
+                                  coreName, _latestVersions[coreName]!,
+                                  (message) {
+                                _scaffoldMessengerKey.currentState!
+                                    .showSnackBar(
+                                  SphiaWidget.snackBar(message),
+                                );
+                              });
+                              _latestVersions.remove(coreName);
+                            } on Exception catch (_) {
+                              rethrow;
+                            }
+                          }
                         },
                         child: Text(S.of(context).update),
                       ),
@@ -174,6 +183,10 @@ class _UpdatePageState extends State<UpdatePage> {
       if (!context.mounted) {
         return;
       }
+      setState(() {
+        logger.i('Latest version of $coreName: $latestVersion');
+        _latestVersions[coreName] = latestVersion;
+      });
       if (versionConfigProvider.getVersion(coreName) == latestVersion &&
           coreExists) {
         _scaffoldMessengerKey.currentState?.showSnackBar(
@@ -182,10 +195,6 @@ class _UpdatePageState extends State<UpdatePage> {
         );
         return;
       }
-      logger.i('Latest version of $coreName: $latestVersion');
-      setState(() {
-        _latestVersions[coreName] = latestVersion;
-      });
     } on Exception catch (e) {
       logger.e('Failed to check update: $e');
       _scaffoldMessengerKey.currentState!.showSnackBar(
