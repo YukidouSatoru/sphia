@@ -46,10 +46,13 @@ class ServerDao {
     });
   }
 
-  Future<String?> getServerRemarkById(int id) {
+  Future<String> getServerRemarkById(int id) {
+    if (id == additionalServerId) {
+      return Future.value('Additional Socks Server');
+    }
     return (_db.select(_db.servers)..where((tbl) => tbl.id.equals(id)))
         .getSingleOrNull()
-        .then((value) => value?.remark);
+        .then((value) => value?.remark ?? '');
   }
 
   Future<List<String>> getServerRemarks() {

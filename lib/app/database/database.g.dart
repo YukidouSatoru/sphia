@@ -2152,9 +2152,9 @@ class $RulesTable extends Rules with TableInfo<$RulesTable, Rule> {
   static const VerificationMeta _outboundTagMeta =
       const VerificationMeta('outboundTag');
   @override
-  late final GeneratedColumn<String> outboundTag = GeneratedColumn<String>(
-      'outbound_tag', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<int> outboundTag = GeneratedColumn<int>(
+      'outbound_tag', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _domainMeta = const VerificationMeta('domain');
   @override
   late final GeneratedColumn<String> domain = GeneratedColumn<String>(
@@ -2215,6 +2215,8 @@ class $RulesTable extends Rules with TableInfo<$RulesTable, Rule> {
           _outboundTagMeta,
           outboundTag.isAcceptableOrUnknown(
               data['outbound_tag']!, _outboundTagMeta));
+    } else if (isInserting) {
+      context.missing(_outboundTagMeta);
     }
     if (data.containsKey('domain')) {
       context.handle(_domainMeta,
@@ -2251,7 +2253,7 @@ class $RulesTable extends Rules with TableInfo<$RulesTable, Rule> {
       enabled: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}enabled'])!,
       outboundTag: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}outbound_tag']),
+          .read(DriftSqlType.int, data['${effectivePrefix}outbound_tag'])!,
       domain: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}domain']),
       ip: attachedDatabase.typeMapping
@@ -2274,7 +2276,7 @@ class Rule extends DataClass implements Insertable<Rule> {
   final int groupId;
   final String name;
   final bool enabled;
-  final String? outboundTag;
+  final int outboundTag;
   final String? domain;
   final String? ip;
   final String? port;
@@ -2284,7 +2286,7 @@ class Rule extends DataClass implements Insertable<Rule> {
       required this.groupId,
       required this.name,
       required this.enabled,
-      this.outboundTag,
+      required this.outboundTag,
       this.domain,
       this.ip,
       this.port,
@@ -2296,9 +2298,7 @@ class Rule extends DataClass implements Insertable<Rule> {
     map['group_id'] = Variable<int>(groupId);
     map['name'] = Variable<String>(name);
     map['enabled'] = Variable<bool>(enabled);
-    if (!nullToAbsent || outboundTag != null) {
-      map['outbound_tag'] = Variable<String>(outboundTag);
-    }
+    map['outbound_tag'] = Variable<int>(outboundTag);
     if (!nullToAbsent || domain != null) {
       map['domain'] = Variable<String>(domain);
     }
@@ -2320,9 +2320,7 @@ class Rule extends DataClass implements Insertable<Rule> {
       groupId: Value(groupId),
       name: Value(name),
       enabled: Value(enabled),
-      outboundTag: outboundTag == null && nullToAbsent
-          ? const Value.absent()
-          : Value(outboundTag),
+      outboundTag: Value(outboundTag),
       domain:
           domain == null && nullToAbsent ? const Value.absent() : Value(domain),
       ip: ip == null && nullToAbsent ? const Value.absent() : Value(ip),
@@ -2341,7 +2339,7 @@ class Rule extends DataClass implements Insertable<Rule> {
       groupId: serializer.fromJson<int>(json['groupId']),
       name: serializer.fromJson<String>(json['name']),
       enabled: serializer.fromJson<bool>(json['enabled']),
-      outboundTag: serializer.fromJson<String?>(json['outboundTag']),
+      outboundTag: serializer.fromJson<int>(json['outboundTag']),
       domain: serializer.fromJson<String?>(json['domain']),
       ip: serializer.fromJson<String?>(json['ip']),
       port: serializer.fromJson<String?>(json['port']),
@@ -2356,7 +2354,7 @@ class Rule extends DataClass implements Insertable<Rule> {
       'groupId': serializer.toJson<int>(groupId),
       'name': serializer.toJson<String>(name),
       'enabled': serializer.toJson<bool>(enabled),
-      'outboundTag': serializer.toJson<String?>(outboundTag),
+      'outboundTag': serializer.toJson<int>(outboundTag),
       'domain': serializer.toJson<String?>(domain),
       'ip': serializer.toJson<String?>(ip),
       'port': serializer.toJson<String?>(port),
@@ -2369,7 +2367,7 @@ class Rule extends DataClass implements Insertable<Rule> {
           int? groupId,
           String? name,
           bool? enabled,
-          Value<String?> outboundTag = const Value.absent(),
+          int? outboundTag,
           Value<String?> domain = const Value.absent(),
           Value<String?> ip = const Value.absent(),
           Value<String?> port = const Value.absent(),
@@ -2379,7 +2377,7 @@ class Rule extends DataClass implements Insertable<Rule> {
         groupId: groupId ?? this.groupId,
         name: name ?? this.name,
         enabled: enabled ?? this.enabled,
-        outboundTag: outboundTag.present ? outboundTag.value : this.outboundTag,
+        outboundTag: outboundTag ?? this.outboundTag,
         domain: domain.present ? domain.value : this.domain,
         ip: ip.present ? ip.value : this.ip,
         port: port.present ? port.value : this.port,
@@ -2424,7 +2422,7 @@ class RulesCompanion extends UpdateCompanion<Rule> {
   final Value<int> groupId;
   final Value<String> name;
   final Value<bool> enabled;
-  final Value<String?> outboundTag;
+  final Value<int> outboundTag;
   final Value<String?> domain;
   final Value<String?> ip;
   final Value<String?> port;
@@ -2445,20 +2443,21 @@ class RulesCompanion extends UpdateCompanion<Rule> {
     required int groupId,
     required String name,
     required bool enabled,
-    this.outboundTag = const Value.absent(),
+    required int outboundTag,
     this.domain = const Value.absent(),
     this.ip = const Value.absent(),
     this.port = const Value.absent(),
     this.processName = const Value.absent(),
   })  : groupId = Value(groupId),
         name = Value(name),
-        enabled = Value(enabled);
+        enabled = Value(enabled),
+        outboundTag = Value(outboundTag);
   static Insertable<Rule> custom({
     Expression<int>? id,
     Expression<int>? groupId,
     Expression<String>? name,
     Expression<bool>? enabled,
-    Expression<String>? outboundTag,
+    Expression<int>? outboundTag,
     Expression<String>? domain,
     Expression<String>? ip,
     Expression<String>? port,
@@ -2482,7 +2481,7 @@ class RulesCompanion extends UpdateCompanion<Rule> {
       Value<int>? groupId,
       Value<String>? name,
       Value<bool>? enabled,
-      Value<String?>? outboundTag,
+      Value<int>? outboundTag,
       Value<String?>? domain,
       Value<String?>? ip,
       Value<String?>? port,
@@ -2516,7 +2515,7 @@ class RulesCompanion extends UpdateCompanion<Rule> {
       map['enabled'] = Variable<bool>(enabled.value);
     }
     if (outboundTag.present) {
-      map['outbound_tag'] = Variable<String>(outboundTag.value);
+      map['outbound_tag'] = Variable<int>(outboundTag.value);
     }
     if (domain.present) {
       map['domain'] = Variable<String>(domain.value);

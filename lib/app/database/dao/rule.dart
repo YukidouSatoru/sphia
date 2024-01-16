@@ -2,6 +2,10 @@ import 'package:drift/drift.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 
+const outboundProxyId = -2;
+const outboundDirectId = -1;
+const outboundBlockId = 0;
+
 class RuleDao {
   final Database _db;
 
@@ -31,10 +35,10 @@ class RuleDao {
   Future<List<int>> getRuleOutboundTagsByGroupId(List<Rule> rules) async {
     final outboundTags = <int>[];
     for (final rule in rules) {
-      if (rule.outboundTag != 'proxy' &&
-          rule.outboundTag != 'direct' &&
-          rule.outboundTag != 'block') {
-        outboundTags.add(int.parse(rule.outboundTag!));
+      if (rule.outboundTag != outboundProxyId &&
+          rule.outboundTag != outboundDirectId &&
+          rule.outboundTag != outboundBlockId) {
+        outboundTags.add(rule.outboundTag);
       }
     }
     return outboundTags;
@@ -51,7 +55,7 @@ class RuleDao {
             groupId: rule.groupId,
             name: rule.name,
             enabled: rule.enabled,
-            outboundTag: Value(rule.outboundTag),
+            outboundTag: rule.outboundTag,
             domain: Value(rule.domain),
             ip: Value(rule.ip),
             port: Value(rule.port),

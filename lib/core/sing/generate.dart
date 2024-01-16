@@ -6,6 +6,7 @@ import 'package:sphia/core/rule/extension.dart';
 import 'package:sphia/core/rule/sing.dart';
 import 'package:sphia/core/sing/config.dart';
 import 'package:sphia/util/system.dart';
+import 'package:sphia/view/dialog/rule.dart';
 
 class SingBoxGenerate {
   static const ipRegExp = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}';
@@ -81,18 +82,8 @@ class SingBoxGenerate {
       );
     }
     for (var rule in rules) {
-      if (rule.enabled) {
-        if (rule.outboundTag != 'proxy' &&
-            rule.outboundTag != 'direct' &&
-            rule.outboundTag != 'block') {
-          // multi-outbound
-          singBoxRules.add(
-            rule.toSingBoxRule()..outbound = 'proxy-${rule.outboundTag}',
-          );
-        } else {
-          singBoxRules.add(rule.toSingBoxRule());
-        }
-      }
+      singBoxRules.add(rule.toSingBoxRule()
+        ..outbound = OutboundTagHelper.determineOutboundTag(rule.outboundTag));
     }
     return Route(
       geoip: Geoip(path: p.join(binPath, 'geoip.db')),

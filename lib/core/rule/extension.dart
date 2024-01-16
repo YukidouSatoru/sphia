@@ -7,7 +7,7 @@ extension RuleExtension on Rule {
     final domain = this.domain?.split(',');
     final ip = this.ip?.split(',');
     return XrayRule(
-      outboundTag: outboundTag,
+      outboundTag: outboundTag.toString(),
       domain: domain,
       ip: ip,
       port: port,
@@ -60,7 +60,7 @@ extension RuleExtension on Rule {
       ipCidr: ipCidr.isEmpty ? null : ipCidr,
       port: port.isEmpty ? null : port,
       portRange: portRange.isEmpty ? null : portRange,
-      outbound: outboundTag,
+      outbound: outboundTag.toString(),
       processName: processName,
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:quiver/collection.dart';
+import 'package:sphia/app/database/dao/rule.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/rule_config.dart';
@@ -23,7 +24,7 @@ class RuleAgent {
         groupId: groupId,
         name: '',
         enabled: true,
-        outboundTag: 'proxy',
+        outboundTag: outboundProxyId,
       ),
     );
     if (rule == null) {

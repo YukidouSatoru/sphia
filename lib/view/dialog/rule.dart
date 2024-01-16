@@ -1,6 +1,7 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sphia/app/database/dao/rule.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
@@ -23,7 +24,7 @@ class RuleDialog extends StatefulWidget {
 class _RuleDialogState extends State<RuleDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  String? _outboundTag;
+  int _outboundTag = outboundProxyId;
   final _domainController = TextEditingController();
   final _ipController = TextEditingController();
   final _portController = TextEditingController();
@@ -153,7 +154,9 @@ class _RuleDialogState extends State<RuleDialog> {
     return DropdownSearch<ServerModel>(
       popupProps: PopupProps.menu(
           showSearchBox: true,
-          constraints: const BoxConstraints.tightFor(height: 270),
+          constraints: BoxConstraints.tightFor(
+            height: MediaQuery.of(context).size.height * 1 / 3,
+          ),
           containerBuilder: (context, child) {
             final color = sphiaConfig.darkMode
                 ? Color.lerp(Colors.black, Colors.grey[700], 0.6)
@@ -166,19 +169,15 @@ class _RuleDialogState extends State<RuleDialog> {
       asyncItems: (query) async {
         List<ServerModel> items = [
           ServerModel(
-            id: -3,
-            remark: 'null',
-          ),
-          ServerModel(
-            id: -2,
+            id: outboundProxyId,
             remark: 'proxy',
           ),
           ServerModel(
-            id: -1,
+            id: outboundDirectId,
             remark: 'direct',
           ),
           ServerModel(
-            id: 0,
+            id: outboundBlockId,
             remark: 'block',
           ),
         ];
@@ -194,10 +193,12 @@ class _RuleDialogState extends State<RuleDialog> {
         ),
       ),
       onChanged: (value) {
-        _outboundTag = OutboundTagHelper.determineOutboundTag(value!.id);
+        if (value != null) {
+          _outboundTag = value.id;
+        }
       },
       selectedItem: ServerModel(
-        id: OutboundTagHelper.determineOutboundTagId(_outboundTag),
+        id: _outboundTag,
         remark: outboundTagDisplay,
       ),
     );
@@ -215,47 +216,28 @@ class ServerModel {
 }
 
 class OutboundTagHelper {
-  static Future<String> determineOutboundTagDisplay(String? outboundTag) async {
-    if (outboundTag == null) {
-      return 'null';
-    } else if (outboundTag == 'proxy' ||
-        outboundTag == 'direct' ||
-        outboundTag == 'block') {
-      return outboundTag;
-    } else {
-      final serverRemark =
-          await serverDao.getServerRemarkById(int.parse(outboundTag));
-      return serverRemark ?? 'null';
-    }
-  }
-
-  static String? determineOutboundTag(int id) {
-    if (id == -3) {
-      return null;
-    }
-    if (id == -2) {
+  static String determineOutboundTag(int outboundTag) {
+    if (outboundTag == outboundProxyId) {
       return 'proxy';
-    } else if (id == -1) {
+    } else if (outboundTag == outboundDirectId) {
       return 'direct';
-    } else if (id == 0) {
+    } else if (outboundTag == outboundBlockId) {
       return 'block';
     } else {
-      return id.toString();
+      return 'proxy-$outboundTag';
     }
   }
 
-  static int determineOutboundTagId(String? outboundTag) {
-    if (outboundTag == null) {
-      return -3;
-    }
-    if (outboundTag == 'proxy') {
-      return -2;
-    } else if (outboundTag == 'direct') {
-      return -1;
-    } else if (outboundTag == 'block') {
-      return 0;
+  static Future<String> determineOutboundTagDisplay(int outboundTag) async {
+    if (outboundTag == outboundProxyId) {
+      return 'proxy';
+    } else if (outboundTag == outboundDirectId) {
+      return 'direct';
+    } else if (outboundTag == outboundBlockId) {
+      return 'block';
     } else {
-      return int.parse(outboundTag);
+      final serverRemark = await serverDao.getServerRemarkById(outboundTag);
+      return serverRemark;
     }
   }
 }

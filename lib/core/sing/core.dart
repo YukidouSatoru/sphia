@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
 import 'package:pub_semver/pub_semver.dart';
 import 'package:sphia/app/config/sphia.dart';
+import 'package:sphia/app/database/dao/rule.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/rule_config.dart';
@@ -87,14 +88,14 @@ class SingBoxCore extends Core {
     final ruleConfig = GetIt.I.get<RuleConfigProvider>().config;
     List<Rule> rules =
         await ruleDao.getOrderedRulesByGroupId(ruleConfig.selectedRuleGroupId);
-    // remove outboundTag is not set
-    rules.removeWhere((rule) => rule.outboundTag == null);
+    // remove disabled rules
+    rules.removeWhere((rule) => !rule.enabled);
     List<Outbound> outboundsOnRouting = [];
     if (!sphiaConfig.multiOutboundSupport) {
       rules.removeWhere((rule) =>
-          rule.outboundTag != 'proxy' &&
-          rule.outboundTag != 'direct' &&
-          rule.outboundTag != 'block');
+          rule.outboundTag != outboundProxyId &&
+          rule.outboundTag != outboundDirectId &&
+          rule.outboundTag != outboundBlockId);
     } else {
       final serversOnRoutingId =
           await ruleDao.getRuleOutboundTagsByGroupId(rules);
