@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
+import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/util/network.dart';
 import 'package:sphia/util/uri/hysteria.dart';
 import 'package:sphia/util/uri/shadowsocks.dart';
@@ -71,6 +73,46 @@ class UriUtil {
       final text = decodedContent.trim();
       final uris = text.split('\n');
       return uris;
+    } on Exception catch (_) {
+      rethrow;
+    }
+  }
+
+  static Future<void> updateSingleGroup(int groupId, String subscribe) async {
+    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+    try {
+      final userAgent = sphiaConfig.getUserAgent();
+      final uris = await importUriFromSubscribe(subscribe, userAgent);
+      final oldServers = await serverDao.getServersByGroupId(groupId);
+      final oldOrder = oldServers.map((e) => e.id).toList();
+      final newOrder = <int>[];
+
+      for (final uri in uris) {
+        final newServer = parseUri(uri);
+        if (newServer is Server) {
+          final oldIndex = oldServers.indexWhere(
+            (e) =>
+                e.remark == newServer.remark &&
+                e.address == newServer.address &&
+                e.port == newServer.port &&
+                e.protocol == newServer.protocol,
+          );
+          if (oldIndex != -1) {
+            newOrder.add(oldOrder[oldIndex]);
+            oldOrder.removeAt(oldIndex);
+            oldServers.removeAt(oldIndex);
+          } else {
+            newOrder.add(await serverDao.insertServerByGroupId(
+              groupId,
+              newServer,
+            ));
+          }
+        }
+      }
+      for (final oldServer in oldServers) {
+        await serverDao.deleteServer(oldServer.id);
+      }
+      await serverDao.updateServersOrder(groupId, newOrder);
     } on Exception catch (_) {
       rethrow;
     }

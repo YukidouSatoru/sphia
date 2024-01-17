@@ -205,6 +205,10 @@ class SphiaConfig {
     );
   }
 
+  String getUserAgent() {
+    return userAgents[UserAgent.values[userAgent].name]!;
+  }
+
   factory SphiaConfig.fromJson(Map<String, dynamic> json) =>
       _$SphiaConfigFromJson(json);
 

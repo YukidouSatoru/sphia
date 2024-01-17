@@ -2,6 +2,9 @@ import 'package:drift/drift.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:uuid/uuid.dart';
 
+const defaultServerGroupId = -2;
+const defaultServerId = -2;
+
 class ServerDefaults {
   static Server defaults(int groupId, int serverId) => Server(
         id: serverId,

@@ -206,7 +206,7 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
                       if (listsEqual(oldOrder, newOrder)) {
                         return;
                       }
-                      await ruleDao.updateRulesOrderByGroupId(
+                      await ruleDao.updateRulesOrder(
                         ruleGroup.id,
                         newOrder,
                       );

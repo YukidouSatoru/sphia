@@ -10,6 +10,7 @@ import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/core/core.dart';
+import 'package:sphia/core/sing/core.dart' show getRuleOutboundTagList;
 import 'package:sphia/core/xray/config.dart';
 import 'package:sphia/core/xray/generate.dart';
 import 'package:sphia/util/system.dart';
@@ -78,10 +79,9 @@ class XrayCore extends Core {
           rule.outboundTag != outboundDirectId &&
           rule.outboundTag != outboundBlockId);
     } else {
-      final serversOnRoutingId =
-          await ruleDao.getRuleOutboundTagsByGroupId(rules);
+      final serversOnRoutingId = await getRuleOutboundTagList(rules);
       final serversOnRouting =
-          await serverDao.getServersById(serversOnRoutingId);
+          await serverDao.getServersByIdList(serversOnRoutingId);
       for (final server in serversOnRouting) {
         outboundsOnRouting.add(
           XrayGenerate.generateOutbound(server)..tag = 'proxy-${server.id}',

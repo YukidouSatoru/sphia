@@ -42,7 +42,7 @@ class RuleGroupDao {
             name: name,
           ),
         );
-    await _db.ruleDao.createEmptyRulesOrderByGroupId(groupId);
+    await _db.ruleDao.createEmptyRulesOrder(groupId);
     return groupId;
   }
 
@@ -57,8 +57,8 @@ class RuleGroupDao {
 
   Future<void> deleteRuleGroup(int id) {
     return _db.transaction(() async {
-      await _db.ruleDao.deleteRuleByGroupId(id);
-      await _db.ruleDao.deleteRulesOrderByGroupId(id);
+      await _db.ruleDao.deleteRulesByGroupId(id);
+      await _db.ruleDao.deleteRulesOrder(id);
       await (_db.delete(_db.ruleGroups)..where((tbl) => tbl.id.equals(id)))
           .go();
     });

@@ -127,7 +127,9 @@ class SphiaController {
             additionalServerPort = sphiaConfig.additionalSocksPort;
           }
         }
-        additionalServer = ServerDefaults.xrayDefaults(-1, -1).copyWith(
+        additionalServer =
+            ServerDefaults.xrayDefaults(defaultServerGroupId, defaultServerId)
+                .copyWith(
           protocol: 'socks',
           address: sphiaConfig.listen,
           port: additionalServerPort,

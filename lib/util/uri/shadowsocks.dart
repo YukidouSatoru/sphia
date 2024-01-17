@@ -137,7 +137,9 @@ class ShadowsocksUtil {
           'Shadowsocks does not support this encryption: $encryption');
     }
 
-    return ServerDefaults.shadowsocksDefaults(-1, -1).copyWith(
+    return ServerDefaults.shadowsocksDefaults(
+            defaultServerGroupId, defaultServerId)
+        .copyWith(
       remark: remark,
       address: address,
       port: port,

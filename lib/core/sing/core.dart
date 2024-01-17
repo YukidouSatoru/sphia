@@ -97,10 +97,9 @@ class SingBoxCore extends Core {
           rule.outboundTag != outboundDirectId &&
           rule.outboundTag != outboundBlockId);
     } else {
-      final serversOnRoutingId =
-          await ruleDao.getRuleOutboundTagsByGroupId(rules);
+      final serversOnRoutingId = await getRuleOutboundTagList(rules);
       final serversOnRouting =
-          await serverDao.getServersById(serversOnRoutingId);
+          await serverDao.getServersByIdList(serversOnRoutingId);
       // add servers on routing to outbounds, outbound.tag is proxy-serverId
       for (final server in serversOnRouting) {
         outboundsOnRouting.add(
@@ -185,4 +184,16 @@ class SingBoxCore extends Core {
 
     return jsonEncode(singBoxConfig.toJson());
   }
+}
+
+Future<List<int>> getRuleOutboundTagList(List<Rule> rules) async {
+  final outboundTags = <int>[];
+  for (final rule in rules) {
+    if (rule.outboundTag != outboundProxyId &&
+        rule.outboundTag != outboundDirectId &&
+        rule.outboundTag != outboundBlockId) {
+      outboundTags.add(rule.outboundTag);
+    }
+  }
+  return outboundTags;
 }

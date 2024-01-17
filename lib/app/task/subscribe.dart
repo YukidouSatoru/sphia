@@ -1,5 +1,4 @@
 import 'package:get_it/get_it.dart';
-import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/server_config.dart';
@@ -45,37 +44,34 @@ class SubscribeTask {
     return duration;
   }
 
-  static void updateSubscribe() async {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+  static Future<bool> updateSubscribe() async {
+    logger.i('Updating All Server Groups');
+    bool flag = false;
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     serverConfigProvider.config.updatedSubscribeTime =
         DateTime.now().millisecondsSinceEpoch;
-    final groups = await serverGroupDao.getOrderedServerGroups();
-    for (var group in groups) {
-      final subscribe = group.subscribe;
+    final serverGroups = await serverGroupDao.getOrderedServerGroups();
+    for (var serverGroup in serverGroups) {
+      final subscribe = serverGroup.subscribe;
       if (subscribe.isEmpty) {
         continue;
       }
-      final groupName = group.name;
+      logger.i('Updating Server Group: ${serverGroup.name}');
       try {
-        List<String> uris;
-        uris = await UriUtil.importUriFromSubscribe(subscribe,
-            userAgents[UserAgent.values[sphiaConfig.userAgent].name]!);
-        final servers =
-            uris.map((e) => UriUtil.parseUri(e)).whereType<Server>().toList();
-        await serverDao.deleteServerByGroupId(group.id);
-        await serverDao.insertServers(group.id, servers);
-        await serverDao.refreshServersOrderByGroupId(group.id);
-        logger.i('Updated group successfully: $groupName');
+        await UriUtil.updateSingleGroup(serverGroup.id, subscribe);
+        flag = true;
       } on Exception catch (e) {
-        logger.e('Failed to update group: $groupName\n$e');
+        logger.e('Failed to update group: ${serverGroup.name}\n$e');
         continue;
       }
     }
-    serverConfigProvider.servers = await serverDao.getOrderedServersByGroupId(
-        serverConfigProvider.config.selectedServerGroupId);
-    SphiaTray.generateServerItems();
-    SphiaTray.setMenu();
+    if (flag) {
+      serverConfigProvider.servers = await serverDao.getOrderedServersByGroupId(
+          serverConfigProvider.config.selectedServerGroupId);
+      SphiaTray.generateServerItems();
+      SphiaTray.setMenu();
+    }
     serverConfigProvider.saveConfig();
+    return flag;
   }
 }

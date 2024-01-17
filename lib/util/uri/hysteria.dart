@@ -77,7 +77,9 @@ class HysteriaUtil {
 
     address = match.namedGroup('address')!;
     port = int.parse(match.namedGroup('port')!);
-    return ServerDefaults.hysteriaDefaults(-1, -1).copyWith(
+    return ServerDefaults.hysteriaDefaults(
+            defaultServerGroupId, defaultServerId)
+        .copyWith(
       protocol: 'hysteria',
       remark: remark,
       address: address,

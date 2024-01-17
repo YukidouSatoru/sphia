@@ -291,11 +291,9 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                 ).then((value) async {
                   if (value != null) {
                     if (await _agent.updateGroup(
-                        value, serverConfigProvider.serverGroups[_index].id,
-                        (message) {
-                      _scaffoldMessengerKey.currentState!
-                          .showSnackBar(SphiaWidget.snackBar(message));
-                    })) {
+                      value,
+                      serverConfigProvider.serverGroups[_index].id,
+                    )) {
                       await _loadServers();
                       SphiaTray.generateServerItems();
                       SphiaTray.setMenu();
@@ -414,7 +412,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                       if (listsEqual(oldOrder, newOrder)) {
                         return;
                       }
-                      await serverDao.updateServersOrderByGroupId(
+                      await serverDao.updateServersOrder(
                         serverGroup.id,
                         newOrder,
                       );

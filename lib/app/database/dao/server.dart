@@ -15,7 +15,7 @@ class ServerDao {
     return _db.select(_db.servers).get();
   }
 
-  Future<List<Server>> getServersById(List<int> id) {
+  Future<List<Server>> getServersByIdList(List<int> id) {
     return (_db.select(_db.servers)..where((tbl) => tbl.id.isIn(id))).get();
   }
 
@@ -27,7 +27,7 @@ class ServerDao {
 
   Future<List<Server>> getOrderedServersByGroupId(int groupId) async {
     logger.i('Getting ordered servers by group id: $groupId');
-    final order = await getServersOrderByGroupId(groupId);
+    final order = await getServersOrder(groupId);
     final servers = await getServersByGroupId(groupId);
     final orderedServers = <Server>[];
     for (final id in order) {
@@ -35,15 +35,6 @@ class ServerDao {
       orderedServers.add(server);
     }
     return orderedServers;
-  }
-
-  Future<List<int>> getServerIds() {
-    return _db.select(_db.servers).get().then((value) {
-      if (value.isEmpty) {
-        return [];
-      }
-      return value.map((e) => e.id).toList();
-    });
   }
 
   Future<String> getServerRemarkById(int id) {
@@ -55,14 +46,14 @@ class ServerDao {
         .then((value) => value?.remark ?? '');
   }
 
-  Future<List<String>> getServerRemarks() {
+  Future<List<String>> getServerRemarkList() {
     return (_db.select(_db.servers)
           ..where((tbl) => tbl.id.isNotIn([additionalServerId])))
         .get()
         .then((value) => value.map((e) => e.remark).toList());
   }
 
-  Future<bool> checkServerExists(int id) {
+  Future<bool> checkServerExistsById(int id) {
     return (_db.select(_db.servers)..where((tbl) => tbl.id.equals(id)))
         .getSingleOrNull()
         .then((value) => value != null);
@@ -79,7 +70,7 @@ class ServerDao {
     return getServerById(selectedServerId);
   }
 
-  Future<List<String>> getServerRemarksById(List<int> id) {
+  Future<List<String>> getServerRemarksByIdList(List<int> id) {
     if (id.length == 1 && id[0] == additionalServerId) {
       return Future.value(['Additional Socks Server']);
     }
@@ -131,7 +122,11 @@ class ServerDao {
         );
   }
 
-  Future<void> insertServers(int groupId, List<Server> servers) async {
+  Future<int> insertServerByGroupId(int groupId, Server server) {
+    return insertServer(server.copyWith(groupId: groupId));
+  }
+
+  Future<void> insertServersByGroupId(int groupId, List<Server> servers) async {
     await _db.transaction(() async {
       for (final server in servers) {
         await insertServer(server.copyWith(groupId: groupId));
@@ -147,18 +142,17 @@ class ServerDao {
     await _db.update(_db.servers).replace(server.copyWith());
   }
 
-  Future<void> deleteServer(int serverId) {
-    return (_db.delete(_db.servers)..where((tbl) => tbl.id.equals(serverId)))
-        .go();
+  Future<void> deleteServer(int id) {
+    return (_db.delete(_db.servers)..where((tbl) => tbl.id.equals(id))).go();
   }
 
-  Future<void> deleteServerByGroupId(int groupId) {
+  Future<void> deleteServersByGroupId(int groupId) {
     return (_db.delete(_db.servers)
           ..where((tbl) => tbl.groupId.equals(groupId)))
         .go();
   }
 
-  Future<List<int>> getServersOrderByGroupId(int groupId) async {
+  Future<List<int>> getServersOrder(int groupId) async {
     return _db.select(_db.serversOrder).get().then((value) {
       if (value.isEmpty) {
         return [];
@@ -172,7 +166,7 @@ class ServerDao {
     });
   }
 
-  Future<void> createEmptyServersOrderByGroupId(int groupId) async {
+  Future<void> createEmptyServersOrder(int groupId) async {
     await _db.into(_db.serversOrder).insert(
           ServersOrderCompanion.insert(
             groupId: groupId,
@@ -181,19 +175,19 @@ class ServerDao {
         );
   }
 
-  Future<void> updateServersOrderByGroupId(int groupId, List<int> order) async {
+  Future<void> updateServersOrder(int groupId, List<int> order) async {
     final data = order.join(',');
     (_db.update(_db.serversOrder)..where((tbl) => tbl.groupId.equals(groupId)))
         .write(ServersOrderCompanion(data: Value(data)));
   }
 
-  Future<void> refreshServersOrderByGroupId(int groupId) async {
+  Future<void> refreshServersOrder(int groupId) async {
     final servers = await getServersByGroupId(groupId);
     final order = servers.map((e) => e.id).toList();
-    await updateServersOrderByGroupId(groupId, order);
+    await updateServersOrder(groupId, order);
   }
 
-  Future<void> deleteServersOrderByGroupId(int groupId) async {
+  Future<void> deleteServersOrder(int groupId) async {
     (_db.delete(_db.serversOrder)..where((tbl) => tbl.groupId.equals(groupId)))
         .go();
   }

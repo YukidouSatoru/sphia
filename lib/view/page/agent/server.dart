@@ -11,6 +11,7 @@ import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:sphia/app/task/subscribe.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/core/core.dart';
 import 'package:sphia/core/hysteria/core.dart';
@@ -40,7 +41,7 @@ class ServerAgent {
           protocol == 'vmess'
               ? '${S.current.add} VMess ${S.current.server}'
               : '${S.current.add} Vless ${S.current.server}',
-          ServerDefaults.xrayDefaults(groupId, -1).copyWith(
+          ServerDefaults.xrayDefaults(groupId, defaultServerId).copyWith(
               protocol: protocol,
               encryption: Value((protocol == 'vmess' ? 'auto' : 'none'))),
         );
@@ -48,19 +49,19 @@ class ServerAgent {
       case 'shadowsocks':
         newServer = await _showEditServerDialog(
           '${S.current.add} Shadowsocks ${S.current.server}',
-          ServerDefaults.shadowsocksDefaults(groupId, -1),
+          ServerDefaults.shadowsocksDefaults(groupId, defaultServerId),
         );
         break;
       case 'trojan':
         newServer = await _showEditServerDialog(
           '${S.current.add} Trojan ${S.current.server}',
-          ServerDefaults.trojanDefaults(groupId, -1),
+          ServerDefaults.trojanDefaults(groupId, defaultServerId),
         );
         break;
       case 'hysteria':
         newServer = await _showEditServerDialog(
           '${S.current.add} Hysteria ${S.current.server}',
-          ServerDefaults.hysteriaDefaults(groupId, -1),
+          ServerDefaults.hysteriaDefaults(groupId, defaultServerId),
         );
         break;
       case 'clipboard':
@@ -77,8 +78,8 @@ class ServerAgent {
               logger.e('Failed to parse uri: $uri\n$e');
             }
           }
-          await serverDao.insertServers(groupId, newServer);
-          await serverDao.refreshServersOrderByGroupId(groupId);
+          await serverDao.insertServersByGroupId(groupId, newServer);
+          await serverDao.refreshServersOrder(groupId);
         }
         return null;
       default:
@@ -89,7 +90,7 @@ class ServerAgent {
     }
     logger.i('Adding Server: ${newServer.remark}');
     final serverId = await serverDao.insertServer(newServer);
-    await serverDao.refreshServersOrderByGroupId(groupId);
+    await serverDao.refreshServersOrder(groupId);
     return newServer.copyWith(id: serverId);
   }
 
@@ -143,7 +144,7 @@ class ServerAgent {
     }
     logger.i('Deleting Server: ${server.id}');
     await serverDao.deleteServer(serverId);
-    await serverDao.refreshServersOrderByGroupId(server.groupId);
+    await serverDao.refreshServersOrder(server.groupId);
     return true;
   }
 
@@ -333,7 +334,7 @@ class ServerAgent {
       subscribe: subscribe,
     ));
     if (fetchSubscribe && subscribe.trim().isNotEmpty) {
-      await updateGroup('CurrentGroup', groupId, (value) {});
+      await updateGroup('CurrentGroup', groupId);
     }
     serverConfigProvider.notify();
     return true;
@@ -420,9 +421,7 @@ class ServerAgent {
     return false;
   }
 
-  Future<bool> updateGroup(
-      String type, int groupId, void Function(String) showSnackBar) async {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+  Future<bool> updateGroup(String type, int groupId) async {
     switch (type) {
       case 'CurrentGroup':
         final serverGroup = await serverGroupDao.getServerGroupById(groupId);
@@ -431,61 +430,20 @@ class ServerAgent {
         }
         final subscribe = serverGroup.subscribe;
         if (subscribe.isEmpty) {
-          showSnackBar(S.current.groupHasNoSubscribe);
+          logger.w('Subscribe is empty');
           return false;
         }
         final groupName = serverGroup.name;
         logger.i('Updating Server Group: $groupName');
-        showSnackBar('${S.current.updatingGroup}: $groupName');
         try {
-          List<String> uris;
-          uris = await UriUtil.importUriFromSubscribe(subscribe,
-              userAgents[UserAgent.values[sphiaConfig.userAgent].name]!);
-          final newServer =
-              uris.map((e) => UriUtil.parseUri(e)).whereType<Server>().toList();
-          await serverDao.deleteServerByGroupId(groupId);
-          await serverDao.insertServers(groupId, newServer);
-          await serverDao.refreshServersOrderByGroupId(groupId);
-          logger.i('Updated group successfully: $groupName');
-          showSnackBar('${S.current.updatedGroupSuccessfully}: $groupName');
-          return true;
+          await UriUtil.updateSingleGroup(groupId, subscribe);
         } on Exception catch (e) {
           logger.e('Failed to update group: $groupName\n$e');
-          showSnackBar('${S.current.updateGroupFailed}: $groupName\n$e');
           return false;
         }
+        return true;
       case 'AllGroups':
-        logger.i('Updating All Server Groups');
-        bool flag = false;
-        showSnackBar(S.current.updatingAllGroups);
-        final serverGroups = await serverGroupDao.getOrderedServerGroups();
-        for (var serverGroup in serverGroups) {
-          final subscribe = serverGroup.subscribe;
-          if (subscribe.isEmpty) {
-            continue;
-          }
-          final groupName = serverGroup.name;
-          try {
-            List<String> uris;
-            uris = await UriUtil.importUriFromSubscribe(subscribe,
-                userAgents[UserAgent.values[sphiaConfig.userAgent].name]!);
-            final newServer = uris
-                .map((e) => UriUtil.parseUri(e))
-                .whereType<Server>()
-                .toList();
-            await serverDao.deleteServerByGroupId(serverGroup.id);
-            await serverDao.insertServers(serverGroup.id, newServer);
-            await serverDao.refreshServersOrderByGroupId(serverGroup.id);
-            logger.i('Updated group successfully: $groupName');
-            showSnackBar('${S.current.updatedGroupSuccessfully}: $groupName');
-            flag = true;
-          } on Exception catch (e) {
-            logger.e('Failed to update group: $groupName\n$e');
-            showSnackBar('${S.current.updateGroupFailed}: $groupName\n$e');
-            continue;
-          }
-        }
-        return flag;
+        return SubscribeTask.updateSubscribe();
       default:
         return false;
     }

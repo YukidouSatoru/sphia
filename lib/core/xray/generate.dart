@@ -1,5 +1,4 @@
 import 'package:get_it/get_it.dart';
-import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/core/rule/extension.dart';
@@ -177,7 +176,7 @@ class XrayGenerate {
 
   static Outbound shadowsocksOutbound(Server server) {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
-    final userAgent = userAgents[UserAgent.values[sphiaConfig.userAgent].name]!;
+    final userAgent = sphiaConfig.getUserAgent();
     StreamSettings? streamSettings;
     String? network;
     String security = 'none';

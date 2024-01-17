@@ -85,8 +85,9 @@ class _DashboardState extends State<Dashboard> {
                   shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
                   title: Text(coreName),
                   onTap: () async {
-                    final serverRemark = await serverDao.getServerRemarksById(
-                        coreProvider.cores[index].serverId);
+                    final serverRemark =
+                        await serverDao.getServerRemarksByIdList(
+                            coreProvider.cores[index].serverId);
                     if (!context.mounted) {
                       return;
                     }
@@ -545,7 +546,7 @@ class _DashboardState extends State<Dashboard> {
         if (_totalUpload.value != 0 || _totalDownload.value != 0) {
           if (sphiaConfig.multiOutboundSupport) {
             final serverId = coreProvider.cores.last.serverId;
-            final server = await serverDao.getServersById(serverId);
+            final server = await serverDao.getServersByIdList(serverId);
             if (server.isEmpty) {
               return;
             }

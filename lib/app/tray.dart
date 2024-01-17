@@ -232,7 +232,7 @@ class Tray {
         label: S.current.coreStart,
         name: S.current.coreStart,
         onClicked: (menuItem) async {
-          if (!await serverDao.checkServerExists(
+          if (!await serverDao.checkServerExistsById(
               serverConfigProvider.config.selectedServerId)) {
             logger.w('Selected server not exists');
             return;

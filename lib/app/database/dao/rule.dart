@@ -22,7 +22,7 @@ class RuleDao {
 
   Future<List<Rule>> getOrderedRulesByGroupId(int groupId) async {
     logger.i('Getting ordered rules by group id: $groupId');
-    final order = await getRulesOrderByGroupId(groupId);
+    final order = await getRulesOrder(groupId);
     final rules = await getRulesByGroupId(groupId);
     final orderedRules = <Rule>[];
     for (final id in order) {
@@ -30,18 +30,6 @@ class RuleDao {
       orderedRules.add(rule);
     }
     return orderedRules;
-  }
-
-  Future<List<int>> getRuleOutboundTagsByGroupId(List<Rule> rules) async {
-    final outboundTags = <int>[];
-    for (final rule in rules) {
-      if (rule.outboundTag != outboundProxyId &&
-          rule.outboundTag != outboundDirectId &&
-          rule.outboundTag != outboundBlockId) {
-        outboundTags.add(rule.outboundTag);
-      }
-    }
-    return outboundTags;
   }
 
   Future<Rule?> getRuleById(int id) {
@@ -76,12 +64,12 @@ class RuleDao {
     return (_db.delete(_db.rules)..where((tbl) => tbl.id.equals(id))).go();
   }
 
-  Future<void> deleteRuleByGroupId(int groupId) {
+  Future<void> deleteRulesByGroupId(int groupId) {
     return (_db.delete(_db.rules)..where((tbl) => tbl.groupId.equals(groupId)))
         .go();
   }
 
-  Future<List<int>> getRulesOrderByGroupId(int groupId) async {
+  Future<List<int>> getRulesOrder(int groupId) async {
     return _db.select(_db.rulesOrder).get().then((value) {
       if (value.isEmpty) {
         return [];
@@ -95,7 +83,7 @@ class RuleDao {
     });
   }
 
-  Future<void> createEmptyRulesOrderByGroupId(int groupId) async {
+  Future<void> createEmptyRulesOrder(int groupId) async {
     await _db.into(_db.rulesOrder).insert(
           RulesOrderCompanion.insert(
             groupId: groupId,
@@ -104,19 +92,19 @@ class RuleDao {
         );
   }
 
-  Future<void> updateRulesOrderByGroupId(int groupId, List<int> order) async {
+  Future<void> updateRulesOrder(int groupId, List<int> order) async {
     final data = order.join(',');
     (_db.update(_db.rulesOrder)..where((tbl) => tbl.groupId.equals(groupId)))
         .write(RulesOrderCompanion(data: Value(data)));
   }
 
-  Future<void> refreshRulesOrderByGroupId(int groupId) async {
+  Future<void> refreshRulesOrder(int groupId) async {
     final rules = await getRulesByGroupId(groupId);
     final order = rules.map((e) => e.id).toList();
-    await updateRulesOrderByGroupId(groupId, order);
+    await updateRulesOrder(groupId, order);
   }
 
-  Future<void> deleteRulesOrderByGroupId(int groupId) async {
+  Future<void> deleteRulesOrder(int groupId) async {
     (_db.delete(_db.rulesOrder)..where((tbl) => tbl.groupId.equals(groupId)))
         .go();
   }

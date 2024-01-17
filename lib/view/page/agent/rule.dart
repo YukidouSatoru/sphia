@@ -7,6 +7,7 @@ import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/theme.dart';
+import 'package:sphia/core/rule/extension.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/view/dialog/rule.dart';
 import 'package:sphia/view/widget/widget.dart';
@@ -20,7 +21,7 @@ class RuleAgent {
     Rule? rule = await _showEditRuleDialog(
       '${S.current.add} ${S.current.rule}',
       Rule(
-        id: -1,
+        id: defaultRuleId,
         groupId: groupId,
         name: '',
         enabled: true,
@@ -32,7 +33,7 @@ class RuleAgent {
     }
     logger.i('Adding Rule: ${rule.name}');
     final ruleId = await ruleDao.insertRule(rule);
-    await ruleDao.refreshRulesOrderByGroupId(groupId);
+    await ruleDao.refreshRulesOrder(groupId);
     return rule.copyWith(id: ruleId);
   }
 
@@ -55,7 +56,7 @@ class RuleAgent {
     }
     logger.i('Deleting Rule: ${rule.id}');
     await ruleDao.deleteRule(ruleId);
-    await ruleDao.refreshRulesOrderByGroupId(rule.groupId);
+    await ruleDao.refreshRulesOrder(rule.groupId);
     return true;
   }
 

@@ -86,7 +86,8 @@ class VMessUtil {
     } on Exception catch (_) {
       throw const FormatException('Failed to parse vmess URI');
     }
-    return ServerDefaults.xrayDefaults(-1, -1).copyWith(
+    return ServerDefaults.xrayDefaults(defaultServerGroupId, defaultServerId)
+        .copyWith(
       protocol: 'vmess',
       remark: remark,
       address: address,

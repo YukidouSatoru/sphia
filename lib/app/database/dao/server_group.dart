@@ -43,7 +43,7 @@ class ServerGroupDao {
             subscribe: subscribe,
           ),
         );
-    await _db.serverDao.createEmptyServersOrderByGroupId(groupId);
+    await _db.serverDao.createEmptyServersOrder(groupId);
     return groupId;
   }
 
@@ -59,8 +59,8 @@ class ServerGroupDao {
 
   Future<void> deleteServerGroup(int id) {
     return _db.transaction(() async {
-      await _db.serverDao.deleteServerByGroupId(id);
-      await _db.serverDao.deleteServersOrderByGroupId(id);
+      await _db.serverDao.deleteServersByGroupId(id);
+      await _db.serverDao.deleteServersOrder(id);
       await (_db.delete(_db.serverGroups)..where((tbl) => tbl.id.equals(id)))
           .go();
     });

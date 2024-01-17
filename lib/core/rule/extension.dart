@@ -2,6 +2,8 @@ import 'package:sphia/app/database/database.dart';
 import 'package:sphia/core/rule/sing.dart';
 import 'package:sphia/core/rule/xray.dart';
 
+const defaultRuleId = -1;
+
 extension RuleExtension on Rule {
   XrayRule toXrayRule() {
     final domain = this.domain?.split(',');

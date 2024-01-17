@@ -104,7 +104,8 @@ class VlessUtil {
     address = match.namedGroup('address')!;
     port = int.parse(match.namedGroup('port')!);
     uuid = match.namedGroup('uuid')!;
-    return ServerDefaults.xrayDefaults(-1, -1).copyWith(
+    return ServerDefaults.xrayDefaults(defaultServerGroupId, defaultServerId)
+        .copyWith(
       protocol: 'vless',
       remark: remark,
       address: address,

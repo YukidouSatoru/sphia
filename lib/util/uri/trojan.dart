@@ -68,7 +68,8 @@ class TrojanUtil {
     address = match.namedGroup('address')!;
     port = int.parse(match.namedGroup('port')!);
     password = match.namedGroup('password')!;
-    return ServerDefaults.trojanDefaults(-1, -1).copyWith(
+    return ServerDefaults.trojanDefaults(defaultServerGroupId, defaultServerId)
+        .copyWith(
       remark: remark,
       address: address,
       port: port,

@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
@@ -15,7 +14,7 @@ class NetworkUtil {
     final coreProvider = GetIt.I.get<CoreProvider>();
     final client = HttpClient();
     // init userAgent
-    final userAgent = userAgents[UserAgent.values[sphiaConfig.userAgent].name];
+    final userAgent = sphiaConfig.getUserAgent();
     client.userAgent = userAgent;
     if (coreProvider.coreRunning &&
         (sphiaConfig.updateThroughProxy ||
