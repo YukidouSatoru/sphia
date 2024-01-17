@@ -48,6 +48,7 @@ class _SettingPageState extends State<SettingPage> {
             sphiaConfig.startOnBoot = value;
             sphiaConfigProvider.saveConfig();
             SystemUtil.configureStartup();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).startOnBootMsg,
@@ -65,6 +66,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating autoRunServer from ${sphiaConfig.autoRunServer} to $value');
             sphiaConfig.autoRunServer = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).autoRunServerMsg,
@@ -83,6 +85,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating useMaterial3 from ${sphiaConfig.useMaterial3} to $value');
             sphiaConfig.useMaterial3 = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).useMaterial3Msg,
@@ -101,6 +104,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating navigationStyle from ${sphiaConfig.navigationStyle} to $value');
             sphiaConfig.navigationStyle = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).navigationStyleMsg,
@@ -119,6 +123,7 @@ class _SettingPageState extends State<SettingPage> {
                 .i('Updating darkMode from ${sphiaConfig.darkMode} to $value');
             sphiaConfig.darkMode = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).darkModeMsg,
@@ -146,6 +151,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating themeColor from ${sphiaConfig.themeColor} to $value');
             sphiaConfig.themeColor = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).themeColorMsg,
@@ -167,6 +173,7 @@ class _SettingPageState extends State<SettingPage> {
               g = int.parse(value.split(',')[2]);
               b = int.parse(value.split(',')[3]);
             } on Exception catch (_) {
+              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
               _scaffoldMessengerKey.currentState?.showSnackBar(
                 SphiaWidget.snackBar(
                   S.of(context).themeColorWarn,
@@ -184,12 +191,14 @@ class _SettingPageState extends State<SettingPage> {
                   'Updating themeColor from ${sphiaConfig.themeColor} to $argbValue');
               sphiaConfig.themeColor = argbValue;
               sphiaConfigProvider.saveConfig();
+              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
               _scaffoldMessengerKey.currentState?.showSnackBar(
                 SphiaWidget.snackBar(
                   S.of(context).themeColorMsg,
                 ),
               );
             } else {
+              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
               _scaffoldMessengerKey.currentState?.showSnackBar(
                 SphiaWidget.snackBar(
                   S.of(context).themeColorWarn,
@@ -210,6 +219,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating showAddress from ${sphiaConfig.showAddress} to $value');
             sphiaConfig.showAddress = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).showAddressMsg,
@@ -228,6 +238,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating enableStatistics from ${sphiaConfig.enableStatistics} to $value');
             sphiaConfig.enableStatistics = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).enableStatisticsMsg,
@@ -245,6 +256,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating enableSpeedChart from ${sphiaConfig.enableSpeedChart} to $value');
             sphiaConfig.enableSpeedChart = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).enableSpeedChartMsg,
@@ -261,6 +273,7 @@ class _SettingPageState extends State<SettingPage> {
           if (value != null) {
             late final int? newValue;
             if ((newValue = int.tryParse(value)) == null) {
+              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
               _scaffoldMessengerKey.currentState?.showSnackBar(
                 SphiaWidget.snackBar(
                   S.of(context).updateSubscribeIntervalWarn,
@@ -269,6 +282,7 @@ class _SettingPageState extends State<SettingPage> {
               return;
             }
             if (newValue! < 0 && newValue != -1) {
+              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
               _scaffoldMessengerKey.currentState?.showSnackBar(
                 SphiaWidget.snackBar(
                   S.of(context).updateSubscribeIntervalWarn,
@@ -285,6 +299,7 @@ class _SettingPageState extends State<SettingPage> {
             } else {
               SphiaTask.cancelTask(SubscribeTask.name);
             }
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).updateSubscribeIntervalMsg,
@@ -303,6 +318,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating updateThroughProxy from ${sphiaConfig.updateThroughProxy} to $value');
             sphiaConfig.updateThroughProxy = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).updateThroughProxyMsg,
@@ -321,6 +337,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating userAgent from ${sphiaConfig.userAgent} to $value');
             sphiaConfig.userAgent = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).userAgentMsg,
@@ -341,6 +358,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating autoGetIp from ${sphiaConfig.autoGetIp} to $value');
             sphiaConfig.autoGetIp = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).autoGetIpMsg,
@@ -358,6 +376,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating multiOutboundSupport from ${sphiaConfig.multiOutboundSupport} to $value');
             sphiaConfig.multiOutboundSupport = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).multiOutboundSupportMsg,
@@ -380,6 +399,7 @@ class _SettingPageState extends State<SettingPage> {
                   'Updating enableTun from ${sphiaConfig.enableTun} to false');
             }
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).autoConfigureSystemProxyMsg,
@@ -402,6 +422,7 @@ class _SettingPageState extends State<SettingPage> {
                   'Updating autoConfigureSystemProxy from ${sphiaConfig.autoConfigureSystemProxy} to false');
             }
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).enableTunMsg,
@@ -420,6 +441,7 @@ class _SettingPageState extends State<SettingPage> {
             if ((newValue = int.tryParse(value)) == null ||
                 newValue! < 0 ||
                 newValue > 65535) {
+              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
               _scaffoldMessengerKey.currentState?.showSnackBar(
                 SphiaWidget.snackBar(
                   S.of(context).portInvalidMsg,
@@ -431,6 +453,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating socksPort from ${sphiaConfig.socksPort} to $value');
             sphiaConfig.socksPort = newValue;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).socksPortMsg,
@@ -449,6 +472,7 @@ class _SettingPageState extends State<SettingPage> {
             if ((newValue = int.tryParse(value)) == null ||
                 newValue! < 0 ||
                 newValue > 65535) {
+              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
               _scaffoldMessengerKey.currentState?.showSnackBar(
                 SphiaWidget.snackBar(
                   S.of(context).portInvalidMsg,
@@ -460,6 +484,7 @@ class _SettingPageState extends State<SettingPage> {
                 .i('Updating httpPort from ${sphiaConfig.httpPort} to $value');
             sphiaConfig.httpPort = newValue;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).httpPortMsg,
@@ -476,6 +501,7 @@ class _SettingPageState extends State<SettingPage> {
           if ((newValue = int.tryParse(value)) == null ||
               newValue! < 0 ||
               newValue > 65535) {
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).portInvalidMsg,
@@ -488,6 +514,7 @@ class _SettingPageState extends State<SettingPage> {
               .i('Updating mixedPort from ${sphiaConfig.mixedPort} to $value');
           sphiaConfig.mixedPort = newValue;
           sphiaConfigProvider.saveConfig();
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
           _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).mixedPortMsg,
@@ -500,6 +527,7 @@ class _SettingPageState extends State<SettingPage> {
           logger.i('Updating listen from ${sphiaConfig.listen} to $value');
           sphiaConfig.listen = value;
           sphiaConfigProvider.saveConfig();
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
           _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).listenMsg,
@@ -516,6 +544,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating enableUdp from ${sphiaConfig.enableUdp} to $value');
             sphiaConfig.enableUdp = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).enableUdpMsg,
@@ -534,6 +563,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating authentication from ${sphiaConfig.authentication} to $value');
             sphiaConfig.authentication = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).authenticationMsg,
@@ -550,6 +580,7 @@ class _SettingPageState extends State<SettingPage> {
             logger.i('Updating user from ${sphiaConfig.user} to $value');
             sphiaConfig.user = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).userMsg,
@@ -568,6 +599,7 @@ class _SettingPageState extends State<SettingPage> {
                 .i('Updating password from ${sphiaConfig.password} to $value');
             sphiaConfig.password = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).passwordMsg,
@@ -588,6 +620,7 @@ class _SettingPageState extends State<SettingPage> {
             if ((newValue = int.tryParse(value)) == null ||
                 newValue! < 0 ||
                 newValue > 65535) {
+              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
               _scaffoldMessengerKey.currentState?.showSnackBar(
                 SphiaWidget.snackBar(
                   S.of(context).portInvalidMsg,
@@ -599,6 +632,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating coreApiPort from ${sphiaConfig.coreApiPort} to $value');
             sphiaConfig.coreApiPort = newValue;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).coreApiPortMsg,
@@ -618,6 +652,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating enableSniffing from ${sphiaConfig.enableSniffing} to $value');
             sphiaConfig.enableSniffing = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).enableSniffingMsg,
@@ -635,6 +670,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating configureDns from ${sphiaConfig.configureDns} to $value');
             sphiaConfig.configureDns = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).configureDnsMsg,
@@ -652,6 +688,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating remoteDns from ${sphiaConfig.remoteDns} to $value');
             sphiaConfig.remoteDns = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).remoteDnsMsg,
@@ -670,6 +707,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating directDns from ${sphiaConfig.directDns} to $value');
             sphiaConfig.directDns = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).directDnsMsg,
@@ -690,6 +728,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating domainStrategy from ${sphiaConfig.domainStrategy} to $value');
             sphiaConfig.domainStrategy = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).domainStrategyMsg,
@@ -709,6 +748,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating domainMatcher from ${sphiaConfig.domainMatcher} to $value');
             sphiaConfig.domainMatcher = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).domainMatcherMsg,
@@ -728,6 +768,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating enableCoreLog from ${sphiaConfig.enableCoreLog} to $value');
             sphiaConfig.enableCoreLog = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).enableCoreLogMsg,
@@ -746,6 +787,7 @@ class _SettingPageState extends State<SettingPage> {
                 .i('Updating logLevel from ${sphiaConfig.logLevel} to $value');
             sphiaConfig.logLevel = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).logLevelMsg,
@@ -762,6 +804,7 @@ class _SettingPageState extends State<SettingPage> {
           if (value != null) {
             late final int? newValue;
             if ((newValue = int.tryParse(value)) == null || newValue! < 0) {
+              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
               _scaffoldMessengerKey.currentState?.showSnackBar(
                 SphiaWidget.snackBar(
                   S.of(context).enterValidNumberMsg,
@@ -773,6 +816,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating maxLogCount from ${sphiaConfig.maxLogCount} to $value');
             sphiaConfig.maxLogCount = newValue;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).maxLogCountMsg,
@@ -791,6 +835,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating saveCoreLog from ${sphiaConfig.saveCoreLog} to $value');
             sphiaConfig.saveCoreLog = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).saveCoreLogMsg,
@@ -812,6 +857,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating routingProvider from ${sphiaConfig.routingProvider} to $value');
             sphiaConfig.routingProvider = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).routingProviderMsg,
@@ -831,6 +877,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating vmessProvider from ${sphiaConfig.vmessProvider} to $value');
             sphiaConfig.vmessProvider = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).vmessProviderMsg,
@@ -850,6 +897,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating vlessProvider from ${sphiaConfig.vlessProvider} to $value');
             sphiaConfig.vlessProvider = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).vlessProviderMsg,
@@ -869,6 +917,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating shadowsocksProvider from ${sphiaConfig.shadowsocksProvider} to $value');
             sphiaConfig.shadowsocksProvider = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).shadowsocksProviderMsg,
@@ -888,6 +937,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating trojanProvider from ${sphiaConfig.trojanProvider} to $value');
             sphiaConfig.trojanProvider = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).trojanProviderMsg,
@@ -907,6 +957,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating hysteriaProvider from ${sphiaConfig.hysteriaProvider} to $value');
             sphiaConfig.hysteriaProvider = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).hysteriaProviderMsg,
@@ -926,6 +977,7 @@ class _SettingPageState extends State<SettingPage> {
             if ((newValue = int.tryParse(value)) == null ||
                 newValue! < 0 ||
                 newValue > 65535) {
+              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
               _scaffoldMessengerKey.currentState?.showSnackBar(
                 SphiaWidget.snackBar(
                   S.of(context).portInvalidMsg,
@@ -937,6 +989,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating additionalSocksPort from ${sphiaConfig.additionalSocksPort} to $value');
             sphiaConfig.additionalSocksPort = newValue;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).additionalSocksPortMsg,
@@ -958,6 +1011,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating tunProvider from ${sphiaConfig.tunProvider} to $value');
             sphiaConfig.tunProvider = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).tunProviderMsg,
@@ -973,6 +1027,7 @@ class _SettingPageState extends State<SettingPage> {
         S.of(context).enableIpv4,
         (value) {
           if (value != null) {
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).enableIpv4Msg,
@@ -990,6 +1045,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating ipv4Address from ${sphiaConfig.ipv4Address} to $value');
             sphiaConfig.ipv4Address = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).ipv4AddressMsg,
@@ -1008,6 +1064,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating enableIpv6 from ${sphiaConfig.enableIpv6} to $value');
             sphiaConfig.enableIpv6 = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).enableIpv6Msg,
@@ -1025,6 +1082,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating ipv6Address from ${sphiaConfig.ipv6Address} to $value');
             sphiaConfig.ipv4Address = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).ipv6AddressMsg,
@@ -1042,6 +1100,7 @@ class _SettingPageState extends State<SettingPage> {
           if (value != null) {
             late final int? newValue;
             if ((newValue = int.tryParse(value)) == null) {
+              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
               _scaffoldMessengerKey.currentState?.showSnackBar(
                 SphiaWidget.snackBar(
                   S.of(context).enterValidNumberMsg,
@@ -1052,6 +1111,7 @@ class _SettingPageState extends State<SettingPage> {
             logger.i('Updating mtu from ${sphiaConfig.mtu} to $value');
             sphiaConfig.mtu = newValue!;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).mtuMsg,
@@ -1070,6 +1130,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating endpointIndependentNat from ${sphiaConfig.endpointIndependentNat} to $value');
             sphiaConfig.endpointIndependentNat = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).endpointIndependentNatMsg,
@@ -1087,6 +1148,7 @@ class _SettingPageState extends State<SettingPage> {
             logger.i('Updating stack from ${sphiaConfig.stack} to $value');
             sphiaConfig.stack = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).stackMsg,
@@ -1105,6 +1167,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating autoRoute from ${sphiaConfig.autoRoute} to $value');
             sphiaConfig.autoRoute = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).autoRouteMsg,
@@ -1122,6 +1185,7 @@ class _SettingPageState extends State<SettingPage> {
                 'Updating strictRoute from ${sphiaConfig.strictRoute} to $value');
             sphiaConfig.strictRoute = value;
             sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).strictRouteMsg,

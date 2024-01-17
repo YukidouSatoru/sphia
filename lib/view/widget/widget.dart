@@ -5,7 +5,7 @@ import 'package:sphia/app/theme.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 
 class SphiaWidget {
-  static SnackBar snackBar(String message, [Duration? duration]) {
+  static SnackBar snackBar(String message) {
     return SnackBar(
       content: Text(
         message,
@@ -13,7 +13,7 @@ class SphiaWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(8)),
       ),
-      duration: duration ?? const Duration(seconds: 2),
+      duration: const Duration(seconds: 5),
     );
   }
 
