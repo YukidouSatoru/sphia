@@ -440,16 +440,6 @@ class S {
     );
   }
 
-  /// `Core not found`
-  String get coreNotFound {
-    return Intl.message(
-      'Core not found',
-      name: 'coreNotFound',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Start Core`
   String get coreStart {
     return Intl.message(
@@ -1640,16 +1630,6 @@ class S {
     );
   }
 
-  /// `Replacing Core`
-  String get replacingCore {
-    return Intl.message(
-      'Replacing Core',
-      name: 'replacingCore',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Repo URL`
   String get repoUrl {
     return Intl.message(
@@ -2215,36 +2195,6 @@ class S {
     return Intl.message(
       'Update through proxy, default off. When it\'s on, updates for the core and subscriptions will be done through a proxy server (requires an active server)',
       name: 'updateThroughProxyMsg',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Updating`
-  String get updating {
-    return Intl.message(
-      'Updating',
-      name: 'updating',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Updating all groups`
-  String get updatingAllGroups {
-    return Intl.message(
-      'Updating all groups',
-      name: 'updatingAllGroups',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Updating group`
-  String get updatingGroup {
-    return Intl.message(
-      'Updating group',
-      name: 'updatingGroup',
       desc: '',
       args: [],
     );

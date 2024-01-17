@@ -15,10 +15,12 @@ import 'package:sphia/app/task/task.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/app/tray.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
+import 'package:sphia/util/system.dart';
 import 'package:sphia/view/page/agent/server.dart';
 import 'package:sphia/view/page/wrapper.dart';
 import 'package:sphia/view/widget/chart.dart';
 import 'package:sphia/view/widget/widget.dart';
+import 'package:path/path.dart' as p;
 
 class ServerPage extends StatefulWidget {
   const ServerPage({
@@ -30,8 +32,6 @@ class ServerPage extends StatefulWidget {
 }
 
 class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
-  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
-      GlobalKey<ScaffoldMessengerState>();
   late int _index;
   bool _isLoading = false;
   late final ServerAgent _agent;
@@ -380,7 +380,6 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
       initialIndex: _index,
       length: serverConfigProvider.serverGroups.length,
       child: ScaffoldMessenger(
-        key: _scaffoldMessengerKey,
         child: Scaffold(
           appBar: appBar,
           body: PageWrapper(
@@ -526,15 +525,37 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                 ),
                 PopupMenuButton(
                   icon: const Icon(Icons.share),
-                  onSelected: (value) async => await _agent.shareServer(
-                    value,
-                    server.id,
-                    (message) {
-                      _scaffoldMessengerKey.currentState!.showSnackBar(
-                        SphiaWidget.snackBar(message),
-                      );
-                    },
-                  ),
+                  onSelected: (value) async {
+                    if (await _agent.shareServer(value, server.id)) {
+                      if (value == 'Configuration') {
+                        if (!context.mounted) {
+                          return;
+                        }
+                        await SphiaWidget.showDialogWithMsg(
+                          context,
+                          '${S.of(context).exportToFile}: ${p.join(tempPath, 'export.json')}',
+                        );
+                      } else if (value == 'ExportToClipboard') {
+                        if (!context.mounted) {
+                          return;
+                        }
+                        await SphiaWidget.showDialogWithMsg(
+                          context,
+                          S.of(context).exportToClipboard,
+                        );
+                      }
+                    } else {
+                      if (value == 'Configuration') {
+                        if (!context.mounted) {
+                          return;
+                        }
+                        await SphiaWidget.showDialogWithMsg(
+                          context,
+                          S.of(context).noConfigurationFileGenerated,
+                        );
+                      }
+                    }
+                  },
                   itemBuilder: (BuildContext context) {
                     return [
                       PopupMenuItem(
@@ -623,8 +644,13 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
       if (coreProvider.coreRunning) {
         await SphiaController.stopCores();
       } else {
-        _scaffoldMessengerKey.currentState!
-            .showSnackBar(SphiaWidget.snackBar(S.current.noServerSelected));
+        if (!context.mounted) {
+          return;
+        }
+        await SphiaWidget.showDialogWithMsg(
+          context,
+          S.of(context).noServerSelected,
+        );
         logger.w('No server selected');
         setState(() {});
       }
@@ -640,8 +666,13 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
       setState(() {
         _isLoading = false;
       });
-      _scaffoldMessengerKey.currentState!.showSnackBar(
-          SphiaWidget.snackBar('${S.current.coreStartFailed}: $e'));
+      if (!context.mounted) {
+        return;
+      }
+      await SphiaWidget.showDialogWithMsg(
+        context,
+        '${S.current.coreStartFailed}: $e',
+      );
     }
     setState(() {
       _isLoading = false;

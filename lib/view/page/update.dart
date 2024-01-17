@@ -21,8 +21,6 @@ class UpdatePage extends StatefulWidget {
 }
 
 class _UpdatePageState extends State<UpdatePage> {
-  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
-      GlobalKey<ScaffoldMessengerState>();
   final Map<String, String> _latestVersions = {};
   final _agent = UpdateAgent();
 
@@ -40,7 +38,6 @@ class _UpdatePageState extends State<UpdatePage> {
   Widget build(BuildContext context) {
     final versionConfigProvider = Provider.of<VersionConfigProvider>(context);
     return ScaffoldMessenger(
-      key: _scaffoldMessengerKey,
       child: Scaffold(
         appBar: AppBar(
           title: Text(S.of(context).update),
@@ -71,61 +68,37 @@ class _UpdatePageState extends State<UpdatePage> {
                                 await launchUrl(Uri.parse(repoUrl));
                               } on Exception catch (e) {
                                 logger.e('Failed to launch url: $e');
-                                _scaffoldMessengerKey.currentState!
-                                    .showSnackBar(
-                                  SphiaWidget.snackBar(
-                                      '${S.current.launchUrlFailed}: $e'),
+                                if (!context.mounted) {
+                                  return;
+                                }
+                                await SphiaWidget.showDialogWithMsg(
+                                  context,
+                                  '${S.of(context).launchUrlFailed}: $e',
                                 );
                               }
                             },
                         ),
                       ),
-                      currentVersion == null
-                          ? const SizedBox.shrink()
-                          : Text(
-                              '${S.of(context).currentVersion}: $currentVersion',
-                            ),
-                      latestVersion == null
-                          ? const SizedBox.shrink()
-                          : Text(
-                              '${S.of(context).latestVersion}: $latestVersion',
-                            ),
+                      if (currentVersion != null) ...[
+                        Text('${S.of(context).currentVersion}: $currentVersion')
+                      ],
+                      if (latestVersion != null) ...[
+                        Text('${S.of(context).latestVersion}: $latestVersion')
+                      ],
                     ],
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ElevatedButton(
-                        onPressed: () async => await _checkUpdate(coreName),
+                        onPressed: () async =>
+                            await _checkUpdate(coreName, true),
                         child: Text(S.of(context).checkUpdate),
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton(
-                        onPressed: () async {
-                          if (!_latestVersions.containsKey(coreName) ||
-                              _latestVersions[coreName] == null) {
-                            await _checkUpdate(coreName);
-                          }
-                          if (_latestVersions[coreName] != null) {
-                            if (_latestVersions[coreName] ==
-                                versionConfigProvider.getVersion(coreName)) {
-                              return;
-                            }
-                            try {
-                              await _agent.updateCore(
-                                  coreName, _latestVersions[coreName]!,
-                                  (message) {
-                                _scaffoldMessengerKey.currentState!
-                                    .showSnackBar(
-                                  SphiaWidget.snackBar(message),
-                                );
-                              });
-                              _latestVersions.remove(coreName);
-                            } on Exception catch (_) {
-                              rethrow;
-                            }
-                          }
-                        },
+                        onPressed: () async =>
+                            await _updateCore(coreName, currentVersion),
                         child: Text(S.of(context).update),
                       ),
                     ],
@@ -139,7 +112,7 @@ class _UpdatePageState extends State<UpdatePage> {
     );
   }
 
-  Future<void> _checkUpdate(String coreName) async {
+  Future<void> _checkUpdate(String coreName, bool shouldShowDialog) async {
     final versionConfigProvider =
         Provider.of<VersionConfigProvider>(context, listen: false);
     final coreExists = SystemUtil.coreExists(coreName);
@@ -151,31 +124,39 @@ class _UpdatePageState extends State<UpdatePage> {
     if (coreName == 'hysteria') {
       if (versionConfigProvider.getVersion(coreName) == hysteriaLatestVersion &&
           coreExists) {
-        _scaffoldMessengerKey.currentState?.showSnackBar(
-          SphiaWidget.snackBar(
-              '${S.of(context).alreadyLatestVersion}: $coreName'),
+        await SphiaWidget.showDialogWithMsg(
+          context,
+          '${S.of(context).alreadyLatestVersion}: $coreName',
         );
         return;
       }
+      logger.i('Latest version of hysteria: $hysteriaLatestVersion');
       setState(() {
         _latestVersions['hysteria'] = hysteriaLatestVersion;
       });
+      if (shouldShowDialog) {
+        await SphiaWidget.showDialogWithMsg(
+          context,
+          '${S.of(context).latestVersion}: hysteria $hysteriaLatestVersion',
+        );
+      }
       return;
     }
     logger.i('Checking update: $coreName');
-    _scaffoldMessengerKey.currentState?.showSnackBar(
-      SphiaWidget.snackBar('${S.of(context).checkingUpdate}: $coreName'),
-    );
     try {
-      // check github connection
       try {
+        // check github connection
         await NetworkUtil.getHttpResponse('https://github.com').timeout(
             const Duration(seconds: 5),
             onTimeout: () => throw Exception('Connection timed out'));
       } on Exception catch (e) {
         logger.e('Failed to connect to Github: $e');
-        _scaffoldMessengerKey.currentState!.showSnackBar(
-          SphiaWidget.snackBar('${S.current.connectToGithubFailed}: $e'),
+        if (!context.mounted) {
+          return;
+        }
+        await SphiaWidget.showDialogWithMsg(
+          context,
+          '${S.of(context).connectToGithubFailed}: $e',
         );
         return;
       }
@@ -183,24 +164,69 @@ class _UpdatePageState extends State<UpdatePage> {
       if (!context.mounted) {
         return;
       }
-      setState(() {
-        logger.i('Latest version of $coreName: $latestVersion');
-        _latestVersions[coreName] = latestVersion;
-      });
+      logger.i('Latest version of $coreName: $latestVersion');
       if (versionConfigProvider.getVersion(coreName) == latestVersion &&
           coreExists) {
-        _scaffoldMessengerKey.currentState?.showSnackBar(
-          SphiaWidget.snackBar(
-              '${S.of(context).alreadyLatestVersion}: $coreName'),
+        await SphiaWidget.showDialogWithMsg(
+          context,
+          '${S.of(context).alreadyLatestVersion}: $coreName',
         );
-        return;
+      } else {
+        setState(() {
+          _latestVersions[coreName] = latestVersion;
+        });
+        if (shouldShowDialog) {
+          await SphiaWidget.showDialogWithMsg(
+            context,
+            '${S.of(context).latestVersion}: $coreName $latestVersion',
+          );
+        }
       }
     } on Exception catch (e) {
       logger.e('Failed to check update: $e');
-      _scaffoldMessengerKey.currentState!.showSnackBar(
-        SphiaWidget.snackBar('${S.current.checkUpdateFailed} $e'),
+      if (!context.mounted) {
+        return;
+      }
+      await SphiaWidget.showDialogWithMsg(
+        context,
+        '${S.of(context).checkUpdateFailed}: $e',
       );
       return;
+    }
+  }
+
+  Future<void> _updateCore(String coreName, String? currentVersion) async {
+    if (!_latestVersions.containsKey(coreName) ||
+        _latestVersions[coreName] == null) {
+      await _checkUpdate(coreName, false);
+    }
+    final latestVersion = _latestVersions[coreName];
+    if (latestVersion != null) {
+      if (latestVersion == currentVersion) {
+        return;
+      }
+      try {
+        await _agent.updateCore(coreName, latestVersion);
+      } on Exception catch (e) {
+        if (!context.mounted) {
+          return;
+        }
+        await SphiaWidget.showDialogWithMsg(
+          context,
+          '${S.of(context).updateFailed}: $e',
+        );
+      }
+      if (!context.mounted) {
+        return;
+      }
+      _latestVersions.remove(coreName);
+      final versionConfigProvider =
+          Provider.of<VersionConfigProvider>(context, listen: false);
+      versionConfigProvider.updateVersion(coreName, latestVersion);
+      await SphiaWidget.showDialogWithMsg(
+        context,
+        S.of(context).updatedSuccessfully(coreName, latestVersion),
+      );
     }
   }
 }

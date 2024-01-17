@@ -148,12 +148,10 @@ class ServerAgent {
     return true;
   }
 
-  // TODO: Fix the position of snackbar
-  Future<void> shareServer(
-      String option, int serverId, void Function(String) showSnackBar) async {
+  Future<bool> shareServer(String option, int serverId) async {
     final server = await serverDao.getServerById(serverId);
     if (server == null) {
-      return;
+      return false;
     }
     switch (option) {
       case 'QRCode':
@@ -161,19 +159,17 @@ class ServerAgent {
         if (uri != null) {
           _shareQRCode(uri);
         }
-        break;
+        return true;
       case 'ExportToClipboard':
-        showSnackBar(S.current.exportToClipboard);
         String? uri = UriUtil.getUri(server);
         if (uri != null) {
           UriUtil.exportUriToClipboard(uri);
         }
-        break;
+        return true;
       case 'Configuration':
-        _shareConfiguration(server, showSnackBar);
-        break;
+        return _shareConfiguration(server);
       default:
-        return;
+        return false;
     }
   }
 
@@ -197,19 +193,15 @@ class ServerAgent {
     );
   }
 
-  void _shareConfiguration(
-      Server server, void Function(String) showSnackBar) async {
+  Future<bool> _shareConfiguration(Server server) async {
     final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
-    String exportFileName;
+    const exportFileName = 'export.json';
     if ((server.protocol == 'vmess' || server.protocol == 'vless') ||
         (server.protocol == 'shadowsocks') ||
         (server.protocol == 'trojan') ||
         (server.protocol == 'hysteria')) {
-      exportFileName = 'export.json';
       final protocol = server.protocol;
       logger.i('Export to File: ${p.join(tempPath, exportFileName)}');
-      showSnackBar(
-          '${S.of(context).exportToFile}: ${p.join(tempPath, exportFileName)}');
       late final Core core;
       if ((protocol == 'vless' &&
               sphiaConfigProvider.config.vlessProvider ==
@@ -248,8 +240,9 @@ class ServerAgent {
       core.isRouting = true;
       final jsonString = await core.generateConfig(server);
       await core.writeConfig(jsonString);
+      return true;
     } else {
-      showSnackBar(S.of(context).noConfigurationFileGenerated);
+      return false;
     }
   }
 

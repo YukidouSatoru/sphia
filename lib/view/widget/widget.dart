@@ -423,6 +423,28 @@ class SphiaWidget {
       },
     );
   }
+
+  static Future<void> showDialogWithMsg(
+    BuildContext context,
+    String message,
+  ) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Text(message),
+          actions: [
+            TextButton(
+              child: Text(S.of(context).ok),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 const navigationStyleList = ['rail', 'drawer'];

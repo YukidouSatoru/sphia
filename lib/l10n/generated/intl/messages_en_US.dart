@@ -84,7 +84,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "coreApiPort": MessageLookupByLibrary.simpleMessage("Core API Port"),
         "coreApiPortMsg": MessageLookupByLibrary.simpleMessage(
             "The port used for retrieving traffic statistics from the core API"),
-        "coreNotFound": MessageLookupByLibrary.simpleMessage("Core not found"),
         "coreStart": MessageLookupByLibrary.simpleMessage("Start Core"),
         "coreStartFailed":
             MessageLookupByLibrary.simpleMessage("Failed to start core"),
@@ -268,7 +267,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "remoteDnsMsg": MessageLookupByLibrary.simpleMessage(
             "Remote DNS, default is https://dns.google/dns-query. Sing-Box will attempt resolution before startup.\nIf you are not sure about the DNS format of the routing provider, please do not modify"),
         "reorderGroup": MessageLookupByLibrary.simpleMessage("Reorder Group"),
-        "replacingCore": MessageLookupByLibrary.simpleMessage("Replacing Core"),
         "repoUrl": MessageLookupByLibrary.simpleMessage("Repo URL"),
         "routingProvider":
             MessageLookupByLibrary.simpleMessage("Routing Provider"),
@@ -358,10 +356,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "updatedGroupSuccessfully":
             MessageLookupByLibrary.simpleMessage("Updated group successfully"),
         "updatedSuccessfully": m0,
-        "updating": MessageLookupByLibrary.simpleMessage("Updating"),
-        "updatingAllGroups":
-            MessageLookupByLibrary.simpleMessage("Updating all groups"),
-        "updatingGroup": MessageLookupByLibrary.simpleMessage("Updating group"),
         "upload": MessageLookupByLibrary.simpleMessage("Upload"),
         "uploadSpeed": MessageLookupByLibrary.simpleMessage("Upload Speed"),
         "useMaterial3": MessageLookupByLibrary.simpleMessage("Use Material 3"),

@@ -7,7 +7,6 @@ import 'package:path/path.dart' as p;
 import 'package:sphia/app/controller.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/version_config.dart';
-import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/network.dart';
 import 'package:sphia/util/system.dart';
 
@@ -43,19 +42,15 @@ final coreRepositories = {
 const hysteriaLatestVersion = 'v1.3.5';
 
 class UpdateAgent {
-  Future<void> updateCore(String coreName, String latestVersion,
-      void Function(String) showSnackBar) async {
-    showSnackBar('${S.current.updating}: $coreName');
+  Future<void> updateCore(String coreName, String latestVersion) async {
     if (coreName == 'v2ray-rules-dat' || coreName == 'sing-box-rules') {
       try {
         await updateGeoFiles(coreName);
       } on Exception catch (e) {
         logger.e('Failed to update: $coreName\n$e');
-        showSnackBar('${S.current.updateFailed}: $coreName\n$e');
         throw Exception('Failed to update: $coreName\n$e');
       }
       logger.i('Updated $coreName to $latestVersion successfully');
-      showSnackBar(S.current.updatedSuccessfully(coreName, latestVersion));
       final versionConfigProvider = GetIt.I.get<VersionConfigProvider>();
       versionConfigProvider.updateVersion(coreName, latestVersion);
     } else {
@@ -69,22 +64,18 @@ class UpdateAgent {
 
         // Stop all cores
         await SphiaController.stopCores();
-        showSnackBar('${S.current.replacingCore}: $coreName');
         // Replace core
         await replaceCore(coreArchiveFileName, coreFileName, bytes);
 
         if (!SystemUtil.fileExists(coreFileName)) {
           logger.e('Core not found: $coreName');
-          showSnackBar('${S.current.coreNotFound} $coreName');
-          return;
+          throw Exception('Core not found: $coreName');
         }
       } on Exception catch (e) {
         logger.e('Failed to update: $coreName\n$e');
-        showSnackBar('${S.current.updateFailed}: $coreName\n$e');
         throw Exception('Failed to update: $coreName\n$e');
       }
       logger.i('Updated $coreName to $latestVersion successfully');
-      showSnackBar(S.current.updatedSuccessfully(coreName, latestVersion));
       final versionConfigProvider = GetIt.I.get<VersionConfigProvider>();
       versionConfigProvider.updateVersion(coreName, latestVersion);
     }

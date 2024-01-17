@@ -73,7 +73,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "coreApiPort": MessageLookupByLibrary.simpleMessage("核心 API 端口"),
         "coreApiPortMsg":
             MessageLookupByLibrary.simpleMessage("核心 API 端口，用于获取流量统计"),
-        "coreNotFound": MessageLookupByLibrary.simpleMessage("找不到核心"),
         "coreStart": MessageLookupByLibrary.simpleMessage("启动核心"),
         "coreStartFailed": MessageLookupByLibrary.simpleMessage("启动核心失败"),
         "coreStop": MessageLookupByLibrary.simpleMessage("停止核心"),
@@ -217,7 +216,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "remoteDnsMsg": MessageLookupByLibrary.simpleMessage(
             "远程 DNS，默认为 https://dns.google/dns-query。Sing-Box 在启动前会尝试解析。\n如果你不清楚路由提供者的 DNS 格式，请不要修改"),
         "reorderGroup": MessageLookupByLibrary.simpleMessage("排序分组"),
-        "replacingCore": MessageLookupByLibrary.simpleMessage("替换核心"),
         "repoUrl": MessageLookupByLibrary.simpleMessage("仓库地址"),
         "routingProvider": MessageLookupByLibrary.simpleMessage("路由提供者"),
         "routingProviderMsg":
@@ -295,9 +293,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "updatedGroupSuccessfully":
             MessageLookupByLibrary.simpleMessage("更新分组成功"),
         "updatedSuccessfully": m0,
-        "updating": MessageLookupByLibrary.simpleMessage("正在更新"),
-        "updatingAllGroups": MessageLookupByLibrary.simpleMessage("更新所有分组"),
-        "updatingGroup": MessageLookupByLibrary.simpleMessage("更新分组"),
         "upload": MessageLookupByLibrary.simpleMessage("上传"),
         "uploadSpeed": MessageLookupByLibrary.simpleMessage("上传速度"),
         "useMaterial3": MessageLookupByLibrary.simpleMessage("使用 Material 3"),
