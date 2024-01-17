@@ -520,7 +520,6 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                               listen: false);
                       serverConfigProvider.servers[index] = newServer!;
                       SphiaTray.replaceServerItem(newServer);
-                      SphiaTray.setMenu();
                       setState(() {});
                     }
                   },
@@ -565,7 +564,6 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                               listen: false);
                       serverConfigProvider.servers.removeAt(index);
                       SphiaTray.removeServerItem(server.id);
-                      SphiaTray.setMenu();
                       setState(() {});
                     }
                   },
