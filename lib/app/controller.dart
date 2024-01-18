@@ -42,7 +42,6 @@ class SphiaController {
     final protocol = selectedServer.protocol;
     final int routingProvider =
         selectedServer.routingProvider ?? sphiaConfig.routingProvider;
-    late final int protocolProvider;
     late final Server? additionalServer;
 
     coreProvider.cores = [];
@@ -60,54 +59,42 @@ class SphiaController {
         coreProvider.cores.add(XrayCore()..isRouting = true);
       }
     } else {
-      switch (protocol) {
-        case 'vmess':
-          protocolProvider =
-              selectedServer.protocolProvider ?? sphiaConfig.vmessProvider;
-          if (protocolProvider == VmessProvider.xray.index) {
-            coreProvider.cores.add(XrayCore());
-          } else {
-            coreProvider.cores.add(SingBoxCore());
-          }
-          break;
-        case 'vless':
-          protocolProvider =
-              selectedServer.protocolProvider ?? sphiaConfig.vlessProvider;
-          if (protocolProvider == VlessProvider.xray.index) {
-            coreProvider.cores.add(XrayCore());
-          } else {
-            coreProvider.cores.add(SingBoxCore());
-          }
-          break;
-        case 'shadowsocks':
-          protocolProvider = selectedServer.protocolProvider ??
+      final protocolToCore = {
+        'vmess': (Server selectedServer, SphiaConfig sphiaConfig) =>
+            (selectedServer.protocolProvider ?? sphiaConfig.vmessProvider) ==
+                    VmessProvider.xray.index
+                ? XrayCore()
+                : SingBoxCore(),
+        'vless': (Server selectedServer, SphiaConfig sphiaConfig) =>
+            (selectedServer.protocolProvider ?? sphiaConfig.vlessProvider) ==
+                    VlessProvider.xray.index
+                ? XrayCore()
+                : SingBoxCore(),
+        'shadowsocks': (Server selectedServer, SphiaConfig sphiaConfig) {
+          final protocolProvider = selectedServer.protocolProvider ??
               sphiaConfig.shadowsocksProvider;
           if (protocolProvider == ShadowsocksProvider.xray.index) {
-            coreProvider.cores.add(XrayCore());
+            return XrayCore();
           } else if (protocolProvider == ShadowsocksProvider.sing.index) {
-            coreProvider.cores.add(SingBoxCore());
+            return SingBoxCore();
           } else {
-            coreProvider.cores.add(ShadowsocksRustCore());
+            return ShadowsocksRustCore();
           }
-          break;
-        case 'trojan':
-          protocolProvider =
-              selectedServer.protocolProvider ?? sphiaConfig.trojanProvider;
-          if (protocolProvider == TrojanProvider.xray.index) {
-            coreProvider.cores.add(XrayCore());
-          } else {
-            coreProvider.cores.add(SingBoxCore());
-          }
-          break;
-        case 'hysteria':
-          protocolProvider =
-              selectedServer.protocolProvider ?? sphiaConfig.hysteriaProvider;
-          if (protocolProvider == HysteriaProvider.sing.index) {
-            coreProvider.cores.add(SingBoxCore());
-          } else {
-            coreProvider.cores.add(HysteriaCore());
-          }
-          break;
+        },
+        'trojan': (Server selectedServer, SphiaConfig sphiaConfig) =>
+            (selectedServer.protocolProvider ?? sphiaConfig.trojanProvider) ==
+                    TrojanProvider.xray.index
+                ? XrayCore()
+                : SingBoxCore(),
+        'hysteria': (Server selectedServer, SphiaConfig sphiaConfig) =>
+            (selectedServer.protocolProvider ?? sphiaConfig.hysteriaProvider) ==
+                    HysteriaProvider.sing.index
+                ? SingBoxCore()
+                : HysteriaCore(),
+      };
+      final core = protocolToCore[protocol]?.call(selectedServer, sphiaConfig);
+      if (core != null) {
+        coreProvider.cores.add(core);
       }
       if (getProviderCoreName(routingProvider) !=
           coreProvider.cores.first.coreName) {
@@ -184,7 +171,7 @@ class SphiaController {
       }
       coreProvider.updateCoreRunning(false);
       // wait traffic to stop
-      await Future.delayed(const Duration(milliseconds: 1000));
+      await Future.delayed(const Duration(milliseconds: 500));
       for (var core in coreProvider.cores) {
         await core.stop();
       }
