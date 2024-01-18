@@ -24,12 +24,12 @@ abstract class Core {
   Core(this.coreName, this.coreArgs, this.configFileName);
 
   Future<void> start(Server selectedServer) async {
-    await configure(selectedServer);
-
     if (!SystemUtil.coreExists(coreName)) {
       logger.e('Core $coreName does not exist');
       throw Exception('Core $coreName does not exist');
     }
+
+    await configure(selectedServer);
     logger.i('Starting core: $coreName');
     try {
       _coreProcess = await Process.start(
