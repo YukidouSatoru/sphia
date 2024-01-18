@@ -553,7 +553,7 @@ RealitySettings _$RealitySettingsFromJson(Map<String, dynamic> json) =>
     RealitySettings(
       serverName: json['serverName'] as String?,
       fingerprint: json['fingerprint'] as String,
-      shortID: json['shortID'] as String?,
+      shortId: json['shortId'] as String?,
       publicKey: json['publicKey'] as String,
       spiderX: json['spiderX'] as String?,
     );
@@ -569,7 +569,7 @@ Map<String, dynamic> _$RealitySettingsToJson(RealitySettings instance) {
 
   writeNotNull('serverName', instance.serverName);
   val['fingerprint'] = instance.fingerprint;
-  writeNotNull('shortID', instance.shortID);
+  writeNotNull('shortId', instance.shortId);
   val['publicKey'] = instance.publicKey;
   writeNotNull('spiderX', instance.spiderX);
   return val;

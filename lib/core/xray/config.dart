@@ -471,14 +471,14 @@ class TlsSettings {
 class RealitySettings {
   String? serverName;
   String fingerprint;
-  String? shortID;
+  String? shortId;
   String publicKey;
   String? spiderX;
 
   RealitySettings({
     this.serverName,
     required this.fingerprint,
-    this.shortID,
+    this.shortId,
     required this.publicKey,
     this.spiderX,
   });

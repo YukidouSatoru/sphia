@@ -126,7 +126,7 @@ class XrayGenerate {
         ? RealitySettings(
             serverName: server.serverName ?? server.address,
             fingerprint: server.fingerprint ?? 'chrome',
-            shortID: server.shortId,
+            shortId: server.shortId,
             publicKey: server.publicKey ?? '',
             spiderX: server.spiderX,
           )
