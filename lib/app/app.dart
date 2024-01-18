@@ -16,6 +16,7 @@ import 'package:sphia/view/page/setting.dart';
 import 'package:sphia/view/page/update.dart';
 import 'package:sphia/view/widget/updat.dart';
 import 'package:sphia/view/widget/window_caption.dart';
+import 'package:sphia/view/widget/navigation_rail.dart' as sphia_rail;
 import 'package:window_manager/window_manager.dart';
 
 class SphiaApp extends StatefulWidget {
@@ -271,10 +272,10 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
     );
   }
 
-  NavigationRail _getNavigationRail(BuildContext context) {
+  sphia_rail.NavigationRail _getNavigationRail(BuildContext context) {
     final sphiaConfigProvider = Provider.of<SphiaConfigProvider>(context);
     final sphiaConfig = sphiaConfigProvider.config;
-    return NavigationRail(
+    return sphia_rail.NavigationRail(
       selectedIndex: _index,
       onDestinationSelected: (index) {
         setState(() {
@@ -319,7 +320,7 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
         ),
       ),
       destinations: [
-        NavigationRailDestination(
+        sphia_rail.NavigationRailDestination(
           icon: const Icon(Icons.dashboard),
           label: Builder(
             builder: (context) => Text(
@@ -328,7 +329,7 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
             ),
           ),
         ),
-        NavigationRailDestination(
+        sphia_rail.NavigationRailDestination(
           icon: const Icon(Icons.folder),
           label: Builder(
             builder: (context) => Text(
@@ -337,7 +338,7 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
             ),
           ),
         ),
-        NavigationRailDestination(
+        sphia_rail.NavigationRailDestination(
           icon: const Icon(Icons.rule),
           label: Builder(
             builder: (context) => Text(
@@ -346,7 +347,7 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
             ),
           ),
         ),
-        NavigationRailDestination(
+        sphia_rail.NavigationRailDestination(
           icon: const Icon(Icons.settings),
           label: Builder(
             builder: (context) => Text(
@@ -355,7 +356,7 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
             ),
           ),
         ),
-        NavigationRailDestination(
+        sphia_rail.NavigationRailDestination(
           icon: const Icon(Icons.upgrade),
           label: Builder(
             builder: (context) => Text(
@@ -364,7 +365,7 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
             ),
           ),
         ),
-        NavigationRailDestination(
+        sphia_rail.NavigationRailDestination(
           icon: const Icon(Icons.description),
           label: Builder(
             builder: (context) => Text(
@@ -373,7 +374,7 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
             ),
           ),
         ),
-        NavigationRailDestination(
+        sphia_rail.NavigationRailDestination(
           icon: const Icon(Icons.info),
           label: Builder(
             builder: (context) => Text(
