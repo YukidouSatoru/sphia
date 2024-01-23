@@ -469,6 +469,7 @@ class ServerAgent {
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     final serverGroups = serverConfigProvider.serverGroups;
     final oldOrder = serverGroups.map((e) => e.id).toList();
+    final shape = SphiaTheme.listTileShape(sphiaConfig.useMaterial3);
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -477,7 +478,6 @@ class ServerAgent {
           content: SizedBox(
             width: double.minPositive,
             child: ReorderableListView.builder(
-              buildDefaultDragHandles: false,
               proxyDecorator: (child, index, animation) => child,
               shrinkWrap: true,
               itemCount: serverGroups.length,
@@ -490,9 +490,9 @@ class ServerAgent {
                     child: Card(
                       color: Colors.transparent,
                       shadowColor: Colors.transparent,
+                      surfaceTintColor: Colors.transparent,
                       child: ListTile(
-                        shape:
-                            SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
+                        shape: shape,
                         title: Text(group.name),
                       ),
                     ),

@@ -218,6 +218,7 @@ class RuleAgent {
     final ruleConfigProvider = GetIt.I.get<RuleConfigProvider>();
     final ruleGroups = ruleConfigProvider.ruleGroups;
     final oldOrder = ruleGroups.map((e) => e.id).toList();
+    final shape = SphiaTheme.listTileShape(sphiaConfig.useMaterial3);
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -226,7 +227,7 @@ class RuleAgent {
           content: SizedBox(
             width: double.minPositive,
             child: ReorderableListView.builder(
-              buildDefaultDragHandles: false,
+              buildDefaultDragHandles: true,
               proxyDecorator: (child, index, animation) => child,
               shrinkWrap: true,
               itemCount: ruleGroups.length,
@@ -239,9 +240,9 @@ class RuleAgent {
                     child: Card(
                       color: Colors.transparent,
                       shadowColor: Colors.transparent,
+                      surfaceTintColor: Colors.transparent,
                       child: ListTile(
-                        shape:
-                            SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
+                        shape: shape,
                         title: Text(group.name),
                       ),
                     ),
