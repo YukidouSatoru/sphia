@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:sphia/app/database/dao/rule.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:sphia/core/server/model.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/view/widget/widget.dart';
 
@@ -203,16 +204,6 @@ class _RuleDialogState extends State<RuleDialog> {
       ),
     );
   }
-}
-
-class ServerModel {
-  final int id;
-  final String remark;
-
-  ServerModel({required this.id, required this.remark});
-
-  @override
-  String toString() => remark;
 }
 
 class OutboundTagHelper {
