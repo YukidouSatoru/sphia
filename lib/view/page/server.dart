@@ -518,7 +518,8 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                           Provider.of<ServerConfigProvider>(context,
                               listen: false);
                       serverConfigProvider.servers[index] = newServer!;
-                      SphiaTray.replaceServerItem(newServer);
+                      SphiaTray.modifyServerItemLabel(
+                          server.id, newServer.remark);
                       setState(() {});
                     }
                   },
@@ -661,7 +662,6 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
     });
     try {
       await SphiaController.toggleCores();
-      SphiaTray.setMenuItem('server-${server.id}', coreProvider.coreRunning);
     } on Exception catch (e) {
       setState(() {
         _isLoading = false;

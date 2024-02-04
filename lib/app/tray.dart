@@ -21,11 +21,11 @@ class SphiaTray {
 
   static Function get addServerItem => _tray.addServerItem;
 
-  static Function get replaceServerItem => _tray.replaceServerItem;
-
   static Function get removeServerItem => _tray.remoteServerItem;
 
   static Function get generateServerItems => _tray.generateServerItems;
+
+  static Function get modifyServerItemLabel => _tray.modifyServerItemLabel;
 
   static Function get generateRuleItems => _tray.generateRuleItems;
 
@@ -75,62 +75,21 @@ class Tray {
   }
 
   void addServerItem(Server server) {
-    final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     serverItems.add(
-      MenuItemCheckbox(
-        label: server.remark,
-        name: 'server-${server.id}',
-        onClicked: (menuItem) async {
-          if (!menuItem.checked) {
-            serverConfigProvider.config.selectedServerId = server.id;
-            serverConfigProvider.saveConfig();
-            await SphiaController.toggleCores();
-            setMenuItem(
-              'server-${serverConfigProvider.config.selectedServerId}',
-              false,
-            );
-            await menuItem.setCheck(true);
-          } else {
-            await SphiaController.stopCores();
-          }
-        },
-        checked: server.id == serverConfigProvider.config.selectedServerId,
-      ),
+      getServerItem(server),
     );
     setMenu();
   }
 
-  void replaceServerItem(Server server) {
-    final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-    final newServerItem = MenuItemCheckbox(
-      label: server.remark,
-      name: 'server-${server.id}',
-      onClicked: (menuItem) async {
-        if (!menuItem.checked) {
-          serverConfigProvider.config.selectedServerId = server.id;
-          serverConfigProvider.saveConfig();
-          await SphiaController.toggleCores();
-          setMenuItem(
-            'server-${serverConfigProvider.config.selectedServerId}',
-            false,
-          );
-          await menuItem.setCheck(true);
-        } else {
-          serverConfigProvider.config.selectedServerId = 0;
-          serverConfigProvider.saveConfig();
-          await SphiaController.stopCores();
-          setMenuItem(
-            'server-${serverConfigProvider.config.selectedServerId}',
-            false,
-          );
-        }
-      },
-      checked: server.id == serverConfigProvider.config.selectedServerId,
-    );
+  void modifyServerItemLabel(int id, String remark) {
     final index = serverItems.indexWhere(
-      (element) => element.name == 'server-${server.id}',
+      (element) => element.name == 'server-$id',
     );
-    serverItems[index] = newServerItem;
+    if (index == -1) {
+      logger.w('Server item not found');
+      return;
+    }
+    serverItems[index].label = remark;
     setMenu();
   }
 
@@ -145,33 +104,33 @@ class Tray {
     serverItems = [];
     for (var server in servers) {
       serverItems.add(
-        MenuItemCheckbox(
-          label: server.remark,
-          name: 'server-${server.id}',
-          onClicked: (menuItem) async {
-            if (!menuItem.checked) {
-              serverConfigProvider.config.selectedServerId = server.id;
-              serverConfigProvider.saveConfig();
-              await SphiaController.toggleCores();
-              setMenuItem(
-                'server-${serverConfigProvider.config.selectedServerId}',
-                false,
-              );
-              await menuItem.setCheck(true);
-            } else {
-              serverConfigProvider.config.selectedServerId = 0;
-              serverConfigProvider.saveConfig();
-              await SphiaController.stopCores();
-              setMenuItem(
-                'server-${serverConfigProvider.config.selectedServerId}',
-                false,
-              );
-            }
-          },
-          checked: server.id == serverConfigProvider.config.selectedServerId,
-        ),
+        getServerItem(server),
       );
     }
+  }
+
+  MenuItemCheckbox getServerItem(Server server) {
+    final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
+    return MenuItemCheckbox(
+      label: server.remark,
+      name: 'server-${server.id}',
+      onClicked: (menuItem) async {
+        if (!menuItem.checked) {
+          setMenuItem(
+            'server-${serverConfigProvider.config.selectedServerId}',
+            false,
+          );
+          await menuItem.setCheck(true);
+          serverConfigProvider.config.selectedServerId = server.id;
+          serverConfigProvider.saveConfig();
+        } else {
+          await menuItem.setCheck(false);
+          serverConfigProvider.config.selectedServerId = 0;
+          serverConfigProvider.saveConfig();
+        }
+      },
+      checked: server.id == serverConfigProvider.config.selectedServerId,
+    );
   }
 
   void generateRuleItems() {
