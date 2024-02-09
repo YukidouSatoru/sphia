@@ -1840,6 +1840,26 @@ class S {
     );
   }
 
+  /// `Show Transport`
+  String get showTransport {
+    return Intl.message(
+      'Show Transport',
+      name: 'showTransport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Display transport on the server card if available`
+  String get showTransportMsg {
+    return Intl.message(
+      'Display transport on the server card if available',
+      name: 'showTransportMsg',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `SNI`
   String get sni {
     return Intl.message(

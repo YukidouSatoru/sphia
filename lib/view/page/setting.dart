@@ -211,6 +211,24 @@ class _SettingPageState extends State<SettingPage> {
       ),
       const Divider(),
       SphiaWidget.checkboxCard(
+        sphiaConfig.showTransport,
+        S.of(context).showTransport,
+        (value) {
+          if (value != null) {
+            logger.i(
+                'Updating showTransport from ${sphiaConfig.showTransport} to $value');
+            sphiaConfig.showTransport = value;
+            sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
+              SphiaWidget.snackBar(
+                S.of(context).showTransportMsg,
+              ),
+            );
+          }
+        },
+      ),
+      SphiaWidget.checkboxCard(
         sphiaConfig.showAddress,
         S.of(context).showAddress,
         (value) {

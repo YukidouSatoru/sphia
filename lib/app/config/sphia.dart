@@ -38,6 +38,7 @@ class SphiaConfig {
   int navigationStyle;
   bool darkMode;
   int themeColor;
+  bool showTransport;
   bool showAddress;
   bool enableStatistics;
   bool enableSpeedChart;
@@ -100,6 +101,7 @@ class SphiaConfig {
     required this.navigationStyle,
     required this.darkMode,
     required this.themeColor,
+    required this.showTransport,
     required this.showAddress,
     required this.enableStatistics,
     required this.enableSpeedChart,
@@ -156,6 +158,7 @@ class SphiaConfig {
       navigationStyle: NavigationStyle.rail.index,
       darkMode: false,
       themeColor: 4278430196,
+      showTransport: false,
       showAddress: false,
       enableStatistics: false,
       enableSpeedChart: false,

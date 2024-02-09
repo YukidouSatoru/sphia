@@ -442,6 +442,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                             index,
                             sphiaConfig.useMaterial3,
                             sphiaConfig.themeColor,
+                            sphiaConfig.showTransport,
                             sphiaConfig.showAddress,
                             server.id == serverConfig.selectedServerId,
                           ),
@@ -475,10 +476,32 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
     int index,
     bool useMaterial3,
     int themeColorInt,
+    bool showTransport,
     bool showAddress,
     bool isSelected,
   ) {
     final themeColor = Color(themeColorInt);
+    String serverInfo = server.protocol;
+    if (showTransport) {
+      if ((server.protocol == 'vmess' || server.protocol == 'vless') &&
+          server.transport != null) {
+        serverInfo += ' - ${server.transport}';
+        if (server.tls != null && server.tls != 'none') {
+          serverInfo += ' + ${server.tls}';
+        }
+      } else if (server.protocol == 'shadowsocks' && server.plugin != null) {
+        if (server.plugin == 'obfs-local' || server.plugin == 'simple-obfs') {
+          serverInfo += ' - http';
+        } else if (server.plugin == 'simple-obfs-tls') {
+          serverInfo += ' - tls';
+        }
+      } else if (server.protocol == 'trojan') {
+        serverInfo += ' - tcp';
+      } else if (server.protocol == 'hysteria' &&
+          server.hysteriaProtocol != null) {
+        serverInfo += ' - ${server.hysteriaProtocol}';
+      }
+    }
     return Column(
       children: [
         Card(
@@ -492,7 +515,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(server.protocol),
+                Text(serverInfo),
                 if (showAddress) Text('${server.address}:${server.port}')
               ],
             ),

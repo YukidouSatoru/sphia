@@ -179,6 +179,8 @@
   "show": "Show",
   "showAddress": "Show Address",
   "showAddressMsg": "Display address and port number on the server card",
+  "showTransport": "Show Transport",
+  "showTransportMsg": "Display transport on the server card if available",
   "sni": "SNI",
   "socksPort": "Socks Port",
   "socksPortMsg": "Socks port, only applicable to xray-core",

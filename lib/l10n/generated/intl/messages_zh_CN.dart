@@ -242,6 +242,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "showAddress": MessageLookupByLibrary.simpleMessage("显示地址"),
         "showAddressMsg":
             MessageLookupByLibrary.simpleMessage("在服务器卡片上显示地址和端口号"),
+        "showTransport": MessageLookupByLibrary.simpleMessage("显示传输协议"),
+        "showTransportMsg":
+            MessageLookupByLibrary.simpleMessage("如果可用，在服务器卡片上显示传输协议"),
         "sni": MessageLookupByLibrary.simpleMessage("SNI"),
         "socksPort": MessageLookupByLibrary.simpleMessage("Socks 端口"),
         "socksPortMsg":

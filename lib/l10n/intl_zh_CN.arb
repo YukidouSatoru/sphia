@@ -179,6 +179,8 @@
   "show": "显示",
   "showAddress": "显示地址",
   "showAddressMsg": "在服务器卡片上显示地址和端口号",
+  "showTransport": "显示传输协议",
+  "showTransportMsg": "如果可用，在服务器卡片上显示传输协议",
   "sni": "SNI",
   "socksPort": "Socks 端口",
   "socksPortMsg": "Socks 端口，仅适用于 xray-core",

@@ -296,6 +296,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "showAddress": MessageLookupByLibrary.simpleMessage("Show Address"),
         "showAddressMsg": MessageLookupByLibrary.simpleMessage(
             "Display address and port number on the server card"),
+        "showTransport": MessageLookupByLibrary.simpleMessage("Show Transport"),
+        "showTransportMsg": MessageLookupByLibrary.simpleMessage(
+            "Display transport on the server card if available"),
         "sni": MessageLookupByLibrary.simpleMessage("SNI"),
         "socksPort": MessageLookupByLibrary.simpleMessage("Socks Port"),
         "socksPortMsg": MessageLookupByLibrary.simpleMessage(
