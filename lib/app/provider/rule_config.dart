@@ -16,8 +16,4 @@ class RuleConfigProvider extends ChangeNotifier {
   void saveConfigWithoutNotify() {
     ruleConfigDao.saveConfig();
   }
-
-  void notify() {
-    notifyListeners();
-  }
 }

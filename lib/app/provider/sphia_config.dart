@@ -11,8 +11,4 @@ class SphiaConfigProvider extends ChangeNotifier {
     sphiaConfigDao.saveConfig();
     notifyListeners();
   }
-
-  void saveConfigWithoutNotify() {
-    sphiaConfigDao.saveConfig();
-  }
 }

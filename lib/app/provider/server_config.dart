@@ -17,8 +17,4 @@ class ServerConfigProvider extends ChangeNotifier {
   void saveConfigWithoutNotify() {
     serverConfigDao.saveConfig();
   }
-
-  void notify() {
-    notifyListeners();
-  }
 }

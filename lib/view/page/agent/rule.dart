@@ -10,7 +10,7 @@ import 'package:sphia/app/theme.dart';
 import 'package:sphia/core/rule/extension.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/view/dialog/rule.dart';
-import 'package:sphia/view/widget/widget.dart';
+import 'package:sphia/view/dialog/rule_group.dart';
 
 class RuleAgent {
   BuildContext context;
@@ -61,52 +61,9 @@ class RuleAgent {
   }
 
   Future<bool> addGroup() async {
-    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    final groupNameController = TextEditingController();
-    String? newGroupName = await showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(S.of(context).addGroup),
-          scrollable: true,
-          content: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SphiaWidget.textInput(
-                  groupNameController,
-                  S.of(context).groupName,
-                  (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return S.current.groupNameEnterMsg;
-                    }
-                    return null;
-                  },
-                ),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(S.of(context).cancel),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text(S.of(context).add),
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  Navigator.of(context).pop(
-                    groupNameController.text,
-                  );
-                }
-              },
-            ),
-          ],
-        );
-      },
+    String? newGroupName = await _showEditRuleGroupDialog(
+      S.of(context).addGroup,
+      '',
     );
     if (newGroupName == null) {
       return false;
@@ -119,76 +76,30 @@ class RuleAgent {
       id: groupId,
       name: newGroupName,
     ));
-    ruleConfigProvider.notify();
     return true;
   }
 
   Future<bool> editGroup(RuleGroup ruleGroup) async {
-    if (ruleGroup.name != 'Default') {
-      final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-      final groupNameController = TextEditingController();
-      groupNameController.text = ruleGroup.name;
-      String? newGroupName = await showDialog<String>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(S.of(context).editGroup),
-            scrollable: true,
-            content: Form(
-              key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SphiaWidget.textInput(
-                    groupNameController,
-                    S.of(context).groupName,
-                    (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return S.of(context).groupNameEnterMsg;
-                      }
-                      return null;
-                    },
-                  ),
-                ],
-              ),
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: Text(S.of(context).cancel),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: Text(S.of(context).save),
-                onPressed: () {
-                  if (formKey.currentState!.validate()) {
-                    Navigator.of(context).pop(
-                      groupNameController.text,
-                    );
-                  }
-                },
-              ),
-            ],
-          );
-        },
-      );
-      if (newGroupName == null || newGroupName == ruleGroup.name) {
-        return false;
-      }
-      logger.i('Editing Rule Group: ${ruleGroup.id}');
-      await ruleGroupDao.updateRuleGroup(ruleGroup.id, newGroupName);
-      final ruleConfigProvider = GetIt.I.get<RuleConfigProvider>();
-      ruleConfigProvider.ruleGroups[ruleConfigProvider.ruleGroups
-          .indexWhere((element) => element.id == ruleGroup.id)] = RuleGroup(
-        id: ruleGroup.id,
-        name: newGroupName,
-      );
-      ruleConfigProvider.notify();
-      return true;
+    if (ruleGroup.name == 'Default') {
+      await _showErrorDialog(ruleGroup.name);
+      return false;
     }
-    await _showErrorDialog(ruleGroup.name);
-    return false;
+    String? newGroupName = await _showEditRuleGroupDialog(
+      S.of(context).editGroup,
+      ruleGroup.name,
+    );
+    if (newGroupName == null || newGroupName == ruleGroup.name) {
+      return false;
+    }
+    logger.i('Editing Rule Group: ${ruleGroup.id}');
+    await ruleGroupDao.updateRuleGroup(ruleGroup.id, newGroupName);
+    final ruleConfigProvider = GetIt.I.get<RuleConfigProvider>();
+    ruleConfigProvider.ruleGroups[ruleConfigProvider.ruleGroups
+        .indexWhere((element) => element.id == ruleGroup.id)] = RuleGroup(
+      id: ruleGroup.id,
+      name: newGroupName,
+    );
+    return true;
   }
 
   Future<bool> deleteGroup(int groupId) async {
@@ -267,7 +178,6 @@ class RuleAgent {
     }
     logger.i('Reordered Rule Group');
     await ruleGroupDao.updateRuleGroupsOrder(newOrder);
-    ruleConfigProvider.notify();
     return true;
   }
 
@@ -275,6 +185,17 @@ class RuleAgent {
     return showDialog<Rule>(
       context: context,
       builder: (context) => RuleDialog(title: title, rule: rule),
+    );
+  }
+
+  Future<String?> _showEditRuleGroupDialog(
+      String title, String groupName) async {
+    return showDialog<String>(
+      context: context,
+      builder: (context) => RuleGroupDialog(
+        title: title,
+        groupName: groupName,
+      ),
     );
   }
 

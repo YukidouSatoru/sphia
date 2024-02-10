@@ -22,10 +22,10 @@ import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/system.dart';
 import 'package:sphia/util/uri/uri.dart';
 import 'package:sphia/view/dialog/hysteria.dart';
+import 'package:sphia/view/dialog/server_group.dart';
 import 'package:sphia/view/dialog/shadowsocks.dart';
 import 'package:sphia/view/dialog/trojan.dart';
 import 'package:sphia/view/dialog/xray.dart';
-import 'package:sphia/view/widget/widget.dart';
 
 class ServerAgent {
   BuildContext context;
@@ -247,75 +247,17 @@ class ServerAgent {
   }
 
   Future<bool> addGroup() async {
-    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    final groupNameController = TextEditingController();
-    final subscribeController = TextEditingController();
-    String subscribe = '';
-    bool fetchSubscribe = false;
-    String? newGroupName = await showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          scrollable: true,
-          title: Text(S.of(context).addGroup),
-          content: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SphiaWidget.textInput(
-                  groupNameController,
-                  S.of(context).groupName,
-                  (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return S.current.groupNameEnterMsg;
-                    }
-                    return null;
-                  },
-                ),
-                SphiaWidget.textInput(
-                  subscribeController,
-                  S.of(context).subscribe,
-                  null,
-                ),
-                SphiaWidget.dropdownButton(
-                  S.of(context).no,
-                  S.of(context).fetchSubscribe,
-                  [S.of(context).no, S.of(context).yes],
-                  (value) {
-                    if (value != null) {
-                      fetchSubscribe = value == S.of(context).yes;
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(S.of(context).cancel),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text(S.of(context).add),
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  subscribe = subscribeController.text;
-                  Navigator.of(context).pop(
-                    groupNameController.text,
-                  );
-                }
-              },
-            ),
-          ],
-        );
-      },
+    final serverGroupMap = await _showEditServerGroupDialog(
+      S.of(context).addGroup,
+      '',
+      '',
     );
-    if (newGroupName == null) {
+    if (serverGroupMap == null) {
       return false;
     }
+    final newGroupName = serverGroupMap['groupName'];
+    final subscribe = serverGroupMap['subscribe'];
+    final fetchSubscribe = serverGroupMap['fetchSubscribe'];
     logger.i('Adding Server Group: $newGroupName');
     final groupId =
         await serverGroupDao.insertServerGroup(newGroupName, subscribe);
@@ -326,92 +268,42 @@ class ServerAgent {
       name: newGroupName,
       subscribe: subscribe,
     ));
-    if (fetchSubscribe && subscribe.trim().isNotEmpty) {
+    if (fetchSubscribe && subscribe.isNotEmpty) {
       await updateGroup('CurrentGroup', groupId);
     }
-    serverConfigProvider.notify();
     return true;
   }
 
   Future<bool> editGroup(ServerGroup serverGroup) async {
-    if (serverGroup.name != 'Default') {
-      final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-      final groupNameController = TextEditingController();
-      final subscribeController = TextEditingController();
-      String subscribe = serverGroup.subscribe;
-      groupNameController.text = serverGroup.name;
-      subscribeController.text = subscribe;
-      String? newGroupName = await showDialog<String>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            scrollable: true,
-            title: Text(S.of(context).editGroup),
-            content: Form(
-              key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SphiaWidget.textInput(
-                    groupNameController,
-                    S.of(context).groupName,
-                    (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return S.current.groupNameEnterMsg;
-                      }
-                      return null;
-                    },
-                  ),
-                  SphiaWidget.textInput(
-                    subscribeController,
-                    S.of(context).subscribe,
-                    null,
-                  ),
-                ],
-              ),
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: Text(S.of(context).cancel),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: Text(S.of(context).save),
-                onPressed: () {
-                  if (formKey.currentState!.validate()) {
-                    subscribe = subscribeController.text;
-                    Navigator.of(context).pop(
-                      groupNameController.text,
-                    );
-                  }
-                },
-              ),
-            ],
-          );
-        },
-      );
-      if (newGroupName == null ||
-          (newGroupName == serverGroup.name &&
-              subscribe == serverGroup.subscribe)) {
-        return false;
-      }
-      logger.i('Editing Server Group: ${serverGroup.id}');
-      await serverGroupDao.updateServerGroup(
-          serverGroup.id, newGroupName, subscribe);
-      final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-      serverConfigProvider.serverGroups[serverConfigProvider.serverGroups
-          .indexWhere((element) => element.id == serverGroup.id)] = ServerGroup(
-        id: serverGroup.id,
-        name: newGroupName,
-        subscribe: subscribe,
-      );
-      serverConfigProvider.notify();
-      return true;
+    if (serverGroup.name == 'Default') {
+      await _showErrorDialog(serverGroup.name);
+      return false;
     }
-    await _showErrorDialog(serverGroup.name);
-    return false;
+    final serverGroupMap = await _showEditServerGroupDialog(
+      S.of(context).editGroup,
+      serverGroup.name,
+      serverGroup.subscribe,
+    );
+    if (serverGroupMap == null) {
+      return false;
+    }
+    final newGroupName = serverGroupMap['groupName'];
+    final subscribe = serverGroupMap['subscribe'];
+    if ((newGroupName == serverGroup.name &&
+        subscribe == serverGroup.subscribe)) {
+      return false;
+    }
+    logger.i('Editing Server Group: ${serverGroup.id}');
+    await serverGroupDao.updateServerGroup(
+        serverGroup.id, newGroupName, subscribe);
+    final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
+    serverConfigProvider.serverGroups[serverConfigProvider.serverGroups
+        .indexWhere((element) => element.id == serverGroup.id)] = ServerGroup(
+      id: serverGroup.id,
+      name: newGroupName,
+      subscribe: subscribe,
+    );
+    return true;
   }
 
   Future<bool> updateGroup(String type, int groupId) async {
@@ -518,7 +410,6 @@ class ServerAgent {
 
     logger.i('Reordered Server Groups');
     await serverGroupDao.updateServerGroupsOrder(newOrder);
-    serverConfigProvider.notify();
     return true;
   }
 
@@ -580,6 +471,21 @@ class ServerAgent {
       );
     }
     return null;
+  }
+
+  Future<Map<String, dynamic>?> _showEditServerGroupDialog(
+      String title, String groupName, String subscribe) async {
+    final serverGroupMap = {
+      'groupName': groupName,
+      'subscribe': subscribe,
+    };
+    return showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => ServerGroupDialog(
+        title: title,
+        serverGroupMap: serverGroupMap,
+      ),
+    );
   }
 
   Future<void> _showErrorDialog(String groupName) async {
