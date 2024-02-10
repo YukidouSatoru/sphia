@@ -123,6 +123,10 @@ class Tray {
           await menuItem.setCheck(true);
           serverConfigProvider.config.selectedServerId = server.id;
           serverConfigProvider.saveConfig();
+          final coreProvider = GetIt.I.get<CoreProvider>();
+          if (coreProvider.coreRunning) {
+            await SphiaController.restartCores();
+          }
         } else {
           await menuItem.setCheck(false);
           serverConfigProvider.config.selectedServerId = 0;
