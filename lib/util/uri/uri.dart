@@ -57,10 +57,10 @@ class UriUtil {
     Clipboard.setData(ClipboardData(text: uri));
   }
 
-  static Future<List<String>> importUriFromSubscribe(
-      String subscribe, String userAgent) async {
+  static Future<List<String>> importUriFromSubscription(
+      String subscription, String userAgent) async {
     try {
-      final response = await NetworkUtil.getHttpResponse(subscribe);
+      final response = await NetworkUtil.getHttpResponse(subscription);
       final responseBody =
           (await response.transform(utf8.decoder).join()).trim();
       String decodedContent;
@@ -78,11 +78,12 @@ class UriUtil {
     }
   }
 
-  static Future<void> updateSingleGroup(int groupId, String subscribe) async {
+  static Future<void> updateSingleGroup(
+      int groupId, String subscription) async {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     try {
       final userAgent = sphiaConfig.getUserAgent();
-      final uris = await importUriFromSubscribe(subscribe, userAgent);
+      final uris = await importUriFromSubscription(subscription, userAgent);
       final oldServers = await serverDao.getServersByGroupId(groupId);
       final oldOrder = oldServers.map((e) => e.id).toList();
       final newOrder = <int>[];

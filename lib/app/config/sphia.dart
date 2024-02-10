@@ -42,7 +42,7 @@ class SphiaConfig {
   bool showAddress;
   bool enableStatistics;
   bool enableSpeedChart;
-  int updateSubscribeInterval;
+  int updateSubscriptionInterval;
   bool updateThroughProxy;
   int userAgent;
 
@@ -105,7 +105,7 @@ class SphiaConfig {
     required this.showAddress,
     required this.enableStatistics,
     required this.enableSpeedChart,
-    required this.updateSubscribeInterval,
+    required this.updateSubscriptionInterval,
     required this.updateThroughProxy,
     required this.userAgent,
     required this.autoGetIp,
@@ -162,7 +162,7 @@ class SphiaConfig {
       showAddress: false,
       enableStatistics: false,
       enableSpeedChart: false,
-      updateSubscribeInterval: -1,
+      updateSubscriptionInterval: -1,
       updateThroughProxy: false,
       userAgent: UserAgent.chrome.index,
       autoGetIp: false,

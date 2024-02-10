@@ -194,14 +194,14 @@ class $ServerGroupsTable extends ServerGroups
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _subscribeMeta =
-      const VerificationMeta('subscribe');
+  static const VerificationMeta _subscriptionMeta =
+      const VerificationMeta('subscription');
   @override
-  late final GeneratedColumn<String> subscribe = GeneratedColumn<String>(
-      'subscribe', aliasedName, false,
+  late final GeneratedColumn<String> subscription = GeneratedColumn<String>(
+      'subscription', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [id, name, subscribe];
+  List<GeneratedColumn> get $columns => [id, name, subscription];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -221,11 +221,13 @@ class $ServerGroupsTable extends ServerGroups
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('subscribe')) {
-      context.handle(_subscribeMeta,
-          subscribe.isAcceptableOrUnknown(data['subscribe']!, _subscribeMeta));
+    if (data.containsKey('subscription')) {
+      context.handle(
+          _subscriptionMeta,
+          subscription.isAcceptableOrUnknown(
+              data['subscription']!, _subscriptionMeta));
     } else if (isInserting) {
-      context.missing(_subscribeMeta);
+      context.missing(_subscriptionMeta);
     }
     return context;
   }
@@ -240,8 +242,8 @@ class $ServerGroupsTable extends ServerGroups
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-      subscribe: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}subscribe'])!,
+      subscription: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subscription'])!,
     );
   }
 
@@ -254,15 +256,15 @@ class $ServerGroupsTable extends ServerGroups
 class ServerGroup extends DataClass implements Insertable<ServerGroup> {
   final int id;
   final String name;
-  final String subscribe;
+  final String subscription;
   const ServerGroup(
-      {required this.id, required this.name, required this.subscribe});
+      {required this.id, required this.name, required this.subscription});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
-    map['subscribe'] = Variable<String>(subscribe);
+    map['subscription'] = Variable<String>(subscription);
     return map;
   }
 
@@ -270,7 +272,7 @@ class ServerGroup extends DataClass implements Insertable<ServerGroup> {
     return ServerGroupsCompanion(
       id: Value(id),
       name: Value(name),
-      subscribe: Value(subscribe),
+      subscription: Value(subscription),
     );
   }
 
@@ -280,7 +282,7 @@ class ServerGroup extends DataClass implements Insertable<ServerGroup> {
     return ServerGroup(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      subscribe: serializer.fromJson<String>(json['subscribe']),
+      subscription: serializer.fromJson<String>(json['subscription']),
     );
   }
   @override
@@ -289,70 +291,70 @@ class ServerGroup extends DataClass implements Insertable<ServerGroup> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
-      'subscribe': serializer.toJson<String>(subscribe),
+      'subscription': serializer.toJson<String>(subscription),
     };
   }
 
-  ServerGroup copyWith({int? id, String? name, String? subscribe}) =>
+  ServerGroup copyWith({int? id, String? name, String? subscription}) =>
       ServerGroup(
         id: id ?? this.id,
         name: name ?? this.name,
-        subscribe: subscribe ?? this.subscribe,
+        subscription: subscription ?? this.subscription,
       );
   @override
   String toString() {
     return (StringBuffer('ServerGroup(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('subscribe: $subscribe')
+          ..write('subscription: $subscription')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, subscribe);
+  int get hashCode => Object.hash(id, name, subscription);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ServerGroup &&
           other.id == this.id &&
           other.name == this.name &&
-          other.subscribe == this.subscribe);
+          other.subscription == this.subscription);
 }
 
 class ServerGroupsCompanion extends UpdateCompanion<ServerGroup> {
   final Value<int> id;
   final Value<String> name;
-  final Value<String> subscribe;
+  final Value<String> subscription;
   const ServerGroupsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
-    this.subscribe = const Value.absent(),
+    this.subscription = const Value.absent(),
   });
   ServerGroupsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
-    required String subscribe,
+    required String subscription,
   })  : name = Value(name),
-        subscribe = Value(subscribe);
+        subscription = Value(subscription);
   static Insertable<ServerGroup> custom({
     Expression<int>? id,
     Expression<String>? name,
-    Expression<String>? subscribe,
+    Expression<String>? subscription,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (subscribe != null) 'subscribe': subscribe,
+      if (subscription != null) 'subscription': subscription,
     });
   }
 
   ServerGroupsCompanion copyWith(
-      {Value<int>? id, Value<String>? name, Value<String>? subscribe}) {
+      {Value<int>? id, Value<String>? name, Value<String>? subscription}) {
     return ServerGroupsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
-      subscribe: subscribe ?? this.subscribe,
+      subscription: subscription ?? this.subscription,
     );
   }
 
@@ -365,8 +367,8 @@ class ServerGroupsCompanion extends UpdateCompanion<ServerGroup> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
-    if (subscribe.present) {
-      map['subscribe'] = Variable<String>(subscribe.value);
+    if (subscription.present) {
+      map['subscription'] = Variable<String>(subscription.value);
     }
     return map;
   }
@@ -376,7 +378,7 @@ class ServerGroupsCompanion extends UpdateCompanion<ServerGroup> {
     return (StringBuffer('ServerGroupsCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('subscribe: $subscribe')
+          ..write('subscription: $subscription')
           ..write(')'))
         .toString();
   }

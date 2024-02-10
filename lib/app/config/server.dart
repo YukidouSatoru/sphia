@@ -6,19 +6,19 @@ part 'server.g.dart';
 class ServerConfig {
   int selectedServerGroupId;
   int selectedServerId;
-  int updatedSubscribeTime;
+  int updatedSubscriptionTime;
 
   ServerConfig({
     required this.selectedServerGroupId,
     required this.selectedServerId,
-    required this.updatedSubscribeTime,
+    required this.updatedSubscriptionTime,
   });
 
   factory ServerConfig.defaults() {
     return ServerConfig(
       selectedServerGroupId: 1,
       selectedServerId: 0,
-      updatedSubscribeTime: 0,
+      updatedSubscriptionTime: 0,
     );
   }
 

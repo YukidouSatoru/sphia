@@ -91,8 +91,10 @@ class _UpdatePageState extends State<UpdatePage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ElevatedButton(
-                        onPressed: () async =>
-                            await _checkUpdate(coreName, true),
+                        onPressed: () async => await _checkUpdate(
+                          coreName: coreName,
+                          showDialog: true,
+                        ),
                         child: Text(S.of(context).checkUpdate),
                       ),
                       const SizedBox(width: 8),
@@ -112,7 +114,8 @@ class _UpdatePageState extends State<UpdatePage> {
     );
   }
 
-  Future<void> _checkUpdate(String coreName, bool shouldShowDialog) async {
+  Future<void> _checkUpdate(
+      {required String coreName, required bool showDialog}) async {
     final versionConfigProvider =
         Provider.of<VersionConfigProvider>(context, listen: false);
     final coreExists = SystemUtil.coreExists(coreName);
@@ -134,7 +137,7 @@ class _UpdatePageState extends State<UpdatePage> {
       setState(() {
         _latestVersions['hysteria'] = hysteriaLatestVersion;
       });
-      if (shouldShowDialog) {
+      if (showDialog) {
         await SphiaWidget.showDialogWithMsg(
           context,
           '${S.of(context).latestVersion}: hysteria $hysteriaLatestVersion',
@@ -175,7 +178,7 @@ class _UpdatePageState extends State<UpdatePage> {
         setState(() {
           _latestVersions[coreName] = latestVersion;
         });
-        if (shouldShowDialog) {
+        if (showDialog) {
           await SphiaWidget.showDialogWithMsg(
             context,
             '${S.of(context).latestVersion}: $coreName $latestVersion',
@@ -198,7 +201,7 @@ class _UpdatePageState extends State<UpdatePage> {
   Future<void> _updateCore(String coreName, String? currentVersion) async {
     if (!_latestVersions.containsKey(coreName) ||
         _latestVersions[coreName] == null) {
-      await _checkUpdate(coreName, false);
+      await _checkUpdate(coreName: coreName, showDialog: false);
     }
     final latestVersion = _latestVersions[coreName];
     if (latestVersion != null) {

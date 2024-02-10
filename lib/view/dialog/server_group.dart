@@ -18,8 +18,8 @@ class ServerGroupDialog extends StatefulWidget {
 
 class _ServerGroupDialogState extends State<ServerGroupDialog> {
   final groupNameController = TextEditingController();
-  final subscribeController = TextEditingController();
-  bool fetchSubscribe = false;
+  final subscriptionController = TextEditingController();
+  bool fetchSubscription = false;
   late final bool isEdit;
   final formKey = GlobalKey<FormState>();
 
@@ -27,14 +27,14 @@ class _ServerGroupDialogState extends State<ServerGroupDialog> {
   void initState() {
     super.initState();
     groupNameController.text = widget.serverGroupMap['groupName']!;
-    subscribeController.text = widget.serverGroupMap['subscribe']!;
+    subscriptionController.text = widget.serverGroupMap['subscription']!;
     isEdit = widget.serverGroupMap['groupName']!.isNotEmpty;
   }
 
   @override
   void dispose() {
     groupNameController.dispose();
-    subscribeController.dispose();
+    subscriptionController.dispose();
     super.dispose();
   }
 
@@ -59,18 +59,18 @@ class _ServerGroupDialogState extends State<ServerGroupDialog> {
               },
             ),
             SphiaWidget.textInput(
-              subscribeController,
-              S.of(context).subscribe,
+              subscriptionController,
+              S.of(context).subscription,
               null,
             ),
             if (!isEdit)
               SphiaWidget.dropdownButton(
                 S.of(context).no,
-                S.of(context).fetchSubscribe,
+                S.of(context).fetchSubscription,
                 [S.of(context).no, S.of(context).yes],
                 (value) {
                   if (value != null) {
-                    fetchSubscribe = value == S.of(context).yes;
+                    fetchSubscription = value == S.of(context).yes;
                   }
                 },
               ),
@@ -91,8 +91,8 @@ class _ServerGroupDialogState extends State<ServerGroupDialog> {
               Navigator.of(context).pop(
                 {
                   'groupName': groupNameController.text.trim(),
-                  'subscribe': subscribeController.text.trim(),
-                  'fetchSubscribe': fetchSubscribe,
+                  'subscription': subscriptionController.text.trim(),
+                  'fetchSubscription': fetchSubscription,
                 },
               );
             }

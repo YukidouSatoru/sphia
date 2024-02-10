@@ -930,11 +930,11 @@ class S {
     );
   }
 
-  /// `Fetch Subscribe`
-  String get fetchSubscribe {
+  /// `Fetch Subscription`
+  String get fetchSubscription {
     return Intl.message(
-      'Fetch Subscribe',
-      name: 'fetchSubscribe',
+      'Fetch Subscription',
+      name: 'fetchSubscription',
       desc: '',
       args: [],
     );
@@ -980,11 +980,11 @@ class S {
     );
   }
 
-  /// `Group has no subscribe`
-  String get groupHasNoSubscribe {
+  /// `Group has no subscription`
+  String get groupHasNoSubscription {
     return Intl.message(
-      'Group has no subscribe',
-      name: 'groupHasNoSubscribe',
+      'Group has no subscription',
+      name: 'groupHasNoSubscription',
       desc: '',
       args: [],
     );
@@ -1397,6 +1397,16 @@ class S {
       name: 'noServerSelected',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `{count}/{total} subscriptions have been updated`
+  String numSubscriptionsHaveBeenUpdated(Object count, Object total) {
+    return Intl.message(
+      '$count/$total subscriptions have been updated',
+      name: 'numSubscriptionsHaveBeenUpdated',
+      desc: '',
+      args: [count, total],
     );
   }
 
@@ -1980,11 +1990,11 @@ class S {
     );
   }
 
-  /// `Subscribe`
-  String get subscribe {
+  /// `Subscription`
+  String get subscription {
     return Intl.message(
-      'Subscribe',
-      name: 'subscribe',
+      'Subscription',
+      name: 'subscription',
       desc: '',
       args: [],
     );
@@ -2170,31 +2180,31 @@ class S {
     );
   }
 
-  /// `Update Subscribe Interval (minutes)`
-  String get updateSubscribeInterval {
+  /// `Update Subscription Interval (minutes)`
+  String get updateSubscriptionInterval {
     return Intl.message(
-      'Update Subscribe Interval (minutes)',
-      name: 'updateSubscribeInterval',
+      'Update Subscription Interval (minutes)',
+      name: 'updateSubscriptionInterval',
       desc: '',
       args: [],
     );
   }
 
-  /// `Update subscribe interval, default is -1 (never update)`
-  String get updateSubscribeIntervalMsg {
+  /// `Update subscription interval, default is -1 (never update)`
+  String get updateSubscriptionIntervalMsg {
     return Intl.message(
-      'Update subscribe interval, default is -1 (never update)',
-      name: 'updateSubscribeIntervalMsg',
+      'Update subscription interval, default is -1 (never update)',
+      name: 'updateSubscriptionIntervalMsg',
       desc: '',
       args: [],
     );
   }
 
-  /// `Update subscribe interval must be a positive integer or -1`
-  String get updateSubscribeIntervalWarn {
+  /// `Update subscription interval must be a positive integer or -1`
+  String get updateSubscriptionIntervalWarn {
     return Intl.message(
-      'Update subscribe interval must be a positive integer or -1',
-      name: 'updateSubscribeIntervalWarn',
+      'Update subscription interval must be a positive integer or -1',
+      name: 'updateSubscriptionIntervalWarn',
       desc: '',
       args: [],
     );

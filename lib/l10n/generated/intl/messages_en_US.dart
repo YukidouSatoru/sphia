@@ -20,7 +20,10 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en_US';
 
-  static String m0(coreName, version) =>
+  static String m0(count, total) =>
+      "${count}/${total} subscriptions have been updated";
+
+  static String m1(coreName, version) =>
       "Updated ${coreName} to ${version} successfully";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -160,14 +163,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "exportToClipboard":
             MessageLookupByLibrary.simpleMessage("Export to Clipboard"),
         "exportToFile": MessageLookupByLibrary.simpleMessage("Export to File"),
-        "fetchSubscribe":
-            MessageLookupByLibrary.simpleMessage("Fetch Subscribe"),
+        "fetchSubscription":
+            MessageLookupByLibrary.simpleMessage("Fetch Subscription"),
         "fingerPrint": MessageLookupByLibrary.simpleMessage("FingerPrint"),
         "flow": MessageLookupByLibrary.simpleMessage("Flow"),
         "getIpFailed": MessageLookupByLibrary.simpleMessage("Failed to get IP"),
         "gettingIp": MessageLookupByLibrary.simpleMessage("Getting IP"),
-        "groupHasNoSubscribe":
-            MessageLookupByLibrary.simpleMessage("Group has no subscribe"),
+        "groupHasNoSubscription":
+            MessageLookupByLibrary.simpleMessage("Group has no subscription"),
         "groupName": MessageLookupByLibrary.simpleMessage("Group Name"),
         "groupNameEnterMsg":
             MessageLookupByLibrary.simpleMessage("Please enter a group name"),
@@ -234,6 +237,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("No running cores"),
         "noServerSelected":
             MessageLookupByLibrary.simpleMessage("No server selected"),
+        "numSubscriptionsHaveBeenUpdated": m0,
         "obfs": MessageLookupByLibrary.simpleMessage("obfs"),
         "ok": MessageLookupByLibrary.simpleMessage("OK"),
         "password": MessageLookupByLibrary.simpleMessage("Password"),
@@ -316,7 +320,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "strictRoute": MessageLookupByLibrary.simpleMessage("Strict Route"),
         "strictRouteMsg": MessageLookupByLibrary.simpleMessage(
             "Tun strict route, default off"),
-        "subscribe": MessageLookupByLibrary.simpleMessage("Subscribe"),
+        "subscription": MessageLookupByLibrary.simpleMessage("Subscription"),
         "themeColor": MessageLookupByLibrary.simpleMessage("Theme Color"),
         "themeColorArgb":
             MessageLookupByLibrary.simpleMessage("Theme Color (A,R,G,B)"),
@@ -346,19 +350,19 @@ class MessageLookup extends MessageLookupByLibrary {
         "updateGroup": MessageLookupByLibrary.simpleMessage("Update Group"),
         "updateGroupFailed":
             MessageLookupByLibrary.simpleMessage("Failed to update group"),
-        "updateSubscribeInterval": MessageLookupByLibrary.simpleMessage(
-            "Update Subscribe Interval (minutes)"),
-        "updateSubscribeIntervalMsg": MessageLookupByLibrary.simpleMessage(
-            "Update subscribe interval, default is -1 (never update)"),
-        "updateSubscribeIntervalWarn": MessageLookupByLibrary.simpleMessage(
-            "Update subscribe interval must be a positive integer or -1"),
+        "updateSubscriptionInterval": MessageLookupByLibrary.simpleMessage(
+            "Update Subscription Interval (minutes)"),
+        "updateSubscriptionIntervalMsg": MessageLookupByLibrary.simpleMessage(
+            "Update subscription interval, default is -1 (never update)"),
+        "updateSubscriptionIntervalWarn": MessageLookupByLibrary.simpleMessage(
+            "Update subscription interval must be a positive integer or -1"),
         "updateThroughProxy":
             MessageLookupByLibrary.simpleMessage("Update Through Proxy"),
         "updateThroughProxyMsg": MessageLookupByLibrary.simpleMessage(
             "Update through proxy, default off. When it\'s on, updates for the core and subscriptions will be done through a proxy server (requires an active server)"),
         "updatedGroupSuccessfully":
             MessageLookupByLibrary.simpleMessage("Updated group successfully"),
-        "updatedSuccessfully": m0,
+        "updatedSuccessfully": m1,
         "upload": MessageLookupByLibrary.simpleMessage("Upload"),
         "uploadSpeed": MessageLookupByLibrary.simpleMessage("Upload Speed"),
         "useMaterial3": MessageLookupByLibrary.simpleMessage("Use Material 3"),

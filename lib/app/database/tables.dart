@@ -11,7 +11,7 @@ class ServerGroups extends Table {
 
   TextColumn get name => text()();
 
-  TextColumn get subscribe => text()();
+  TextColumn get subscription => text()();
 }
 
 class Servers extends Table {

@@ -10,7 +10,7 @@ import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/app/task/subscribe.dart';
+import 'package:sphia/app/task/subscription.dart';
 import 'package:sphia/app/task/task.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/app/tray.dart';
@@ -64,8 +64,8 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
       if (sphiaConfig.autoRunServer) {
         _toggleServer();
       }
-      if (sphiaConfig.updateSubscribeInterval != -1) {
-        SphiaTask.addTask(SubscribeTask.generate());
+      if (sphiaConfig.updateSubscriptionInterval != -1) {
+        SphiaTask.addTask(SubscriptionTask.generate());
       }
     });
   }

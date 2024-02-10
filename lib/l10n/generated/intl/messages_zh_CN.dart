@@ -20,7 +20,9 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'zh_CN';
 
-  static String m0(coreName, version) => "更新 ${coreName} 到 ${version} 成功";
+  static String m0(count, total) => "${count}/${total} 个订阅已更新";
+
+  static String m1(coreName, version) => "更新 ${coreName} 到 ${version} 成功";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -134,12 +136,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "exit": MessageLookupByLibrary.simpleMessage("退出"),
         "exportToClipboard": MessageLookupByLibrary.simpleMessage("导出到剪贴板"),
         "exportToFile": MessageLookupByLibrary.simpleMessage("导出到文件"),
-        "fetchSubscribe": MessageLookupByLibrary.simpleMessage("获取订阅"),
+        "fetchSubscription": MessageLookupByLibrary.simpleMessage("获取订阅"),
         "fingerPrint": MessageLookupByLibrary.simpleMessage("指纹"),
         "flow": MessageLookupByLibrary.simpleMessage("流控"),
         "getIpFailed": MessageLookupByLibrary.simpleMessage("获取 IP 失败"),
         "gettingIp": MessageLookupByLibrary.simpleMessage("正在获取 IP"),
-        "groupHasNoSubscribe": MessageLookupByLibrary.simpleMessage("分组没有订阅"),
+        "groupHasNoSubscription":
+            MessageLookupByLibrary.simpleMessage("分组没有订阅"),
         "groupName": MessageLookupByLibrary.simpleMessage("分组名称"),
         "groupNameEnterMsg": MessageLookupByLibrary.simpleMessage("请输入分组名称"),
         "grpcMode": MessageLookupByLibrary.simpleMessage("gRPC 模式"),
@@ -190,6 +193,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "noLogsAvailable": MessageLookupByLibrary.simpleMessage("没有可用的日志"),
         "noRunningCores": MessageLookupByLibrary.simpleMessage("没有运行的核心"),
         "noServerSelected": MessageLookupByLibrary.simpleMessage("没有选中的服务器"),
+        "numSubscriptionsHaveBeenUpdated": m0,
         "obfs": MessageLookupByLibrary.simpleMessage("混淆"),
         "ok": MessageLookupByLibrary.simpleMessage("确定"),
         "password": MessageLookupByLibrary.simpleMessage("密码"),
@@ -259,7 +263,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "statisticsIsDisabled": MessageLookupByLibrary.simpleMessage("统计已禁用"),
         "strictRoute": MessageLookupByLibrary.simpleMessage("严格路由"),
         "strictRouteMsg": MessageLookupByLibrary.simpleMessage("Tun 严格路由，默认关闭"),
-        "subscribe": MessageLookupByLibrary.simpleMessage("订阅"),
+        "subscription": MessageLookupByLibrary.simpleMessage("订阅"),
         "themeColor": MessageLookupByLibrary.simpleMessage("主题颜色"),
         "themeColorArgb":
             MessageLookupByLibrary.simpleMessage("主题颜色 (A,R,G,B)"),
@@ -284,18 +288,18 @@ class MessageLookup extends MessageLookupByLibrary {
         "updateFailed": MessageLookupByLibrary.simpleMessage("更新失败"),
         "updateGroup": MessageLookupByLibrary.simpleMessage("更新分组"),
         "updateGroupFailed": MessageLookupByLibrary.simpleMessage("更新分组失败"),
-        "updateSubscribeInterval":
+        "updateSubscriptionInterval":
             MessageLookupByLibrary.simpleMessage("更新订阅间隔 (分钟)"),
-        "updateSubscribeIntervalMsg":
+        "updateSubscriptionIntervalMsg":
             MessageLookupByLibrary.simpleMessage("更新订阅间隔，默认为 -1 (从不更新)"),
-        "updateSubscribeIntervalWarn":
+        "updateSubscriptionIntervalWarn":
             MessageLookupByLibrary.simpleMessage("更新订阅间隔应该是一个大于 0 的整数或 -1"),
         "updateThroughProxy": MessageLookupByLibrary.simpleMessage("通过代理更新"),
         "updateThroughProxyMsg": MessageLookupByLibrary.simpleMessage(
             "通过代理更新，默认关闭。开启后，会通过代理服务器更新核心和订阅 (需要有活动的服务器)"),
         "updatedGroupSuccessfully":
             MessageLookupByLibrary.simpleMessage("更新分组成功"),
-        "updatedSuccessfully": m0,
+        "updatedSuccessfully": m1,
         "upload": MessageLookupByLibrary.simpleMessage("上传"),
         "uploadSpeed": MessageLookupByLibrary.simpleMessage("上传速度"),
         "useMaterial3": MessageLookupByLibrary.simpleMessage("使用 Material 3"),

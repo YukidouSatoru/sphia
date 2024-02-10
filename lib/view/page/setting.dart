@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/app/task/subscribe.dart';
+import 'package:sphia/app/task/subscription.dart';
 import 'package:sphia/app/task/task.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/system.dart';
@@ -285,8 +285,8 @@ class _SettingPageState extends State<SettingPage> {
       ),
       const Divider(),
       SphiaWidget.textCard(
-        sphiaConfig.updateSubscribeInterval.toString(),
-        S.of(context).updateSubscribeInterval,
+        sphiaConfig.updateSubscriptionInterval.toString(),
+        S.of(context).updateSubscriptionInterval,
         (value) {
           if (value != null) {
             late final int? newValue;
@@ -294,7 +294,7 @@ class _SettingPageState extends State<SettingPage> {
               _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
               _scaffoldMessengerKey.currentState?.showSnackBar(
                 SphiaWidget.snackBar(
-                  S.of(context).updateSubscribeIntervalWarn,
+                  S.of(context).updateSubscriptionIntervalWarn,
                 ),
               );
               return;
@@ -303,24 +303,24 @@ class _SettingPageState extends State<SettingPage> {
               _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
               _scaffoldMessengerKey.currentState?.showSnackBar(
                 SphiaWidget.snackBar(
-                  S.of(context).updateSubscribeIntervalWarn,
+                  S.of(context).updateSubscriptionIntervalWarn,
                 ),
               );
               return;
             }
             logger.i(
-                'Updating updateSubscribeInterval from ${sphiaConfig.updateSubscribeInterval} to $value');
-            sphiaConfig.updateSubscribeInterval = newValue;
+                'Updating updateSubscriptionInterval from ${sphiaConfig.updateSubscriptionInterval} to $value');
+            sphiaConfig.updateSubscriptionInterval = newValue;
             sphiaConfigProvider.saveConfig();
-            if (sphiaConfig.updateSubscribeInterval != -1) {
-              SphiaTask.addTask(SubscribeTask.generate());
+            if (sphiaConfig.updateSubscriptionInterval != -1) {
+              SphiaTask.addTask(SubscriptionTask.generate());
             } else {
-              SphiaTask.cancelTask(SubscribeTask.name);
+              SphiaTask.cancelTask(SubscriptionTask.name);
             }
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
-                S.of(context).updateSubscribeIntervalMsg,
+                S.of(context).updateSubscriptionIntervalMsg,
               ),
             );
           }

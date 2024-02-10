@@ -11,6 +11,7 @@ import 'package:sphia/core/rule/extension.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/view/dialog/rule.dart';
 import 'package:sphia/view/dialog/rule_group.dart';
+import 'package:sphia/view/widget/widget.dart';
 
 class RuleAgent {
   BuildContext context;
@@ -200,22 +201,7 @@ class RuleAgent {
   }
 
   Future<void> _showErrorDialog(String groupName) async {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(S.current.warning),
-          content: Text('${S.current.cannotEditOrDeleteGroup}: $groupName'),
-          actions: <Widget>[
-            TextButton(
-              child: Text(S.of(context).ok),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+    final msg = '${S.current.cannotEditOrDeleteGroup}: $groupName';
+    return SphiaWidget.showDialogWithMsg(context, msg);
   }
 }

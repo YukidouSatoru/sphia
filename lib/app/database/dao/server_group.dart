@@ -36,23 +36,23 @@ class ServerGroupDao {
     return serverGroup.name;
   }
 
-  Future<int> insertServerGroup(String name, String subscribe) async {
+  Future<int> insertServerGroup(String name, String subscription) async {
     final groupId = await _db.into(_db.serverGroups).insert(
           ServerGroupsCompanion.insert(
             name: name,
-            subscribe: subscribe,
+            subscription: subscription,
           ),
         );
     await _db.serverDao.createEmptyServersOrder(groupId);
     return groupId;
   }
 
-  Future<void> updateServerGroup(int id, String name, String subscribe) {
+  Future<void> updateServerGroup(int id, String name, String subscription) {
     return _db.update(_db.serverGroups).replace(
           ServerGroupsCompanion(
             id: Value(id),
             name: Value(name),
-            subscribe: Value(subscribe),
+            subscription: Value(subscription),
           ),
         );
   }

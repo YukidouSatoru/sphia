@@ -11,7 +11,7 @@ import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/app/task/subscribe.dart';
+import 'package:sphia/app/task/subscription.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/core/core.dart';
 import 'package:sphia/core/hysteria/core.dart';
@@ -26,6 +26,7 @@ import 'package:sphia/view/dialog/server_group.dart';
 import 'package:sphia/view/dialog/shadowsocks.dart';
 import 'package:sphia/view/dialog/trojan.dart';
 import 'package:sphia/view/dialog/xray.dart';
+import 'package:sphia/view/widget/widget.dart';
 
 class ServerAgent {
   BuildContext context;
@@ -256,19 +257,19 @@ class ServerAgent {
       return false;
     }
     final newGroupName = serverGroupMap['groupName'];
-    final subscribe = serverGroupMap['subscribe'];
-    final fetchSubscribe = serverGroupMap['fetchSubscribe'];
+    final subscription = serverGroupMap['subscription'];
+    final fetchSubscription = serverGroupMap['fetchSubscription'];
     logger.i('Adding Server Group: $newGroupName');
     final groupId =
-        await serverGroupDao.insertServerGroup(newGroupName, subscribe);
+        await serverGroupDao.insertServerGroup(newGroupName, subscription);
     await serverGroupDao.refreshServerGroupsOrder();
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     serverConfigProvider.serverGroups.add(ServerGroup(
       id: groupId,
       name: newGroupName,
-      subscribe: subscribe,
+      subscription: subscription,
     ));
-    if (fetchSubscribe && subscribe.isNotEmpty) {
+    if (fetchSubscription && subscription.isNotEmpty) {
       await updateGroup('CurrentGroup', groupId);
     }
     return true;
@@ -282,26 +283,26 @@ class ServerAgent {
     final serverGroupMap = await _showEditServerGroupDialog(
       S.of(context).editGroup,
       serverGroup.name,
-      serverGroup.subscribe,
+      serverGroup.subscription,
     );
     if (serverGroupMap == null) {
       return false;
     }
     final newGroupName = serverGroupMap['groupName'];
-    final subscribe = serverGroupMap['subscribe'];
+    final subscription = serverGroupMap['subscription'];
     if ((newGroupName == serverGroup.name &&
-        subscribe == serverGroup.subscribe)) {
+        subscription == serverGroup.subscription)) {
       return false;
     }
     logger.i('Editing Server Group: ${serverGroup.id}');
     await serverGroupDao.updateServerGroup(
-        serverGroup.id, newGroupName, subscribe);
+        serverGroup.id, newGroupName, subscription);
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     serverConfigProvider.serverGroups[serverConfigProvider.serverGroups
         .indexWhere((element) => element.id == serverGroup.id)] = ServerGroup(
       id: serverGroup.id,
       name: newGroupName,
-      subscribe: subscribe,
+      subscription: subscription,
     );
     return true;
   }
@@ -313,22 +314,31 @@ class ServerAgent {
         if (serverGroup == null) {
           return false;
         }
-        final subscribe = serverGroup.subscribe;
-        if (subscribe.isEmpty) {
-          logger.w('Subscribe is empty');
+        final subscription = serverGroup.subscription;
+        if (subscription.isEmpty) {
+          logger.w('Subscription is empty');
           return false;
         }
         final groupName = serverGroup.name;
         logger.i('Updating Server Group: $groupName');
         try {
-          await UriUtil.updateSingleGroup(groupId, subscribe);
+          await UriUtil.updateSingleGroup(groupId, subscription);
         } on Exception catch (e) {
           logger.e('Failed to update group: $groupName\n$e');
           return false;
         }
+        if (context.mounted) {
+          SphiaWidget.showDialogWithMsg(
+            context,
+            S.of(context).updatedGroupSuccessfully,
+          );
+        }
         return true;
       case 'AllGroups':
-        return SubscribeTask.updateSubscribe();
+        return SubscriptionTask.updateSubscriptions(
+          showDialog: true,
+          context: context,
+        );
       default:
         return false;
     }
@@ -474,10 +484,10 @@ class ServerAgent {
   }
 
   Future<Map<String, dynamic>?> _showEditServerGroupDialog(
-      String title, String groupName, String subscribe) async {
+      String title, String groupName, String subscription) async {
     final serverGroupMap = {
       'groupName': groupName,
-      'subscribe': subscribe,
+      'subscription': subscription,
     };
     return showDialog<Map<String, dynamic>>(
       context: context,
@@ -489,22 +499,7 @@ class ServerAgent {
   }
 
   Future<void> _showErrorDialog(String groupName) async {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(S.current.warning),
-          content: Text('${S.current.cannotEditOrDeleteGroup}: $groupName'),
-          actions: <Widget>[
-            TextButton(
-              child: Text(S.of(context).ok),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+    final msg = '${S.current.cannotEditOrDeleteGroup}: $groupName';
+    return SphiaWidget.showDialogWithMsg(context, msg);
   }
 }
