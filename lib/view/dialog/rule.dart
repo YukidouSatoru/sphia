@@ -154,6 +154,9 @@ class _RuleDialogState extends State<RuleDialog> {
     final sphiaConfig = Provider.of<SphiaConfigProvider>(context).config;
     return DropdownSearch<ServerModel>(
       popupProps: PopupProps.menu(
+          scrollbarProps: const ScrollbarProps(
+            thickness: 0,
+          ),
           showSearchBox: true,
           constraints: BoxConstraints.tightFor(
             height: MediaQuery.of(context).size.height * 1 / 3,
