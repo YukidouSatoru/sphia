@@ -7,6 +7,7 @@ import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/app/tray.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
+import 'package:sphia/view/dialog/rule.dart';
 import 'package:sphia/view/page/agent/rule.dart';
 import 'package:sphia/view/page/wrapper.dart';
 import 'package:sphia/view/widget/widget.dart';
@@ -262,7 +263,18 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // TODO: Add outboundTag
+                FutureBuilder(
+                  future: OutboundTagHelper.determineOutboundTagDisplay(
+                      rule.outboundTag),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final outboundTagDisplay = snapshot.data as String;
+                      return Text('Outbound Tag: $outboundTagDisplay');
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
+                ),
                 if (rule.domain != null)
                   Text(
                     'Domain: ${rule.domain}',
