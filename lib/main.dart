@@ -76,15 +76,11 @@ Future<void> configureApp() async {
     SphiaLog.initLogger(false, debugMethodCount, debugErrorMethodCount);
   }
 
-  try {
-    // Check dir exists
-    SystemUtil.createDirectory(binPath);
-    SystemUtil.createDirectory(configPath);
-    SystemUtil.createDirectory(logPath);
-    SystemUtil.createDirectory(tempPath);
-  } on Exception catch (e) {
-    await showErrorMsg(e.toString());
-  }
+  // Check dir exists
+  SystemUtil.createDirectory(binPath);
+  SystemUtil.createDirectory(configPath);
+  SystemUtil.createDirectory(logPath);
+  SystemUtil.createDirectory(tempPath);
 
   // Init SystemUtil
   SystemUtil.init();
@@ -107,19 +103,11 @@ Future<void> configureApp() async {
   // Init database
   await SphiaDatabase.init();
 
-  late final SphiaConfig sphiaConfig;
-  late final ServerConfig serverConfig;
-  late final RuleConfig ruleConfig;
-  late final VersionConfig versionConfig;
-  try {
-    // Load config
-    sphiaConfig = await sphiaConfigDao.loadConfig();
-    serverConfig = await serverConfigDao.loadConfig();
-    ruleConfig = await ruleConfigDao.loadConfig();
-    versionConfig = await versionConfigDao.loadConfig();
-  } on Exception catch (e) {
-    await showErrorMsg(e.toString());
-  }
+  // Load config
+  final SphiaConfig sphiaConfig = await sphiaConfigDao.loadConfig();
+  final ServerConfig serverConfig = await serverConfigDao.loadConfig();
+  final RuleConfig ruleConfig = await ruleConfigDao.loadConfig();
+  final VersionConfig versionConfig = await versionConfigDao.loadConfig();
 
   final sphiaConfigProvider = SphiaConfigProvider(sphiaConfig);
   final coreProvider = CoreProvider();
@@ -197,7 +185,14 @@ Future<void> configureApp() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await configureApp();
+  try {
+    await configureApp();
+  } catch (e) {
+    if (!logger.isClosed()) {
+      logger.f(e);
+    }
+    await showErrorMsg('An error occurred while starting Sphia: $e');
+  }
 }
 
 Future<void> showErrorMsg(String errorMsg) async {

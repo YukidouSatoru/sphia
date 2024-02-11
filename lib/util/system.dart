@@ -432,9 +432,8 @@ class SystemUtil {
         logger.i('Creating directory: $dirName');
         dir.createSync();
       }
-    } on Exception catch (e) {
-      logger.e('Failed to create directory: $dirName, $e');
-      throw Exception('Failed to create directory: $dirName, $e');
+    } on Exception catch (_) {
+      rethrow;
     }
   }
 
