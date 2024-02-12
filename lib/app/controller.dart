@@ -96,8 +96,7 @@ class SphiaController {
       if (core != null) {
         coreProvider.cores.add(core);
       }
-      if (getProviderCoreName(routingProvider) !=
-          coreProvider.cores.first.coreName) {
+      if (!coreProvider.cores.first.isRouting) {
         late final int additionalServerPort;
         if (routingProvider == RoutingProvider.sing.index) {
           coreProvider.cores.add(SingBoxCore()..isRouting = true);
@@ -133,8 +132,7 @@ class SphiaController {
         await coreProvider.cores.first.start(selectedServer);
       } else {
         for (var core in coreProvider.cores) {
-          if (core.coreName == getProviderCoreName(routingProvider) &&
-              additionalServer != null) {
+          if (core.isRouting && additionalServer != null) {
             await core.start(additionalServer);
           } else {
             await core.start(selectedServer);
@@ -195,9 +193,6 @@ class SphiaController {
       coreProvider.updateCoreRunning(true);
     }
   }
-
-  static String getProviderCoreName(int providerIndex) =>
-      providerIndex == RoutingProvider.sing.index ? 'sing-box' : 'xray-core';
 
   static Future<Server> getRunningServer() async {
     final coreProvider = GetIt.I.get<CoreProvider>();
