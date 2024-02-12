@@ -39,12 +39,11 @@ class SphiaWidget {
   }
 
   static Widget checkboxCard(
-    bool value,
-    String title,
-    void Function(bool?)? onChanged,
-  ) {
+      bool value, String title, void Function(bool?)? onChanged,
+      [bool enabled = true]) {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     return ListTile(
+      enabled: enabled,
       shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
       title: Text(title),
       trailing: Container(
@@ -52,23 +51,23 @@ class SphiaWidget {
         width: 20,
         child: Checkbox(
           value: value,
-          onChanged: onChanged,
+          onChanged: enabled ? onChanged : null,
         ),
       ),
-      onTap: () {
-        onChanged!(!value);
-      },
+      onTap: enabled
+          ? () {
+              onChanged!(!value);
+            }
+          : null,
     );
   }
 
-  static Widget textCard(
-    String value,
-    String title,
-    void Function(String?) update,
-    BuildContext context,
-  ) {
+  static Widget textCard(String value, String title,
+      void Function(String?) update, BuildContext context,
+      [bool enabled = true]) {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     return ListTile(
+      enabled: enabled,
       shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
       title: Text(title),
       trailing: Text(value),

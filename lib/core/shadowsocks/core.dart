@@ -23,7 +23,7 @@ class ShadowsocksRustCore extends Core {
         '-k',
         selectedServer.authPayload,
       ];
-      coreArgs.addAll(arguments);
+      args.addAll(arguments);
     } else {
       throw Exception(
           'Shadowsocks-Rust does not support this server type: ${selectedServer.protocol}');

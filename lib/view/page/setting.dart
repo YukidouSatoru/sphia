@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sphia/app/log.dart';
+import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/task/subscription.dart';
 import 'package:sphia/app/task/task.dart';
@@ -36,6 +37,7 @@ class _SettingPageState extends State<SettingPage> {
   Widget build(BuildContext context) {
     final sphiaConfigProvider = Provider.of<SphiaConfigProvider>(context);
     final sphiaConfig = sphiaConfigProvider.config;
+    final coreProvider = Provider.of<CoreProvider>(context);
 
     final sphiaWidgets = [
       SphiaWidget.checkboxCard(
@@ -425,6 +427,7 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
+        !coreProvider.coreRunning,
       ),
       SphiaWidget.checkboxCard(
         sphiaConfig.enableTun,
@@ -480,6 +483,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
         context,
+        !coreProvider.coreRunning,
       ),
       SphiaWidget.textCard(
         sphiaConfig.httpPort.toString(),
@@ -511,48 +515,60 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
         context,
+        !coreProvider.coreRunning,
       ),
       SphiaWidget.textCard(
-          sphiaConfig.mixedPort.toString(), S.of(context).mixedPort, (value) {
-        if (value != null) {
-          late final int? newValue;
-          if ((newValue = int.tryParse(value)) == null ||
-              newValue! < 0 ||
-              newValue > 65535) {
+        sphiaConfig.mixedPort.toString(),
+        S.of(context).mixedPort,
+        (value) {
+          if (value != null) {
+            late final int? newValue;
+            if ((newValue = int.tryParse(value)) == null ||
+                newValue! < 0 ||
+                newValue > 65535) {
+              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+              _scaffoldMessengerKey.currentState?.showSnackBar(
+                SphiaWidget.snackBar(
+                  S.of(context).portInvalidMsg,
+                ),
+              );
+              return;
+            }
+
+            logger.i(
+                'Updating mixedPort from ${sphiaConfig.mixedPort} to $value');
+            sphiaConfig.mixedPort = newValue;
+            sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
-                S.of(context).portInvalidMsg,
+                S.of(context).mixedPortMsg,
               ),
             );
-            return;
           }
-
-          logger
-              .i('Updating mixedPort from ${sphiaConfig.mixedPort} to $value');
-          sphiaConfig.mixedPort = newValue;
-          sphiaConfigProvider.saveConfig();
-          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-          _scaffoldMessengerKey.currentState?.showSnackBar(
-            SphiaWidget.snackBar(
-              S.of(context).mixedPortMsg,
-            ),
-          );
-        }
-      }, context),
-      SphiaWidget.textCard(sphiaConfig.listen, S.of(context).listen, (value) {
-        if (value != null) {
-          logger.i('Updating listen from ${sphiaConfig.listen} to $value');
-          sphiaConfig.listen = value;
-          sphiaConfigProvider.saveConfig();
-          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-          _scaffoldMessengerKey.currentState?.showSnackBar(
-            SphiaWidget.snackBar(
-              S.of(context).listenMsg,
-            ),
-          );
-        }
-      }, context),
+        },
+        context,
+        !coreProvider.coreRunning,
+      ),
+      SphiaWidget.textCard(
+        sphiaConfig.listen,
+        S.of(context).listen,
+        (value) {
+          if (value != null) {
+            logger.i('Updating listen from ${sphiaConfig.listen} to $value');
+            sphiaConfig.listen = value;
+            sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
+              SphiaWidget.snackBar(
+                S.of(context).listenMsg,
+              ),
+            );
+          }
+        },
+        context,
+        !coreProvider.coreRunning,
+      ),
       SphiaWidget.checkboxCard(
         sphiaConfig.enableUdp,
         S.of(context).enableUdp,
@@ -570,6 +586,7 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
+        !coreProvider.coreRunning,
       ),
       const Divider(),
       SphiaWidget.checkboxCard(
@@ -589,6 +606,7 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
+        !coreProvider.coreRunning,
       ),
       SphiaWidget.textCard(
         sphiaConfig.user,
@@ -607,6 +625,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
         context,
+        !coreProvider.coreRunning,
       ),
       SphiaWidget.textCard(
         sphiaConfig.password,
@@ -626,6 +645,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
         context,
+        !coreProvider.coreRunning,
       ),
     ];
     final coreWidgets = [
@@ -659,6 +679,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
         context,
+        !coreProvider.coreRunning,
       ),
       const Divider(),
       SphiaWidget.checkboxCard(
@@ -1016,6 +1037,7 @@ class _SettingPageState extends State<SettingPage> {
           }
         },
         context,
+        !coreProvider.coreRunning,
       ),
     ];
     final tunWidgets = [

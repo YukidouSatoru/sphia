@@ -264,6 +264,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "strictRoute": MessageLookupByLibrary.simpleMessage("严格路由"),
         "strictRouteMsg": MessageLookupByLibrary.simpleMessage("Tun 严格路由，默认关闭"),
         "subscription": MessageLookupByLibrary.simpleMessage("订阅"),
+        "systemProxy": MessageLookupByLibrary.simpleMessage("系统代理"),
         "themeColor": MessageLookupByLibrary.simpleMessage("主题颜色"),
         "themeColorArgb":
             MessageLookupByLibrary.simpleMessage("主题颜色 (A,R,G,B)"),

@@ -80,7 +80,7 @@ class _DashboardState extends State<Dashboard> {
           ? ListView.builder(
               itemCount: coreProvider.cores.length,
               itemBuilder: (BuildContext context, int index) {
-                final coreName = coreProvider.cores[index].coreName;
+                final coreName = coreProvider.cores[index].name;
                 return ListTile(
                   shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
                   title: Text(coreName),
@@ -505,7 +505,7 @@ class _DashboardState extends State<Dashboard> {
     final coreProvider = GetIt.I.get<CoreProvider>();
     final sphiaConfig = sphiaConfigProvider.config;
     if (coreProvider.coreRunning && sphiaConfig.enableStatistics) {
-      if (coreProvider.cores.last.coreName == 'sing-box') {
+      if (coreProvider.cores.last.name == 'sing-box') {
         _traffic = SingBoxTraffic(sphiaConfig.coreApiPort);
       } else {
         _traffic = XrayTraffic(

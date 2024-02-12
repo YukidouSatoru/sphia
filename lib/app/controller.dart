@@ -4,6 +4,7 @@ import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:sphia/app/tray.dart';
 import 'package:sphia/core/hysteria/core.dart';
 import 'package:sphia/core/server/defaults.dart';
 import 'package:sphia/core/shadowsocks/core.dart';
@@ -100,14 +101,14 @@ class SphiaController {
         late final int additionalServerPort;
         if (routingProvider == RoutingProvider.sing.index) {
           coreProvider.cores.add(SingBoxCore()..isRouting = true);
-          if (coreProvider.cores.first.coreName == 'xray-core') {
+          if (coreProvider.cores.first.name == 'xray-core') {
             additionalServerPort = sphiaConfig.socksPort;
           } else {
             additionalServerPort = sphiaConfig.additionalSocksPort;
           }
         } else {
           coreProvider.cores.add(XrayCore()..isRouting = true);
-          if (coreProvider.cores.first.coreName == 'sing-box') {
+          if (coreProvider.cores.first.name == 'sing-box') {
             additionalServerPort = sphiaConfig.mixedPort;
           } else {
             additionalServerPort = sphiaConfig.additionalSocksPort;
@@ -156,6 +157,7 @@ class SphiaController {
         socksPort,
         httpPort,
       );
+      await SphiaTray.setMenuItem('sysProxy', true);
     }
   }
 
@@ -166,6 +168,7 @@ class SphiaController {
       final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
       if (sphiaConfig.autoConfigureSystemProxy || SystemUtil.getSystemProxy()) {
         SystemUtil.disableSystemProxy();
+        await SphiaTray.setMenuItem('sysProxy', false);
       }
       coreProvider.updateCoreRunning(false);
       // wait traffic to stop

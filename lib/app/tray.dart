@@ -5,6 +5,7 @@ import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/server_config.dart';
+import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/system.dart';
 import 'package:system_tray/system_tray.dart';
@@ -187,16 +188,19 @@ class Tray {
   }
 
   void setMenu() async {
+    final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
+    final sphiaConfig = sphiaConfigProvider.config;
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
+    final serverConfig = serverConfigProvider.config;
     final coreProvider = GetIt.I.get<CoreProvider>();
     logger.i('Setting menu');
     final menuItems = [
       MenuItemCheckbox(
         label: S.current.coreStart,
-        name: S.current.coreStart,
+        name: 'coreStart',
         onClicked: (menuItem) async {
-          if (!await serverDao.checkServerExistsById(
-              serverConfigProvider.config.selectedServerId)) {
+          if (!await serverDao
+              .checkServerExistsById(serverConfig.selectedServerId)) {
             logger.w('Selected server not exists');
             return;
           }
@@ -209,11 +213,38 @@ class Tray {
       ),
       MenuItemCheckbox(
         label: S.current.coreStop,
-        name: S.current.coreStop,
+        name: 'coreStop',
         onClicked: (menuItem) async {
           await SphiaController.stopCores();
         },
         checked: !coreProvider.coreRunning,
+      ),
+      MenuItemCheckbox(
+        label: S.current.systemProxy,
+        name: 'sysProxy',
+        onClicked: (menuItem) async {
+          if (menuItem.checked) {
+            SystemUtil.disableSystemProxy();
+            await menuItem.setCheck(false);
+          } else {
+            if (coreProvider.coreRunning) {
+              int socksPort = sphiaConfig.socksPort;
+              int httpPort = sphiaConfig.httpPort;
+              final routingCoreName = coreProvider.cores.last.name;
+              if (routingCoreName == 'sing-box') {
+                socksPort = sphiaConfig.mixedPort;
+                httpPort = sphiaConfig.mixedPort;
+              }
+              SystemUtil.enableSystemProxy(
+                sphiaConfig.listen,
+                socksPort,
+                httpPort,
+              );
+              await menuItem.setCheck(true);
+            }
+          }
+        },
+        checked: SystemUtil.getSystemProxy(),
       ),
       MenuSeparator(),
       SubMenu(

@@ -321,6 +321,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "strictRouteMsg": MessageLookupByLibrary.simpleMessage(
             "Tun strict route, default off"),
         "subscription": MessageLookupByLibrary.simpleMessage("Subscription"),
+        "systemProxy": MessageLookupByLibrary.simpleMessage("System Proxy"),
         "themeColor": MessageLookupByLibrary.simpleMessage("Theme Color"),
         "themeColorArgb":
             MessageLookupByLibrary.simpleMessage("Theme Color (A,R,G,B)"),

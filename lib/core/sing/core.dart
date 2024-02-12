@@ -42,7 +42,7 @@ class SingBoxCore extends Core {
     final log = Log(
       disabled: level == 'none',
       level: level == 'none' ? null : level,
-      output: sphiaConfig.saveCoreLog ? SphiaLog.getLogPath(coreName) : null,
+      output: sphiaConfig.saveCoreLog ? SphiaLog.getLogPath(name) : null,
       timestamp: true,
     );
 

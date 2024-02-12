@@ -8,11 +8,11 @@ import 'package:sphia/app/log.dart';
 import 'package:sphia/util/system.dart';
 
 abstract class Core {
-  String coreName;
-  List<String> coreArgs;
+  String name;
+  List<String> args;
   late String configFileName;
   late final File _configFile = File(p.join(tempPath, configFileName));
-  Process? _coreProcess;
+  Process? _process;
   bool _isPreLog = true;
   final List<String> preLogList = [];
   final _logStreamController = StreamController<String>.broadcast();
@@ -21,36 +21,35 @@ abstract class Core {
 
   Stream<String> get logStream => _logStreamController.stream;
 
-  Core(this.coreName, this.coreArgs, this.configFileName);
+  Core(this.name, this.args, this.configFileName);
 
   Future<void> start(Server selectedServer) async {
-    if (!SystemUtil.coreExists(coreName)) {
-      logger.e('Core $coreName does not exist');
-      throw Exception('Core $coreName does not exist');
+    if (!SystemUtil.coreExists(name)) {
+      logger.e('Core $name does not exist');
+      throw Exception('Core $name does not exist');
     }
 
     await configure(selectedServer);
-    logger.i('Starting core: $coreName');
+    logger.i('Starting core: $name');
     try {
-      _coreProcess = await Process.start(
-        p.join(binPath, SystemUtil.getCoreFileName(coreName)),
-        coreArgs,
+      _process = await Process.start(
+        p.join(binPath, SystemUtil.getCoreFileName(name)),
+        args,
       );
     } on ProcessException catch (e) {
-      logger.e('Failed to start $coreName: ${e.message}');
-      throw Exception('Failed to start $coreName: ${e.message}');
+      logger.e('Failed to start $name: ${e.message}');
+      throw Exception('Failed to start $name: ${e.message}');
     }
 
-    if (_coreProcess == null) {
+    if (_process == null) {
       throw Exception('Core Process is null');
     }
 
-    listenToProcessStream(_coreProcess!.stdout);
-    listenToProcessStream(_coreProcess!.stderr);
+    listenToProcessStream(_process!.stdout);
+    listenToProcessStream(_process!.stderr);
 
     try {
-      if (await _coreProcess?.exitCode
-              .timeout(const Duration(milliseconds: 500)) !=
+      if (await _process?.exitCode.timeout(const Duration(milliseconds: 500)) !=
           0) {
         throw Exception('\n${preLogList.join('\n')}');
       }
@@ -60,20 +59,19 @@ abstract class Core {
   }
 
   Future<void> stop() async {
-    if (_coreProcess != null) {
-      logger.i('Stopping core: $coreName');
-      _coreProcess?.kill(ProcessSignal.sigterm);
-      await _coreProcess?.exitCode.timeout(const Duration(milliseconds: 500),
+    if (_process != null) {
+      logger.i('Stopping core: $name');
+      _process?.kill(ProcessSignal.sigterm);
+      await _process?.exitCode.timeout(const Duration(milliseconds: 500),
           onTimeout: () {
-        _coreProcess?.kill(ProcessSignal.sigkill);
-        return Future.error(
-            'Failed to stop $coreName, force killed the process.');
+        _process?.kill(ProcessSignal.sigkill);
+        return Future.error('Failed to stop $name, force killed the process.');
       });
-      _coreProcess = null;
+      _process = null;
     }
     SystemUtil.deleteFileIfExists(
         _configFile.path, 'Deleting config file: $configFileName');
-    if (coreName == 'sing-box') {
+    if (name == 'sing-box') {
       SystemUtil.deleteFileIfExists(
           p.join(tempPath, 'cache.db'), 'Deleting cache file: cache.db');
     }

@@ -80,6 +80,16 @@ class S {
     );
   }
 
+  /// `Add Server`
+  String get addServer {
+    return Intl.message(
+      'Add Server',
+      name: 'addServer',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Additional Socks Port`
   String get additionalSocksPort {
     return Intl.message(
@@ -115,16 +125,6 @@ class S {
     return Intl.message(
       'Please enter an address',
       name: 'addressEnterMsg',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Add Server`
-  String get addServer {
-    return Intl.message(
-      'Add Server',
-      name: 'addServer',
       desc: '',
       args: [],
     );
@@ -200,26 +200,6 @@ class S {
     );
   }
 
-  /// `Authentication`
-  String get authentication {
-    return Intl.message(
-      'Authentication',
-      name: 'authentication',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Enable authentication for the local server`
-  String get authenticationMsg {
-    return Intl.message(
-      'Enable authentication for the local server',
-      name: 'authenticationMsg',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Auth Payload`
   String get authPayload {
     return Intl.message(
@@ -235,6 +215,26 @@ class S {
     return Intl.message(
       'Auth Type',
       name: 'authType',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Authentication`
+  String get authentication {
+    return Intl.message(
+      'Authentication',
+      name: 'authentication',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enable authentication for the local server`
+  String get authenticationMsg {
+    return Intl.message(
+      'Enable authentication for the local server',
+      name: 'authenticationMsg',
       desc: '',
       args: [],
     );
@@ -340,16 +340,6 @@ class S {
     );
   }
 
-  /// `Checking update`
-  String get checkingUpdate {
-    return Intl.message(
-      'Checking update',
-      name: 'checkingUpdate',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Check Update`
   String get checkUpdate {
     return Intl.message(
@@ -365,6 +355,16 @@ class S {
     return Intl.message(
       'Failed to check update',
       name: 'checkUpdateFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Checking update`
+  String get checkingUpdate {
+    return Intl.message(
+      'Checking update',
+      name: 'checkingUpdate',
       desc: '',
       args: [],
     );
@@ -630,26 +630,6 @@ class S {
     );
   }
 
-  /// `Download`
-  String get download {
-    return Intl.message(
-      'Download',
-      name: 'download',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Download Speed`
-  String get downloadSpeed {
-    return Intl.message(
-      'Download Speed',
-      name: 'downloadSpeed',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Down Mbps`
   String get downMbps {
     return Intl.message(
@@ -675,6 +655,26 @@ class S {
     return Intl.message(
       'Please enter a valid Down Mbps',
       name: 'downMbpsInvalidMsg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download`
+  String get download {
+    return Intl.message(
+      'Download',
+      name: 'download',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download Speed`
+  String get downloadSpeed {
+    return Intl.message(
+      'Download Speed',
+      name: 'downloadSpeed',
       desc: '',
       args: [],
     );
@@ -1740,21 +1740,21 @@ class S {
     );
   }
 
-  /// `Selected Server`
-  String get selectedServer {
-    return Intl.message(
-      'Selected Server',
-      name: 'selectedServer',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Select Protocol`
   String get selectProtocol {
     return Intl.message(
       'Select Protocol',
       name: 'selectProtocol',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Selected Server`
+  String get selectedServer {
+    return Intl.message(
+      'Selected Server',
+      name: 'selectedServer',
       desc: '',
       args: [],
     );
@@ -2000,6 +2000,16 @@ class S {
     );
   }
 
+  /// `System Proxy`
+  String get systemProxy {
+    return Intl.message(
+      'System Proxy',
+      name: 'systemProxy',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Theme Color`
   String get themeColor {
     return Intl.message(
@@ -2120,6 +2130,36 @@ class S {
     );
   }
 
+  /// `Up Mbps`
+  String get upMbps {
+    return Intl.message(
+      'Up Mbps',
+      name: 'upMbps',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter an Up Mbps`
+  String get upMbpsEnterMsg {
+    return Intl.message(
+      'Please enter an Up Mbps',
+      name: 'upMbpsEnterMsg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter a valid Up Mbps`
+  String get upMbpsInvalidMsg {
+    return Intl.message(
+      'Please enter a valid Up Mbps',
+      name: 'upMbpsInvalidMsg',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Update`
   String get update {
     return Intl.message(
@@ -2127,26 +2167,6 @@ class S {
       name: 'update',
       desc: '',
       args: [],
-    );
-  }
-
-  /// `Updated group successfully`
-  String get updatedGroupSuccessfully {
-    return Intl.message(
-      'Updated group successfully',
-      name: 'updatedGroupSuccessfully',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Updated {coreName} to {version} successfully`
-  String updatedSuccessfully(Object coreName, Object version) {
-    return Intl.message(
-      'Updated $coreName to $version successfully',
-      name: 'updatedSuccessfully',
-      desc: '',
-      args: [coreName, version],
     );
   }
 
@@ -2230,6 +2250,26 @@ class S {
     );
   }
 
+  /// `Updated group successfully`
+  String get updatedGroupSuccessfully {
+    return Intl.message(
+      'Updated group successfully',
+      name: 'updatedGroupSuccessfully',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Updated {coreName} to {version} successfully`
+  String updatedSuccessfully(Object coreName, Object version) {
+    return Intl.message(
+      'Updated $coreName to $version successfully',
+      name: 'updatedSuccessfully',
+      desc: '',
+      args: [coreName, version],
+    );
+  }
+
   /// `Upload`
   String get upload {
     return Intl.message(
@@ -2245,36 +2285,6 @@ class S {
     return Intl.message(
       'Upload Speed',
       name: 'uploadSpeed',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Up Mbps`
-  String get upMbps {
-    return Intl.message(
-      'Up Mbps',
-      name: 'upMbps',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Please enter an Up Mbps`
-  String get upMbpsEnterMsg {
-    return Intl.message(
-      'Please enter an Up Mbps',
-      name: 'upMbpsEnterMsg',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Please enter a valid Up Mbps`
-  String get upMbpsInvalidMsg {
-    return Intl.message(
-      'Please enter a valid Up Mbps',
-      name: 'upMbpsInvalidMsg',
       desc: '',
       args: [],
     );
