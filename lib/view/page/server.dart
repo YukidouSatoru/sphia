@@ -94,14 +94,6 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
       _index -= 1;
       serverConfig.selectedServerGroupId =
           serverConfigProvider.serverGroups[_index].id;
-    } else if (_index > serverConfigProvider.serverGroups.length) {
-      _index = 0;
-      serverConfig.selectedServerGroupId =
-          serverConfigProvider.serverGroups[_index].id;
-    } else if (_index == -1) {
-      _index = 0;
-      serverConfig.selectedServerGroupId =
-          serverConfigProvider.serverGroups[_index].id;
     }
     serverConfigProvider.saveConfigWithoutNotify();
     _tabController = TabController(
@@ -254,7 +246,12 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                 break;
               case 'AddGroup':
                 if (await _agent.addGroup()) {
+                  _index = serverConfigProvider.serverGroups.length - 1;
+                  serverConfig.selectedServerGroupId =
+                      serverConfigProvider.serverGroups[_index].id;
+                  serverConfigProvider.saveConfigWithoutNotify();
                   _updateTabController();
+                  await _loadServers();
                   setState(() {});
                 }
                 break;
@@ -305,12 +302,6 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
               case 'DeleteGroup':
                 if (await _agent.deleteGroup(
                     serverConfigProvider.serverGroups[_index].id)) {
-                  if (_index == serverConfigProvider.serverGroups.length) {
-                    _index -= 1;
-                  } else if (_index >
-                      serverConfigProvider.serverGroups.length) {
-                    _index = 0;
-                  }
                   _updateTabController();
                   await _loadServers();
                   SphiaTray.generateServerItems();

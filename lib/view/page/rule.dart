@@ -62,12 +62,6 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
     if (_index == ruleConfigProvider.ruleGroups.length) {
       _index -= 1;
       ruleConfig.selectedRuleGroupId = ruleConfigProvider.ruleGroups[_index].id;
-    } else if (_index > ruleConfigProvider.ruleGroups.length) {
-      _index = 0;
-      ruleConfig.selectedRuleGroupId = ruleConfigProvider.ruleGroups[_index].id;
-    } else if (_index < 0) {
-      _index = 0;
-      ruleConfig.selectedRuleGroupId = ruleConfigProvider.ruleGroups[_index].id;
     }
     ruleConfigProvider.saveConfigWithoutNotify();
     _tabController = TabController(
@@ -126,6 +120,8 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
             switch (value) {
               case 'AddGroup':
                 if (await _agent.addGroup()) {
+                  _index = ruleConfigProvider.ruleGroups.length - 1;
+                  _rules.clear();
                   _updateTabController();
                   SphiaTray.generateRuleItems();
                   SphiaTray.setMenu();
@@ -143,11 +139,6 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
               case 'DeleteGroup':
                 if (await _agent
                     .deleteGroup(ruleConfigProvider.ruleGroups[_index].id)) {
-                  if (_index == ruleConfigProvider.ruleGroups.length) {
-                    _index -= 1;
-                  } else if (_index > ruleConfigProvider.ruleGroups.length) {
-                    _index = 0;
-                  }
                   _updateTabController();
                   await _loadRules();
                   SphiaTray.generateRuleItems();
