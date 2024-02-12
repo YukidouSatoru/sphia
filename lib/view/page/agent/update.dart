@@ -28,7 +28,7 @@ const String geoipDatUrl =
     'https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat';
 const String sphiaRepoUrl = 'https://github.com/YukidouSatoru/sphia';
 
-final coreRepositories = {
+const coreRepositories = {
   'sing-box': singBoxUrl,
   'xray-core': xrayCoreRepoUrl,
   'shadowsocks-rust': shadowsocksRustUrl,
