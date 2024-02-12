@@ -77,6 +77,7 @@ class RuleAgent {
       id: groupId,
       name: newGroupName,
     ));
+    ruleConfigProvider.notify();
     return true;
   }
 
@@ -100,6 +101,7 @@ class RuleAgent {
       id: ruleGroup.id,
       name: newGroupName,
     );
+    ruleConfigProvider.notify();
     return true;
   }
 
@@ -120,8 +122,9 @@ class RuleAgent {
         .removeWhere((element) => element.id == groupId);
     if (ruleConfigProvider.config.selectedRuleGroupId == groupId) {
       ruleConfigProvider.config.selectedRuleGroupId = 1;
-      ruleConfigProvider.saveConfig();
+      ruleConfigProvider.saveConfigWithoutNotify();
     }
+    ruleConfigProvider.notify();
     return true;
   }
 
@@ -179,6 +182,7 @@ class RuleAgent {
     }
     logger.i('Reordered Rule Group');
     await ruleGroupDao.updateRuleGroupsOrder(newOrder);
+    ruleConfigProvider.notify();
     return true;
   }
 
