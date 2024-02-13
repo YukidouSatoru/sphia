@@ -53,7 +53,13 @@ class _UpdatePageState extends State<UpdatePage> {
             ),
             SphiaWidget.popupMenuItem(
               value: 'ImportCore',
-              child: Text(S.of(context).importCore),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(S.of(context).import),
+                  const Icon(Icons.arrow_left),
+                ],
+              ),
             ),
           ],
           onItemSelected: (value) async {
@@ -68,7 +74,67 @@ class _UpdatePageState extends State<UpdatePage> {
                 }
                 break;
               case 'ImportCore':
-                await SystemUtil.importCore();
+                final pos = RelativeRect.fromLTRB(
+                  MediaQuery.of(context).size.width,
+                  0,
+                  0,
+                  0,
+                );
+                showMenu(
+                  context: context,
+                  position: pos,
+                  items: [
+                    PopupMenuItem(
+                      value: 'SingleCore',
+                      child: Text(S.of(context).singleCore),
+                    ),
+                    PopupMenuItem(
+                      value: 'MutilpleCores',
+                      child: Text(S.of(context).multipleCores),
+                    ),
+                  ],
+                ).then((value) async {
+                  if (value == null) {
+                    return;
+                  }
+                  switch (value) {
+                    case 'SingleCore':
+                      final res = await SystemUtil.importCore(false);
+                      if (res == null || !context.mounted) {
+                        return;
+                      }
+                      if (res) {
+                        await SphiaWidget.showDialogWithMsg(
+                          context,
+                          S.of(context).importCoreSuccessfully,
+                        );
+                      } else {
+                        await SphiaWidget.showDialogWithMsg(
+                          context,
+                          S.of(context).importCoreFailed,
+                        );
+                      }
+                      break;
+                    case 'MutilpleCores':
+                      final res = await SystemUtil.importCore(true);
+                      if (res == null) {
+                        return;
+                      }
+                      if (res) {
+                        await SystemUtil.scanCores();
+                        if (!context.mounted) {
+                          return;
+                        }
+                        await SphiaWidget.showDialogWithMsg(
+                          context,
+                          S.of(context).importMultiCoresMsg(binPath),
+                        );
+                      }
+                      break;
+                    default:
+                      break;
+                  }
+                });
                 break;
               default:
                 break;

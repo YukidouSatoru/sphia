@@ -499,20 +499,36 @@ class SystemUtil {
     }
   }
 
-  static Future<bool?> importCore() async {
+  static Future<bool?> importCore(bool isMulti) async {
     FilePickerResult? result;
     if (os == OS.windows) {
       result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['exe'],
+        allowedExtensions: ['exe', "dat", "db"],
+        allowMultiple: isMulti,
       );
     } else {
       result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: [''],
+        allowedExtensions: ['', "dat", "db"],
+        allowMultiple: isMulti,
       );
     }
     if (result != null) {
+      if (result.files.isEmpty) {
+        return null;
+      }
+      if (isMulti) {
+        for (var platformFile in result.files) {
+          if (platformFile.path != null) {
+            final file = File(platformFile.path!);
+            final destPath = p.join(binPath, p.basename(file.path));
+            logger.i('Copying $file to \'$destPath\'');
+            file.copySync(destPath);
+          }
+        }
+        return true;
+      }
       final file = File(result.files.single.path!);
       // check core version
       for (var entry in coreVersionArgs.entries) {

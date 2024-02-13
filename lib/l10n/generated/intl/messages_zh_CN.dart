@@ -26,9 +26,11 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m2(coreName) => "成功删除核心 ${coreName}";
 
-  static String m3(count, total) => "${count}/${total} 个订阅已更新";
+  static String m3(binPath) => "已将选中核心或规则数据复制到 ${binPath}，将自动扫描核心。规则数据的版本号无法获取";
 
-  static String m4(coreName, version) => "更新 ${coreName} 到 ${version} 成功";
+  static String m4(count, total) => "${count}/${total} 个订阅已更新";
+
+  static String m5(coreName, version) => "更新 ${coreName} 到 ${version} 成功";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -169,9 +171,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Hysteria 提供者"),
         "hysteriaProviderMsg":
             MessageLookupByLibrary.simpleMessage("Hysteria 提供者，默认为 sing-box"),
-        "importCore": MessageLookupByLibrary.simpleMessage("导入核心"),
+        "import": MessageLookupByLibrary.simpleMessage("导入"),
         "importCoreFailed": MessageLookupByLibrary.simpleMessage("导入核心失败"),
+        "importCoreSuccessfully":
+            MessageLookupByLibrary.simpleMessage("成功导入核心"),
         "importFromClipboard": MessageLookupByLibrary.simpleMessage("从剪贴板导入"),
+        "importMultiCoresMsg": m3,
         "ipv4Address": MessageLookupByLibrary.simpleMessage("IPv4 地址"),
         "ipv4AddressMsg": MessageLookupByLibrary.simpleMessage("Tun IPv4 地址"),
         "ipv6Address": MessageLookupByLibrary.simpleMessage("IPv6 地址"),
@@ -195,6 +200,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "multiOutboundSupport": MessageLookupByLibrary.simpleMessage("多出站支持"),
         "multiOutboundSupportMsg": MessageLookupByLibrary.simpleMessage(
             "多出站支持，默认关闭。sing-box 在此选项开启时不支持流量统计"),
+        "multipleCores": MessageLookupByLibrary.simpleMessage("多个核心"),
         "name": MessageLookupByLibrary.simpleMessage("名称"),
         "nameEnterMsg": MessageLookupByLibrary.simpleMessage("请输入名称"),
         "navigationStyle": MessageLookupByLibrary.simpleMessage("导航栏样式"),
@@ -207,7 +213,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "noLogsAvailable": MessageLookupByLibrary.simpleMessage("没有可用的日志"),
         "noRunningCores": MessageLookupByLibrary.simpleMessage("没有运行的核心"),
         "noServerSelected": MessageLookupByLibrary.simpleMessage("没有选中的服务器"),
-        "numSubscriptionsHaveBeenUpdated": m3,
+        "numSubscriptionsHaveBeenUpdated": m4,
         "obfs": MessageLookupByLibrary.simpleMessage("混淆"),
         "ok": MessageLookupByLibrary.simpleMessage("确定"),
         "password": MessageLookupByLibrary.simpleMessage("密码"),
@@ -239,6 +245,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "routingProviderMsg":
             MessageLookupByLibrary.simpleMessage("路由提供者，默认为 sing-box"),
         "rule": MessageLookupByLibrary.simpleMessage("规则"),
+        "ruleData": MessageLookupByLibrary.simpleMessage("规则数据"),
         "rules": MessageLookupByLibrary.simpleMessage("规则"),
         "runningCores": MessageLookupByLibrary.simpleMessage("正在运行的核心"),
         "runningServer": MessageLookupByLibrary.simpleMessage("正在运行的服务器"),
@@ -265,6 +272,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "showTransport": MessageLookupByLibrary.simpleMessage("显示传输协议"),
         "showTransportMsg":
             MessageLookupByLibrary.simpleMessage("如果可用，在服务器卡片上显示传输协议"),
+        "singleCore": MessageLookupByLibrary.simpleMessage("单个核心"),
         "sni": MessageLookupByLibrary.simpleMessage("SNI"),
         "socksPort": MessageLookupByLibrary.simpleMessage("Socks 端口"),
         "socksPortMsg":
@@ -318,7 +326,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "通过代理更新，默认关闭。开启后，会通过代理服务器更新核心和订阅 (需要有活动的服务器)"),
         "updatedGroupSuccessfully":
             MessageLookupByLibrary.simpleMessage("更新分组成功"),
-        "updatedSuccessfully": m4,
+        "updatedSuccessfully": m5,
         "upload": MessageLookupByLibrary.simpleMessage("上传"),
         "uploadSpeed": MessageLookupByLibrary.simpleMessage("上传速度"),
         "useMaterial3": MessageLookupByLibrary.simpleMessage("使用 Material 3"),

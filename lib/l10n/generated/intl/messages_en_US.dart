@@ -26,10 +26,13 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m2(coreName) => "Deleted ${coreName} successfully";
 
-  static String m3(count, total) =>
+  static String m3(binPath) =>
+      "Selected cores or rule data have been copied to ${binPath}, and cores will be scanned automatically. The version number of the rule data cannot be obtained";
+
+  static String m4(count, total) =>
       "${count}/${total} subscriptions have been updated";
 
-  static String m4(coreName, version) =>
+  static String m5(coreName, version) =>
       "Updated ${coreName} to ${version} successfully";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -201,11 +204,14 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Hysteria Provider"),
         "hysteriaProviderMsg": MessageLookupByLibrary.simpleMessage(
             "Hysteria provider, default is sing-box"),
-        "importCore": MessageLookupByLibrary.simpleMessage("Import Core"),
+        "import": MessageLookupByLibrary.simpleMessage("Import"),
         "importCoreFailed":
             MessageLookupByLibrary.simpleMessage("Failed to import core"),
+        "importCoreSuccessfully":
+            MessageLookupByLibrary.simpleMessage("Imported core successfully"),
         "importFromClipboard":
             MessageLookupByLibrary.simpleMessage("Import from Clipboard"),
+        "importMultiCoresMsg": m3,
         "ipv4Address": MessageLookupByLibrary.simpleMessage("IPv4 Address"),
         "ipv4AddressMsg":
             MessageLookupByLibrary.simpleMessage("Tun IPv4 address"),
@@ -235,6 +241,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Multi Outbound Support"),
         "multiOutboundSupportMsg": MessageLookupByLibrary.simpleMessage(
             "Multi outbound support, default off. Sing-Box does not support traffic statistics when this option is enabled"),
+        "multipleCores": MessageLookupByLibrary.simpleMessage("Multiple Cores"),
         "name": MessageLookupByLibrary.simpleMessage("Name"),
         "nameEnterMsg":
             MessageLookupByLibrary.simpleMessage("Please enter a name"),
@@ -253,7 +260,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("No running cores"),
         "noServerSelected":
             MessageLookupByLibrary.simpleMessage("No server selected"),
-        "numSubscriptionsHaveBeenUpdated": m3,
+        "numSubscriptionsHaveBeenUpdated": m4,
         "obfs": MessageLookupByLibrary.simpleMessage("obfs"),
         "ok": MessageLookupByLibrary.simpleMessage("OK"),
         "password": MessageLookupByLibrary.simpleMessage("Password"),
@@ -293,6 +300,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "routingProviderMsg": MessageLookupByLibrary.simpleMessage(
             "Routing provider, default is sing-box"),
         "rule": MessageLookupByLibrary.simpleMessage("Rule"),
+        "ruleData": MessageLookupByLibrary.simpleMessage("Rule Data"),
         "rules": MessageLookupByLibrary.simpleMessage("Rules"),
         "runningCores": MessageLookupByLibrary.simpleMessage("Running Cores"),
         "runningServer": MessageLookupByLibrary.simpleMessage("Running Server"),
@@ -322,6 +330,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "showTransport": MessageLookupByLibrary.simpleMessage("Show Transport"),
         "showTransportMsg": MessageLookupByLibrary.simpleMessage(
             "Display transport on the server card if available"),
+        "singleCore": MessageLookupByLibrary.simpleMessage("Single Core"),
         "sni": MessageLookupByLibrary.simpleMessage("SNI"),
         "socksPort": MessageLookupByLibrary.simpleMessage("Socks Port"),
         "socksPortMsg": MessageLookupByLibrary.simpleMessage(
@@ -384,7 +393,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "Update through proxy, default off. When it\'s on, updates for the core and subscriptions will be done through a proxy server (requires an active server)"),
         "updatedGroupSuccessfully":
             MessageLookupByLibrary.simpleMessage("Updated group successfully"),
-        "updatedSuccessfully": m4,
+        "updatedSuccessfully": m5,
         "upload": MessageLookupByLibrary.simpleMessage("Upload"),
         "uploadSpeed": MessageLookupByLibrary.simpleMessage("Upload Speed"),
         "useMaterial3": MessageLookupByLibrary.simpleMessage("Use Material 3"),

@@ -1160,11 +1160,11 @@ class S {
     );
   }
 
-  /// `Import Core`
-  String get importCore {
+  /// `Import`
+  String get import {
     return Intl.message(
-      'Import Core',
-      name: 'importCore',
+      'Import',
+      name: 'import',
       desc: '',
       args: [],
     );
@@ -1180,6 +1180,16 @@ class S {
     );
   }
 
+  /// `Imported core successfully`
+  String get importCoreSuccessfully {
+    return Intl.message(
+      'Imported core successfully',
+      name: 'importCoreSuccessfully',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Import from Clipboard`
   String get importFromClipboard {
     return Intl.message(
@@ -1187,6 +1197,16 @@ class S {
       name: 'importFromClipboard',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `Selected cores or rule data have been copied to {binPath}, and cores will be scanned automatically. The version number of the rule data cannot be obtained`
+  String importMultiCoresMsg(Object binPath) {
+    return Intl.message(
+      'Selected cores or rule data have been copied to $binPath, and cores will be scanned automatically. The version number of the rule data cannot be obtained',
+      name: 'importMultiCoresMsg',
+      desc: '',
+      args: [binPath],
     );
   }
 
@@ -1375,6 +1395,16 @@ class S {
     return Intl.message(
       'Multi outbound support, default off. Sing-Box does not support traffic statistics when this option is enabled',
       name: 'multiOutboundSupportMsg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Multiple Cores`
+  String get multipleCores {
+    return Intl.message(
+      'Multiple Cores',
+      name: 'multipleCores',
       desc: '',
       args: [],
     );
@@ -1760,6 +1790,16 @@ class S {
     );
   }
 
+  /// `Rule Data`
+  String get ruleData {
+    return Intl.message(
+      'Rule Data',
+      name: 'ruleData',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Rules`
   String get rules {
     return Intl.message(
@@ -1965,6 +2005,16 @@ class S {
     return Intl.message(
       'Display transport on the server card if available',
       name: 'showTransportMsg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Single Core`
+  String get singleCore {
+    return Intl.message(
+      'Single Core',
+      name: 'singleCore',
       desc: '',
       args: [],
     );
