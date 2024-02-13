@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:sphia/app/config/sphia.dart';
+import 'package:sphia/app/database/dao/server.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/core.dart';
@@ -97,7 +98,8 @@ class SphiaController {
       if (core != null) {
         coreProvider.cores.add(core);
       }
-      if (!coreProvider.cores.first.isRouting) {
+      final routingProviderName = getProviderCoreName(routingProvider);
+      if (routingProviderName != coreProvider.cores.first.name) {
         late final int additionalServerPort;
         if (routingProvider == RoutingProvider.sing.index) {
           coreProvider.cores.add(SingBoxCore()..isRouting = true);
@@ -114,9 +116,10 @@ class SphiaController {
             additionalServerPort = sphiaConfig.additionalSocksPort;
           }
         }
-        additionalServer =
-            ServerDefaults.xrayDefaults(defaultServerGroupId, defaultServerId)
-                .copyWith(
+        additionalServer = ServerDefaults.xrayDefaults(
+          defaultServerGroupId,
+          additionalServerId,
+        ).copyWith(
           protocol: 'socks',
           address: sphiaConfig.listen,
           port: additionalServerPort,
@@ -196,6 +199,9 @@ class SphiaController {
       coreProvider.updateCoreRunning(true);
     }
   }
+
+  static String getProviderCoreName(int providerIndex) =>
+      providerIndex == RoutingProvider.sing.index ? 'sing-box' : 'xray-core';
 
   static Future<Server> getRunningServer() async {
     final coreProvider = GetIt.I.get<CoreProvider>();

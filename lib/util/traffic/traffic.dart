@@ -150,7 +150,16 @@ class XrayTraffic extends Traffic {
     final uplinkRequest = QueryStatsRequest()
       ..pattern = 'outbound>>>$outboundTag>>>traffic>>>uplink';
     return client.queryStats(uplinkRequest).then((response) {
-      return int.parse(response.writeToJsonMap()['1'][0]['2'] ?? '0');
+      try {
+        final uplink = int.tryParse(response.writeToJsonMap()['1'][0]['2']);
+        if (uplink == null) {
+          return 0;
+        }
+        return uplink;
+      } catch (e) {
+        logger.e('Failed to get uplink from $outboundTag: $e');
+        return 0;
+      }
     });
   }
 
@@ -158,7 +167,16 @@ class XrayTraffic extends Traffic {
     final downlinkRequest = QueryStatsRequest()
       ..pattern = 'outbound>>>$outboundTag>>>traffic>>>downlink';
     return client.queryStats(downlinkRequest).then((response) {
-      return int.parse(response.writeToJsonMap()['1'][0]['2'] ?? '0');
+      try {
+        final downlink = int.tryParse(response.writeToJsonMap()['1'][0]['2']);
+        if (downlink == null) {
+          return 0;
+        }
+        return downlink;
+      } catch (e) {
+        logger.e('Failed to get downlink from $outboundTag: $e');
+        return 0;
+      }
     });
   }
 }

@@ -404,6 +404,7 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
+        !coreProvider.coreRunning,
       ),
       SphiaWidget.checkboxCard(
         sphiaConfig.autoConfigureSystemProxy,

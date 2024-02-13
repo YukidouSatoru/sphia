@@ -504,15 +504,19 @@ class _DashboardState extends State<Dashboard> {
     final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
     final coreProvider = GetIt.I.get<CoreProvider>();
     final sphiaConfig = sphiaConfigProvider.config;
+
     if (coreProvider.coreRunning && sphiaConfig.enableStatistics) {
       if (coreProvider.cores.last.name == 'sing-box') {
         _traffic = SingBoxTraffic(sphiaConfig.coreApiPort);
       } else {
         _traffic = XrayTraffic(
-            sphiaConfig.coreApiPort, sphiaConfig.multiOutboundSupport);
+          sphiaConfig.coreApiPort,
+          sphiaConfig.multiOutboundSupport,
+        );
       }
-      _totalUpload.value = 0;
-      _totalDownload.value = 0;
+
+      _clearTraffic();
+
       try {
         await _traffic!.start();
       } on Exception catch (_) {
@@ -538,73 +542,90 @@ class _DashboardState extends State<Dashboard> {
             .add(FlSpot(nowStamp.toDouble(), data['down'].toDouble()));
       }
     } else {
-      if (_traffic != null) {
-        if (sphiaConfig.multiOutboundSupport &&
-            sphiaConfig.routingProvider == RoutingProvider.sing.index) {
-          return;
-        }
-        if (_totalUpload.value != 0 || _totalDownload.value != 0) {
-          if (sphiaConfig.multiOutboundSupport) {
-            final serverId = coreProvider.cores.last.serverId;
-            final server = await serverDao.getServersByIdList(serverId);
-            if (server.isEmpty) {
-              return;
-            }
-            for (var s in server) {
-              final outboundTag = s == server.first ? 'proxy' : 'proxy-${s.id}';
-              final proxyLink = await (_traffic as XrayTraffic)
-                  .queryProxyLinkByOutboundTag(outboundTag);
-              final newServer = s.copyWith(
-                uplink: Value(s.uplink == null
-                    ? proxyLink.item1
-                    : s.uplink! + proxyLink.item1),
-                downlink: Value(s.downlink == null
-                    ? proxyLink.item2
-                    : s.downlink! + proxyLink.item2),
-              );
-              await serverDao.updateServer(newServer);
+      if (_traffic == null) {
+        return;
+      }
+      if (sphiaConfig.multiOutboundSupport &&
+          sphiaConfig.routingProvider == RoutingProvider.sing.index) {
+        /*
+          sing-box does not support traffic statistics for each outbound
+          when multiOutboundSupport is enabled
+           */
+        return;
+      }
+      if (_totalUpload.value != 0 || _totalDownload.value != 0) {
+        if (sphiaConfig.multiOutboundSupport) {
+          final serverIds = coreProvider.cores.last.serverId;
+          final servers = await serverDao.getServersByIdList(serverIds);
+          if (servers.isEmpty) {
+            // probably server is deleted
+            return;
+          }
+
+          for (var server in servers) {
+            late final String outboundTag;
+            if (server.id == serverIds.first) {
+              // serverIds.first is the main server's id,
+              // but servers.first is not guaranteed to be the main server
+              outboundTag = 'proxy';
+            } else {
+              outboundTag = 'proxy-${server.id}';
             }
 
-            final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-            serverConfigProvider.servers =
-                await serverDao.getOrderedServersByGroupId(
-                    serverConfigProvider.config.selectedServerGroupId);
-            _totalUpload.value = 0;
-            _totalDownload.value = 0;
-            _uploadLastSecond.value = 0;
-            _downloadLastSecond.value = 0;
-          } else {
-            final server = await serverDao
-                .getServerById(coreProvider.cores.last.serverId.first);
-            if (server == null) {
-              return;
-            }
+            final proxyLink = await (_traffic as XrayTraffic)
+                .queryProxyLinkByOutboundTag(outboundTag);
             final newServer = server.copyWith(
               uplink: Value(server.uplink == null
-                  ? _totalUpload.value
-                  : server.uplink! + _totalUpload.value),
+                  ? proxyLink.item1
+                  : server.uplink! + proxyLink.item1),
               downlink: Value(server.downlink == null
-                  ? _totalDownload.value
-                  : server.downlink! + _totalDownload.value),
+                  ? proxyLink.item2
+                  : server.downlink! + proxyLink.item2),
             );
             await serverDao.updateServer(newServer);
-            _totalUpload.value = 0;
-            _totalDownload.value = 0;
-            _uploadLastSecond.value = 0;
-            _downloadLastSecond.value = 0;
-            final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-            final index = serverConfigProvider.servers
-                .indexWhere((element) => element.id == newServer.id);
-            if (index != -1) {
-              serverConfigProvider.servers[index] = newServer;
-              // serverConfigProvider.notify();
-            }
+          }
+
+          final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
+          serverConfigProvider.servers =
+              await serverDao.getOrderedServersByGroupId(
+                  serverConfigProvider.config.selectedServerGroupId);
+          _clearTraffic();
+        } else {
+          // just one server
+          final server = await serverDao
+              .getServerById(coreProvider.cores.last.serverId.first);
+          if (server == null) {
+            return;
+          }
+          final newServer = server.copyWith(
+            uplink: Value(server.uplink == null
+                ? _totalUpload.value
+                : server.uplink! + _totalUpload.value),
+            downlink: Value(server.downlink == null
+                ? _totalDownload.value
+                : server.downlink! + _totalDownload.value),
+          );
+          await serverDao.updateServer(newServer);
+          _clearTraffic();
+          final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
+          final index = serverConfigProvider.servers
+              .indexWhere((element) => element.id == newServer.id);
+          if (index != -1) {
+            serverConfigProvider.servers[index] = newServer;
+            // serverConfigProvider.notify();
           }
         }
         await _traffic!.stop();
         _traffic = null;
       }
     }
+  }
+
+  void _clearTraffic() {
+    _totalUpload.value = 0;
+    _totalDownload.value = 0;
+    _uploadLastSecond.value = 0;
+    _downloadLastSecond.value = 0;
   }
 }
 
