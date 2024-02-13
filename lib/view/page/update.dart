@@ -351,12 +351,15 @@ class _UpdatePageState extends State<UpdatePage> {
   }
 
   Future<void> _deleteCore(String coreName) async {
+    final versionConfigProvider =
+        Provider.of<VersionConfigProvider>(context, listen: false);
     // check if core exists
     if (!SystemUtil.coreExists(coreName)) {
       await SphiaWidget.showDialogWithMsg(
         context,
         S.of(context).coreNotFound(coreName),
       );
+      versionConfigProvider.removeVersion(coreName);
       return;
     }
     // check if core is running
@@ -400,8 +403,6 @@ class _UpdatePageState extends State<UpdatePage> {
       if (!context.mounted) {
         return;
       }
-      final versionConfigProvider =
-          Provider.of<VersionConfigProvider>(context, listen: false);
       versionConfigProvider.removeVersion(coreName);
       await SphiaWidget.showDialogWithMsg(
         context,
