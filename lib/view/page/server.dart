@@ -252,6 +252,8 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                   serverConfigProvider.saveConfigWithoutNotify();
                   _updateTabController();
                   await _loadServers();
+                  SphiaTray.generateServerItems();
+                  SphiaTray.setMenu();
                   setState(() {});
                 }
                 break;
