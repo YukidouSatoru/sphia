@@ -468,6 +468,7 @@ class SystemUtil {
       'shadowsocks-rust': p.join(binPath, getCoreFileName('shadowsocks-rust')),
       'hysteria': p.join(binPath, getCoreFileName('hysteria')),
     };
+    final versionConfigProvider = GetIt.I.get<VersionConfigProvider>();
     logger.i('Scanning cores');
     for (var entry in executableMap.entries) {
       final coreName = entry.key;
@@ -492,10 +493,16 @@ class SystemUtil {
             parseVersionInfo(result.stdout.toString(), coreName, true);
         if (version != null) {
           logger.i('Found $coreName: $version');
-          final versionConfigProvider = GetIt.I.get<VersionConfigProvider>();
           versionConfigProvider.updateVersion(coreName, version);
         }
       }
+    }
+    // for rules dat
+    if (!coreExists('sing-box-rules')) {
+      versionConfigProvider.removeVersion('sing-box-rules');
+    }
+    if (!coreExists('v2ray-rules-dat')) {
+      versionConfigProvider.removeVersion('v2ray-rules-dat');
     }
   }
 
