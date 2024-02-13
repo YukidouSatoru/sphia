@@ -273,7 +273,7 @@ class Tray {
           // Stop cores
           await SphiaController.stopCores();
           // Close database
-          await SphiaDatabase.I.close();
+          await SphiaDatabase.close();
           // Destory tray
           await _tray.destroy();
           // Close logger

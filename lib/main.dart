@@ -103,11 +103,27 @@ Future<void> configureApp() async {
   // Init database
   await SphiaDatabase.init();
 
+  late final SphiaConfig sphiaConfig;
+  late final ServerConfig serverConfig;
+  late final RuleConfig ruleConfig;
+  late final VersionConfig versionConfig;
+
   // Load config
-  final SphiaConfig sphiaConfig = await sphiaConfigDao.loadConfig();
-  final ServerConfig serverConfig = await serverConfigDao.loadConfig();
-  final RuleConfig ruleConfig = await ruleConfigDao.loadConfig();
-  final VersionConfig versionConfig = await versionConfigDao.loadConfig();
+  try {
+    sphiaConfig = await sphiaConfigDao.loadConfig();
+    serverConfig = await serverConfigDao.loadConfig();
+    ruleConfig = await ruleConfigDao.loadConfig();
+    versionConfig = await versionConfigDao.loadConfig();
+  } catch (e) {
+    await SphiaDatabase.backupDatabase();
+    final errorMsg = '''
+    An error occurred while loading config: $e
+    Current database file has been backuped to $configPath/sphia.db.bak
+    Please restart Sphia to create a new database file''';
+    logger.e(errorMsg);
+    await showErrorMsg(errorMsg);
+    return;
+  }
 
   final sphiaConfigProvider = SphiaConfigProvider(sphiaConfig);
   final coreProvider = CoreProvider();
@@ -205,7 +221,7 @@ Future<void> showErrorMsg(String errorMsg) async {
   );
   await windowManager.waitUntilReadyToShow(errorWindowOptions, () async {
     await windowManager.setAlignment(Alignment.center);
-    await windowManager.setMinimumSize(const Size(400, 300));
+    await windowManager.setMinimumSize(const Size(600, 450));
     await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
     await windowManager.show();
     await windowManager.focus();

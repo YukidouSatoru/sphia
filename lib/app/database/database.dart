@@ -60,6 +60,21 @@ class SphiaDatabase {
     logger.i('Closing database');
     await _database.close();
   }
+
+  static Future<void> backupDatabase() async {
+    final file = File(p.join(configPath, 'sphia.db'));
+    if (!await file.exists()) {
+      logger.i('Database file does not exist');
+      return;
+    }
+    final backupFile = File(p.join(configPath, 'sphia.db.bak'));
+    if (await backupFile.exists()) {
+      logger.i('Backup file already exists, deleting it');
+      await backupFile.delete();
+    }
+    logger.i('Creating backup file: ${backupFile.path}');
+    await file.rename(backupFile.path);
+  }
 }
 
 @DriftDatabase(tables: [
