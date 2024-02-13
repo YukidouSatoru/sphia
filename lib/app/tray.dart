@@ -126,7 +126,8 @@ class Tray {
           serverConfigProvider.saveConfig();
           final coreProvider = GetIt.I.get<CoreProvider>();
           if (coreProvider.coreRunning) {
-            await SphiaController.restartCores();
+            await SphiaController.stopCores();
+            await SphiaController.startCores(server);
           }
         } else {
           await menuItem.setCheck(false);
