@@ -15,6 +15,7 @@ dependencies:
   archive: ^3.1.2
   drift: ^2.11.0
   dropdown_search: ^5.0.6
+  file_picker: ^6.1.1
   fixnum: ^1.1.0
   fl_chart: ^0.65.0
   get_it: ^7.4.0

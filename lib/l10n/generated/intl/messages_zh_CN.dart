@@ -20,9 +20,15 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'zh_CN';
 
-  static String m0(count, total) => "${count}/${total} 个订阅已更新";
+  static String m0(coreName) => "未找到核心: ${coreName}";
 
-  static String m1(coreName, version) => "更新 ${coreName} 到 ${version} 成功";
+  static String m1(coreName) => "确定要删除核心 ${coreName} 吗？";
+
+  static String m2(coreName) => "成功删除核心 ${coreName}";
+
+  static String m3(count, total) => "${count}/${total} 个订阅已更新";
+
+  static String m4(coreName, version) => "更新 ${coreName} 到 ${version} 成功";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -75,6 +81,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "coreApiPort": MessageLookupByLibrary.simpleMessage("核心 API 端口"),
         "coreApiPortMsg":
             MessageLookupByLibrary.simpleMessage("核心 API 端口，用于获取流量统计"),
+        "coreNotFound": m0,
         "coreStart": MessageLookupByLibrary.simpleMessage("启动核心"),
         "coreStartFailed": MessageLookupByLibrary.simpleMessage("启动核心失败"),
         "coreStop": MessageLookupByLibrary.simpleMessage("停止核心"),
@@ -84,7 +91,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "darkMode": MessageLookupByLibrary.simpleMessage("深色模式"),
         "darkModeMsg": MessageLookupByLibrary.simpleMessage("启用深色模式，默认开启"),
         "dashboard": MessageLookupByLibrary.simpleMessage("仪表盘"),
+        "delete": MessageLookupByLibrary.simpleMessage("删除"),
+        "deleteCore": MessageLookupByLibrary.simpleMessage("删除核心"),
+        "deleteCoreConfirm": m1,
+        "deleteCoreFailed": MessageLookupByLibrary.simpleMessage("删除核心失败"),
         "deleteGroup": MessageLookupByLibrary.simpleMessage("删除分组"),
+        "deletedCoreSuccessfully": m2,
         "directDns": MessageLookupByLibrary.simpleMessage("直连 DNS"),
         "directDnsMsg": MessageLookupByLibrary.simpleMessage(
             "直连 DNS，默认为 https+local://doh.pub/dns-query。Sing-Box 在启动前会尝试解析。\n如果你不清楚路由提供者的 DNS 格式，请不要修改"),
@@ -157,6 +169,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Hysteria 提供者"),
         "hysteriaProviderMsg":
             MessageLookupByLibrary.simpleMessage("Hysteria 提供者，默认为 sing-box"),
+        "importCore": MessageLookupByLibrary.simpleMessage("导入核心"),
+        "importCoreFailed": MessageLookupByLibrary.simpleMessage("导入核心失败"),
         "importFromClipboard": MessageLookupByLibrary.simpleMessage("从剪贴板导入"),
         "ipv4Address": MessageLookupByLibrary.simpleMessage("IPv4 地址"),
         "ipv4AddressMsg": MessageLookupByLibrary.simpleMessage("Tun IPv4 地址"),
@@ -193,7 +207,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "noLogsAvailable": MessageLookupByLibrary.simpleMessage("没有可用的日志"),
         "noRunningCores": MessageLookupByLibrary.simpleMessage("没有运行的核心"),
         "noServerSelected": MessageLookupByLibrary.simpleMessage("没有选中的服务器"),
-        "numSubscriptionsHaveBeenUpdated": m0,
+        "numSubscriptionsHaveBeenUpdated": m3,
         "obfs": MessageLookupByLibrary.simpleMessage("混淆"),
         "ok": MessageLookupByLibrary.simpleMessage("确定"),
         "password": MessageLookupByLibrary.simpleMessage("密码"),
@@ -232,6 +246,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "saveCoreLog": MessageLookupByLibrary.simpleMessage("保存核心日志"),
         "saveCoreLogMsg":
             MessageLookupByLibrary.simpleMessage("保存核心日志到 log 目录下"),
+        "scanCores": MessageLookupByLibrary.simpleMessage("扫描核心"),
+        "scanCoresCompleted": MessageLookupByLibrary.simpleMessage("扫描核心完成"),
         "selectProtocol": MessageLookupByLibrary.simpleMessage("选择协议"),
         "selectedServer": MessageLookupByLibrary.simpleMessage("已选服务器"),
         "server": MessageLookupByLibrary.simpleMessage("服务器"),
@@ -261,6 +277,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "startOnBootMsg":
             MessageLookupByLibrary.simpleMessage("开机启动，支持 Windows，Linux，MacOS"),
         "statisticsIsDisabled": MessageLookupByLibrary.simpleMessage("统计已禁用"),
+        "stopCoreBeforeDelete":
+            MessageLookupByLibrary.simpleMessage("删除核心前请先停止核心"),
         "strictRoute": MessageLookupByLibrary.simpleMessage("严格路由"),
         "strictRouteMsg": MessageLookupByLibrary.simpleMessage("Tun 严格路由，默认关闭"),
         "subscription": MessageLookupByLibrary.simpleMessage("订阅"),
@@ -300,7 +318,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "通过代理更新，默认关闭。开启后，会通过代理服务器更新核心和订阅 (需要有活动的服务器)"),
         "updatedGroupSuccessfully":
             MessageLookupByLibrary.simpleMessage("更新分组成功"),
-        "updatedSuccessfully": m1,
+        "updatedSuccessfully": m4,
         "upload": MessageLookupByLibrary.simpleMessage("上传"),
         "uploadSpeed": MessageLookupByLibrary.simpleMessage("上传速度"),
         "useMaterial3": MessageLookupByLibrary.simpleMessage("使用 Material 3"),

@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sphia/app/log.dart';
+import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/version_config.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/network.dart';
@@ -37,12 +38,48 @@ class _UpdatePageState extends State<UpdatePage> {
   @override
   Widget build(BuildContext context) {
     final versionConfigProvider = Provider.of<VersionConfigProvider>(context);
+    final appBar = AppBar(
+      title: Text(
+        S.of(context).update,
+      ),
+      elevation: 0,
+      actions: [
+        SphiaWidget.popupMenuButton(
+          context: context,
+          items: [
+            SphiaWidget.popupMenuItem(
+              value: 'ScanCores',
+              child: Text(S.of(context).scanCores),
+            ),
+            SphiaWidget.popupMenuItem(
+              value: 'ImportCore',
+              child: Text(S.of(context).importCore),
+            ),
+          ],
+          onItemSelected: (value) async {
+            switch (value) {
+              case 'ScanCores':
+                await SystemUtil.scanCores();
+                if (context.mounted) {
+                  await SphiaWidget.showDialogWithMsg(
+                    context,
+                    S.of(context).scanCoresCompleted,
+                  );
+                }
+                break;
+              case 'ImportCore':
+                await SystemUtil.importCore();
+                break;
+              default:
+                break;
+            }
+          },
+        ),
+      ],
+    );
     return ScaffoldMessenger(
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(S.of(context).update),
-          elevation: 0,
-        ),
+        appBar: appBar,
         body: PageWrapper(
           child: ListView.builder(
             itemCount: coreRepositories.length - 1,
@@ -90,18 +127,32 @@ class _UpdatePageState extends State<UpdatePage> {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      ElevatedButton(
-                        onPressed: () async => await _checkUpdate(
-                          coreName: coreName,
-                          showDialog: true,
+                      Tooltip(
+                        message: S.of(context).checkUpdate,
+                        child: IconButton(
+                          onPressed: () async => await _checkUpdate(
+                            coreName: coreName,
+                            showDialog: true,
+                          ),
+                          icon: const Icon(Icons.refresh),
                         ),
-                        child: Text(S.of(context).checkUpdate),
                       ),
                       const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () async =>
-                            await _updateCore(coreName, currentVersion),
-                        child: Text(S.of(context).update),
+                      Tooltip(
+                        message: S.of(context).update,
+                        child: IconButton(
+                          onPressed: () async =>
+                              await _updateCore(coreName, currentVersion),
+                          icon: const Icon(Icons.system_update_alt_rounded),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Tooltip(
+                        message: S.of(context).delete,
+                        child: IconButton(
+                          onPressed: () async => await _deleteCore(coreName),
+                          icon: const Icon(Icons.delete),
+                        ),
                       ),
                     ],
                   ),
@@ -229,6 +280,66 @@ class _UpdatePageState extends State<UpdatePage> {
       await SphiaWidget.showDialogWithMsg(
         context,
         S.of(context).updatedSuccessfully(coreName, latestVersion),
+      );
+    }
+  }
+
+  Future<void> _deleteCore(String coreName) async {
+    // check if core exists
+    if (!SystemUtil.coreExists(coreName)) {
+      await SphiaWidget.showDialogWithMsg(
+        context,
+        S.of(context).coreNotFound(coreName),
+      );
+      return;
+    }
+    // check if core is running
+    final coreProvider = Provider.of<CoreProvider>(context, listen: false);
+    if (coreProvider.coreRunning) {
+      await SphiaWidget.showDialogWithMsg(
+        context,
+        S.of(context).stopCoreBeforeDelete,
+      );
+      return;
+    }
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(S.of(context).deleteCore),
+        content: Text(S.of(context).deleteCoreConfirm(coreName)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(S.of(context).cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(S.of(context).delete),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      try {
+        SystemUtil.deleteCore(coreName);
+      } on Exception catch (e) {
+        if (!context.mounted) {
+          return;
+        }
+        await SphiaWidget.showDialogWithMsg(
+          context,
+          '${S.of(context).deleteCoreFailed}: $e',
+        );
+      }
+      if (!context.mounted) {
+        return;
+      }
+      final versionConfigProvider =
+          Provider.of<VersionConfigProvider>(context, listen: false);
+      versionConfigProvider.removeVersion(coreName);
+      await SphiaWidget.showDialogWithMsg(
+        context,
+        S.of(context).deletedCoreSuccessfully(coreName),
       );
     }
   }

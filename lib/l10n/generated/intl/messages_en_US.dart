@@ -20,10 +20,16 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en_US';
 
-  static String m0(count, total) =>
+  static String m0(coreName) => "Core not found: ${coreName}";
+
+  static String m1(coreName) => "Are you sure to delete the core ${coreName}?";
+
+  static String m2(coreName) => "Deleted ${coreName} successfully";
+
+  static String m3(count, total) =>
       "${count}/${total} subscriptions have been updated";
 
-  static String m1(coreName, version) =>
+  static String m4(coreName, version) =>
       "Updated ${coreName} to ${version} successfully";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -87,6 +93,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "coreApiPort": MessageLookupByLibrary.simpleMessage("Core API Port"),
         "coreApiPortMsg": MessageLookupByLibrary.simpleMessage(
             "The port used for retrieving traffic statistics from the core API"),
+        "coreNotFound": m0,
         "coreStart": MessageLookupByLibrary.simpleMessage("Start Core"),
         "coreStartFailed":
             MessageLookupByLibrary.simpleMessage("Failed to start core"),
@@ -99,7 +106,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "darkModeMsg": MessageLookupByLibrary.simpleMessage(
             "Enable dark mode, default on"),
         "dashboard": MessageLookupByLibrary.simpleMessage("Dashboard"),
+        "delete": MessageLookupByLibrary.simpleMessage("Delete"),
+        "deleteCore": MessageLookupByLibrary.simpleMessage("Delete Core"),
+        "deleteCoreConfirm": m1,
+        "deleteCoreFailed":
+            MessageLookupByLibrary.simpleMessage("Failed to delete core"),
         "deleteGroup": MessageLookupByLibrary.simpleMessage("Delete Group"),
+        "deletedCoreSuccessfully": m2,
         "directDns": MessageLookupByLibrary.simpleMessage("Direct DNS"),
         "directDnsMsg": MessageLookupByLibrary.simpleMessage(
             "Direct DNS, default is https+local://doh.pub/dns-query. Sing-Box will attempt resolution before startup.\nIf you are not sure about the DNS format of the routing provider, please do not modify"),
@@ -188,6 +201,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Hysteria Provider"),
         "hysteriaProviderMsg": MessageLookupByLibrary.simpleMessage(
             "Hysteria provider, default is sing-box"),
+        "importCore": MessageLookupByLibrary.simpleMessage("Import Core"),
+        "importCoreFailed":
+            MessageLookupByLibrary.simpleMessage("Failed to import core"),
         "importFromClipboard":
             MessageLookupByLibrary.simpleMessage("Import from Clipboard"),
         "ipv4Address": MessageLookupByLibrary.simpleMessage("IPv4 Address"),
@@ -237,7 +253,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("No running cores"),
         "noServerSelected":
             MessageLookupByLibrary.simpleMessage("No server selected"),
-        "numSubscriptionsHaveBeenUpdated": m0,
+        "numSubscriptionsHaveBeenUpdated": m3,
         "obfs": MessageLookupByLibrary.simpleMessage("obfs"),
         "ok": MessageLookupByLibrary.simpleMessage("OK"),
         "password": MessageLookupByLibrary.simpleMessage("Password"),
@@ -284,6 +300,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "saveCoreLog": MessageLookupByLibrary.simpleMessage("Save Core Log"),
         "saveCoreLogMsg": MessageLookupByLibrary.simpleMessage(
             "Save core logs to the log directory"),
+        "scanCores": MessageLookupByLibrary.simpleMessage("Scan Cores"),
+        "scanCoresCompleted":
+            MessageLookupByLibrary.simpleMessage("Scan Cores Completed"),
         "selectProtocol":
             MessageLookupByLibrary.simpleMessage("Select Protocol"),
         "selectedServer":
@@ -317,6 +336,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "Start on boot, supports Windows, Linux, MacOS"),
         "statisticsIsDisabled":
             MessageLookupByLibrary.simpleMessage("Statistics is disabled"),
+        "stopCoreBeforeDelete": MessageLookupByLibrary.simpleMessage(
+            "Please stop the core before deleting"),
         "strictRoute": MessageLookupByLibrary.simpleMessage("Strict Route"),
         "strictRouteMsg": MessageLookupByLibrary.simpleMessage(
             "Tun strict route, default off"),
@@ -363,7 +384,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "Update through proxy, default off. When it\'s on, updates for the core and subscriptions will be done through a proxy server (requires an active server)"),
         "updatedGroupSuccessfully":
             MessageLookupByLibrary.simpleMessage("Updated group successfully"),
-        "updatedSuccessfully": m1,
+        "updatedSuccessfully": m4,
         "upload": MessageLookupByLibrary.simpleMessage("Upload"),
         "uploadSpeed": MessageLookupByLibrary.simpleMessage("Upload Speed"),
         "useMaterial3": MessageLookupByLibrary.simpleMessage("Use Material 3"),

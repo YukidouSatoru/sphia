@@ -440,6 +440,16 @@ class S {
     );
   }
 
+  /// `Core not found: {coreName}`
+  String coreNotFound(Object coreName) {
+    return Intl.message(
+      'Core not found: $coreName',
+      name: 'coreNotFound',
+      desc: '',
+      args: [coreName],
+    );
+  }
+
   /// `Start Core`
   String get coreStart {
     return Intl.message(
@@ -530,6 +540,46 @@ class S {
     );
   }
 
+  /// `Delete`
+  String get delete {
+    return Intl.message(
+      'Delete',
+      name: 'delete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete Core`
+  String get deleteCore {
+    return Intl.message(
+      'Delete Core',
+      name: 'deleteCore',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure to delete the core {coreName}?`
+  String deleteCoreConfirm(Object coreName) {
+    return Intl.message(
+      'Are you sure to delete the core $coreName?',
+      name: 'deleteCoreConfirm',
+      desc: '',
+      args: [coreName],
+    );
+  }
+
+  /// `Failed to delete core`
+  String get deleteCoreFailed {
+    return Intl.message(
+      'Failed to delete core',
+      name: 'deleteCoreFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Delete Group`
   String get deleteGroup {
     return Intl.message(
@@ -537,6 +587,16 @@ class S {
       name: 'deleteGroup',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `Deleted {coreName} successfully`
+  String deletedCoreSuccessfully(Object coreName) {
+    return Intl.message(
+      'Deleted $coreName successfully',
+      name: 'deletedCoreSuccessfully',
+      desc: '',
+      args: [coreName],
     );
   }
 
@@ -1095,6 +1155,26 @@ class S {
     return Intl.message(
       'Hysteria provider, default is sing-box',
       name: 'hysteriaProviderMsg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import Core`
+  String get importCore {
+    return Intl.message(
+      'Import Core',
+      name: 'importCore',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to import core`
+  String get importCoreFailed {
+    return Intl.message(
+      'Failed to import core',
+      name: 'importCoreFailed',
       desc: '',
       args: [],
     );
@@ -1740,6 +1820,26 @@ class S {
     );
   }
 
+  /// `Scan Cores`
+  String get scanCores {
+    return Intl.message(
+      'Scan Cores',
+      name: 'scanCores',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Scan Cores Completed`
+  String get scanCoresCompleted {
+    return Intl.message(
+      'Scan Cores Completed',
+      name: 'scanCoresCompleted',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Select Protocol`
   String get selectProtocol {
     return Intl.message(
@@ -1965,6 +2065,16 @@ class S {
     return Intl.message(
       'Statistics is disabled',
       name: 'statisticsIsDisabled',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please stop the core before deleting`
+  String get stopCoreBeforeDelete {
+    return Intl.message(
+      'Please stop the core before deleting',
+      name: 'stopCoreBeforeDelete',
       desc: '',
       args: [],
     );

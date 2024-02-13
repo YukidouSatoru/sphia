@@ -67,7 +67,7 @@ class UpdateAgent {
         // Replace core
         await replaceCore(coreArchiveFileName, coreFileName, bytes);
 
-        if (!SystemUtil.fileExists(coreFileName)) {
+        if (!SystemUtil.coreExists(coreName)) {
           logger.e('Core not found: $coreName');
           throw Exception('Core not found: $coreName');
         }
