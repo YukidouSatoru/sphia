@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 
 import 'package:grpc/grpc.dart';
 import 'package:sphia/app/log.dart';
@@ -30,16 +31,10 @@ abstract class Traffic {
         tryCount++;
       }
       if (tryCount > 10) {
-        _logError('Failed to get traffic: API is not available');
-        throw Exception('Failed to get traffic: API is not available');
+        throw Exception('API is not available');
       }
       return !isApiAvailable;
     });
-  }
-
-  void _logError(String message) {
-    logger.e(message);
-    apiStreamController.addError(message);
   }
 
   Future<bool> checkAvailability() async {
@@ -101,10 +96,9 @@ class XrayTraffic extends Traffic {
 
         previousUplink = uplink;
         previousDownlink = downlink;
-      } on Exception catch (e) {
-        logger.e('Failed to get traffic: $e');
+      } catch (_) {
         timer.cancel();
-        throw Exception('Failed to get traffic: $e');
+        rethrow;
       }
     });
   }
@@ -183,10 +177,9 @@ class XrayTraffic extends Traffic {
 
 class SingBoxTraffic extends Traffic {
   late Uri url;
-  final client = HttpClient();
+  final client = http.Client();
   int uplink = 0;
   int downlink = 0;
-  late StreamSubscription<String> subscription;
 
   SingBoxTraffic(int apiPort) : super(apiPort) {
     url = Uri.parse('http://localhost:$apiPort/traffic');
@@ -197,13 +190,14 @@ class SingBoxTraffic extends Traffic {
     await super.start();
     logger.i('Starting SingBoxTraffic');
     try {
-      final request = await client.getUrl(url);
-      final response = await request.close();
+      final request = http.Request('GET', url);
+      final response = await client.send(request);
       if (response.statusCode != 200) {
-        throw Exception('Failed to get traffic: ${response.statusCode}');
+        throw Exception('Failed to get response: ${response.statusCode}');
       }
-      subscription = response.transform(utf8.decoder).listen((data) {
-        final json = jsonDecode(data);
+      response.stream.listen((data) async {
+        final decoded = utf8.decode(data);
+        final json = jsonDecode(decoded);
         final int up = json['up'] ?? 0;
         final int down = json['down'] ?? 0;
         uplink += up;
@@ -214,17 +208,23 @@ class SingBoxTraffic extends Traffic {
           '"up"': up,
           '"down"': down,
         });
+      }, onError: (e) {
+        if (e is http.ClientException) {
+          if (e.message.contains('Connection closed while receiving data')) {
+            // ignore
+          }
+        } else {
+          logger.e('Failed to get response from $url\n$e');
+        }
       });
-    } on Exception catch (e) {
-      logger.e('Failed to get traffic: $e');
-      throw Exception('Failed to get traffic: $e');
+    } catch (_) {
+      rethrow;
     }
   }
 
   @override
   Future<void> stop() async {
     logger.i('Stopping SingBoxTraffic');
-    await subscription.cancel();
     await apiStreamController.close();
     client.close();
   }

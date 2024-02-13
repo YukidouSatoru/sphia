@@ -147,6 +147,8 @@ class SphiaController {
       await stopCores();
       rethrow;
     }
+    // wait for core to start, or get ip may be failed
+    await Future.delayed(const Duration(milliseconds: 200));
     coreProvider.updateCoreRunning(true);
     int socksPort = sphiaConfig.socksPort;
     int httpPort = sphiaConfig.httpPort;
@@ -174,8 +176,8 @@ class SphiaController {
         await SphiaTray.setMenuItem('sysProxy', false);
       }
       coreProvider.updateCoreRunning(false);
-      // wait traffic to stop
-      await Future.delayed(const Duration(milliseconds: 500));
+      // wait for something? idk
+      await Future.delayed(const Duration(milliseconds: 200));
       for (var core in coreProvider.cores) {
         await core.stop();
       }
