@@ -50,7 +50,6 @@ class NetworkUtil {
   }
 
   static Future<String> getIp() async {
-    await Future.delayed(const Duration(milliseconds: 500));
     try {
       logger.i('Getting ip');
       final response = await getHttpResponse('https://api.ip.sb/ip');
