@@ -136,227 +136,226 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
       ),
       elevation: 0,
       actions: [
-        SphiaWidget.popupMenuButton(
-          context: context,
-          items: [
-            SphiaWidget.popupMenuItem(
-              value: 'AddServer',
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(S.of(context).addServer),
-                  const Icon(Icons.arrow_left),
-                ],
-              ),
-            ),
-            SphiaWidget.popupMenuItem(
-              value: 'AddGroup',
-              child: Text(S.of(context).addGroup),
-            ),
-            SphiaWidget.popupMenuItem(
-              value: 'EditGroup',
-              child: Text(S.of(context).editGroup),
-            ),
-            SphiaWidget.popupMenuItem(
-              value: 'UpdateGroup',
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(S.of(context).updateGroup),
-                  const Icon(Icons.arrow_left),
-                ],
-              ),
-            ),
-            SphiaWidget.popupMenuItem(
-              value: 'DeleteGroup',
-              child: Text(S.of(context).deleteGroup),
-            ),
-            SphiaWidget.popupMenuItem(
-              value: 'ReorderGroup',
-              child: Text(S.of(context).reorderGroup),
-            ),
-            SphiaWidget.popupMenuItem(
-              value: 'ClearTraffic',
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(S.of(context).clearTraffic),
-                  const Icon(Icons.arrow_left),
-                ],
-              ),
-            ),
-          ],
-          onItemSelected: (value) async {
-            switch (value) {
-              case 'AddServer':
-                final position = RelativeRect.fromLTRB(
-                  MediaQuery.of(context).size.width,
-                  0,
-                  0,
-                  0,
-                );
-                showMenu(
-                  context: context,
-                  position: position,
-                  items: [
-                    const PopupMenuItem(
-                      value: 'vmess',
-                      child: Text('VMess'),
-                    ),
-                    const PopupMenuItem(
-                      value: 'vless',
-                      child: Text('Vless'),
-                    ),
-                    const PopupMenuItem(
-                      value: 'shadowsocks',
-                      child: Text('Shadowsocks'),
-                    ),
-                    const PopupMenuItem(
-                      value: 'trojan',
-                      child: Text('Trojan'),
-                    ),
-                    const PopupMenuItem(
-                      value: 'hysteria',
-                      child: Text('Hysteria'),
-                    ),
-                    PopupMenuItem(
-                      value: 'clipboard',
-                      child: Text(S.of(context).importFromClipboard),
-                    ),
+        Builder(
+          builder: (context) => SphiaWidget.popupMenuButton(
+            context: context,
+            items: [
+              SphiaWidget.popupMenuItem(
+                value: 'AddServer',
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(S.of(context).addServer),
+                    const Icon(Icons.arrow_left),
                   ],
-                  elevation: 8.0,
-                ).then((value) async {
-                  if (value != null) {
-                    final Server? newServer = await _agent.addServer(
-                        serverConfigProvider.serverGroups[_index].id, value);
-                    if (newServer != null) {
-                      serverConfigProvider.servers.add(newServer);
-                      SphiaTray.addServerItem(newServer);
-                      setState(() {});
-                    } else {
-                      if (value == 'clipboard') {
+                ),
+              ),
+              SphiaWidget.popupMenuItem(
+                value: 'AddGroup',
+                child: Text(S.of(context).addGroup),
+              ),
+              SphiaWidget.popupMenuItem(
+                value: 'EditGroup',
+                child: Text(S.of(context).editGroup),
+              ),
+              SphiaWidget.popupMenuItem(
+                value: 'UpdateGroup',
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(S.of(context).updateGroup),
+                    const Icon(Icons.arrow_left),
+                  ],
+                ),
+              ),
+              SphiaWidget.popupMenuItem(
+                value: 'DeleteGroup',
+                child: Text(S.of(context).deleteGroup),
+              ),
+              SphiaWidget.popupMenuItem(
+                value: 'ReorderGroup',
+                child: Text(S.of(context).reorderGroup),
+              ),
+              SphiaWidget.popupMenuItem(
+                value: 'ClearTraffic',
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(S.of(context).clearTraffic),
+                    const Icon(Icons.arrow_left),
+                  ],
+                ),
+              ),
+            ],
+            onItemSelected: (value) async {
+              switch (value) {
+                case 'AddServer':
+                  final renderBox = context.findRenderObject() as RenderBox;
+                  final position = renderBox.localToGlobal(Offset.zero);
+                  showMenu(
+                    context: context,
+                    position: RelativeRect.fromLTRB(
+                      position.dx,
+                      position.dy,
+                      position.dx + renderBox.size.width,
+                      position.dy + renderBox.size.height,
+                    ),
+                    items: [
+                      const PopupMenuItem(
+                        value: 'vmess',
+                        child: Text('VMess'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'vless',
+                        child: Text('Vless'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'shadowsocks',
+                        child: Text('Shadowsocks'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'trojan',
+                        child: Text('Trojan'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'hysteria',
+                        child: Text('Hysteria'),
+                      ),
+                      PopupMenuItem(
+                        value: 'clipboard',
+                        child: Text(S.of(context).importFromClipboard),
+                      ),
+                    ],
+                    elevation: 8.0,
+                  ).then((value) async {
+                    if (value != null) {
+                      final Server? newServer = await _agent.addServer(
+                          serverConfigProvider.serverGroups[_index].id, value);
+                      if (newServer != null) {
+                        serverConfigProvider.servers.add(newServer);
+                        SphiaTray.addServerItem(newServer);
+                        setState(() {});
+                      } else {
+                        if (value == 'clipboard') {
+                          await _loadServers();
+                          SphiaTray.generateServerItems();
+                          SphiaTray.setMenu();
+                          setState(() {});
+                        }
+                      }
+                    }
+                  });
+                  break;
+                case 'AddGroup':
+                  if (await _agent.addGroup()) {
+                    _index = serverConfigProvider.serverGroups.length - 1;
+                    serverConfig.selectedServerGroupId =
+                        serverConfigProvider.serverGroups[_index].id;
+                    serverConfigProvider.saveConfigWithoutNotify();
+                    _updateTabController();
+                    await _loadServers();
+                    SphiaTray.generateServerItems();
+                    SphiaTray.setMenu();
+                    setState(() {});
+                  }
+                  break;
+                case 'EditGroup':
+                  if (await _agent
+                      .editGroup(serverConfigProvider.serverGroups[_index])) {
+                    setState(() {});
+                  }
+                  break;
+                case 'UpdateGroup':
+                  final renderBox = context.findRenderObject() as RenderBox;
+                  final position = renderBox.localToGlobal(Offset.zero);
+                  showMenu(
+                    context: context,
+                    position: RelativeRect.fromLTRB(
+                      position.dx,
+                      position.dy,
+                      position.dx + renderBox.size.width,
+                      position.dy + renderBox.size.height,
+                    ),
+                    items: [
+                      PopupMenuItem(
+                        value: 'CurrentGroup',
+                        child: Text(S.of(context).currentGroup),
+                      ),
+                      PopupMenuItem(
+                        value: 'AllGroups',
+                        child: Text(S.of(context).allGroups),
+                      ),
+                    ],
+                    elevation: 8.0,
+                  ).then((value) async {
+                    if (value != null) {
+                      if (await _agent.updateGroup(
+                        value,
+                        serverConfigProvider.serverGroups[_index].id,
+                      )) {
                         await _loadServers();
                         SphiaTray.generateServerItems();
                         SphiaTray.setMenu();
                         setState(() {});
                       }
                     }
+                  });
+                  break;
+                case 'DeleteGroup':
+                  if (await _agent.deleteGroup(
+                      serverConfigProvider.serverGroups[_index].id)) {
+                    _updateTabController();
+                    await _loadServers();
+                    SphiaTray.generateServerItems();
+                    SphiaTray.setMenu();
+                    setState(() {});
                   }
-                });
-                break;
-              case 'AddGroup':
-                if (await _agent.addGroup()) {
-                  _index = serverConfigProvider.serverGroups.length - 1;
-                  serverConfig.selectedServerGroupId =
-                      serverConfigProvider.serverGroups[_index].id;
-                  serverConfigProvider.saveConfigWithoutNotify();
-                  _updateTabController();
-                  await _loadServers();
-                  SphiaTray.generateServerItems();
-                  SphiaTray.setMenu();
-                  setState(() {});
-                }
-                break;
-              case 'EditGroup':
-                if (await _agent
-                    .editGroup(serverConfigProvider.serverGroups[_index])) {
-                  setState(() {});
-                }
-                break;
-              case 'UpdateGroup':
-                if (!context.mounted) {
-                  return;
-                }
-                final position = RelativeRect.fromLTRB(
-                  MediaQuery.of(context).size.width,
-                  0,
-                  0,
-                  0,
-                );
-                showMenu(
-                  context: context,
-                  position: position,
-                  items: [
-                    PopupMenuItem(
-                      value: 'CurrentGroup',
-                      child: Text(S.of(context).currentGroup),
+                  break;
+                case 'ReorderGroup':
+                  if (await _agent.reorderGroup()) {
+                    await _loadServers();
+                    SphiaTray.generateServerItems();
+                    SphiaTray.setMenu();
+                    setState(() {});
+                  }
+                  break;
+                case 'ClearTraffic':
+                  final renderBox = context.findRenderObject() as RenderBox;
+                  final position = renderBox.localToGlobal(Offset.zero);
+                  showMenu(
+                    context: context,
+                    position: RelativeRect.fromLTRB(
+                      position.dx,
+                      position.dy,
+                      position.dx + renderBox.size.width,
+                      position.dy + renderBox.size.height,
                     ),
-                    PopupMenuItem(
-                      value: 'AllGroups',
-                      child: Text(S.of(context).allGroups),
-                    ),
-                  ],
-                  elevation: 8.0,
-                ).then((value) async {
-                  if (value != null) {
-                    if (await _agent.updateGroup(
-                      value,
-                      serverConfigProvider.serverGroups[_index].id,
-                    )) {
-                      await _loadServers();
-                      SphiaTray.generateServerItems();
-                      SphiaTray.setMenu();
-                      setState(() {});
+                    items: [
+                      PopupMenuItem(
+                        value: 'SelectedServer',
+                        child: Text(S.of(context).selectedServer),
+                      ),
+                      PopupMenuItem(
+                        value: 'CurrentGroup',
+                        child: Text(S.of(context).currentGroup),
+                      ),
+                    ],
+                    elevation: 8.0,
+                  ).then((value) async {
+                    if (value != null) {
+                      if (await _agent.clearTraffic(
+                        value,
+                      )) {
+                        setState(() {});
+                      }
                     }
-                  }
-                });
-                break;
-              case 'DeleteGroup':
-                if (await _agent.deleteGroup(
-                    serverConfigProvider.serverGroups[_index].id)) {
-                  _updateTabController();
-                  await _loadServers();
-                  SphiaTray.generateServerItems();
-                  SphiaTray.setMenu();
-                  setState(() {});
-                }
-                break;
-              case 'ReorderGroup':
-                if (await _agent.reorderGroup()) {
-                  await _loadServers();
-                  SphiaTray.generateServerItems();
-                  SphiaTray.setMenu();
-                  setState(() {});
-                }
-                break;
-              case 'ClearTraffic':
-                if (!context.mounted) {
-                  return;
-                }
-                final position = RelativeRect.fromLTRB(
-                  MediaQuery.of(context).size.width,
-                  0,
-                  0,
-                  0,
-                );
-                showMenu(
-                  context: context,
-                  position: position,
-                  items: [
-                    PopupMenuItem(
-                      value: 'SelectedServer',
-                      child: Text(S.of(context).selectedServer),
-                    ),
-                    PopupMenuItem(
-                      value: 'CurrentGroup',
-                      child: Text(S.of(context).currentGroup),
-                    ),
-                  ],
-                  elevation: 8.0,
-                ).then((value) async {
-                  if (value != null) {
-                    if (await _agent.clearTraffic(
-                      value,
-                    )) {
-                      setState(() {});
-                    }
-                  }
-                });
-                break;
-              default:
-                break;
-            }
-          },
+                  });
+                  break;
+                default:
+                  break;
+              }
+            },
+          ),
         ),
       ],
       bottom: TabBar(
@@ -522,9 +521,9 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                       server.downlink!.toDouble(),
                     ),
                   ),
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () async {
+                SphiaWidget.iconButton(
+                  icon: Icons.edit,
+                  onTap: () async {
                     late final Server? newServer;
                     if ((newServer = await _agent.editServer(server)) != null) {
                       if (!context.mounted) {
@@ -540,9 +539,23 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                     }
                   },
                 ),
-                PopupMenuButton(
-                  icon: const Icon(Icons.share),
-                  onSelected: (value) async {
+                SphiaWidget.popupMenuIconButton(
+                  icon: Icons.share,
+                  items: [
+                    PopupMenuItem(
+                      value: 'QRCode',
+                      child: Text(S.of(context).qrCode),
+                    ),
+                    PopupMenuItem(
+                      value: 'ExportToClipboard',
+                      child: Text(S.of(context).exportToClipboard),
+                    ),
+                    PopupMenuItem(
+                      value: 'Configuration',
+                      child: Text(S.of(context).configuration),
+                    )
+                  ],
+                  onItemSelected: (value) async {
                     if (await _agent.shareServer(value, server.id)) {
                       if (value == 'Configuration') {
                         if (!context.mounted) {
@@ -573,26 +586,10 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                       }
                     }
                   },
-                  itemBuilder: (BuildContext context) {
-                    return [
-                      PopupMenuItem(
-                        value: 'QRCode',
-                        child: Text(S.of(context).qrCode),
-                      ),
-                      PopupMenuItem(
-                        value: 'ExportToClipboard',
-                        child: Text(S.of(context).exportToClipboard),
-                      ),
-                      PopupMenuItem(
-                        value: 'Configuration',
-                        child: Text(S.of(context).configuration),
-                      ),
-                    ];
-                  },
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () async {
+                SphiaWidget.iconButton(
+                  icon: Icons.delete,
+                  onTap: () async {
                     if (await _agent.deleteServer(server.id)) {
                       if (!context.mounted) {
                         return;
@@ -605,7 +602,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                       setState(() {});
                     }
                   },
-                ),
+                )
               ],
             ),
             onTap: () {

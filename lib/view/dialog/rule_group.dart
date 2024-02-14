@@ -43,9 +43,9 @@ class _RuleGroupDialogState extends State<RuleGroupDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             SphiaWidget.textInput(
-              groupNameController,
-              S.of(context).groupName,
-              (value) {
+              controller: groupNameController,
+              labelText: S.of(context).groupName,
+              validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return S.of(context).groupNameEnterMsg;
                 }

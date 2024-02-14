@@ -49,9 +49,9 @@ class _ServerGroupDialogState extends State<ServerGroupDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             SphiaWidget.textInput(
-              groupNameController,
-              S.of(context).groupName,
-              (value) {
+              controller: groupNameController,
+              labelText: S.of(context).groupName,
+              validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return S.current.groupNameEnterMsg;
                 }
@@ -59,16 +59,15 @@ class _ServerGroupDialogState extends State<ServerGroupDialog> {
               },
             ),
             SphiaWidget.textInput(
-              subscriptionController,
-              S.of(context).subscription,
-              null,
+              controller: subscriptionController,
+              labelText: S.of(context).subscription,
             ),
             if (!isEdit)
               SphiaWidget.dropdownButton(
-                S.of(context).no,
-                S.of(context).fetchSubscription,
-                [S.of(context).no, S.of(context).yes],
-                (value) {
+                value: S.of(context).no,
+                labelText: S.of(context).fetchSubscription,
+                items: [S.of(context).no, S.of(context).yes],
+                onChanged: (value) {
                   if (value != null) {
                     fetchSubscription = value == S.of(context).yes;
                   }

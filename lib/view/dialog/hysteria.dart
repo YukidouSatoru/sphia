@@ -60,14 +60,13 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
   Widget build(BuildContext context) {
     final widgets = [
       SphiaWidget.textInput(
-        _remarkController,
-        S.of(context).remark,
-        null,
+        controller: _remarkController,
+        labelText: S.of(context).remark,
       ),
       SphiaWidget.textInput(
-        _addressController,
-        S.of(context).address,
-        (value) {
+        controller: _addressController,
+        labelText: S.of(context).address,
+        validator: (value) {
           if (value == null || value.trim().isEmpty) {
             return S.of(context).addressEnterMsg;
           }
@@ -75,9 +74,9 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
         },
       ),
       SphiaWidget.textInput(
-        _portController,
-        S.of(context).port,
-        (value) {
+        controller: _portController,
+        labelText: S.of(context).port,
+        validator: (value) {
           if (value == null || value.trim().isEmpty) {
             return S.of(context).portEnterMsg;
           }
@@ -91,10 +90,10 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
         },
       ),
       SphiaWidget.dropdownButton(
-        _hysteriaProtocol,
-        S.of(context).hysteriaProtocol,
-        hysteriaProtocol,
-        (value) {
+        value: _hysteriaProtocol,
+        labelText: S.of(context).hysteriaProtocol,
+        items: hysteriaProtocol,
+        onChanged: (value) {
           if (value != null) {
             setState(() {
               _hysteriaProtocol = value;
@@ -102,13 +101,19 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
           }
         },
       ),
-      SphiaWidget.textInput(_obfsController, S.of(context).obfs, null),
-      SphiaWidget.textInput(_alpnController, S.of(context).alpn, null),
+      SphiaWidget.textInput(
+        controller: _obfsController,
+        labelText: S.of(context).obfs,
+      ),
+      SphiaWidget.textInput(
+        controller: _alpnController,
+        labelText: S.of(context).alpn,
+      ),
       SphiaWidget.dropdownButton(
-        _authType,
-        S.of(context).authType,
-        authType,
-        (value) {
+        value: _authType,
+        labelText: S.of(context).authType,
+        items: authType,
+        onChanged: (value) {
           if (value != null) {
             setState(() {
               _authType = value;
@@ -117,22 +122,24 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
         },
       ),
       SphiaWidget.passwordTextInput(
-        _authPayloadController,
-        S.of(context).authPayload,
-        null,
-        _obscureText,
-        (value) {
+        controller: _authPayloadController,
+        labelText: S.of(context).authPayload,
+        obscureText: _obscureText,
+        onToggle: (value) {
           setState(() {
             _obscureText = value;
           });
         },
       ),
-      SphiaWidget.textInput(_sniController, S.of(context).sni, null),
+      SphiaWidget.textInput(
+        controller: _sniController,
+        labelText: S.of(context).sni,
+      ),
       SphiaWidget.dropdownButton(
-        _insecure,
-        S.of(context).allowInsecure,
-        allowInsecure,
-        (value) {
+        value: _insecure,
+        labelText: S.of(context).allowInsecure,
+        items: allowInsecure,
+        onChanged: (value) {
           if (value != null) {
             setState(() {
               _insecure = value;
@@ -141,9 +148,9 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
         },
       ),
       SphiaWidget.textInput(
-        _upMbpsController,
-        S.of(context).upMbps,
-        (value) {
+        controller: _upMbpsController,
+        labelText: S.of(context).upMbps,
+        validator: (value) {
           if (value == null || value.trim().isEmpty) {
             return S.of(context).upMbpsEnterMsg;
           }
@@ -154,9 +161,9 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
         },
       ),
       SphiaWidget.textInput(
-        _downMbpsController,
-        S.of(context).downMbps,
-        (value) {
+        controller: _downMbpsController,
+        labelText: S.of(context).downMbps,
+        validator: (value) {
           if (value == null || value.trim().isEmpty) {
             return S.of(context).downMbpsEnterMsg;
           }
@@ -167,9 +174,9 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
         },
       ),
       SphiaWidget.textInput(
-        _recvWindowConnController,
-        S.of(context).recvWindowConn,
-        (value) {
+        controller: _recvWindowConnController,
+        labelText: S.of(context).recvWindowConn,
+        validator: (value) {
           if (value != null && value.trim().isNotEmpty) {
             if (int.tryParse(value) == null) {
               return S.of(context).recvWindowConnInvalidMsg;
@@ -179,9 +186,9 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
         },
       ),
       SphiaWidget.textInput(
-        _recvWindowController,
-        S.of(context).recvWindow,
-        (value) {
+        controller: _recvWindowController,
+        labelText: S.of(context).recvWindow,
+        validator: (value) {
           if (value != null && value.trim().isNotEmpty) {
             if (int.tryParse(value) == null) {
               return S.of(context).recvWindowInvalidMsg;
@@ -191,10 +198,10 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
         },
       ),
       SphiaWidget.dropdownButton(
-        _disableMtuDiscovery,
-        S.of(context).disableMtuDiscovery,
-        disableMtuDiscovery,
-        (value) {
+        value: _disableMtuDiscovery,
+        labelText: S.of(context).disableMtuDiscovery,
+        items: disableMtuDiscovery,
+        onChanged: (value) {
           if (value != null) {
             setState(() {
               _disableMtuDiscovery = value;
@@ -203,18 +210,18 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
         },
       ),
       SphiaWidget.routingDropdownButton(
-        _routingProvider,
-        S.of(context).routingProvider,
-        (value) {
+        value: _routingProvider,
+        labelText: S.of(context).routingProvider,
+        onChanged: (value) {
           setState(() {
             _routingProvider = value;
           });
         },
       ),
       SphiaWidget.hysteriaDropdownButton(
-        _protocolProvider,
-        S.of(context).hysteriaProvider,
-        (value) {
+        value: _protocolProvider,
+        labelText: S.of(context).hysteriaProvider,
+        onChanged: (value) {
           setState(() {
             _protocolProvider = value;
           });

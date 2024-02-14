@@ -78,6 +78,8 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
       textAlign: TextAlign.center,
     );
 
+    // on macOS, the title bar is handled by the system
+    // else, use the custom title bar
     final titleBar = PreferredSize(
       preferredSize: const Size.fromHeight(kWindowCaptionHeight),
       child: SystemUtil.os == OS.macos

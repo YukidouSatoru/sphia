@@ -26,16 +26,16 @@ class XrayGenerate {
     );
   }
 
-  static Inbound inbound(
-    String protocol,
-    int port,
-    String listen,
-    bool enableSniffing,
-    bool isAuth,
-    String user,
-    String pass,
-    bool enableUdp,
-  ) {
+  static Inbound inbound({
+    required String protocol,
+    required int port,
+    required String listen,
+    required bool enableSniffing,
+    required bool isAuth,
+    required String user,
+    required String pass,
+    required bool enableUdp,
+  }) {
     return Inbound(
       port: port,
       listen: listen,
@@ -282,8 +282,12 @@ class XrayGenerate {
     );
   }
 
-  static Routing routing(String domainStrategy, String domainMatcher,
-      List<Rule> rules, bool enableApi) {
+  static Routing routing({
+    required String domainStrategy,
+    required String domainMatcher,
+    required List<Rule> rules,
+    required bool enableApi,
+  }) {
     List<XrayRule> xrayRules = [];
     if (enableApi) {
       xrayRules.add(

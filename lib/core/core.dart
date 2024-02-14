@@ -6,6 +6,7 @@ import 'package:path/path.dart' as p;
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/util/system.dart';
+import 'package:sphia/core/helper.dart';
 
 abstract class Core {
   String name;
@@ -24,7 +25,7 @@ abstract class Core {
   Core(this.name, this.args, this.configFileName);
 
   Future<void> start(Server selectedServer) async {
-    if (!SystemUtil.coreExists(name)) {
+    if (!CoreHelper.coreExists(name)) {
       logger.e('Core $name does not exist');
       throw Exception('Core $name does not exist');
     }
@@ -33,7 +34,7 @@ abstract class Core {
     logger.i('Starting core: $name');
     try {
       _process = await Process.start(
-        p.join(binPath, SystemUtil.getCoreFileName(name)),
+        p.join(binPath, CoreHelper.getCoreFileName(name)),
         args,
       );
     } on ProcessException catch (e) {

@@ -299,9 +299,9 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
                     setState(() {});
                   },
                 ),
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () async {
+                SphiaWidget.iconButton(
+                  icon: Icons.edit,
+                  onTap: () async {
                     late final Rule? newRule;
                     if ((newRule = await _agent.editRule(rule)) != null) {
                       _rules[index] = newRule!;
@@ -309,9 +309,9 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
                     }
                   },
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () async {
+                SphiaWidget.iconButton(
+                  icon: Icons.delete,
+                  onTap: () async {
                     if (await _agent.deleteRule(rule.id)) {
                       _rules.removeAt(index);
                       setState(() {});

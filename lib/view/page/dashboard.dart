@@ -19,7 +19,7 @@ import 'package:sphia/app/tray.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/network.dart';
 import 'package:sphia/util/traffic/traffic.dart';
-import 'package:sphia/view/page/agent/update.dart';
+import 'package:sphia/core/helper.dart';
 import 'package:sphia/view/page/wrapper.dart';
 import 'package:sphia/view/widget/chart.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -506,7 +506,7 @@ class _DashboardState extends State<Dashboard> {
     final sphiaConfig = sphiaConfigProvider.config;
 
     if (coreProvider.coreRunning && sphiaConfig.enableStatistics) {
-      if (coreProvider.cores.last.name == 'sing-box') {
+      if (coreProvider.routing.name == 'sing-box') {
         _traffic = SingBoxTraffic(sphiaConfig.coreApiPort);
       } else {
         _traffic = XrayTraffic(
@@ -559,7 +559,7 @@ class _DashboardState extends State<Dashboard> {
       }
 
       if (sphiaConfig.multiOutboundSupport) {
-        final serverIds = coreProvider.cores.last.serverId;
+        final serverIds = coreProvider.routing.serverId;
         final servers = await serverDao.getServersByIdList(serverIds);
         if (servers.isEmpty) {
           // probably server is deleted
@@ -598,11 +598,7 @@ class _DashboardState extends State<Dashboard> {
         // just one server
         // when multiple cores are running,
         // the first core is the protocol provider
-        final server = await serverDao
-            .getServerById(coreProvider.cores.first.serverId.first);
-        if (server == null) {
-          return;
-        }
+        final server = await SphiaController.getRunningServer();
         final newServer = server.copyWith(
           uplink: Value(server.uplink == null
               ? _totalUpload.value

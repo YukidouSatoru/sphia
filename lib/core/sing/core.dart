@@ -49,10 +49,10 @@ class SingBoxCore extends Core {
     Dns? dns;
     if (sphiaConfig.enableTun || (sphiaConfig.configureDns && isRouting)) {
       dns = await SingBoxGenerate.dns(
-        sphiaConfig.remoteDns,
-        sphiaConfig.directDns,
-        mainServer.address,
-        !sphiaConfig.enableIpv6,
+        remoteDns: sphiaConfig.remoteDns,
+        directDns: sphiaConfig.directDns,
+        serverAddress: mainServer.address,
+        ipv4Only: !sphiaConfig.enableIpv6,
       );
     }
 
@@ -73,14 +73,14 @@ class SingBoxCore extends Core {
     if (sphiaConfig.enableTun) {
       inbounds.add(
         SingBoxGenerate.tunInbound(
-          sphiaConfig.enableIpv4 ? sphiaConfig.ipv4Address : null,
-          sphiaConfig.enableIpv6 ? sphiaConfig.ipv6Address : null,
-          sphiaConfig.mtu,
-          TunStack.values[sphiaConfig.stack].name,
-          sphiaConfig.autoRoute,
-          sphiaConfig.strictRoute,
-          sphiaConfig.enableSniffing,
-          sphiaConfig.endpointIndependentNat,
+          inet4Address: sphiaConfig.enableIpv4 ? sphiaConfig.ipv4Address : null,
+          inet6Address: sphiaConfig.enableIpv6 ? sphiaConfig.ipv6Address : null,
+          mtu: sphiaConfig.mtu,
+          stack: TunStack.values[sphiaConfig.stack].name,
+          autoRoute: sphiaConfig.autoRoute,
+          strictRoute: sphiaConfig.strictRoute,
+          sniff: sphiaConfig.enableSniffing,
+          endpointIndependentNat: sphiaConfig.endpointIndependentNat,
         ),
       );
     }

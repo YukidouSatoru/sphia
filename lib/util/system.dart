@@ -1,13 +1,10 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:get_it/get_it.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:path/path.dart' as p;
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/app/provider/version_config.dart';
-import 'package:sphia/view/page/agent/update.dart';
 
 enum OS { windows, linux, macos }
 
@@ -336,95 +333,6 @@ class SystemUtil {
     }
   }
 
-  static String getCoreArchiveFileName(String coreName, String latestVersion) {
-    switch (coreName) {
-      case 'sing-box':
-        if (latestVersion.startsWith('v')) {
-          latestVersion = latestVersion.substring(1);
-        }
-        final plat = os == OS.macos ? 'darwin' : os.name;
-        final arch = architecture == Architecture.arm64 ? 'arm64' : 'amd64';
-        final ext = os == OS.windows ? '.zip' : '.tar.gz';
-        return 'sing-box-$latestVersion-$plat-$arch$ext';
-      case 'xray-core':
-        final arch = architecture == Architecture.arm64 ? 'arm64-v8a' : '64';
-        return 'Xray-${os.name}-$arch.zip';
-      case 'shadowsocks-rust':
-        late final String plat;
-        switch (os) {
-          case OS.windows:
-            plat = 'pc-windows-gnu';
-            break;
-          case OS.linux:
-            plat = 'unknown-linux-gnu';
-            break;
-          case OS.macos:
-            plat = 'apple-darwin';
-            break;
-          default:
-            throw Exception('Unsupported OS');
-        }
-        final arch = architecture == Architecture.arm64 ? 'aarch64' : 'x86_64';
-        final ext = os == OS.windows ? '.zip' : '.tar.xz';
-        return 'shadowsocks-$latestVersion.$arch-$plat$ext';
-      case 'hysteria':
-        return getCoreFileName('hysteria');
-      case 'sphia':
-        late final String arch;
-        late final String ext;
-        switch (os) {
-          case OS.windows:
-            arch = architecture == Architecture.arm64 ? 'arm64' : 'amd64';
-            ext = '.exe';
-            break;
-          case OS.linux:
-            arch = architecture == Architecture.arm64 ? 'arm64' : 'amd64';
-            ext = '.appimage';
-            break;
-          case OS.macos:
-            arch = 'universal';
-            ext = '.dmg';
-            break;
-          default:
-            throw Exception('Unsupported OS');
-        }
-        return 'sphia-${os.name}-$arch$ext';
-      default:
-        throw Exception('Unsupported core: $coreName');
-    }
-  }
-
-  static String getCoreFileName(String coreName) {
-    final ext = os == OS.windows ? '.exe' : '';
-    switch (coreName) {
-      case 'sing-box':
-        return 'sing-box$ext';
-      case 'xray-core':
-        return 'xray$ext';
-      case 'shadowsocks-rust':
-        return 'sslocal$ext';
-      case 'hysteria':
-        final plat = os == OS.macos ? 'darwin' : os.name;
-        final arch = architecture == Architecture.arm64 ? 'arm64' : 'amd64';
-        return 'hysteria-$plat-$arch$ext';
-      case 'sphia':
-        return 'sphia$ext';
-      default:
-        throw Exception('Unsupported core: $coreName');
-    }
-  }
-
-  static List<String> getCoreFileNames() {
-    List<String> fileNames = [];
-    coreRepositories.entries
-        .toList()
-        .sublist(0, coreRepositories.length - 3)
-        .forEach((entry) {
-      fileNames.add(getCoreFileName(entry.key));
-    });
-    return fileNames;
-  }
-
   static void createDirectory(String dirName) {
     final dir = Directory(dirName);
     try {
@@ -437,179 +345,11 @@ class SystemUtil {
     }
   }
 
-  static bool fileExists(String fileName) {
-    return File(p.join(binPath, fileName)).existsSync();
-  }
-
   static void deleteFileIfExists(String filePath, String logMessage) {
     final file = File(filePath);
     if (file.existsSync()) {
       logger.i(logMessage);
       file.deleteSync();
-    }
-  }
-
-  static bool coreExists(String coreName) {
-    if (coreName == 'sing-box-rules') {
-      return fileExists(p.join(binPath, 'geoip.db')) &&
-          fileExists(p.join(binPath, 'geosite.db'));
-    } else if (coreName == 'v2ray-rules-dat') {
-      return fileExists(p.join(binPath, 'geoip.dat')) &&
-          fileExists(p.join(binPath, 'geosite.dat'));
-    } else {
-      return fileExists(p.join(binPath, getCoreFileName(coreName)));
-    }
-  }
-
-  static Future<void> scanCores() async {
-    final executableMap = {
-      'sing-box': p.join(binPath, getCoreFileName('sing-box')),
-      'xray-core': p.join(binPath, getCoreFileName('xray-core')),
-      'shadowsocks-rust': p.join(binPath, getCoreFileName('shadowsocks-rust')),
-      'hysteria': p.join(binPath, getCoreFileName('hysteria')),
-    };
-    final versionConfigProvider = GetIt.I.get<VersionConfigProvider>();
-    logger.i('Scanning cores');
-    for (var entry in executableMap.entries) {
-      final coreName = entry.key;
-      // if core is not found, remove it from version config
-      if (!coreExists(coreName)) {
-        logger.i('Core not found: $coreName');
-        final versionConfigProvider = GetIt.I.get<VersionConfigProvider>();
-        versionConfigProvider.removeVersion(coreName);
-        continue;
-      }
-      final executable = entry.value;
-      final arguments = coreVersionArgs[coreName]!;
-      late final ProcessResult result;
-      try {
-        result = await Process.run(executable, [arguments]);
-      } on Exception catch (_) {
-        logger.e('Failed to run command: $executable $arguments');
-        continue;
-      }
-      if (result.exitCode == 0) {
-        final version =
-            parseVersionInfo(result.stdout.toString(), coreName, true);
-        if (version != null) {
-          logger.i('Found $coreName: $version');
-          versionConfigProvider.updateVersion(coreName, version);
-        }
-      }
-    }
-    // for rules dat
-    if (!coreExists('sing-box-rules')) {
-      versionConfigProvider.removeVersion('sing-box-rules');
-    }
-    if (!coreExists('v2ray-rules-dat')) {
-      versionConfigProvider.removeVersion('v2ray-rules-dat');
-    }
-  }
-
-  static Future<bool?> importCore(bool isMulti) async {
-    FilePickerResult? result;
-    if (os == OS.windows) {
-      result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['exe', "dat", "db"],
-        allowMultiple: isMulti,
-      );
-    } else {
-      result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['', "dat", "db"],
-        allowMultiple: isMulti,
-      );
-    }
-    if (result != null) {
-      if (result.files.isEmpty) {
-        return null;
-      }
-      if (isMulti) {
-        for (var platformFile in result.files) {
-          if (platformFile.path != null) {
-            final file = File(platformFile.path!);
-            final destPath = p.join(binPath, p.basename(file.path));
-            logger.i('Copying $file to \'$destPath\'');
-            file.copySync(destPath);
-          }
-        }
-        return true;
-      }
-      final file = File(result.files.single.path!);
-      // check core version
-      for (var entry in coreVersionArgs.entries) {
-        final coreName = entry.key;
-        final arguments = entry.value;
-        late final ProcessResult result;
-        try {
-          result = await Process.run(file.path, [arguments]);
-        } on Exception catch (_) {
-          logger.e('Failed to run command: ${file.path} $arguments');
-          continue;
-        }
-        if (result.exitCode == 0) {
-          final version =
-              parseVersionInfo(result.stdout.toString(), coreName, false);
-          if (version != null) {
-            logger.i('Found $coreName: $version');
-            final versionConfigProvider = GetIt.I.get<VersionConfigProvider>();
-            versionConfigProvider.updateVersion(coreName, version);
-            final destPath = p.join(binPath, getCoreFileName(coreName));
-            // delete old core
-            deleteCore(coreName);
-            // copy new core
-            logger.i('Copying $file to \'$destPath\'');
-            file.copySync(destPath);
-            return true;
-          }
-        }
-      }
-    } else {
-      return null;
-    }
-    return false;
-  }
-
-  static String? parseVersionInfo(String info, String coreName, bool logError) {
-    final patterns = {
-      'sing-box': RegExp(r'sing-box version (\d+\.\d+\.\d+)'),
-      'xray-core': RegExp(r'Xray (\d+\.\d+\.\d+)'),
-      'shadowsocks-rust': RegExp(r'shadowsocks (\d+\.\d+\.\d+)'),
-      'hysteria': RegExp(r'hysteria version v(\d+\.\d+\.\d+)'),
-    };
-    String result = '';
-    final regex = patterns[coreName];
-    if (regex != null) {
-      final match = regex.firstMatch(info);
-      if (match != null) {
-        result = match.group(1)!;
-      }
-    }
-    if (result.isEmpty) {
-      if (logError) {
-        logger.e('Failed to parse version info for $coreName');
-      }
-      return null;
-    }
-    return 'v$result';
-  }
-
-  static void deleteCore(String coreName) {
-    if (coreName == 'sing-box-rules') {
-      final geoipFilePath = p.join(binPath, 'geoip.db');
-      final geositeFilePath = p.join(binPath, 'geosite.db');
-      deleteFileIfExists(geoipFilePath, 'Deleting file: $geoipFilePath');
-      deleteFileIfExists(geositeFilePath, 'Deleting file: $geositeFilePath');
-    } else if (coreName == 'v2ray-rules-dat') {
-      final geoipFilePath = p.join(binPath, 'geoip.dat');
-      final geositeFilePath = p.join(binPath, 'geosite.dat');
-      deleteFileIfExists(geoipFilePath, 'Deleting file: $geoipFilePath');
-      deleteFileIfExists(geositeFilePath, 'Deleting file: $geositeFilePath');
-    } else {
-      final coreFileName = getCoreFileName(coreName);
-      final coreFilePath = p.join(binPath, coreFileName);
-      deleteFileIfExists(coreFilePath, 'Deleting file: $coreFilePath');
     }
   }
 }
@@ -620,15 +360,3 @@ final binPath = p.join(appPath, 'bin');
 final configPath = p.join(appPath, 'config');
 final logPath = p.join(appPath, 'log');
 final tempPath = p.join(appPath, 'temp');
-
-const singVerArg = 'version';
-const xrayVerArg = 'version';
-const ssVerArg = '--version';
-const hysteriaVerArg = '--version';
-
-const coreVersionArgs = {
-  'sing-box': singVerArg,
-  'xray-core': xrayVerArg,
-  'shadowsocks-rust': ssVerArg,
-  'hysteria': hysteriaVerArg,
-};

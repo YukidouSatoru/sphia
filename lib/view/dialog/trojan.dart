@@ -48,14 +48,13 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
   Widget build(BuildContext context) {
     final widgets = [
       SphiaWidget.textInput(
-        _remarkController,
-        S.of(context).remark,
-        null,
+        controller: _remarkController,
+        labelText: S.of(context).remark,
       ),
       SphiaWidget.textInput(
-        _addressController,
-        S.of(context).address,
-        (value) {
+        controller: _addressController,
+        labelText: S.of(context).address,
+        validator: (value) {
           if (value == null || value.trim().isEmpty) {
             return S.of(context).addressEnterMsg;
           }
@@ -63,9 +62,9 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
         },
       ),
       SphiaWidget.textInput(
-        _portController,
-        S.of(context).port,
-        (value) {
+        controller: _portController,
+        labelText: S.of(context).port,
+        validator: (value) {
           if (value == null || value.trim().isEmpty) {
             return S.of(context).portEnterMsg;
           }
@@ -79,27 +78,30 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
         },
       ),
       SphiaWidget.passwordTextInput(
-        _passwordController,
-        S.of(context).password,
-        (value) {
+        controller: _passwordController,
+        labelText: S.of(context).password,
+        validator: (value) {
           if (value == null || value.trim().isEmpty) {
             return S.of(context).passwordEnterMsg;
           }
           return null;
         },
-        _obscureText,
-        (value) {
+        obscureText: _obscureText,
+        onToggle: (value) {
           setState(() {
             _obscureText = value;
           });
         },
       ),
-      SphiaWidget.textInput(_sniController, S.of(context).sni, null),
+      SphiaWidget.textInput(
+        controller: _sniController,
+        labelText: S.of(context).sni,
+      ),
       SphiaWidget.dropdownButton(
-        _fingerPrint,
-        S.of(context).fingerPrint,
-        fingerPrint,
-        (value) {
+        value: _fingerPrint,
+        labelText: S.of(context).fingerPrint,
+        items: fingerPrint,
+        onChanged: (value) {
           if (value != null) {
             setState(() {
               _fingerPrint = value;
@@ -108,10 +110,10 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
         },
       ),
       SphiaWidget.dropdownButton(
-        _allowInsecure,
-        S.of(context).allowInsecure,
-        allowInsecure,
-        (value) {
+        value: _allowInsecure,
+        labelText: S.of(context).allowInsecure,
+        items: allowInsecure,
+        onChanged: (value) {
           if (value != null) {
             setState(() {
               _allowInsecure = value;
@@ -120,20 +122,23 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
         },
       ),
       SphiaWidget.routingDropdownButton(
-        _routingProvider,
-        S.of(context).routingProvider,
-        (value) {
+        value: _routingProvider,
+        labelText: S.of(context).routingProvider,
+        onChanged: (value) {
           setState(() {
             _routingProvider = value;
           });
         },
       ),
       SphiaWidget.trojanDropdownButton(
-          _protocolProvider, S.of(context).trojanProvider, (value) {
-        setState(() {
-          _protocolProvider = value;
-        });
-      }),
+        value: _protocolProvider,
+        labelText: S.of(context).trojanProvider,
+        onChanged: (value) {
+          setState(() {
+            _protocolProvider = value;
+          });
+        },
+      ),
     ];
 
     return AlertDialog(

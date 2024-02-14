@@ -99,14 +99,13 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
   Widget build(BuildContext context) {
     final widgets = [
       SphiaWidget.textInput(
-        _remarkController,
-        S.of(context).remark,
-        null,
+        controller: _remarkController,
+        labelText: S.of(context).remark,
       ),
       SphiaWidget.textInput(
-        _addressController,
-        S.of(context).address,
-        (value) {
+        controller: _addressController,
+        labelText: S.of(context).address,
+        validator: (value) {
           if (value == null || value.trim().isEmpty) {
             return S.of(context).addressEnterMsg;
           }
@@ -114,9 +113,9 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
         },
       ),
       SphiaWidget.textInput(
-        _portController,
-        S.of(context).port,
-        (value) {
+        controller: _portController,
+        labelText: S.of(context).port,
+        validator: (value) {
           if (value == null || value.trim().isEmpty) {
             return S.of(context).portEnterMsg;
           }
@@ -130,16 +129,16 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
         },
       ),
       SphiaWidget.passwordTextInput(
-        _uuidController,
-        S.of(context).uuid,
-        (value) {
+        controller: _uuidController,
+        labelText: S.of(context).uuid,
+        validator: (value) {
           if (value == null || value.trim().isEmpty) {
             return S.of(context).uuidEnterMsg;
           }
           return null;
         },
-        _obscureText,
-        (value) {
+        obscureText: _obscureText,
+        onToggle: (value) {
           setState(() {
             _obscureText = value;
           });
@@ -147,9 +146,9 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
       ),
       if (_protocol == 'vmess') ...[
         SphiaWidget.textInput(
-          _alterIdController,
-          S.of(context).alterId,
-          (value) {
+          controller: _alterIdController,
+          labelText: S.of(context).alterId,
+          validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return S.of(context).alterIdEnterMsg;
             }
@@ -161,10 +160,10 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
         ),
       ],
       SphiaWidget.dropdownButton(
-        _encryption,
-        S.of(context).encryption,
-        _protocol == 'vmess' ? vmessEncryption : vlessEncryption,
-        (value) {
+        value: _encryption,
+        labelText: S.of(context).encryption,
+        items: _protocol == 'vmess' ? vmessEncryption : vlessEncryption,
+        onChanged: (value) {
           if (value != null) {
             setState(() {
               _encryption = value;
@@ -174,10 +173,10 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
       ),
       if (_protocol == 'vless') ...[
         SphiaWidget.dropdownButton(
-          _flow,
-          S.of(context).flow,
-          vlessFlow,
-          (value) {
+          value: _flow,
+          labelText: S.of(context).flow,
+          items: vlessFlow,
+          onChanged: (value) {
             if (value != null) {
               setState(() {
                 _flow = value;
@@ -187,10 +186,10 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
         ),
       ],
       SphiaWidget.dropdownButton(
-        _transport,
-        S.of(context).transport,
-        vProtocolTransport,
-        (value) {
+        value: _transport,
+        labelText: S.of(context).transport,
+        items: vProtocolTransport,
+        onChanged: (value) {
           if (value != null) {
             setState(() {
               _transport = value;
@@ -200,10 +199,10 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
       ),
       if (_transport == 'grpc') ...[
         SphiaWidget.dropdownButton(
-          _grpcMode,
-          S.of(context).grpcMode,
-          grpcMode,
-          (value) {
+          value: _grpcMode,
+          labelText: S.of(context).grpcMode,
+          items: grpcMode,
+          onChanged: (value) {
             if (value != null) {
               setState(() {
                 _grpcMode = value;
@@ -212,28 +211,25 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
           },
         ),
         SphiaWidget.textInput(
-          _serviceNameController,
-          S.of(context).grpcServiceName,
-          null,
+          controller: _serviceNameController,
+          labelText: S.of(context).grpcServiceName,
         ),
       ],
       if (_transport == 'ws' || _transport == 'httpupgrade') ...[
         SphiaWidget.textInput(
-          _hostController,
-          S.of(context).host,
-          null,
+          controller: _hostController,
+          labelText: S.of(context).host,
         ),
         SphiaWidget.textInput(
-          _pathController,
-          S.of(context).path,
-          null,
+          controller: _pathController,
+          labelText: S.of(context).path,
         ),
       ],
       SphiaWidget.dropdownButton(
-        _tls,
-        S.of(context).tls,
-        tls,
-        (value) {
+        value: _tls,
+        labelText: S.of(context).tls,
+        items: tls,
+        onChanged: (value) {
           if (value != null) {
             setState(() {
               _tls = value;
@@ -243,15 +239,14 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
       ),
       if (_tls == 'tls') ...[
         SphiaWidget.textInput(
-          _sniController,
-          S.of(context).sni,
-          null,
+          controller: _sniController,
+          labelText: S.of(context).sni,
         ),
         SphiaWidget.dropdownButton(
-          _fingerPrint,
-          S.of(context).fingerPrint,
-          fingerPrint,
-          (value) {
+          value: _fingerPrint,
+          labelText: S.of(context).fingerPrint,
+          items: fingerPrint,
+          onChanged: (value) {
             if (value != null) {
               setState(() {
                 _fingerPrint = value;
@@ -260,10 +255,10 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
           },
         ),
         SphiaWidget.dropdownButton(
-          _allowInsecure,
-          S.of(context).allowInsecure,
-          allowInsecure,
-          (value) {
+          value: _allowInsecure,
+          labelText: S.of(context).allowInsecure,
+          items: allowInsecure,
+          onChanged: (value) {
             if (value != null) {
               setState(() {
                 _allowInsecure = value;
@@ -274,15 +269,14 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
       ],
       if (_tls == 'reality') ...[
         SphiaWidget.textInput(
-          _sniController,
-          S.of(context).sni,
-          null,
+          controller: _sniController,
+          labelText: S.of(context).sni,
         ),
         SphiaWidget.dropdownButton(
-          _fingerPrint,
-          S.of(context).fingerPrint,
-          realityFingerPrint,
-          (value) {
+          value: _fingerPrint,
+          labelText: S.of(context).fingerPrint,
+          items: realityFingerPrint,
+          onChanged: (value) {
             if (value != null) {
               setState(() {
                 _fingerPrint = value;
@@ -291,9 +285,9 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
           },
         ),
         SphiaWidget.textInput(
-          _publicKeyController,
-          S.of(context).publicKey,
-          (value) {
+          controller: _publicKeyController,
+          labelText: S.of(context).publicKey,
+          validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return S.of(context).publicKeyEnterMsg;
             }
@@ -301,20 +295,18 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
           },
         ),
         SphiaWidget.textInput(
-          _shortIdController,
-          S.of(context).shortId,
-          null,
+          controller: _shortIdController,
+          labelText: S.of(context).shortId,
         ),
         SphiaWidget.textInput(
-          _spiderXController,
-          S.of(context).spiderX,
-          null,
+          controller: _spiderXController,
+          labelText: S.of(context).spiderX,
         ),
       ],
       SphiaWidget.routingDropdownButton(
-        _routingProvider,
-        S.of(context).routingProvider,
-        (value) {
+        value: _routingProvider,
+        labelText: S.of(context).routingProvider,
+        onChanged: (value) {
           setState(() {
             _routingProvider = value;
           });
@@ -322,9 +314,9 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
       ),
       if (_protocol == 'vmess') ...[
         SphiaWidget.vmessDropdownButton(
-          _protocolProvider,
-          S.of(context).vmessProvider,
-          (value) {
+          value: _protocolProvider,
+          labelText: S.of(context).vmessProvider,
+          onChanged: (value) {
             setState(() {
               _protocolProvider = value;
             });
@@ -333,9 +325,9 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
       ],
       if (_protocol == 'vless') ...[
         SphiaWidget.vlessDropdownButton(
-          _protocolProvider,
-          S.of(context).vlessProvider,
-          (value) {
+          value: _protocolProvider,
+          labelText: S.of(context).vlessProvider,
+          onChanged: (value) {
             setState(() {
               _protocolProvider = value;
             });

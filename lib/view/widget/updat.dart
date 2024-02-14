@@ -7,6 +7,7 @@ import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/util/network.dart';
 import 'package:sphia/util/system.dart';
 import 'package:sphia/view/page/about.dart';
+import 'package:sphia/core/helper.dart';
 import 'package:updat/updat.dart';
 
 class SphiaUpdatWidget {
@@ -19,12 +20,12 @@ class SphiaUpdatWidget {
       },
       getBinaryUrl: (version) async {
         final coreArchiveFileName =
-            SystemUtil.getCoreArchiveFileName('sphia', version!);
+            CoreHelper.getCoreArchiveFileName('sphia', version!);
         return 'https://github.com/YukidouSatoru/sphia/releases/download/v$version/$coreArchiveFileName';
       },
       getDownloadFileLocation: (version) async {
         final coreArchiveFileName =
-            SystemUtil.getCoreArchiveFileName('sphia', version!);
+            CoreHelper.getCoreArchiveFileName('sphia', version!);
         final bytes = await NetworkUtil.downloadFile(
             'https://github.com/YukidouSatoru/sphia/releases/download/v$version/$coreArchiveFileName');
         final tempFile = File(p.join(tempPath, coreArchiveFileName));

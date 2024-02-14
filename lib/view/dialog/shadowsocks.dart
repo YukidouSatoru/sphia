@@ -69,14 +69,13 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
   Widget build(BuildContext context) {
     final widgets = [
       SphiaWidget.textInput(
-        _remarkController,
-        S.of(context).remark,
-        null,
+        controller: _remarkController,
+        labelText: S.of(context).remark,
       ),
       SphiaWidget.textInput(
-        _addressController,
-        S.of(context).address,
-        (value) {
+        controller: _addressController,
+        labelText: S.of(context).address,
+        validator: (value) {
           if (value == null || value.trim().isEmpty) {
             return S.of(context).addressEnterMsg;
           }
@@ -84,9 +83,9 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
         },
       ),
       SphiaWidget.textInput(
-        _portController,
-        S.of(context).port,
-        (value) {
+        controller: _portController,
+        labelText: S.of(context).port,
+        validator: (value) {
           if (value == null || value.trim().isEmpty) {
             return S.of(context).portEnterMsg;
           }
@@ -100,26 +99,26 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
         },
       ),
       SphiaWidget.passwordTextInput(
-        _passwordController,
-        S.of(context).password,
-        (value) {
+        controller: _passwordController,
+        labelText: S.of(context).password,
+        validator: (value) {
           if (value == null || value.trim().isEmpty) {
             return S.of(context).passwordEnterMsg;
           }
           return null;
         },
-        _obscureText,
-        (value) {
+        obscureText: _obscureText,
+        onToggle: (value) {
           setState(() {
             _obscureText = value;
           });
         },
       ),
       SphiaWidget.dropdownButton(
-        _encryption,
-        S.of(context).encryption,
-        shadowsocksEncryption,
-        (value) {
+        value: _encryption,
+        labelText: S.of(context).encryption,
+        items: shadowsocksEncryption,
+        onChanged: (value) {
           if (value != null) {
             setState(() {
               _encryption = value;
@@ -128,28 +127,26 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
         },
       ),
       SphiaWidget.textInput(
-        _pluginController,
-        S.of(context).plugin,
-        null,
+        controller: _pluginController,
+        labelText: S.of(context).plugin,
       ),
       SphiaWidget.textInput(
-        _pluginOptsController,
-        S.of(context).pluginOpts,
-        null,
+        controller: _pluginOptsController,
+        labelText: S.of(context).pluginOpts,
       ),
       SphiaWidget.routingDropdownButton(
-        _routingProvider,
-        S.of(context).routingProvider,
-        (value) {
+        value: _routingProvider,
+        labelText: S.of(context).routingProvider,
+        onChanged: (value) {
           setState(() {
             _routingProvider = value;
           });
         },
       ),
       SphiaWidget.shadowsocksDropdownButton(
-        _protocolProvider,
-        S.of(context).shadowsocksProvider,
-        (value) {
+        value: _protocolProvider,
+        labelText: S.of(context).shadowsocksProvider,
+        onChanged: (value) {
           setState(() {
             _protocolProvider = value;
           });

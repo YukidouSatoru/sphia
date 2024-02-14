@@ -47,24 +47,24 @@ class XrayCore extends Core {
 
     List<Inbound> inbounds = [
       XrayGenerate.inbound(
-        'socks',
-        sphiaConfig.socksPort,
-        sphiaConfig.listen,
-        sphiaConfig.enableSniffing,
-        sphiaConfig.authentication,
-        sphiaConfig.user,
-        sphiaConfig.password,
-        sphiaConfig.enableUdp,
+        protocol: 'socks',
+        port: sphiaConfig.socksPort,
+        listen: sphiaConfig.listen,
+        enableSniffing: sphiaConfig.enableSniffing,
+        isAuth: sphiaConfig.authentication,
+        user: sphiaConfig.user,
+        pass: sphiaConfig.password,
+        enableUdp: sphiaConfig.enableUdp,
       ),
       XrayGenerate.inbound(
-        'http',
-        sphiaConfig.httpPort,
-        sphiaConfig.listen,
-        sphiaConfig.enableSniffing,
-        sphiaConfig.authentication,
-        sphiaConfig.user,
-        sphiaConfig.password,
-        sphiaConfig.enableUdp,
+        protocol: 'http',
+        port: sphiaConfig.httpPort,
+        listen: sphiaConfig.listen,
+        enableSniffing: sphiaConfig.enableSniffing,
+        isAuth: sphiaConfig.authentication,
+        user: sphiaConfig.user,
+        pass: sphiaConfig.password,
+        enableUdp: sphiaConfig.enableUdp,
       ),
     ];
 
@@ -92,10 +92,10 @@ class XrayCore extends Core {
     Routing? routing;
     if (isRouting) {
       routing = XrayGenerate.routing(
-        DomainStrategy.values[sphiaConfig.domainStrategy].name,
-        DomainMatcher.values[sphiaConfig.domainMatcher].name,
-        rules,
-        sphiaConfig.enableStatistics,
+        domainStrategy: DomainStrategy.values[sphiaConfig.domainStrategy].name,
+        domainMatcher: DomainMatcher.values[sphiaConfig.domainMatcher].name,
+        rules: rules,
+        enableApi: sphiaConfig.enableStatistics,
       );
     }
 

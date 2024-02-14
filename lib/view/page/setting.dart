@@ -41,9 +41,9 @@ class _SettingPageState extends State<SettingPage> {
 
     final sphiaWidgets = [
       SphiaWidget.checkboxCard(
-        sphiaConfig.startOnBoot,
-        S.of(context).startOnBoot,
-        (value) {
+        value: sphiaConfig.startOnBoot,
+        title: S.of(context).startOnBoot,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating startOnBoot from ${sphiaConfig.startOnBoot} to $value');
@@ -60,9 +60,9 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       SphiaWidget.checkboxCard(
-        sphiaConfig.autoRunServer,
-        S.of(context).autoRunServer,
-        (value) {
+        value: sphiaConfig.autoRunServer,
+        title: S.of(context).autoRunServer,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating autoRunServer from ${sphiaConfig.autoRunServer} to $value');
@@ -79,9 +79,9 @@ class _SettingPageState extends State<SettingPage> {
       ),
       const Divider(),
       SphiaWidget.checkboxCard(
-        sphiaConfig.useMaterial3,
-        S.of(context).useMaterial3,
-        (value) {
+        value: sphiaConfig.useMaterial3,
+        title: S.of(context).useMaterial3,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating useMaterial3 from ${sphiaConfig.useMaterial3} to $value');
@@ -97,10 +97,10 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       SphiaWidget.itemsCard(
-        sphiaConfig.navigationStyle,
-        S.of(context).navigationStyle,
-        navigationStyleList,
-        (value) {
+        value: sphiaConfig.navigationStyle,
+        title: S.of(context).navigationStyle,
+        items: navigationStyleList,
+        update: (value) {
           if (value != null) {
             logger.i(
                 'Updating navigationStyle from ${sphiaConfig.navigationStyle} to $value');
@@ -114,12 +114,12 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       SphiaWidget.checkboxCard(
-        sphiaConfig.darkMode,
-        S.of(context).darkMode,
-        (value) {
+        value: sphiaConfig.darkMode,
+        title: S.of(context).darkMode,
+        onChanged: (value) {
           if (value != null) {
             logger
                 .i('Updating darkMode from ${sphiaConfig.darkMode} to $value');
@@ -135,9 +135,9 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       SphiaWidget.colorsCard(
-        sphiaConfig.themeColor,
-        S.of(context).themeColor,
-        {
+        value: sphiaConfig.themeColor,
+        title: S.of(context).themeColor,
+        items: {
           Colors.red.value: 'Red',
           Colors.orange.value: 'Orange',
           Colors.yellow.value: 'Yellow',
@@ -147,7 +147,7 @@ class _SettingPageState extends State<SettingPage> {
           Colors.cyan.value: 'Cyan',
           Colors.deepPurple.value: 'Deep Purple',
         },
-        (value) {
+        update: (value) {
           if (value != null) {
             logger.i(
                 'Updating themeColor from ${sphiaConfig.themeColor} to $value');
@@ -161,12 +161,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       SphiaWidget.textCard(
-        "${sphiaConfig.themeColor >> 24},${(sphiaConfig.themeColor >> 16) & 0xFF},${(sphiaConfig.themeColor >> 8) & 0xFF},${sphiaConfig.themeColor & 0xFF}",
-        S.of(context).themeColorArgb,
-        (value) {
+        value:
+            "${sphiaConfig.themeColor >> 24},${(sphiaConfig.themeColor >> 16) & 0xFF},${(sphiaConfig.themeColor >> 8) & 0xFF},${sphiaConfig.themeColor & 0xFF}",
+        title: S.of(context).themeColorArgb,
+        update: (value) {
           if (value != null) {
             late int a, r, g, b;
             try {
@@ -209,13 +210,13 @@ class _SettingPageState extends State<SettingPage> {
             }
           }
         },
-        context,
+        context: context,
       ),
       const Divider(),
       SphiaWidget.checkboxCard(
-        sphiaConfig.showTransport,
-        S.of(context).showTransport,
-        (value) {
+        value: sphiaConfig.showTransport,
+        title: S.of(context).showTransport,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating showTransport from ${sphiaConfig.showTransport} to $value');
@@ -231,9 +232,9 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       SphiaWidget.checkboxCard(
-        sphiaConfig.showAddress,
-        S.of(context).showAddress,
-        (value) {
+        value: sphiaConfig.showAddress,
+        title: S.of(context).showAddress,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating showAddress from ${sphiaConfig.showAddress} to $value');
@@ -250,9 +251,9 @@ class _SettingPageState extends State<SettingPage> {
       ),
       const Divider(),
       SphiaWidget.checkboxCard(
-        sphiaConfig.enableStatistics,
-        S.of(context).enableStatistics,
-        (value) {
+        value: sphiaConfig.enableStatistics,
+        title: S.of(context).enableStatistics,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating enableStatistics from ${sphiaConfig.enableStatistics} to $value');
@@ -268,9 +269,9 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       SphiaWidget.checkboxCard(
-        sphiaConfig.enableSpeedChart,
-        S.of(context).enableSpeedChart,
-        (value) {
+        value: sphiaConfig.enableSpeedChart,
+        title: S.of(context).enableSpeedChart,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating enableSpeedChart from ${sphiaConfig.enableSpeedChart} to $value');
@@ -287,9 +288,9 @@ class _SettingPageState extends State<SettingPage> {
       ),
       const Divider(),
       SphiaWidget.textCard(
-        sphiaConfig.updateSubscriptionInterval.toString(),
-        S.of(context).updateSubscriptionInterval,
-        (value) {
+        value: sphiaConfig.updateSubscriptionInterval.toString(),
+        title: S.of(context).updateSubscriptionInterval,
+        update: (value) {
           if (value != null) {
             late final int? newValue;
             if ((newValue = int.tryParse(value)) == null) {
@@ -327,12 +328,12 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       SphiaWidget.checkboxCard(
-        sphiaConfig.updateThroughProxy,
-        S.of(context).updateThroughProxy,
-        (value) {
+        value: sphiaConfig.updateThroughProxy,
+        title: S.of(context).updateThroughProxy,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating updateThroughProxy from ${sphiaConfig.updateThroughProxy} to $value');
@@ -348,10 +349,10 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       SphiaWidget.itemsCard(
-        sphiaConfig.userAgent,
-        S.of(context).userAgent,
-        userAgentList,
-        (value) {
+        value: sphiaConfig.userAgent,
+        title: S.of(context).userAgent,
+        items: userAgentList,
+        update: (value) {
           if (value != null) {
             logger.i(
                 'Updating userAgent from ${sphiaConfig.userAgent} to $value');
@@ -365,14 +366,14 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
     ];
     final proxyWidgets = [
       SphiaWidget.checkboxCard(
-        sphiaConfig.autoGetIp,
-        S.of(context).autoGetIp,
-        (value) {
+        value: sphiaConfig.autoGetIp,
+        title: S.of(context).autoGetIp,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating autoGetIp from ${sphiaConfig.autoGetIp} to $value');
@@ -388,9 +389,9 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       SphiaWidget.checkboxCard(
-        sphiaConfig.multiOutboundSupport,
-        S.of(context).multiOutboundSupport,
-        (value) {
+        value: sphiaConfig.multiOutboundSupport,
+        title: S.of(context).multiOutboundSupport,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating multiOutboundSupport from ${sphiaConfig.multiOutboundSupport} to $value');
@@ -404,12 +405,12 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        !coreProvider.coreRunning,
+        enabled: !coreProvider.coreRunning,
       ),
       SphiaWidget.checkboxCard(
-        sphiaConfig.autoConfigureSystemProxy,
-        S.of(context).autoConfigureSystemProxy,
-        (value) {
+        value: sphiaConfig.autoConfigureSystemProxy,
+        title: S.of(context).autoConfigureSystemProxy,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating autoConfigureSystemProxy from ${sphiaConfig.autoConfigureSystemProxy} to $value');
@@ -428,12 +429,12 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        !coreProvider.coreRunning,
+        enabled: !coreProvider.coreRunning,
       ),
       SphiaWidget.checkboxCard(
-        sphiaConfig.enableTun,
-        S.of(context).enableTun,
-        (value) {
+        value: sphiaConfig.enableTun,
+        title: S.of(context).enableTun,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating enableTun from ${sphiaConfig.enableTun} to $value');
@@ -455,9 +456,9 @@ class _SettingPageState extends State<SettingPage> {
       ),
       const Divider(),
       SphiaWidget.textCard(
-        sphiaConfig.socksPort.toString(),
-        S.of(context).socksPort,
-        (value) {
+        value: sphiaConfig.socksPort.toString(),
+        title: S.of(context).socksPort,
+        update: (value) {
           if (value != null) {
             late final int? newValue;
             if ((newValue = int.tryParse(value)) == null ||
@@ -483,13 +484,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
-        !coreProvider.coreRunning,
+        context: context,
+        enabled: !coreProvider.coreRunning,
       ),
       SphiaWidget.textCard(
-        sphiaConfig.httpPort.toString(),
-        S.of(context).httpPort,
-        (value) {
+        value: sphiaConfig.httpPort.toString(),
+        title: S.of(context).httpPort,
+        update: (value) {
           if (value != null) {
             late final int? newValue;
             if ((newValue = int.tryParse(value)) == null ||
@@ -515,13 +516,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
-        !coreProvider.coreRunning,
+        context: context,
+        enabled: !coreProvider.coreRunning,
       ),
       SphiaWidget.textCard(
-        sphiaConfig.mixedPort.toString(),
-        S.of(context).mixedPort,
-        (value) {
+        value: sphiaConfig.mixedPort.toString(),
+        title: S.of(context).mixedPort,
+        update: (value) {
           if (value != null) {
             late final int? newValue;
             if ((newValue = int.tryParse(value)) == null ||
@@ -548,13 +549,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
-        !coreProvider.coreRunning,
+        context: context,
+        enabled: !coreProvider.coreRunning,
       ),
       SphiaWidget.textCard(
-        sphiaConfig.listen,
-        S.of(context).listen,
-        (value) {
+        value: sphiaConfig.listen,
+        title: S.of(context).listen,
+        update: (value) {
           if (value != null) {
             logger.i('Updating listen from ${sphiaConfig.listen} to $value');
             sphiaConfig.listen = value;
@@ -567,13 +568,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
-        !coreProvider.coreRunning,
+        context: context,
+        enabled: !coreProvider.coreRunning,
       ),
       SphiaWidget.checkboxCard(
-        sphiaConfig.enableUdp,
-        S.of(context).enableUdp,
-        (value) {
+        value: sphiaConfig.enableUdp,
+        title: S.of(context).enableUdp,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating enableUdp from ${sphiaConfig.enableUdp} to $value');
@@ -587,13 +588,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        !coreProvider.coreRunning,
+        enabled: !coreProvider.coreRunning,
       ),
       const Divider(),
       SphiaWidget.checkboxCard(
-        sphiaConfig.authentication,
-        S.of(context).authentication,
-        (value) {
+        value: sphiaConfig.authentication,
+        title: S.of(context).authentication,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating authentication from ${sphiaConfig.authentication} to $value');
@@ -607,12 +608,12 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        !coreProvider.coreRunning,
+        enabled: !coreProvider.coreRunning,
       ),
       SphiaWidget.textCard(
-        sphiaConfig.user,
-        S.of(context).user,
-        (value) {
+        value: sphiaConfig.user,
+        title: S.of(context).user,
+        update: (value) {
           if (value != null) {
             logger.i('Updating user from ${sphiaConfig.user} to $value');
             sphiaConfig.user = value;
@@ -625,13 +626,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
-        !coreProvider.coreRunning,
+        context: context,
+        enabled: !coreProvider.coreRunning,
       ),
       SphiaWidget.textCard(
-        sphiaConfig.password,
-        S.of(context).password,
-        (value) {
+        value: sphiaConfig.password,
+        title: S.of(context).password,
+        update: (value) {
           if (value != null) {
             logger
                 .i('Updating password from ${sphiaConfig.password} to $value');
@@ -645,15 +646,15 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
-        !coreProvider.coreRunning,
+        context: context,
+        enabled: !coreProvider.coreRunning,
       ),
     ];
     final coreWidgets = [
       SphiaWidget.textCard(
-        sphiaConfig.coreApiPort.toString(),
-        S.of(context).coreApiPort,
-        (value) {
+        value: sphiaConfig.coreApiPort.toString(),
+        title: S.of(context).coreApiPort,
+        update: (value) {
           if (value != null) {
             late final int? newValue;
             if ((newValue = int.tryParse(value)) == null ||
@@ -679,14 +680,14 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
-        !coreProvider.coreRunning,
+        context: context,
+        enabled: !coreProvider.coreRunning,
       ),
       const Divider(),
       SphiaWidget.checkboxCard(
-        sphiaConfig.enableSniffing,
-        S.of(context).enableSniffing,
-        (value) {
+        value: sphiaConfig.enableSniffing,
+        title: S.of(context).enableSniffing,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating enableSniffing from ${sphiaConfig.enableSniffing} to $value');
@@ -702,9 +703,9 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       SphiaWidget.checkboxCard(
-        sphiaConfig.configureDns,
-        S.of(context).configureDns,
-        (value) {
+        value: sphiaConfig.configureDns,
+        title: S.of(context).configureDns,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating configureDns from ${sphiaConfig.configureDns} to $value');
@@ -720,9 +721,9 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       SphiaWidget.textCard(
-        sphiaConfig.remoteDns,
-        S.of(context).remoteDns,
-        (value) {
+        value: sphiaConfig.remoteDns,
+        title: S.of(context).remoteDns,
+        update: (value) {
           if (value != null) {
             logger.i(
                 'Updating remoteDns from ${sphiaConfig.remoteDns} to $value');
@@ -736,12 +737,12 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       SphiaWidget.textCard(
-        sphiaConfig.directDns,
-        S.of(context).directDns,
-        (value) {
+        value: sphiaConfig.directDns,
+        title: S.of(context).directDns,
+        update: (value) {
           if (value != null) {
             logger.i(
                 'Updating directDns from ${sphiaConfig.directDns} to $value');
@@ -755,14 +756,14 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       const Divider(),
       SphiaWidget.itemsCard(
-        sphiaConfig.domainStrategy,
-        S.of(context).domainStrategy,
-        domainStrategyList,
-        (value) {
+        value: sphiaConfig.domainStrategy,
+        title: S.of(context).domainStrategy,
+        items: domainStrategyList,
+        update: (value) {
           if (value != null) {
             logger.i(
                 'Updating domainStrategy from ${sphiaConfig.domainStrategy} to $value');
@@ -776,13 +777,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       SphiaWidget.itemsCard(
-        sphiaConfig.domainMatcher,
-        S.of(context).domainMatcher,
-        domainMatcherList,
-        (value) {
+        value: sphiaConfig.domainMatcher,
+        title: S.of(context).domainMatcher,
+        items: domainMatcherList,
+        update: (value) {
           if (value != null) {
             logger.i(
                 'Updating domainMatcher from ${sphiaConfig.domainMatcher} to $value');
@@ -796,13 +797,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       const Divider(),
       SphiaWidget.checkboxCard(
-        sphiaConfig.enableCoreLog,
-        S.of(context).enableCoreLog,
-        (value) {
+        value: sphiaConfig.enableCoreLog,
+        title: S.of(context).enableCoreLog,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating enableCoreLog from ${sphiaConfig.enableCoreLog} to $value');
@@ -818,10 +819,10 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       SphiaWidget.itemsCard(
-        sphiaConfig.logLevel,
-        S.of(context).logLevel,
-        logLevelList,
-        (value) {
+        value: sphiaConfig.logLevel,
+        title: S.of(context).logLevel,
+        items: logLevelList,
+        update: (value) {
           if (value != null) {
             logger
                 .i('Updating logLevel from ${sphiaConfig.logLevel} to $value');
@@ -835,12 +836,12 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       SphiaWidget.textCard(
-        sphiaConfig.maxLogCount.toString(),
-        S.of(context).maxLogCount,
-        (value) {
+        value: sphiaConfig.maxLogCount.toString(),
+        title: S.of(context).maxLogCount,
+        update: (value) {
           if (value != null) {
             late final int? newValue;
             if ((newValue = int.tryParse(value)) == null || newValue! < 0) {
@@ -864,12 +865,12 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       SphiaWidget.checkboxCard(
-        sphiaConfig.saveCoreLog,
-        S.of(context).saveCoreLog,
-        (value) {
+        value: sphiaConfig.saveCoreLog,
+        title: S.of(context).saveCoreLog,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating saveCoreLog from ${sphiaConfig.saveCoreLog} to $value');
@@ -888,10 +889,10 @@ class _SettingPageState extends State<SettingPage> {
 
     final providerWidgets = [
       SphiaWidget.itemsCard(
-        sphiaConfig.routingProvider,
-        S.of(context).routingProvider,
-        routingProviderList,
-        (value) {
+        value: sphiaConfig.routingProvider,
+        title: S.of(context).routingProvider,
+        items: routingProviderList,
+        update: (value) {
           if (value != null) {
             logger.i(
                 'Updating routingProvider from ${sphiaConfig.routingProvider} to $value');
@@ -905,13 +906,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       SphiaWidget.itemsCard(
-        sphiaConfig.vmessProvider,
-        S.of(context).vmessProvider,
-        vmessProviderList,
-        (value) {
+        value: sphiaConfig.vmessProvider,
+        title: S.of(context).vmessProvider,
+        items: vmessProviderList,
+        update: (value) {
           if (value != null) {
             logger.i(
                 'Updating vmessProvider from ${sphiaConfig.vmessProvider} to $value');
@@ -925,13 +926,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       SphiaWidget.itemsCard(
-        sphiaConfig.vlessProvider,
-        S.of(context).vlessProvider,
-        vlessProviderList,
-        (value) {
+        value: sphiaConfig.vlessProvider,
+        title: S.of(context).vlessProvider,
+        items: vlessProviderList,
+        update: (value) {
           if (value != null) {
             logger.i(
                 'Updating vlessProvider from ${sphiaConfig.vlessProvider} to $value');
@@ -945,13 +946,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       SphiaWidget.itemsCard(
-        sphiaConfig.shadowsocksProvider,
-        S.of(context).shadowsocksProvider,
-        shadowsocksProviderList,
-        (value) {
+        value: sphiaConfig.shadowsocksProvider,
+        title: S.of(context).shadowsocksProvider,
+        items: shadowsocksProviderList,
+        update: (value) {
           if (value != null) {
             logger.i(
                 'Updating shadowsocksProvider from ${sphiaConfig.shadowsocksProvider} to $value');
@@ -965,13 +966,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       SphiaWidget.itemsCard(
-        sphiaConfig.trojanProvider,
-        S.of(context).trojanProvider,
-        trojanProviderList,
-        (value) {
+        value: sphiaConfig.trojanProvider,
+        title: S.of(context).trojanProvider,
+        items: trojanProviderList,
+        update: (value) {
           if (value != null) {
             logger.i(
                 'Updating trojanProvider from ${sphiaConfig.trojanProvider} to $value');
@@ -985,13 +986,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       SphiaWidget.itemsCard(
-        sphiaConfig.hysteriaProvider,
-        S.of(context).hysteriaProvider,
-        ['sing-box', 'hysteria'],
-        (value) {
+        value: sphiaConfig.hysteriaProvider,
+        title: S.of(context).hysteriaProvider,
+        items: ['sing-box', 'hysteria'],
+        update: (value) {
           if (value != null) {
             logger.i(
                 'Updating hysteriaProvider from ${sphiaConfig.hysteriaProvider} to $value');
@@ -1005,13 +1006,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       const Divider(),
       SphiaWidget.textCard(
-        sphiaConfig.additionalSocksPort.toString(),
-        S.of(context).additionalSocksPort,
-        (value) {
+        value: sphiaConfig.additionalSocksPort.toString(),
+        title: S.of(context).additionalSocksPort,
+        update: (value) {
           if (value != null) {
             late final int? newValue;
             if ((newValue = int.tryParse(value)) == null ||
@@ -1037,16 +1038,16 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
-        !coreProvider.coreRunning,
+        context: context,
+        enabled: !coreProvider.coreRunning,
       ),
     ];
     final tunWidgets = [
       SphiaWidget.itemsCard(
-        sphiaConfig.tunProvider,
-        S.of(context).tunProvider,
-        tunProviderList,
-        (value) {
+        value: sphiaConfig.tunProvider,
+        title: S.of(context).tunProvider,
+        items: tunProviderList,
+        update: (value) {
           if (value != null) {
             logger.i(
                 'Updating tunProvider from ${sphiaConfig.tunProvider} to $value');
@@ -1060,13 +1061,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       const Divider(),
       SphiaWidget.checkboxCard(
-        sphiaConfig.enableIpv4,
-        S.of(context).enableIpv4,
-        (value) {
+        value: sphiaConfig.enableIpv4,
+        title: S.of(context).enableIpv4,
+        onChanged: (value) {
           if (value != null) {
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             _scaffoldMessengerKey.currentState?.showSnackBar(
@@ -1078,9 +1079,9 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       SphiaWidget.textCard(
-        sphiaConfig.ipv4Address,
-        S.of(context).ipv4Address,
-        (value) {
+        value: sphiaConfig.ipv4Address,
+        title: S.of(context).ipv4Address,
+        update: (value) {
           if (value != null) {
             logger.i(
                 'Updating ipv4Address from ${sphiaConfig.ipv4Address} to $value');
@@ -1094,12 +1095,12 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       SphiaWidget.checkboxCard(
-        sphiaConfig.enableIpv6,
-        S.of(context).enableIpv6,
-        (value) {
+        value: sphiaConfig.enableIpv6,
+        title: S.of(context).enableIpv6,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating enableIpv6 from ${sphiaConfig.enableIpv6} to $value');
@@ -1115,9 +1116,9 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       SphiaWidget.textCard(
-        sphiaConfig.ipv6Address,
-        S.of(context).ipv6Address,
-        (value) {
+        value: sphiaConfig.ipv6Address,
+        title: S.of(context).ipv6Address,
+        update: (value) {
           if (value != null) {
             logger.i(
                 'Updating ipv6Address from ${sphiaConfig.ipv6Address} to $value');
@@ -1131,13 +1132,13 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       const Divider(),
       SphiaWidget.textCard(
-        sphiaConfig.mtu.toString(),
-        S.of(context).mtu,
-        (value) {
+        value: sphiaConfig.mtu.toString(),
+        title: S.of(context).mtu,
+        update: (value) {
           if (value != null) {
             late final int? newValue;
             if ((newValue = int.tryParse(value)) == null) {
@@ -1160,12 +1161,12 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       SphiaWidget.checkboxCard(
-        sphiaConfig.endpointIndependentNat,
-        S.of(context).endpointIndependentNat,
-        (value) {
+        value: sphiaConfig.endpointIndependentNat,
+        title: S.of(context).endpointIndependentNat,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating endpointIndependentNat from ${sphiaConfig.endpointIndependentNat} to $value');
@@ -1181,10 +1182,10 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       SphiaWidget.itemsCard(
-        sphiaConfig.stack,
-        S.of(context).stack,
-        tunStackList,
-        (value) {
+        value: sphiaConfig.stack,
+        title: S.of(context).stack,
+        items: tunStackList,
+        update: (value) {
           if (value != null) {
             logger.i('Updating stack from ${sphiaConfig.stack} to $value');
             sphiaConfig.stack = value;
@@ -1197,12 +1198,12 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
-        context,
+        context: context,
       ),
       SphiaWidget.checkboxCard(
-        sphiaConfig.autoRoute,
-        S.of(context).autoRoute,
-        (value) {
+        value: sphiaConfig.autoRoute,
+        title: S.of(context).autoRoute,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating autoRoute from ${sphiaConfig.autoRoute} to $value');
@@ -1218,9 +1219,9 @@ class _SettingPageState extends State<SettingPage> {
         },
       ),
       SphiaWidget.checkboxCard(
-        sphiaConfig.strictRoute,
-        S.of(context).strictRoute,
-        (value) {
+        value: sphiaConfig.strictRoute,
+        title: S.of(context).strictRoute,
+        onChanged: (value) {
           if (value != null) {
             logger.i(
                 'Updating strictRoute from ${sphiaConfig.strictRoute} to $value');

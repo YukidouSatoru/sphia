@@ -5,6 +5,52 @@ import 'package:sphia/app/theme.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 
 class SphiaWidget {
+  static Widget iconButton({
+    required IconData icon,
+    required void Function()? onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Icon(icon),
+        ),
+      ),
+    );
+  }
+
+  static Widget popupMenuIconButton({
+    required IconData icon,
+    required List<PopupMenuEntry<dynamic>> items,
+    required void Function(String) onItemSelected,
+  }) {
+    return Builder(
+      builder: (context) => iconButton(
+        icon: icon,
+        onTap: () async {
+          final renderBox = context.findRenderObject() as RenderBox;
+          final position = renderBox.localToGlobal(Offset.zero);
+          final result = await showMenu(
+            context: context,
+            position: RelativeRect.fromLTRB(
+              position.dx,
+              position.dy,
+              position.dx + renderBox.size.width,
+              position.dy + renderBox.size.height,
+            ),
+            items: items,
+          );
+          if (result != null) {
+            onItemSelected(result.toString());
+          }
+        },
+      ),
+    );
+  }
+
   static SnackBar snackBar(String message) {
     return SnackBar(
       content: Text(
@@ -38,9 +84,12 @@ class SphiaWidget {
     );
   }
 
-  static Widget checkboxCard(
-      bool value, String title, void Function(bool?)? onChanged,
-      [bool enabled = true]) {
+  static Widget checkboxCard({
+    required bool value,
+    required String title,
+    required void Function(bool?) onChanged,
+    bool enabled = true,
+  }) {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     return ListTile(
       enabled: enabled,
@@ -56,15 +105,19 @@ class SphiaWidget {
       ),
       onTap: enabled
           ? () {
-              onChanged!(!value);
+              onChanged(!value);
             }
           : null,
     );
   }
 
-  static Widget textCard(String value, String title,
-      void Function(String?) update, BuildContext context,
-      [bool enabled = true]) {
+  static Widget textCard({
+    required String value,
+    required String title,
+    required void Function(String?) update,
+    required BuildContext context,
+    bool enabled = true,
+  }) {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     return ListTile(
       enabled: enabled,
@@ -104,13 +157,13 @@ class SphiaWidget {
     );
   }
 
-  static Widget itemsCard(
-    int value,
-    String title,
-    List<String> items,
-    void Function(int?) update,
-    BuildContext context,
-  ) {
+  static Widget itemsCard({
+    required int value,
+    required String title,
+    required List<String> items,
+    required void Function(int?) update,
+    required BuildContext context,
+  }) {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     return ListTile(
       shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
@@ -149,13 +202,13 @@ class SphiaWidget {
     );
   }
 
-  static Widget colorsCard(
-    int value,
-    String title,
-    Map<int, String> items,
-    void Function(int?) update,
-    BuildContext context,
-  ) {
+  static Widget colorsCard({
+    required int value,
+    required String title,
+    required Map<int, String> items,
+    required void Function(int?) update,
+    required BuildContext context,
+  }) {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     return ListTile(
       shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
@@ -205,12 +258,12 @@ class SphiaWidget {
     );
   }
 
-  static Widget textInput(
-    TextEditingController controller,
-    String labelText,
-    String? Function(String?)? validator, [
+  static Widget textInput({
+    required TextEditingController controller,
+    required String labelText,
+    String? Function(String?)? validator,
     bool isEditable = true,
-  ]) {
+  }) {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(labelText: labelText),
@@ -219,22 +272,20 @@ class SphiaWidget {
     );
   }
 
-  static Widget passwordTextInput(
-    TextEditingController controller,
-    String labelText,
+  static Widget passwordTextInput({
+    required TextEditingController controller,
+    required String labelText,
     String? Function(String?)? validator,
-    bool obscureText,
-    ValueChanged<bool> onToggle,
-  ) {
+    required bool obscureText,
+    required ValueChanged<bool> onToggle,
+  }) {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
         labelText: labelText,
-        suffixIcon: IconButton(
-          icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off),
-          onPressed: () {
-            onToggle(!obscureText);
-          },
+        suffixIcon: iconButton(
+          icon: obscureText ? Icons.visibility : Icons.visibility_off,
+          onTap: () => onToggle(!obscureText),
         ),
       ),
       obscureText: obscureText,
@@ -242,12 +293,12 @@ class SphiaWidget {
     );
   }
 
-  static Widget dropdownButton(
-    String value,
-    String labelText,
-    List<String> items,
-    void Function(String?) onChanged,
-  ) {
+  static Widget dropdownButton({
+    required String value,
+    required String labelText,
+    required List<String> items,
+    required void Function(String?) onChanged,
+  }) {
     return DropdownButtonFormField<String>(
       decoration: InputDecoration(labelText: labelText),
       value: value,
@@ -261,11 +312,11 @@ class SphiaWidget {
     );
   }
 
-  static Widget routingDropdownButton(
-    int? value,
-    String labelText,
-    void Function(int?) onChanged,
-  ) {
+  static Widget routingDropdownButton({
+    required int? value,
+    required String labelText,
+    required void Function(int?) onChanged,
+  }) {
     final items = List<String>.from(routingProviderList);
     items.insert(0, '');
     return DropdownButtonFormField<String>(
@@ -288,11 +339,11 @@ class SphiaWidget {
     );
   }
 
-  static Widget vmessDropdownButton(
-    int? value,
-    String labelText,
-    void Function(int?) onChanged,
-  ) {
+  static Widget vmessDropdownButton({
+    required int? value,
+    required String labelText,
+    required void Function(int?) onChanged,
+  }) {
     final items = List<String>.from(vmessProviderList);
     items.insert(0, '');
     return DropdownButtonFormField<String>(
@@ -315,11 +366,11 @@ class SphiaWidget {
     );
   }
 
-  static Widget vlessDropdownButton(
-    int? value,
-    String labelText,
-    void Function(int?) onChanged,
-  ) {
+  static Widget vlessDropdownButton({
+    required int? value,
+    required String labelText,
+    required void Function(int?) onChanged,
+  }) {
     final items = List<String>.from(vlessProviderList);
     items.insert(0, '');
     return DropdownButtonFormField<String>(
@@ -342,11 +393,11 @@ class SphiaWidget {
     );
   }
 
-  static Widget shadowsocksDropdownButton(
-    int? value,
-    String labelText,
-    void Function(int?) onChanged,
-  ) {
+  static Widget shadowsocksDropdownButton({
+    required int? value,
+    required String labelText,
+    required void Function(int?) onChanged,
+  }) {
     final items = List<String>.from(shadowsocksProviderList);
     items.insert(0, '');
     return DropdownButtonFormField<String>(
@@ -369,11 +420,11 @@ class SphiaWidget {
     );
   }
 
-  static Widget trojanDropdownButton(
-    int? value,
-    String labelText,
-    void Function(int?) onChanged,
-  ) {
+  static Widget trojanDropdownButton({
+    required int? value,
+    required String labelText,
+    required void Function(int?) onChanged,
+  }) {
     final items = List<String>.from(trojanProviderList);
     items.insert(0, '');
     return DropdownButtonFormField<String>(
@@ -396,11 +447,11 @@ class SphiaWidget {
     );
   }
 
-  static Widget hysteriaDropdownButton(
-    int? value,
-    String labelText,
-    void Function(int?) onChanged,
-  ) {
+  static Widget hysteriaDropdownButton({
+    required int? value,
+    required String labelText,
+    required void Function(int?) onChanged,
+  }) {
     final items = List<String>.from(hysteriaProviderList);
     items.insert(0, '');
     return DropdownButtonFormField<String>(

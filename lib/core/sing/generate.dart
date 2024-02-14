@@ -7,6 +7,7 @@ import 'package:sphia/core/rule/sing.dart';
 import 'package:sphia/core/sing/config.dart';
 import 'package:sphia/util/system.dart';
 import 'package:sphia/view/dialog/rule.dart';
+import 'package:sphia/core/helper.dart';
 
 class SingBoxGenerate {
   static const ipRegExp = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}';
@@ -26,8 +27,12 @@ class SingBoxGenerate {
     return dns;
   }
 
-  static Future<Dns> dns(String remoteDns, String directDns,
-      String serverAddress, bool ipv4Only) async {
+  static Future<Dns> dns({
+    required String remoteDns,
+    required String directDns,
+    required String serverAddress,
+    required bool ipv4Only,
+  }) async {
     remoteDns = await resolveDns(remoteDns);
     directDns = await resolveDns(directDns);
 
@@ -73,6 +78,10 @@ class SingBoxGenerate {
 
   static Route route(List<Rule> rules, bool configureDns) {
     List<SingBoxRule> singBoxRules = [];
+    singBoxRules.add(SingBoxRule(
+      processName: CoreHelper.getCoreFileNames(),
+      outbound: 'direct',
+    ));
     if (configureDns) {
       singBoxRules.add(
         SingBoxRule(
@@ -104,16 +113,16 @@ class SingBoxGenerate {
     );
   }
 
-  static Inbound tunInbound(
-    String? inet4Address,
-    String? inet6Address,
-    int mtu,
-    String stack,
-    bool autoRoute,
-    bool strictRoute,
-    bool sniff,
-    bool endpointIndependentNat,
-  ) {
+  static Inbound tunInbound({
+    required String? inet4Address,
+    required String? inet6Address,
+    required int mtu,
+    required String stack,
+    required bool autoRoute,
+    required bool strictRoute,
+    required bool sniff,
+    required bool endpointIndependentNat,
+  }) {
     return Inbound(
       type: 'tun',
       inet4Address: inet4Address,

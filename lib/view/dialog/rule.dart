@@ -48,9 +48,9 @@ class _RuleDialogState extends State<RuleDialog> {
   Widget build(BuildContext context) {
     final widgets = [
       SphiaWidget.textInput(
-        _nameController,
-        S.of(context).name,
-        (value) {
+        controller: _nameController,
+        labelText: S.of(context).name,
+        validator: (value) {
           if (value == null || value.trim().isEmpty) {
             return S.of(context).nameEnterMsg;
           }
@@ -69,24 +69,20 @@ class _RuleDialogState extends State<RuleDialog> {
         },
       ),
       SphiaWidget.textInput(
-        _domainController,
-        'Domain',
-        null,
+        controller: _domainController,
+        labelText: 'Domain',
       ),
       SphiaWidget.textInput(
-        _ipController,
-        'IP',
-        null,
+        controller: _ipController,
+        labelText: 'IP',
       ),
       SphiaWidget.textInput(
-        _portController,
-        'Port',
-        null,
+        controller: _portController,
+        labelText: 'Port',
       ),
       SphiaWidget.textInput(
-        _processNameController,
-        'Process Name',
-        null,
+        controller: _processNameController,
+        labelText: 'Process Name',
       ),
     ];
     return AlertDialog(

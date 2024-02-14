@@ -95,22 +95,26 @@ class SphiaController {
                 : HysteriaCore(),
       };
       final core = protocolToCore[protocol]?.call(selectedServer, sphiaConfig);
-      if (core != null) {
-        coreProvider.cores.add(core);
+      if (core == null) {
+        logger.e('Unsupported protocol: $protocol');
+        throw Exception('Unsupported protocol: $protocol');
       }
       final routingProviderName = getProviderCoreName(routingProvider);
-      if (routingProviderName != coreProvider.cores.first.name) {
+      // if routing provider is different from the selected server's provider
+      if (routingProviderName != core.name) {
+        coreProvider.cores.add(core);
         late final int additionalServerPort;
+        // determine the additional server port
         if (routingProvider == RoutingProvider.sing.index) {
           coreProvider.cores.add(SingBoxCore()..isRouting = true);
-          if (coreProvider.cores.first.name == 'xray-core') {
+          if (core.name == 'xray-core') {
             additionalServerPort = sphiaConfig.socksPort;
           } else {
             additionalServerPort = sphiaConfig.additionalSocksPort;
           }
         } else {
           coreProvider.cores.add(XrayCore()..isRouting = true);
-          if (coreProvider.cores.first.name == 'sing-box') {
+          if (core.name == 'sing-box') {
             additionalServerPort = sphiaConfig.mixedPort;
           } else {
             additionalServerPort = sphiaConfig.additionalSocksPort;
@@ -125,7 +129,8 @@ class SphiaController {
           port: additionalServerPort,
         );
       } else {
-        coreProvider.cores.first.isRouting = true;
+        // mark the first core as routing
+        coreProvider.cores.add(core..isRouting = true);
       }
     }
 
@@ -133,7 +138,7 @@ class SphiaController {
       logger.i('Starting cores');
       if (coreProvider.cores.length == 1) {
         // Only routing core
-        await coreProvider.cores.first.start(selectedServer);
+        await coreProvider.routing.start(selectedServer);
       } else {
         for (var core in coreProvider.cores) {
           if (core.isRouting && additionalServer != null) {
@@ -205,13 +210,18 @@ class SphiaController {
   static String getProviderCoreName(int providerIndex) =>
       providerIndex == RoutingProvider.sing.index ? 'sing-box' : 'xray-core';
 
-  static Future<Server> getRunningServer() async {
+  static int getRunningServerId() {
     final coreProvider = GetIt.I.get<CoreProvider>();
     if (coreProvider.cores.isEmpty) {
       logger.e('No running server');
       throw Exception('No running server');
     }
-    final runningServerId = coreProvider.cores.first.serverId.first;
+    // only single server is supported
+    return coreProvider.proxy.serverId.first;
+  }
+
+  static Future<Server> getRunningServer() async {
+    final runningServerId = getRunningServerId();
     final runningServer = await serverDao.getServerById(runningServerId);
     if (runningServer == null) {
       logger.e('Failed to get running server');

@@ -51,7 +51,7 @@ class _LogPageState extends State<LogPage> {
             isUserScrolling = true;
           }
         });
-        _logList.addAll(coreProvider.cores.last.preLogList);
+        _logList.addAll(coreProvider.routing.preLogList);
         _listenToLogs();
       } else {
         _removeLogListener();
@@ -97,7 +97,7 @@ class _LogPageState extends State<LogPage> {
 
   void _listenToLogs() {
     final coreProvider = GetIt.I.get<CoreProvider>();
-    _logSubscription = coreProvider.cores.last.logStream.listen((log) {
+    _logSubscription = coreProvider.routing.logStream.listen((log) {
       _addLog(log);
     });
   }

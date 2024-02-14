@@ -231,8 +231,8 @@ class Tray {
             if (coreProvider.coreRunning) {
               int socksPort = sphiaConfig.socksPort;
               int httpPort = sphiaConfig.httpPort;
-              final routingCoreName = coreProvider.cores.last.name;
-              if (routingCoreName == 'sing-box') {
+              final routingName = coreProvider.routing.name;
+              if (routingName == 'sing-box') {
                 socksPort = sphiaConfig.mixedPort;
                 httpPort = sphiaConfig.mixedPort;
               }

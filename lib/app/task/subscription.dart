@@ -26,6 +26,7 @@ class SubscriptionTask {
     final serverConfig = GetIt.I.get<ServerConfigProvider>().config;
     late final Duration duration;
     if (serverConfig.updatedSubscriptionTime == 0) {
+      // first time
       updateSubscriptions(showDialog: false);
       duration = Duration(minutes: sphiaConfig.updateSubscriptionInterval);
     } else {
@@ -37,9 +38,12 @@ class SubscriptionTask {
           )
           .inMinutes;
       if (interval >= sphiaConfig.updateSubscriptionInterval) {
+        // if the interval is greater than the update interval
+        // update the subscriptions immediately
         updateSubscriptions(showDialog: false);
         duration = Duration(minutes: sphiaConfig.updateSubscriptionInterval);
       } else {
+        // update the subscriptions after the remaining time
         duration = Duration(
             minutes: sphiaConfig.updateSubscriptionInterval - interval);
       }
@@ -53,7 +57,7 @@ class SubscriptionTask {
   }) async {
     logger.i('Updating All Server Groups');
     int count = 0;
-    bool flag = false;
+    bool flag = false; // if any group is updated
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     serverConfigProvider.config.updatedSubscriptionTime =
         DateTime.now().millisecondsSinceEpoch;
@@ -84,6 +88,7 @@ class SubscriptionTask {
     if (flag) {
       serverConfigProvider.servers = await serverDao.getOrderedServersByGroupId(
           serverConfigProvider.config.selectedServerGroupId);
+      // remember to update the server items in the tray
       SphiaTray.generateServerItems();
       SphiaTray.setMenu();
     }

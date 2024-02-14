@@ -4,10 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/version_config.dart';
+import 'package:sphia/core/updater.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/network.dart';
 import 'package:sphia/util/system.dart';
-import 'package:sphia/view/page/agent/update.dart';
+import 'package:sphia/core/helper.dart';
 import 'package:sphia/view/page/wrapper.dart';
 import 'package:sphia/view/widget/widget.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -23,7 +24,6 @@ class UpdatePage extends StatefulWidget {
 
 class _UpdatePageState extends State<UpdatePage> {
   final Map<String, String> _latestVersions = {};
-  final _agent = UpdateAgent();
 
   @override
   void initState() {
@@ -44,103 +44,106 @@ class _UpdatePageState extends State<UpdatePage> {
       ),
       elevation: 0,
       actions: [
-        SphiaWidget.popupMenuButton(
-          context: context,
-          items: [
-            SphiaWidget.popupMenuItem(
-              value: 'ScanCores',
-              child: Text(S.of(context).scanCores),
-            ),
-            SphiaWidget.popupMenuItem(
-              value: 'ImportCore',
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(S.of(context).import),
-                  const Icon(Icons.arrow_left),
-                ],
+        Builder(
+          builder: (context) => SphiaWidget.popupMenuButton(
+            context: context,
+            items: [
+              SphiaWidget.popupMenuItem(
+                value: 'ScanCores',
+                child: Text(S.of(context).scanCores),
               ),
-            ),
-          ],
-          onItemSelected: (value) async {
-            switch (value) {
-              case 'ScanCores':
-                await SystemUtil.scanCores();
-                if (context.mounted) {
-                  await SphiaWidget.showDialogWithMsg(
-                    context,
-                    S.of(context).scanCoresCompleted,
-                  );
-                }
-                break;
-              case 'ImportCore':
-                final pos = RelativeRect.fromLTRB(
-                  MediaQuery.of(context).size.width,
-                  0,
-                  0,
-                  0,
-                );
-                showMenu(
-                  context: context,
-                  position: pos,
-                  items: [
-                    PopupMenuItem(
-                      value: 'SingleCore',
-                      child: Text(S.of(context).singleCore),
-                    ),
-                    PopupMenuItem(
-                      value: 'MutilpleCores',
-                      child: Text(S.of(context).multipleCores),
-                    ),
+              SphiaWidget.popupMenuItem(
+                value: 'ImportCore',
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(S.of(context).import),
+                    const Icon(Icons.arrow_left),
                   ],
-                ).then((value) async {
-                  if (value == null) {
-                    return;
+                ),
+              ),
+            ],
+            onItemSelected: (value) async {
+              switch (value) {
+                case 'ScanCores':
+                  await CoreUpdater.scanCores();
+                  if (context.mounted) {
+                    await SphiaWidget.showDialogWithMsg(
+                      context,
+                      S.of(context).scanCoresCompleted,
+                    );
                   }
-                  switch (value) {
-                    case 'SingleCore':
-                      final res = await SystemUtil.importCore(false);
-                      if (res == null || !context.mounted) {
-                        return;
-                      }
-                      if (res) {
-                        await SphiaWidget.showDialogWithMsg(
-                          context,
-                          S.of(context).importCoreSuccessfully,
-                        );
-                      } else {
-                        await SphiaWidget.showDialogWithMsg(
-                          context,
-                          S.of(context).importCoreFailed,
-                        );
-                      }
-                      break;
-                    case 'MutilpleCores':
-                      final res = await SystemUtil.importCore(true);
-                      if (res == null) {
-                        return;
-                      }
-                      if (res) {
-                        await SystemUtil.scanCores();
-                        if (!context.mounted) {
+                  break;
+                case 'ImportCore':
+                  final renderBox = context.findRenderObject() as RenderBox;
+                  final position = renderBox.localToGlobal(Offset.zero);
+                  showMenu(
+                    context: context,
+                    position: RelativeRect.fromLTRB(
+                      position.dx,
+                      position.dy,
+                      position.dx + renderBox.size.width,
+                      position.dy + renderBox.size.height,
+                    ),
+                    items: [
+                      PopupMenuItem(
+                        value: 'SingleCore',
+                        child: Text(S.of(context).singleCore),
+                      ),
+                      PopupMenuItem(
+                        value: 'MutilpleCores',
+                        child: Text(S.of(context).multipleCores),
+                      ),
+                    ],
+                  ).then((value) async {
+                    if (value == null) {
+                      return;
+                    }
+                    switch (value) {
+                      case 'SingleCore':
+                        final res = await CoreUpdater.importCore(false);
+                        if (res == null || !context.mounted) {
                           return;
                         }
-                        await SphiaWidget.showDialogWithMsg(
-                          context,
-                          S.of(context).importMultiCoresMsg(binPath),
-                        );
-                      }
-                      break;
-                    default:
-                      break;
-                  }
-                });
-                break;
-              default:
-                break;
-            }
-          },
-        ),
+                        if (res) {
+                          await SphiaWidget.showDialogWithMsg(
+                            context,
+                            S.of(context).importCoreSuccessfully,
+                          );
+                        } else {
+                          await SphiaWidget.showDialogWithMsg(
+                            context,
+                            S.of(context).importCoreFailed,
+                          );
+                        }
+                        break;
+                      case 'MutilpleCores':
+                        final res = await CoreUpdater.importCore(true);
+                        if (res == null) {
+                          return;
+                        }
+                        if (res) {
+                          await CoreUpdater.scanCores();
+                          if (!context.mounted) {
+                            return;
+                          }
+                          await SphiaWidget.showDialogWithMsg(
+                            context,
+                            S.of(context).importMultiCoresMsg(binPath),
+                          );
+                        }
+                        break;
+                      default:
+                        break;
+                    }
+                  });
+                  break;
+                default:
+                  break;
+              }
+            },
+          ),
+        )
       ],
     );
     return ScaffoldMessenger(
@@ -154,6 +157,14 @@ class _UpdatePageState extends State<UpdatePage> {
               final repoUrl = coreRepositories.values.elementAt(index);
               final latestVersion = _latestVersions[coreName];
               final currentVersion = versionConfigProvider.getVersion(coreName);
+              String? displayVersion;
+              if (currentVersion != null) {
+                displayVersion = currentVersion;
+              } else {
+                if (CoreHelper.coreExists(coreName)) {
+                  displayVersion = S.of(context).unknown;
+                }
+              }
               return Card(
                 elevation: 2,
                 margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -182,8 +193,8 @@ class _UpdatePageState extends State<UpdatePage> {
                             },
                         ),
                       ),
-                      if (currentVersion != null) ...[
-                        Text('${S.of(context).currentVersion}: $currentVersion')
+                      if (displayVersion != null) ...[
+                        Text('${S.of(context).currentVersion}: $displayVersion')
                       ],
                       if (latestVersion != null) ...[
                         Text('${S.of(context).latestVersion}: $latestVersion')
@@ -195,29 +206,31 @@ class _UpdatePageState extends State<UpdatePage> {
                     children: [
                       Tooltip(
                         message: S.of(context).checkUpdate,
-                        child: IconButton(
-                          onPressed: () async => await _checkUpdate(
+                        child: SphiaWidget.iconButton(
+                          icon: Icons.refresh,
+                          onTap: () async => await _checkUpdate(
                             coreName: coreName,
                             showDialog: true,
                           ),
-                          icon: const Icon(Icons.refresh),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Tooltip(
                         message: S.of(context).update,
-                        child: IconButton(
-                          onPressed: () async =>
-                              await _updateCore(coreName, currentVersion),
-                          icon: const Icon(Icons.system_update_alt_rounded),
+                        child: SphiaWidget.iconButton(
+                          icon: Icons.update,
+                          onTap: () async => await _updateCore(
+                            coreName,
+                            currentVersion,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Tooltip(
                         message: S.of(context).delete,
-                        child: IconButton(
-                          onPressed: () async => await _deleteCore(coreName),
-                          icon: const Icon(Icons.delete),
+                        child: SphiaWidget.iconButton(
+                          icon: Icons.delete,
+                          onTap: () async => await _deleteCore(coreName),
                         ),
                       ),
                     ],
@@ -235,7 +248,7 @@ class _UpdatePageState extends State<UpdatePage> {
       {required String coreName, required bool showDialog}) async {
     final versionConfigProvider =
         Provider.of<VersionConfigProvider>(context, listen: false);
-    final coreExists = SystemUtil.coreExists(coreName);
+    final coreExists = CoreHelper.coreExists(coreName);
     if (!coreExists) {
       setState(() {
         versionConfigProvider.removeVersion(coreName);
@@ -326,7 +339,7 @@ class _UpdatePageState extends State<UpdatePage> {
         return;
       }
       try {
-        await _agent.updateCore(coreName, latestVersion);
+        await CoreUpdater.updateCore(coreName, latestVersion);
       } on Exception catch (e) {
         if (!context.mounted) {
           return;
@@ -354,7 +367,7 @@ class _UpdatePageState extends State<UpdatePage> {
     final versionConfigProvider =
         Provider.of<VersionConfigProvider>(context, listen: false);
     // check if core exists
-    if (!SystemUtil.coreExists(coreName)) {
+    if (!CoreHelper.coreExists(coreName)) {
       await SphiaWidget.showDialogWithMsg(
         context,
         S.of(context).coreNotFound(coreName),
@@ -390,7 +403,7 @@ class _UpdatePageState extends State<UpdatePage> {
     );
     if (confirm == true) {
       try {
-        SystemUtil.deleteCore(coreName);
+        CoreUpdater.deleteCore(coreName);
       } on Exception catch (e) {
         if (!context.mounted) {
           return;

@@ -6,7 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/view/page/agent/update.dart';
+import 'package:sphia/core/helper.dart';
 
 class NetworkUtil {
   static Future<HttpClientResponse> getHttpResponse(String url) async {
@@ -22,7 +22,7 @@ class NetworkUtil {
             url.contains('sphia'))) {
       client.findProxy = (uri) {
         return 'PROXY ${sphiaConfig.listen}:'
-            '${coreProvider.cores.last.name == 'sing-box' ? sphiaConfig.mixedPort : sphiaConfig.httpPort}';
+            '${coreProvider.routing.name == 'sing-box' ? sphiaConfig.mixedPort : sphiaConfig.httpPort}';
       };
     }
     final uri = Uri.parse(url);

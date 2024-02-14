@@ -46,13 +46,6 @@ class ServerDao {
         .then((value) => value?.remark ?? '');
   }
 
-  Future<List<String>> getServerRemarkList() {
-    return (_db.select(_db.servers)
-          ..where((tbl) => tbl.id.isNotIn([additionalServerId])))
-        .get()
-        .then((value) => value.map((e) => e.remark).toList());
-  }
-
   Future<bool> checkServerExistsById(int id) {
     return (_db.select(_db.servers)..where((tbl) => tbl.id.equals(id)))
         .getSingleOrNull()
@@ -72,6 +65,7 @@ class ServerDao {
 
   Future<List<String>> getServerRemarksByIdList(List<int> id) {
     if (id.length == 1 && id[0] == additionalServerId) {
+      // means routing core is using additional socks server
       return Future.value(['Additional Socks Server']);
     }
     return (_db.select(_db.servers)..where((tbl) => tbl.id.isIn(id)))

@@ -6,6 +6,9 @@ class CoreProvider extends ChangeNotifier {
   List<Core> cores = [];
   bool coreRunning = false;
 
+  Core get proxy => cores.firstWhere((core) => !core.isRouting);
+  Core get routing => cores.firstWhere((core) => core.isRouting);
+
   void updateCoreRunning(bool newCoreRunning) {
     coreRunning = newCoreRunning;
     notifyListeners();
