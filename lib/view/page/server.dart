@@ -288,7 +288,10 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                     ],
                     elevation: 8.0,
                   ).then((value) async {
-                    if (value != null) {
+                    if (value == null) {
+                      return;
+                    }
+                    try {
                       if (await _agent.updateGroup(
                         value,
                         serverConfigProvider.serverGroups[_index].id,
@@ -298,6 +301,14 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                         SphiaTray.setMenu();
                         setState(() {});
                       }
+                    } on Exception catch (e) {
+                      if (!context.mounted) {
+                        return;
+                      }
+                      await SphiaWidget.showDialogWithMsg(
+                        context,
+                        '${S.current.updateGroupFailed}: $e',
+                      );
                     }
                   });
                   break;

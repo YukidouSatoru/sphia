@@ -270,7 +270,16 @@ class ServerAgent {
       subscription: subscription,
     ));
     if (fetchSubscription && subscription.isNotEmpty) {
-      await updateGroup('CurrentGroup', groupId);
+      try {
+        await updateGroup('CurrentGroup', groupId);
+      } on Exception catch (e) {
+        if (context.mounted) {
+          await SphiaWidget.showDialogWithMsg(
+            context,
+            '${S.current.updateGroupFailed}: $e',
+          );
+        }
+      }
     }
     return true;
   }
@@ -325,7 +334,7 @@ class ServerAgent {
           await UriUtil.updateSingleGroup(groupId, subscription);
         } on Exception catch (e) {
           logger.e('Failed to update group: $groupName\n$e');
-          return false;
+          rethrow;
         }
         if (context.mounted) {
           SphiaWidget.showDialogWithMsg(
