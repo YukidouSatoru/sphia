@@ -54,6 +54,8 @@
   "deleteCoreConfirm": "确定要删除核心 {coreName} 吗？",
   "deleteCoreFailed": "删除核心失败",
   "deleteGroup": "删除分组",
+  "deleteServer": "删除服务器",
+  "deleteServerConfirm": "确定要删除服务器 {remark} 吗？",
   "deletedCoreSuccessfully": "成功删除核心 {coreName}",
   "directDns": "直连 DNS",
   "directDnsMsg": "直连 DNS，默认为 https+local://doh.pub/dns-query。Sing-Box 在启动前会尝试解析。\n如果你不清楚路由提供者的 DNS 格式，请不要修改",

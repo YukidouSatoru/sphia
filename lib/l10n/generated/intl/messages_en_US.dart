@@ -24,15 +24,17 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m1(coreName) => "Are you sure to delete the core ${coreName}?";
 
-  static String m2(coreName) => "Deleted ${coreName} successfully";
+  static String m2(remark) => "Are you sure to delete the server ${remark}?";
 
-  static String m3(binPath) =>
+  static String m3(coreName) => "Deleted ${coreName} successfully";
+
+  static String m4(binPath) =>
       "Selected cores or rule data have been copied to ${binPath}, and cores will be scanned automatically. The version number of the rule data cannot be obtained";
 
-  static String m4(count, total) =>
+  static String m5(count, total) =>
       "${count}/${total} subscriptions have been updated";
 
-  static String m5(coreName, version) =>
+  static String m6(coreName, version) =>
       "Updated ${coreName} to ${version} successfully";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -115,7 +117,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "deleteCoreFailed":
             MessageLookupByLibrary.simpleMessage("Failed to delete core"),
         "deleteGroup": MessageLookupByLibrary.simpleMessage("Delete Group"),
-        "deletedCoreSuccessfully": m2,
+        "deleteServer": MessageLookupByLibrary.simpleMessage("Delete Server"),
+        "deleteServerConfirm": m2,
+        "deletedCoreSuccessfully": m3,
         "directDns": MessageLookupByLibrary.simpleMessage("Direct DNS"),
         "directDnsMsg": MessageLookupByLibrary.simpleMessage(
             "Direct DNS, default is https+local://doh.pub/dns-query. Sing-Box will attempt resolution before startup.\nIf you are not sure about the DNS format of the routing provider, please do not modify"),
@@ -211,7 +215,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Imported core successfully"),
         "importFromClipboard":
             MessageLookupByLibrary.simpleMessage("Import from Clipboard"),
-        "importMultiCoresMsg": m3,
+        "importMultiCoresMsg": m4,
         "ipv4Address": MessageLookupByLibrary.simpleMessage("IPv4 Address"),
         "ipv4AddressMsg":
             MessageLookupByLibrary.simpleMessage("Tun IPv4 address"),
@@ -260,7 +264,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("No running cores"),
         "noServerSelected":
             MessageLookupByLibrary.simpleMessage("No server selected"),
-        "numSubscriptionsHaveBeenUpdated": m4,
+        "numSubscriptionsHaveBeenUpdated": m5,
         "obfs": MessageLookupByLibrary.simpleMessage("obfs"),
         "ok": MessageLookupByLibrary.simpleMessage("OK"),
         "password": MessageLookupByLibrary.simpleMessage("Password"),
@@ -393,7 +397,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "Update through proxy, default off. When it\'s on, updates for the core and subscriptions will be done through a proxy server (requires an active server)"),
         "updatedGroupSuccessfully":
             MessageLookupByLibrary.simpleMessage("Updated group successfully"),
-        "updatedSuccessfully": m5,
+        "updatedSuccessfully": m6,
         "upload": MessageLookupByLibrary.simpleMessage("Upload"),
         "uploadSpeed": MessageLookupByLibrary.simpleMessage("Upload Speed"),
         "useMaterial3": MessageLookupByLibrary.simpleMessage("Use Material 3"),

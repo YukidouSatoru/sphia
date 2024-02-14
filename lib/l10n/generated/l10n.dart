@@ -590,6 +590,26 @@ class S {
     );
   }
 
+  /// `Delete Server`
+  String get deleteServer {
+    return Intl.message(
+      'Delete Server',
+      name: 'deleteServer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure to delete the server {remark}?`
+  String deleteServerConfirm(Object remark) {
+    return Intl.message(
+      'Are you sure to delete the server $remark?',
+      name: 'deleteServerConfirm',
+      desc: '',
+      args: [remark],
+    );
+  }
+
   /// `Deleted {coreName} successfully`
   String deletedCoreSuccessfully(Object coreName) {
     return Intl.message(

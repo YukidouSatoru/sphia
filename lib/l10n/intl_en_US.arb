@@ -54,6 +54,8 @@
   "deleteCoreConfirm": "Are you sure to delete the core {coreName}?",
   "deleteCoreFailed": "Failed to delete core",
   "deleteGroup": "Delete Group",
+  "deleteServer": "Delete Server",
+  "deleteServerConfirm": "Are you sure to delete the server {remark}?",
   "deletedCoreSuccessfully": "Deleted {coreName} successfully",
   "directDns": "Direct DNS",
   "directDnsMsg": "Direct DNS, default is https+local://doh.pub/dns-query. Sing-Box will attempt resolution before startup.\nIf you are not sure about the DNS format of the routing provider, please do not modify",

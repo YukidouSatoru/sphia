@@ -401,26 +401,27 @@ class _UpdatePageState extends State<UpdatePage> {
         ],
       ),
     );
-    if (confirm == true) {
-      try {
-        CoreUpdater.deleteCore(coreName);
-      } on Exception catch (e) {
-        if (!context.mounted) {
-          return;
-        }
-        await SphiaWidget.showDialogWithMsg(
-          context,
-          '${S.of(context).deleteCoreFailed}: $e',
-        );
-      }
+    if (confirm == null || !confirm) {
+      return;
+    }
+    try {
+      CoreUpdater.deleteCore(coreName);
+    } on Exception catch (e) {
       if (!context.mounted) {
         return;
       }
-      versionConfigProvider.removeVersion(coreName);
       await SphiaWidget.showDialogWithMsg(
         context,
-        S.of(context).deletedCoreSuccessfully(coreName),
+        '${S.of(context).deleteCoreFailed}: $e',
       );
     }
+    if (!context.mounted) {
+      return;
+    }
+    versionConfigProvider.removeVersion(coreName);
+    await SphiaWidget.showDialogWithMsg(
+      context,
+      S.of(context).deletedCoreSuccessfully(coreName),
+    );
   }
 }

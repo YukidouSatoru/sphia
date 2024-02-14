@@ -24,13 +24,15 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m1(coreName) => "确定要删除核心 ${coreName} 吗？";
 
-  static String m2(coreName) => "成功删除核心 ${coreName}";
+  static String m2(remark) => "确定要删除服务器 ${remark} 吗？";
 
-  static String m3(binPath) => "已将选中核心或规则数据复制到 ${binPath}，将自动扫描核心。规则数据的版本号无法获取";
+  static String m3(coreName) => "成功删除核心 ${coreName}";
 
-  static String m4(count, total) => "${count}/${total} 个订阅已更新";
+  static String m4(binPath) => "已将选中核心或规则数据复制到 ${binPath}，将自动扫描核心。规则数据的版本号无法获取";
 
-  static String m5(coreName, version) => "更新 ${coreName} 到 ${version} 成功";
+  static String m5(count, total) => "${count}/${total} 个订阅已更新";
+
+  static String m6(coreName, version) => "更新 ${coreName} 到 ${version} 成功";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -98,7 +100,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "deleteCoreConfirm": m1,
         "deleteCoreFailed": MessageLookupByLibrary.simpleMessage("删除核心失败"),
         "deleteGroup": MessageLookupByLibrary.simpleMessage("删除分组"),
-        "deletedCoreSuccessfully": m2,
+        "deleteServer": MessageLookupByLibrary.simpleMessage("删除服务器"),
+        "deleteServerConfirm": m2,
+        "deletedCoreSuccessfully": m3,
         "directDns": MessageLookupByLibrary.simpleMessage("直连 DNS"),
         "directDnsMsg": MessageLookupByLibrary.simpleMessage(
             "直连 DNS，默认为 https+local://doh.pub/dns-query。Sing-Box 在启动前会尝试解析。\n如果你不清楚路由提供者的 DNS 格式，请不要修改"),
@@ -176,7 +180,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "importCoreSuccessfully":
             MessageLookupByLibrary.simpleMessage("成功导入核心"),
         "importFromClipboard": MessageLookupByLibrary.simpleMessage("从剪贴板导入"),
-        "importMultiCoresMsg": m3,
+        "importMultiCoresMsg": m4,
         "ipv4Address": MessageLookupByLibrary.simpleMessage("IPv4 地址"),
         "ipv4AddressMsg": MessageLookupByLibrary.simpleMessage("Tun IPv4 地址"),
         "ipv6Address": MessageLookupByLibrary.simpleMessage("IPv6 地址"),
@@ -213,7 +217,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "noLogsAvailable": MessageLookupByLibrary.simpleMessage("没有可用的日志"),
         "noRunningCores": MessageLookupByLibrary.simpleMessage("没有运行的核心"),
         "noServerSelected": MessageLookupByLibrary.simpleMessage("没有选中的服务器"),
-        "numSubscriptionsHaveBeenUpdated": m4,
+        "numSubscriptionsHaveBeenUpdated": m5,
         "obfs": MessageLookupByLibrary.simpleMessage("混淆"),
         "ok": MessageLookupByLibrary.simpleMessage("确定"),
         "password": MessageLookupByLibrary.simpleMessage("密码"),
@@ -326,7 +330,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "通过代理更新，默认关闭。开启后，会通过代理服务器更新核心和订阅 (需要有活动的服务器)"),
         "updatedGroupSuccessfully":
             MessageLookupByLibrary.simpleMessage("更新分组成功"),
-        "updatedSuccessfully": m5,
+        "updatedSuccessfully": m6,
         "upload": MessageLookupByLibrary.simpleMessage("上传"),
         "uploadSpeed": MessageLookupByLibrary.simpleMessage("上传速度"),
         "useMaterial3": MessageLookupByLibrary.simpleMessage("使用 Material 3"),

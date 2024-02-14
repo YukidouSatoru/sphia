@@ -589,19 +589,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                 ),
                 SphiaWidget.iconButton(
                   icon: Icons.delete,
-                  onTap: () async {
-                    if (await _agent.deleteServer(server.id)) {
-                      if (!context.mounted) {
-                        return;
-                      }
-                      final serverConfigProvider =
-                          Provider.of<ServerConfigProvider>(context,
-                              listen: false);
-                      serverConfigProvider.servers.removeAt(index);
-                      SphiaTray.removeServerItem(server.id);
-                      setState(() {});
-                    }
-                  },
+                  onTap: () => _deleteServer(index, server),
                 )
               ],
             ),
@@ -704,5 +692,38 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
     downlink = downlink / unitRates[downlinkUnitIndex];
 
     return '${uplink.toStringAsFixed(2)}${units[uplinkUnitIndex]}↑ ${downlink.toStringAsFixed(2)}${units[downlinkUnitIndex]}↓';
+  }
+
+  Future<void> _deleteServer(int index, Server server) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(S.of(context).deleteServer),
+        content: Text(S.of(context).deleteServerConfirm(server.remark)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(S.of(context).cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(S.of(context).delete),
+          ),
+        ],
+      ),
+    );
+    if (confirm == null || !confirm) {
+      return;
+    }
+    if (await _agent.deleteServer(server.id)) {
+      if (!context.mounted) {
+        return;
+      }
+      final serverConfigProvider =
+          Provider.of<ServerConfigProvider>(context, listen: false);
+      serverConfigProvider.servers.removeAt(index);
+      SphiaTray.removeServerItem(server.id);
+      setState(() {});
+    }
   }
 }
