@@ -299,6 +299,9 @@ class MessageLookup extends MessageLookupByLibrary {
             "Remote DNS, default is https://dns.google/dns-query. Sing-Box will attempt resolution before startup.\nIf you are not sure about the DNS format of the routing provider, please do not modify"),
         "reorderGroup": MessageLookupByLibrary.simpleMessage("Reorder Group"),
         "repoUrl": MessageLookupByLibrary.simpleMessage("Repo URL"),
+        "resetRules": MessageLookupByLibrary.simpleMessage("Reset Rules"),
+        "resetRulesConfirm": MessageLookupByLibrary.simpleMessage(
+            "Are you sure to reset the rules?"),
         "routingProvider":
             MessageLookupByLibrary.simpleMessage("Routing Provider"),
         "routingProviderMsg": MessageLookupByLibrary.simpleMessage(

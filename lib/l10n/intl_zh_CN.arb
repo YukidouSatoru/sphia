@@ -173,6 +173,8 @@
   "remoteDnsMsg": "远程 DNS，默认为 https://dns.google/dns-query。Sing-Box 在启动前会尝试解析。\n如果你不清楚路由提供者的 DNS 格式，请不要修改",
   "reorderGroup": "排序分组",
   "repoUrl": "仓库地址",
+  "resetRules": "重置规则",
+  "resetRulesConfirm": "确定要重置规则吗？",
   "routingProvider": "路由提供者",
   "routingProviderMsg": "路由提供者，默认为 sing-box",
   "rule": "规则",

@@ -186,6 +186,117 @@ class RuleAgent {
     return true;
   }
 
+  Future<bool> resetRules() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(S.current.resetRules),
+        content: Text(S.current.resetRulesConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(S.current.no),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(S.current.yes),
+          ),
+        ],
+      ),
+    );
+    if (confirm == null || !confirm) {
+      return false;
+    }
+    logger.i('Resetting Rules');
+    final ruleConfigProvider = GetIt.I.get<RuleConfigProvider>();
+    final ruleGroups = ruleConfigProvider.ruleGroups;
+    // delete all rules and groups
+    for (final ruleGroup in ruleGroups) {
+      final groupId = ruleGroup.id;
+      await ruleDao.deleteRulesByGroupId(groupId);
+      await ruleDao.deleteRulesOrder(groupId);
+      await ruleGroupDao.deleteRuleGroup(groupId);
+    }
+    await ruleGroupDao.clearRuleGroupsOrder();
+    ruleConfigProvider.ruleGroups.clear();
+    // insert default groups
+    final defaultGroupId = await ruleGroupDao.insertRuleGroup('Default');
+    final directGroupId = await ruleGroupDao.insertRuleGroup('Direct');
+    final globalGroupId = await ruleGroupDao.insertRuleGroup('Global');
+    await ruleGroupDao
+        .updateRuleGroupsOrder([defaultGroupId, directGroupId, globalGroupId]);
+    // insert default rules
+    final rules = [
+      Rule(
+        id: defaultRuleId,
+        groupId: defaultGroupId,
+        name: 'Block ADS',
+        enabled: true,
+        outboundTag: outboundBlockId,
+        domain: 'geosite:category-ads-all',
+      ),
+      Rule(
+        id: defaultRuleId,
+        groupId: defaultGroupId,
+        name: 'Bypass CN Domains',
+        enabled: true,
+        outboundTag: outboundDirectId,
+        domain: 'geosite:cn',
+      ),
+      Rule(
+        id: defaultRuleId,
+        groupId: defaultGroupId,
+        name: 'Bypass CN & Local IPs',
+        enabled: true,
+        outboundTag: outboundDirectId,
+        ip: 'geoip:private,geoip:cn',
+      ),
+      Rule(
+        id: defaultRuleId,
+        groupId: defaultGroupId,
+        name: 'Proxy',
+        enabled: true,
+        outboundTag: outboundProxyId,
+        port: '0-65535',
+      ),
+      Rule(
+        id: defaultRuleId,
+        groupId: directGroupId,
+        name: 'Direct',
+        enabled: true,
+        outboundTag: outboundDirectId,
+        port: '0-65535',
+      ),
+      Rule(
+        id: defaultRuleId,
+        groupId: globalGroupId,
+        name: 'Proxy',
+        enabled: true,
+        outboundTag: outboundProxyId,
+        port: '0-65535',
+      ),
+    ];
+
+    for (final rule in rules) {
+      await ruleDao.insertRule(rule);
+    }
+
+    // refresh rules order
+    await ruleDao.refreshRulesOrder(defaultGroupId);
+    await ruleDao.refreshRulesOrder(directGroupId);
+    await ruleDao.refreshRulesOrder(globalGroupId);
+
+    // refresh rule groups
+    ruleConfigProvider.ruleGroups = [
+      RuleGroup(id: defaultGroupId, name: 'Default'),
+      RuleGroup(id: directGroupId, name: 'Direct'),
+      RuleGroup(id: globalGroupId, name: 'Global'),
+    ];
+    ruleConfigProvider.config.selectedRuleGroupId = defaultGroupId;
+    ruleConfigProvider.saveConfig();
+    return true;
+  }
+
   Future<Rule?> _showEditRuleDialog(String title, Rule rule) async {
     return showDialog<Rule>(
       context: context,

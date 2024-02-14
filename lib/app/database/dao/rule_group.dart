@@ -86,4 +86,10 @@ class RuleGroupDao {
     final order = groups.map((e) => e.id).toList();
     await updateRuleGroupsOrder(order);
   }
+
+  Future<void> clearRuleGroupsOrder() async {
+    (_db.update(_db.groupsOrder)
+          ..where((tbl) => tbl.id.equals(ruleGroupsOrderId)))
+        .write(const GroupsOrderCompanion(data: Value('')));
+  }
 }

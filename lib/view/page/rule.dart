@@ -115,6 +115,10 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
               value: 'ReorderGroup',
               child: Text(S.of(context).reorderGroup),
             ),
+            SphiaWidget.popupMenuItem(
+              value: 'ResetRules',
+              child: Text(S.of(context).resetRules),
+            ),
           ],
           onItemSelected: (value) async {
             switch (value) {
@@ -148,6 +152,16 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
                 break;
               case 'ReorderGroup':
                 if (await _agent.reorderGroup()) {
+                  await _loadRules();
+                  SphiaTray.generateRuleItems();
+                  SphiaTray.setMenu();
+                  setState(() {});
+                }
+                break;
+              case 'ResetRules':
+                if (await _agent.resetRules()) {
+                  _index = 0; // remember to reset index
+                  _updateTabController();
                   await _loadRules();
                   SphiaTray.generateRuleItems();
                   SphiaTray.setMenu();

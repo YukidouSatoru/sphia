@@ -1780,6 +1780,26 @@ class S {
     );
   }
 
+  /// `Reset Rules`
+  String get resetRules {
+    return Intl.message(
+      'Reset Rules',
+      name: 'resetRules',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure to reset the rules?`
+  String get resetRulesConfirm {
+    return Intl.message(
+      'Are you sure to reset the rules?',
+      name: 'resetRulesConfirm',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Routing Provider`
   String get routingProvider {
     return Intl.message(

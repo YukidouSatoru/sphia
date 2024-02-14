@@ -173,6 +173,8 @@
   "remoteDnsMsg": "Remote DNS, default is https://dns.google/dns-query. Sing-Box will attempt resolution before startup.\nIf you are not sure about the DNS format of the routing provider, please do not modify",
   "reorderGroup": "Reorder Group",
   "repoUrl": "Repo URL",
+  "resetRules": "Reset Rules",
+  "resetRulesConfirm": "Are you sure to reset the rules?",
   "routingProvider": "Routing Provider",
   "routingProviderMsg": "Routing provider, default is sing-box",
   "rule": "Rule",
