@@ -178,6 +178,7 @@ class XrayTraffic extends Traffic {
 class SingBoxTraffic extends Traffic {
   late Uri url;
   final client = http.Client();
+  StreamSubscription? subscription;
   int uplink = 0;
   int downlink = 0;
 
@@ -195,7 +196,7 @@ class SingBoxTraffic extends Traffic {
       if (response.statusCode != 200) {
         throw Exception('Failed to get response: ${response.statusCode}');
       }
-      response.stream.listen((data) async {
+      subscription = response.stream.listen((data) async {
         final decoded = utf8.decode(data);
         final json = jsonDecode(decoded);
         final int up = json['up'] ?? 0;
@@ -209,13 +210,7 @@ class SingBoxTraffic extends Traffic {
           '"down"': down,
         });
       }, onError: (e) {
-        if (e is http.ClientException) {
-          if (e.message.contains('Connection closed while receiving data')) {
-            // ignore
-          }
-        } else {
-          logger.e('Failed to get response from $url\n$e');
-        }
+        throw Exception('Failed to get response: $e');
       });
     } catch (_) {
       rethrow;
@@ -225,6 +220,7 @@ class SingBoxTraffic extends Traffic {
   @override
   Future<void> stop() async {
     logger.i('Stopping SingBoxTraffic');
+    await subscription?.cancel();
     await apiStreamController.close();
     client.close();
   }
