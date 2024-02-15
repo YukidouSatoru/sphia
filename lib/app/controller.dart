@@ -155,6 +155,8 @@ class SphiaController {
     // wait for core to start, or get ip may be failed
     await Future.delayed(const Duration(milliseconds: 200));
     coreProvider.updateCoreRunning(true);
+    logger.i('Starting traffic');
+    coreProvider.updateTrafficRunning(true);
     int socksPort = sphiaConfig.socksPort;
     int httpPort = sphiaConfig.httpPort;
     if (routingProvider == RoutingProvider.sing.index) {
@@ -174,15 +176,17 @@ class SphiaController {
   static Future<void> stopCores() async {
     final coreProvider = GetIt.I.get<CoreProvider>();
     if (coreProvider.cores.isNotEmpty) {
-      logger.i('Stopping cores');
       final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
       if (sphiaConfig.autoConfigureSystemProxy || SystemUtil.getSystemProxy()) {
         SystemUtil.disableSystemProxy();
         await SphiaTray.setMenuItem('sysProxy', false);
       }
-      coreProvider.updateCoreRunning(false);
-      // wait for something? idk
+      logger.i('Stopping traffic');
+      coreProvider.updateTrafficRunning(false);
+      // wait for collecting traffic data
       await Future.delayed(const Duration(milliseconds: 200));
+      logger.i('Stopping cores');
+      coreProvider.updateCoreRunning(false);
       for (var core in coreProvider.cores) {
         await core.stop();
       }

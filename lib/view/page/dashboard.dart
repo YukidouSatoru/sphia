@@ -6,7 +6,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
-import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/controller.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
@@ -35,6 +34,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   bool _previousCoreRunning = false;
+  bool _previousTrafficRunning = false;
   String _currentIp = '';
   Traffic? _traffic;
   final _networkChart = NetworkChart();
@@ -404,8 +404,12 @@ class _DashboardState extends State<Dashboard> {
             ),
     );
 
+    if (coreProvider.trafficRunning != _previousTrafficRunning) {
+      _trafficStats(coreProvider.trafficRunning, sphiaConfig.enableStatistics);
+      _previousTrafficRunning = coreProvider.trafficRunning;
+    }
+
     if (coreProvider.coreRunning != _previousCoreRunning) {
-      _trafficStats();
       if (sphiaConfig.autoGetIp) {
         setState(() {
           _currentIp = S.of(context).gettingIp;
@@ -500,125 +504,140 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  void _trafficStats() async {
-    final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
-    final coreProvider = GetIt.I.get<CoreProvider>();
-    final sphiaConfig = sphiaConfigProvider.config;
-
-    if (coreProvider.coreRunning && sphiaConfig.enableStatistics) {
-      if (coreProvider.routing.name == 'sing-box') {
-        _traffic = SingBoxTraffic(sphiaConfig.coreApiPort);
-      } else {
-        _traffic = XrayTraffic(
-          sphiaConfig.coreApiPort,
-          sphiaConfig.multiOutboundSupport,
-        );
-      }
-
-      _clearTraffic();
-
-      try {
-        await _traffic!.start();
-      } catch (e) {
-        _traffic = null;
-        logger.e('Failed to start/stop traffic: $e');
-        return;
-      }
-
-      final stream = _traffic!.apiStreamController.stream;
-      await for (var dataJson in stream) {
-        final data = json.decode(dataJson.toString());
-        final nowStamp = DateTime.now().millisecondsSinceEpoch;
-
-        _totalUpload.value = data['uplink'];
-        _totalDownload.value = data['downlink'];
-        // for speed
-        _uploadLastSecond.value = data['up'];
-        _downloadLastSecond.value = data['down'];
-
-        // for chart
-        _networkChart.uploadSpots
-            .add(FlSpot(nowStamp.toDouble(), data['up'].toDouble()));
-        _networkChart.downloadSpots
-            .add(FlSpot(nowStamp.toDouble(), data['down'].toDouble()));
-      }
+  void _trafficStats(bool trafficRunning, bool enableStats) async {
+    if (trafficRunning && enableStats) {
+      await _startTrafficStats();
     } else {
-      if (_traffic == null ||
-          (_totalUpload.value == 0 && _totalDownload.value == 0)) {
-        // no need to update traffic
-        return;
-      }
+      await _stopTrafficStats();
+    }
+  }
 
-      if (sphiaConfig.multiOutboundSupport &&
-          sphiaConfig.routingProvider == RoutingProvider.sing.index) {
-        /*
-          sing-box does not support traffic statistics for each outbound
-          when multiOutboundSupport is enabled
-           */
-        return;
-      }
+  Future<void> _startTrafficStats() async {
+    final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
+    final sphiaConfig = sphiaConfigProvider.config;
+    final coreProvider = GetIt.I.get<CoreProvider>();
+    if (coreProvider.routing.name == 'sing-box') {
+      _traffic = SingBoxTraffic(sphiaConfig.coreApiPort);
+    } else {
+      _traffic = XrayTraffic(
+        sphiaConfig.coreApiPort,
+        sphiaConfig.multiOutboundSupport,
+      );
+    }
 
-      if (sphiaConfig.multiOutboundSupport) {
-        final serverIds = coreProvider.routing.serverId;
-        final servers = await serverDao.getServersByIdList(serverIds);
-        if (servers.isEmpty) {
-          // probably server is deleted
-          return;
-        }
+    _clearTraffic();
 
-        for (var server in servers) {
-          late final String outboundTag;
-          if (server.id == serverIds.first) {
-            // serverIds.first is the main server's id,
-            // but servers.first is not guaranteed to be the main server
-            outboundTag = 'proxy';
-          } else {
-            outboundTag = 'proxy-${server.id}';
-          }
+    try {
+      await _traffic!.start();
+    } catch (e) {
+      _traffic = null;
+      logger.e('Failed to start/stop traffic: $e');
+      return;
+    }
 
-          final proxyLink = await (_traffic as XrayTraffic)
-              .queryProxyLinkByOutboundTag(outboundTag);
-          final newServer = server.copyWith(
-            uplink: Value(server.uplink == null
-                ? proxyLink.item1
-                : server.uplink! + proxyLink.item1),
-            downlink: Value(server.downlink == null
-                ? proxyLink.item2
-                : server.downlink! + proxyLink.item2),
-          );
-          await serverDao.updateServer(newServer);
-        }
+    final stream = _traffic!.apiStreamController.stream;
+    await for (var dataJson in stream) {
+      final data = json.decode(dataJson.toString());
+      final nowStamp = DateTime.now().millisecondsSinceEpoch;
 
-        final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-        serverConfigProvider.servers =
-            await serverDao.getOrderedServersByGroupId(
-                serverConfigProvider.config.selectedServerGroupId);
-        _clearTraffic();
-      } else {
-        // just one server
-        // when multiple cores are running,
-        // the first core is the protocol provider
-        final server = await SphiaController.getRunningServer();
-        final newServer = server.copyWith(
-          uplink: Value(server.uplink == null
-              ? _totalUpload.value
-              : server.uplink! + _totalUpload.value),
-          downlink: Value(server.downlink == null
-              ? _totalDownload.value
-              : server.downlink! + _totalDownload.value),
-        );
-        await serverDao.updateServer(newServer);
-        _clearTraffic();
-        final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-        final index = serverConfigProvider.servers
-            .indexWhere((element) => element.id == newServer.id);
-        if (index != -1) {
-          serverConfigProvider.servers[index] = newServer;
-          // serverConfigProvider.notify();
-        }
-      }
+      _totalUpload.value = data['uplink'];
+      _totalDownload.value = data['downlink'];
+      // for speed
+      _uploadLastSecond.value = data['up'];
+      _downloadLastSecond.value = data['down'];
+
+      // for chart
+      _networkChart.uploadSpots
+          .add(FlSpot(nowStamp.toDouble(), data['up'].toDouble()));
+      _networkChart.downloadSpots
+          .add(FlSpot(nowStamp.toDouble(), data['down'].toDouble()));
+    }
+  }
+
+  Future<void> _stopTrafficStats() async {
+    if (_traffic != null) {
+      await _updateServerTraffic();
       await _traffic!.stop();
       _traffic = null;
+    }
+  }
+
+  Future<void> _updateServerTraffic() async {
+    if (_totalUpload.value == 0 && _totalDownload.value == 0) {
+      // no need to update traffic
+      return;
+    }
+
+    final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
+    final sphiaConfig = sphiaConfigProvider.config;
+    final coreProvider = GetIt.I.get<CoreProvider>();
+
+    if (sphiaConfig.multiOutboundSupport &&
+        coreProvider.routing.name == 'sing-box') {
+      /*
+      sing-box does not support traffic statistics for each outbound
+      when multiOutboundSupport is enabled
+       */
+      return;
+    }
+
+    if (sphiaConfig.multiOutboundSupport) {
+      final serverIds = coreProvider.routing.serverId;
+      final servers = await serverDao.getServersByIdList(serverIds);
+      if (servers.isEmpty) {
+        // probably server is deleted
+        return;
+      }
+
+      for (var server in servers) {
+        late final String outboundTag;
+        if (server.id == serverIds.first) {
+          // serverIds.first is the main server's id,
+          // but servers.first is not guaranteed to be the main server
+          outboundTag = 'proxy';
+        } else {
+          outboundTag = 'proxy-${server.id}';
+        }
+
+        final proxyLink = await (_traffic as XrayTraffic)
+            .queryProxyLinkByOutboundTag(outboundTag);
+        final newServer = server.copyWith(
+          uplink: Value(server.uplink == null
+              ? proxyLink.item1
+              : server.uplink! + proxyLink.item1),
+          downlink: Value(server.downlink == null
+              ? proxyLink.item2
+              : server.downlink! + proxyLink.item2),
+        );
+        await serverDao.updateServer(newServer);
+      }
+
+      final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
+      serverConfigProvider.servers = await serverDao.getOrderedServersByGroupId(
+          serverConfigProvider.config.selectedServerGroupId);
+      _clearTraffic();
+    } else {
+      // just one server
+      // when multiple cores are running,
+      // the first core is the protocol provider
+      final server = await SphiaController.getRunningServer();
+      final newServer = server.copyWith(
+        uplink: Value(server.uplink == null
+            ? _totalUpload.value
+            : server.uplink! + _totalUpload.value),
+        downlink: Value(server.downlink == null
+            ? _totalDownload.value
+            : server.downlink! + _totalDownload.value),
+      );
+      await serverDao.updateServer(newServer);
+      _clearTraffic();
+      final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
+      final index = serverConfigProvider.servers
+          .indexWhere((element) => element.id == newServer.id);
+      if (index != -1) {
+        serverConfigProvider.servers[index] = newServer;
+        // serverConfigProvider.notify();
+      }
     }
   }
 

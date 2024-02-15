@@ -5,6 +5,7 @@ import 'package:sphia/core/core.dart';
 class CoreProvider extends ChangeNotifier {
   List<Core> cores = [];
   bool coreRunning = false;
+  bool trafficRunning = false;
 
   Core get proxy {
     if (cores.length == 1) {
@@ -16,8 +17,8 @@ class CoreProvider extends ChangeNotifier {
 
   Core get routing => cores.firstWhere((core) => core.isRouting);
 
-  void updateCoreRunning(bool newCoreRunning) {
-    coreRunning = newCoreRunning;
+  void updateCoreRunning(bool value) {
+    coreRunning = value;
     notifyListeners();
     SphiaTray.setIcon(coreRunning);
     if (coreRunning) {
@@ -27,5 +28,10 @@ class CoreProvider extends ChangeNotifier {
       SphiaTray.setMenuItem('coreStart', false);
       SphiaTray.setMenuItem('coreStop', true);
     }
+  }
+
+  void updateTrafficRunning(bool value) {
+    trafficRunning = value;
+    notifyListeners();
   }
 }
