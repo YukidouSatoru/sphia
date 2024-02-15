@@ -21,8 +21,16 @@ class NetworkUtil {
             url == 'https://api.ip.sb/ip' ||
             url.contains('sphia'))) {
       client.findProxy = (uri) {
-        return 'PROXY ${sphiaConfig.listen}:'
-            '${coreProvider.routing.name == 'sing-box' ? sphiaConfig.mixedPort : sphiaConfig.httpPort}';
+        final port = coreProvider.routing.name == 'sing-box'
+            ? sphiaConfig.mixedPort
+            : sphiaConfig.httpPort;
+        final proxyUrl = '${sphiaConfig.listen}:${port.toString()}';
+        if (sphiaConfig.authentication) {
+          final user = sphiaConfig.user;
+          final password = sphiaConfig.password;
+          return 'PROXY $user:$password@$proxyUrl';
+        }
+        return 'PROXY $proxyUrl';
       };
     }
     final uri = Uri.parse(url);
