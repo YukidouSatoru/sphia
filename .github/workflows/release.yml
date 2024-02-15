@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Flutter action
         uses: subosito/flutter-action@v2
         with:
@@ -20,7 +20,7 @@ jobs:
         run: |
           bash -c "lib/script/build.sh"
       - name: Publish x86_64 artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sphia-linux-amd64
           path: dist/sphia-linux-amd64.AppImage
@@ -29,7 +29,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Flutter action
         uses: subosito/flutter-action@v2
         with:
@@ -39,7 +39,7 @@ jobs:
         run: |
           powershell -Command "lib\script\build.ps1"
       - name: Publish x86_64 artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sphia-windows-amd64
           path: dist/sphia-windows-amd64.exe
@@ -48,7 +48,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Flutter action
         uses: subosito/flutter-action@v2
         with:
@@ -58,7 +58,7 @@ jobs:
         run: |
           bash -c "lib/script/build.sh"
       - name: Publish universal artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sphia-macos-universal
           path: dist/sphia-macos-universal.dmg
@@ -69,20 +69,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - run: mkdir artifacts
       - name: Download Linux-x86_64 artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: sphia-linux-amd64
           path: artifacts
       - name: Download Windows-x86_64 artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: sphia-windows-amd64
           path: artifacts
       - name: Download macOS-universal artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: sphia-macos-universal
           path: artifacts
