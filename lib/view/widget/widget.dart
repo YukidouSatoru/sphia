@@ -509,4 +509,4 @@ const shadowsocksProviderList = ['sing-box', 'xray-core', 'shadowsocks-rust'];
 const trojanProviderList = ['sing-box', 'xray-core'];
 const hysteriaProviderList = ['sing-box', 'hysteria'];
 const tunProviderList = ['sing-box'];
-const tunStackList = ['system', 'gvisor'];
+const tunStackList = ['system', 'gvisor', 'mixed'];
