@@ -363,8 +363,10 @@ class SystemUtil {
       socket.destroy();
       return true;
     } on SocketException catch (_) {
+      logger.i('Port $port is not in use');
       return false;
     } on TimeoutException catch (_) {
+      logger.i('Port $port is not in use');
       return false;
     }
   }
