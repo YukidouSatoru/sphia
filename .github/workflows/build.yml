@@ -24,7 +24,7 @@ jobs:
           flutter-version: '3.16.5'
       - name: Build
         run: |
-          bash -c "lib/script/build.sh"
+          ./lib/script/build.sh
       - name: Publish x86_64 artifact
         uses: actions/upload-artifact@v4
         with:
@@ -43,7 +43,7 @@ jobs:
           flutter-version: '3.16.5'
       - name: Build
         run: |
-          powershell -Command "lib\script\build.ps1"
+          powershell -File .\lib\script\build.ps1
       - name: Publish x86_64 artifact
         uses: actions/upload-artifact@v4
         with:
@@ -62,7 +62,7 @@ jobs:
           flutter-version: '3.16.5'
       - name: Build
         run: |
-          bash -c "lib/script/build.sh"
+          ./lib/script/build.sh
       - name: Publish universal artifact
         uses: actions/upload-artifact@v4
         with:
