@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:get_it/get_it.dart';
@@ -350,6 +351,29 @@ class SystemUtil {
     if (file.existsSync()) {
       logger.i(logMessage);
       file.deleteSync();
+    }
+  }
+
+  static Future<bool> portInUse(int port) async {
+    const timeout = Duration(milliseconds: 10);
+    // send a request to the port
+    try {
+      logger.i('Checking if port $port is in use');
+      final socket = await Socket.connect('127.0.0.1', port).timeout(timeout);
+      socket.destroy();
+      return true;
+    } on SocketException catch (_) {
+      return false;
+    } on TimeoutException catch (_) {
+      return false;
+    }
+  }
+
+  static Future<void> killProcess(int pid) async {
+    if (os == OS.windows) {
+      await Process.run('taskkill', ['/F', '/PID', pid.toString()]);
+    } else {
+      await Process.run('kill', [pid.toString()]);
     }
   }
 }

@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
+import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/util/system.dart';
 import 'package:sphia/core/helper.dart';
 
@@ -43,6 +45,7 @@ abstract class Core {
     }
 
     if (_process == null) {
+      logger.e('Core Process is null');
       throw Exception('Core Process is null');
     }
 
@@ -60,21 +63,30 @@ abstract class Core {
   }
 
   Future<void> stop() async {
-    if (_process != null) {
-      logger.i('Stopping core: $name');
-      _process?.kill(ProcessSignal.sigterm);
-      await _process?.exitCode.timeout(const Duration(milliseconds: 500),
-          onTimeout: () {
-        _process?.kill(ProcessSignal.sigkill);
-        return Future.error('Failed to stop $name, force killed the process.');
-      });
-      _process = null;
+    if (_process == null) {
+      logger.w('Core process is null');
+      return;
     }
+    logger.i('Stopping core: $name');
+    _process!.kill();
+    final pid = _process!.pid;
+    _process = null;
+    // check if port is still in use
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (await coreIsStillRunning()) {
+      logger.w('Detected core $name is still running, killing process: $pid');
+      await SystemUtil.killProcess(pid);
+    }
+
     SystemUtil.deleteFileIfExists(
-        _configFile.path, 'Deleting config file: $configFileName');
+      _configFile.path,
+      'Deleting config file: $configFileName',
+    );
     if (name == 'sing-box') {
       SystemUtil.deleteFileIfExists(
-          p.join(tempPath, 'cache.db'), 'Deleting cache file: cache.db');
+        p.join(tempPath, 'cache.db'),
+        'Deleting cache file: cache.db',
+      );
     }
     if (!_logStreamController.isClosed) {
       await _logStreamController.close();
@@ -90,6 +102,30 @@ abstract class Core {
         }
       }
     });
+  }
+
+  Future<bool> coreIsStillRunning() async {
+    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+    final ports = <int>[];
+    if (sphiaConfig.enableStatistics) {
+      ports.add(sphiaConfig.coreApiPort);
+    }
+    if (isRouting) {
+      if (name == 'sing-box') {
+        ports.add(sphiaConfig.mixedPort);
+      } else {
+        ports.add(sphiaConfig.socksPort);
+        ports.add(sphiaConfig.httpPort);
+      }
+    } else {
+      ports.add(sphiaConfig.additionalSocksPort);
+    }
+    for (var port in ports) {
+      if (await SystemUtil.portInUse(port)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   Future<void> configure(Server selectedServer);

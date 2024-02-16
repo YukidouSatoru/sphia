@@ -207,7 +207,7 @@ class SphiaController {
         logger.e('Failed to restart cores: $e');
         rethrow;
       }
-      coreProvider.updateCoreRunning(true);
+      // coreProvider.updateCoreRunning(true);
     }
   }
 
