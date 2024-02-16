@@ -50,8 +50,8 @@ jobs:
           name: sphia-${{github.sha}}-windows-amd64
           path: dist/sphia-windows-amd64.exe
 
-  build-on-macos-amd64:
-    runs-on: macos-latest
+  build-on-macos-arm64:
+    runs-on: macos-14
     steps:
       - name: Checkout
         uses: actions/checkout@v4

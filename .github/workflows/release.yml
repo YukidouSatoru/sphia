@@ -44,8 +44,8 @@ jobs:
           name: sphia-windows-amd64
           path: dist/sphia-windows-amd64.exe
 
-  build-on-macos-amd64:
-    runs-on: macos-latest
+  build-on-macos-arm64:
+    runs-on: macos-14
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -65,7 +65,7 @@ jobs:
 
   publish-releases:
     name: Publish releases
-    needs: [ build-on-linux-amd64, build-on-windows-amd64, build-on-macos-amd64 ]
+    needs: [ build-on-linux-amd64, build-on-windows-amd64, build-on-macos-arm64 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
