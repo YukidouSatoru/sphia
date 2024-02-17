@@ -2,11 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/util/system.dart';
 import 'package:sphia/core/helper.dart';
 
@@ -73,7 +71,7 @@ abstract class Core {
     _process = null;
     // check if port is still in use
     await Future.delayed(const Duration(milliseconds: 100));
-    if (await coreIsStillRunning()) {
+    if (await CoreHelper.coreIsStillRunning(isRouting, name)) {
       logger.w('Detected core $name is still running, killing process: $pid');
       await SystemUtil.killProcess(pid);
     }
@@ -102,30 +100,6 @@ abstract class Core {
         }
       }
     });
-  }
-
-  Future<bool> coreIsStillRunning() async {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
-    final ports = <int>[];
-    if (sphiaConfig.enableStatistics) {
-      ports.add(sphiaConfig.coreApiPort);
-    }
-    if (isRouting) {
-      if (name == 'sing-box') {
-        ports.add(sphiaConfig.mixedPort);
-      } else {
-        ports.add(sphiaConfig.socksPort);
-        ports.add(sphiaConfig.httpPort);
-      }
-    } else {
-      ports.add(sphiaConfig.additionalSocksPort);
-    }
-    for (var port in ports) {
-      if (await SystemUtil.portInUse(port)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   Future<void> configure(Server selectedServer);
