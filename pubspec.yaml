@@ -17,7 +17,7 @@ dependencies:
   dropdown_search: ^5.0.6
   file_picker: ^6.1.1
   fixnum: ^1.1.0
-  fl_chart: ^0.65.0
+  fl_chart: ^0.66.2
   get_it: ^7.4.0
   grpc: ^3.2.2
   http: ^1.0.0
