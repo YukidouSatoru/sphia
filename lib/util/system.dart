@@ -378,6 +378,18 @@ class SystemUtil {
       await Process.run('kill', [pid.toString()]);
     }
   }
+
+  static Future<void> checkWritePermission() async {
+    try {
+      for (var path in [binPath, configPath, logPath, tempPath]) {
+        final file = File(p.join(path, 'test'));
+        file.createSync();
+        file.deleteSync();
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
 
 late final String execPath;

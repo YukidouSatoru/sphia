@@ -103,6 +103,14 @@ Future<void> configureApp() async {
   // Init database
   await SphiaDatabase.init();
 
+  // Check write permission
+  try {
+    await SystemUtil.checkWritePermission();
+  } catch (e) {
+    await showErrorMsg('An error occurred while checking write permission: $e');
+    return;
+  }
+
   late final SphiaConfig sphiaConfig;
   late final ServerConfig serverConfig;
   late final RuleConfig ruleConfig;

@@ -60,7 +60,7 @@ class SphiaConfigDao {
             .write(ConfigCompanion(config: Value(jsonEncode(sphiaConfig))));
       }
       return sphiaConfig;
-    } on Exception catch (_) {
+    } catch (_) {
       rethrow;
     }
   }
@@ -72,7 +72,7 @@ class SphiaConfigDao {
       await (_db.update(_db.config)
             ..where((tbl) => tbl.id.equals(sphiaConfigId)))
           .write(ConfigCompanion(config: Value(jsonString)));
-    } on Exception catch (e) {
+    } catch (e) {
       logger.f('Failed to save sphia config: $e');
       rethrow;
     }
@@ -115,7 +115,7 @@ class ServerConfigDao {
         }
       });
       return ServerConfig.fromJson(data);
-    } on Exception catch (_) {
+    } catch (_) {
       rethrow;
     }
   }
@@ -127,7 +127,7 @@ class ServerConfigDao {
       await (_db.update(_db.config)
             ..where((tbl) => tbl.id.equals(serverConfigId)))
           .write(ConfigCompanion(config: Value(jsonString)));
-    } on Exception catch (e) {
+    } catch (e) {
       logger.f('Failed to save server config: $e');
       rethrow;
     }
@@ -170,7 +170,7 @@ class RuleConfigDao {
         }
       });
       return RuleConfig.fromJson(data);
-    } on Exception catch (_) {
+    } catch (_) {
       rethrow;
     }
   }
@@ -182,7 +182,7 @@ class RuleConfigDao {
       await (_db.update(_db.config)
             ..where((tbl) => tbl.id.equals(ruleConfigId)))
           .write(ConfigCompanion(config: Value(jsonString)));
-    } on Exception catch (e) {
+    } catch (e) {
       logger.f('Failed to save rule config: $e');
       rethrow;
     }
@@ -216,7 +216,7 @@ class VersionConfigDao {
       final json = await getConfigJson();
       var data = jsonDecode(json);
       return VersionConfig.fromJson(data);
-    } on Exception catch (_) {
+    } catch (_) {
       rethrow;
     }
   }
@@ -228,7 +228,7 @@ class VersionConfigDao {
       await (_db.update(_db.config)
             ..where((tbl) => tbl.id.equals(versionConfigId)))
           .write(ConfigCompanion(config: Value(jsonString)));
-    } on Exception catch (e) {
+    } catch (e) {
       logger.f('Failed to save version config: $e');
       rethrow;
     }
