@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:window_manager/window_manager.dart';
 
 const List<String> units = [' B', 'KB', 'MB', 'GB', 'TB', 'EB'];
 const List<int> unitRates = [
@@ -30,7 +31,7 @@ class NetworkChart extends StatefulWidget {
   State<NetworkChart> createState() => _NetworkChartState();
 }
 
-class _NetworkChartState extends State<NetworkChart> {
+class _NetworkChartState extends State<NetworkChart> with WindowListener {
   late SphiaConfigProvider _sphiaConfigProvider;
   late CoreProvider _coreProvider;
   Timer? _timer;
@@ -40,6 +41,7 @@ class _NetworkChartState extends State<NetworkChart> {
   @override
   void initState() {
     super.initState();
+    windowManager.addListener(this);
     _sphiaConfigProvider =
         Provider.of<SphiaConfigProvider>(context, listen: false);
     _coreProvider = Provider.of<CoreProvider>(context, listen: false);
@@ -50,6 +52,7 @@ class _NetworkChartState extends State<NetworkChart> {
   @override
   void dispose() {
     _timer?.cancel();
+    windowManager.removeListener(this);
     super.dispose();
   }
 
@@ -77,18 +80,20 @@ class _NetworkChartState extends State<NetworkChart> {
     });
   }
 
-  void _stopTimer() {
+  void _stopTimer({bool background = false}) {
     if (_timer == null) {
       return;
     }
     logger.i('Stop speed chart timer');
     _timer?.cancel();
     _timer = null;
-    setState(() {
-      widget.uploadSpots.clear();
-      widget.downloadSpots.clear();
-      _maxY = 0;
-    });
+    if (!background) {
+      setState(() {
+        widget.uploadSpots.clear();
+        widget.downloadSpots.clear();
+        _maxY = 0;
+      });
+    }
   }
 
   void _shouldStartTimer() {
@@ -186,5 +191,15 @@ class _NetworkChartState extends State<NetworkChart> {
       ),
       duration: const Duration(milliseconds: 16),
     );
+  }
+
+  @override
+  void onWindowFocus() {
+    _shouldStartTimer();
+  }
+
+  @override
+  void onWindowClose() {
+    _stopTimer(background: true);
   }
 }
