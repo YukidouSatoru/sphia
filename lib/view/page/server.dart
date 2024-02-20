@@ -537,7 +537,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                   onTap: () async {
                     late final Server? newServer;
                     if ((newServer = await _agent.editServer(server)) != null) {
-                      if (!context.mounted) {
+                      if (!mounted) {
                         return;
                       }
                       final serverConfigProvider =
@@ -569,7 +569,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                   onItemSelected: (value) async {
                     if (await _agent.shareServer(value, server.id)) {
                       if (value == 'Configuration') {
-                        if (!context.mounted) {
+                        if (!mounted) {
                           return;
                         }
                         await SphiaWidget.showDialogWithMsg(
@@ -577,7 +577,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                           '${S.of(context).exportToFile}: ${p.join(tempPath, 'export.json')}',
                         );
                       } else if (value == 'ExportToClipboard') {
-                        if (!context.mounted) {
+                        if (!mounted) {
                           return;
                         }
                         await SphiaWidget.showDialogWithMsg(
@@ -587,7 +587,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                       }
                     } else {
                       if (value == 'Configuration') {
-                        if (!context.mounted) {
+                        if (!mounted) {
                           return;
                         }
                         await SphiaWidget.showDialogWithMsg(
@@ -657,7 +657,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
       if (coreProvider.coreRunning) {
         await SphiaController.stopCores();
       } else {
-        if (!context.mounted) {
+        if (!mounted) {
           return;
         }
         await SphiaWidget.showDialogWithMsg(
@@ -678,7 +678,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
       setState(() {
         _isLoading = false;
       });
-      if (!context.mounted) {
+      if (!mounted) {
         return;
       }
       await SphiaWidget.showDialogWithMsg(
@@ -727,7 +727,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
       return;
     }
     if (await _agent.deleteServer(server.id)) {
-      if (!context.mounted) {
+      if (!mounted) {
         return;
       }
       final serverConfigProvider =

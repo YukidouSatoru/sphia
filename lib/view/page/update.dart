@@ -284,7 +284,7 @@ class _UpdatePageState extends State<UpdatePage> {
             onTimeout: () => throw Exception('Connection timed out'));
       } on Exception catch (e) {
         logger.e('Failed to connect to Github: $e');
-        if (!context.mounted) {
+        if (!mounted) {
           return;
         }
         await SphiaWidget.showDialogWithMsg(
@@ -294,7 +294,7 @@ class _UpdatePageState extends State<UpdatePage> {
         return;
       }
       final latestVersion = await NetworkUtil.getLatestVersion(coreName);
-      if (!context.mounted) {
+      if (!mounted) {
         return;
       }
       logger.i('Latest version of $coreName: $latestVersion');
@@ -317,7 +317,7 @@ class _UpdatePageState extends State<UpdatePage> {
       }
     } on Exception catch (e) {
       logger.e('Failed to check update: $e');
-      if (!context.mounted) {
+      if (!mounted) {
         return;
       }
       await SphiaWidget.showDialogWithMsg(
@@ -341,7 +341,7 @@ class _UpdatePageState extends State<UpdatePage> {
       try {
         await CoreUpdater.updateCore(coreName, latestVersion);
       } on Exception catch (e) {
-        if (!context.mounted) {
+        if (!mounted) {
           return;
         }
         await SphiaWidget.showDialogWithMsg(
@@ -349,7 +349,7 @@ class _UpdatePageState extends State<UpdatePage> {
           '${S.of(context).updateFailed}: $e',
         );
       }
-      if (!context.mounted) {
+      if (!mounted) {
         return;
       }
       _latestVersions.remove(coreName);
@@ -407,7 +407,7 @@ class _UpdatePageState extends State<UpdatePage> {
     try {
       CoreUpdater.deleteCore(coreName);
     } on Exception catch (e) {
-      if (!context.mounted) {
+      if (!mounted) {
         return;
       }
       await SphiaWidget.showDialogWithMsg(
@@ -415,7 +415,7 @@ class _UpdatePageState extends State<UpdatePage> {
         '${S.of(context).deleteCoreFailed}: $e',
       );
     }
-    if (!context.mounted) {
+    if (!mounted) {
       return;
     }
     versionConfigProvider.removeVersion(coreName);
