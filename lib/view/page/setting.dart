@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/task/subscription.dart';
@@ -45,8 +44,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).startOnBoot,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating startOnBoot from ${sphiaConfig.startOnBoot} to $value');
             sphiaConfig.startOnBoot = value;
             sphiaConfigProvider.saveConfig();
             SystemUtil.configureStartup();
@@ -64,8 +61,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).autoRunServer,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating autoRunServer from ${sphiaConfig.autoRunServer} to $value');
             sphiaConfig.autoRunServer = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -83,8 +78,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).useMaterial3,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating useMaterial3 from ${sphiaConfig.useMaterial3} to $value');
             sphiaConfig.useMaterial3 = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -102,8 +95,6 @@ class _SettingPageState extends State<SettingPage> {
         items: navigationStyleList,
         update: (value) {
           if (value != null) {
-            logger.i(
-                'Updating navigationStyle from ${sphiaConfig.navigationStyle} to $value');
             sphiaConfig.navigationStyle = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -121,8 +112,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).darkMode,
         onChanged: (value) {
           if (value != null) {
-            logger
-                .i('Updating darkMode from ${sphiaConfig.darkMode} to $value');
             sphiaConfig.darkMode = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -149,8 +138,6 @@ class _SettingPageState extends State<SettingPage> {
         },
         update: (value) {
           if (value != null) {
-            logger.i(
-                'Updating themeColor from ${sphiaConfig.themeColor} to $value');
             sphiaConfig.themeColor = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -190,8 +177,6 @@ class _SettingPageState extends State<SettingPage> {
                 legalValue(g) &&
                 legalValue(b)) {
               final argbValue = (a << 24) | (r << 16) | (g << 8) | b;
-              logger.i(
-                  'Updating themeColor from ${sphiaConfig.themeColor} to $argbValue');
               sphiaConfig.themeColor = argbValue;
               sphiaConfigProvider.saveConfig();
               _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -218,8 +203,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).showTransport,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating showTransport from ${sphiaConfig.showTransport} to $value');
             sphiaConfig.showTransport = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -236,8 +219,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).showAddress,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating showAddress from ${sphiaConfig.showAddress} to $value');
             sphiaConfig.showAddress = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -255,8 +236,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).enableStatistics,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating enableStatistics from ${sphiaConfig.enableStatistics} to $value');
             sphiaConfig.enableStatistics = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -273,8 +252,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).enableSpeedChart,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating enableSpeedChart from ${sphiaConfig.enableSpeedChart} to $value');
             sphiaConfig.enableSpeedChart = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -311,8 +288,6 @@ class _SettingPageState extends State<SettingPage> {
               );
               return;
             }
-            logger.i(
-                'Updating updateSubscriptionInterval from ${sphiaConfig.updateSubscriptionInterval} to $value');
             sphiaConfig.updateSubscriptionInterval = newValue;
             sphiaConfigProvider.saveConfig();
             if (sphiaConfig.updateSubscriptionInterval != -1) {
@@ -335,8 +310,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).updateThroughProxy,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating updateThroughProxy from ${sphiaConfig.updateThroughProxy} to $value');
             sphiaConfig.updateThroughProxy = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -354,8 +327,6 @@ class _SettingPageState extends State<SettingPage> {
         items: userAgentList,
         update: (value) {
           if (value != null) {
-            logger.i(
-                'Updating userAgent from ${sphiaConfig.userAgent} to $value');
             sphiaConfig.userAgent = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -375,8 +346,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).autoGetIp,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating autoGetIp from ${sphiaConfig.autoGetIp} to $value');
             sphiaConfig.autoGetIp = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -393,8 +362,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).multiOutboundSupport,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating multiOutboundSupport from ${sphiaConfig.multiOutboundSupport} to $value');
             sphiaConfig.multiOutboundSupport = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -412,13 +379,9 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).autoConfigureSystemProxy,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating autoConfigureSystemProxy from ${sphiaConfig.autoConfigureSystemProxy} to $value');
             sphiaConfig.autoConfigureSystemProxy = value;
             if (value) {
               sphiaConfig.enableTun = false;
-              logger.i(
-                  'Updating enableTun from ${sphiaConfig.enableTun} to false');
             }
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -436,13 +399,9 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).enableTun,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating enableTun from ${sphiaConfig.enableTun} to $value');
             sphiaConfig.enableTun = value;
             if (value) {
               sphiaConfig.autoConfigureSystemProxy = false;
-              logger.i(
-                  'Updating autoConfigureSystemProxy from ${sphiaConfig.autoConfigureSystemProxy} to false');
             }
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -472,8 +431,6 @@ class _SettingPageState extends State<SettingPage> {
               );
               return;
             }
-            logger.i(
-                'Updating socksPort from ${sphiaConfig.socksPort} to $value');
             sphiaConfig.socksPort = newValue;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -504,8 +461,6 @@ class _SettingPageState extends State<SettingPage> {
               );
               return;
             }
-            logger
-                .i('Updating httpPort from ${sphiaConfig.httpPort} to $value');
             sphiaConfig.httpPort = newValue;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -536,9 +491,6 @@ class _SettingPageState extends State<SettingPage> {
               );
               return;
             }
-
-            logger.i(
-                'Updating mixedPort from ${sphiaConfig.mixedPort} to $value');
             sphiaConfig.mixedPort = newValue;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -557,7 +509,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).listen,
         update: (value) {
           if (value != null) {
-            logger.i('Updating listen from ${sphiaConfig.listen} to $value');
             sphiaConfig.listen = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -576,8 +527,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).enableUdp,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating enableUdp from ${sphiaConfig.enableUdp} to $value');
             sphiaConfig.enableUdp = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -596,8 +545,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).authentication,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating authentication from ${sphiaConfig.authentication} to $value');
             sphiaConfig.authentication = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -615,7 +562,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).user,
         update: (value) {
           if (value != null) {
-            logger.i('Updating user from ${sphiaConfig.user} to $value');
             sphiaConfig.user = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -634,8 +580,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).password,
         update: (value) {
           if (value != null) {
-            logger
-                .i('Updating password from ${sphiaConfig.password} to $value');
             sphiaConfig.password = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -668,8 +612,6 @@ class _SettingPageState extends State<SettingPage> {
               );
               return;
             }
-            logger.i(
-                'Updating coreApiPort from ${sphiaConfig.coreApiPort} to $value');
             sphiaConfig.coreApiPort = newValue;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -689,8 +631,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).enableSniffing,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating enableSniffing from ${sphiaConfig.enableSniffing} to $value');
             sphiaConfig.enableSniffing = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -707,8 +647,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).configureDns,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating configureDns from ${sphiaConfig.configureDns} to $value');
             sphiaConfig.configureDns = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -725,8 +663,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).remoteDns,
         update: (value) {
           if (value != null) {
-            logger.i(
-                'Updating remoteDns from ${sphiaConfig.remoteDns} to $value');
             sphiaConfig.remoteDns = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -744,8 +680,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).directDns,
         update: (value) {
           if (value != null) {
-            logger.i(
-                'Updating directDns from ${sphiaConfig.directDns} to $value');
             sphiaConfig.directDns = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -765,8 +699,6 @@ class _SettingPageState extends State<SettingPage> {
         items: domainStrategyList,
         update: (value) {
           if (value != null) {
-            logger.i(
-                'Updating domainStrategy from ${sphiaConfig.domainStrategy} to $value');
             sphiaConfig.domainStrategy = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -785,8 +717,6 @@ class _SettingPageState extends State<SettingPage> {
         items: domainMatcherList,
         update: (value) {
           if (value != null) {
-            logger.i(
-                'Updating domainMatcher from ${sphiaConfig.domainMatcher} to $value');
             sphiaConfig.domainMatcher = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -805,8 +735,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).enableCoreLog,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating enableCoreLog from ${sphiaConfig.enableCoreLog} to $value');
             sphiaConfig.enableCoreLog = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -824,8 +752,6 @@ class _SettingPageState extends State<SettingPage> {
         items: logLevelList,
         update: (value) {
           if (value != null) {
-            logger
-                .i('Updating logLevel from ${sphiaConfig.logLevel} to $value');
             sphiaConfig.logLevel = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -853,8 +779,6 @@ class _SettingPageState extends State<SettingPage> {
               );
               return;
             }
-            logger.i(
-                'Updating maxLogCount from ${sphiaConfig.maxLogCount} to $value');
             sphiaConfig.maxLogCount = newValue;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -872,8 +796,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).saveCoreLog,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating saveCoreLog from ${sphiaConfig.saveCoreLog} to $value');
             sphiaConfig.saveCoreLog = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -894,8 +816,6 @@ class _SettingPageState extends State<SettingPage> {
         items: routingProviderList,
         update: (value) {
           if (value != null) {
-            logger.i(
-                'Updating routingProvider from ${sphiaConfig.routingProvider} to $value');
             sphiaConfig.routingProvider = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -914,8 +834,6 @@ class _SettingPageState extends State<SettingPage> {
         items: vmessProviderList,
         update: (value) {
           if (value != null) {
-            logger.i(
-                'Updating vmessProvider from ${sphiaConfig.vmessProvider} to $value');
             sphiaConfig.vmessProvider = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -934,8 +852,6 @@ class _SettingPageState extends State<SettingPage> {
         items: vlessProviderList,
         update: (value) {
           if (value != null) {
-            logger.i(
-                'Updating vlessProvider from ${sphiaConfig.vlessProvider} to $value');
             sphiaConfig.vlessProvider = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -954,8 +870,6 @@ class _SettingPageState extends State<SettingPage> {
         items: shadowsocksProviderList,
         update: (value) {
           if (value != null) {
-            logger.i(
-                'Updating shadowsocksProvider from ${sphiaConfig.shadowsocksProvider} to $value');
             sphiaConfig.shadowsocksProvider = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -974,8 +888,6 @@ class _SettingPageState extends State<SettingPage> {
         items: trojanProviderList,
         update: (value) {
           if (value != null) {
-            logger.i(
-                'Updating trojanProvider from ${sphiaConfig.trojanProvider} to $value');
             sphiaConfig.trojanProvider = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -994,8 +906,6 @@ class _SettingPageState extends State<SettingPage> {
         items: ['sing-box', 'hysteria'],
         update: (value) {
           if (value != null) {
-            logger.i(
-                'Updating hysteriaProvider from ${sphiaConfig.hysteriaProvider} to $value');
             sphiaConfig.hysteriaProvider = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -1026,8 +936,6 @@ class _SettingPageState extends State<SettingPage> {
               );
               return;
             }
-            logger.i(
-                'Updating additionalSocksPort from ${sphiaConfig.additionalSocksPort} to $value');
             sphiaConfig.additionalSocksPort = newValue;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -1049,8 +957,6 @@ class _SettingPageState extends State<SettingPage> {
         items: tunProviderList,
         update: (value) {
           if (value != null) {
-            logger.i(
-                'Updating tunProvider from ${sphiaConfig.tunProvider} to $value');
             sphiaConfig.tunProvider = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -1083,8 +989,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).ipv4Address,
         update: (value) {
           if (value != null) {
-            logger.i(
-                'Updating ipv4Address from ${sphiaConfig.ipv4Address} to $value');
             sphiaConfig.ipv4Address = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -1102,8 +1006,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).enableIpv6,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating enableIpv6 from ${sphiaConfig.enableIpv6} to $value');
             sphiaConfig.enableIpv6 = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -1120,8 +1022,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).ipv6Address,
         update: (value) {
           if (value != null) {
-            logger.i(
-                'Updating ipv6Address from ${sphiaConfig.ipv6Address} to $value');
             sphiaConfig.ipv4Address = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -1150,7 +1050,6 @@ class _SettingPageState extends State<SettingPage> {
               );
               return;
             }
-            logger.i('Updating mtu from ${sphiaConfig.mtu} to $value');
             sphiaConfig.mtu = newValue!;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -1168,8 +1067,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).endpointIndependentNat,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating endpointIndependentNat from ${sphiaConfig.endpointIndependentNat} to $value');
             sphiaConfig.endpointIndependentNat = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -1187,7 +1084,6 @@ class _SettingPageState extends State<SettingPage> {
         items: tunStackList,
         update: (value) {
           if (value != null) {
-            logger.i('Updating stack from ${sphiaConfig.stack} to $value');
             sphiaConfig.stack = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -1205,8 +1101,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).autoRoute,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating autoRoute from ${sphiaConfig.autoRoute} to $value');
             sphiaConfig.autoRoute = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -1223,8 +1117,6 @@ class _SettingPageState extends State<SettingPage> {
         title: S.of(context).strictRoute,
         onChanged: (value) {
           if (value != null) {
-            logger.i(
-                'Updating strictRoute from ${sphiaConfig.strictRoute} to $value');
             sphiaConfig.strictRoute = value;
             sphiaConfigProvider.saveConfig();
             _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();

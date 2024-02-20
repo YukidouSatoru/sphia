@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:sphia/app/config/sphia.dart';
-import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
@@ -172,8 +171,6 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
         backgroundColor: Colors.transparent,
         focusColor: Colors.transparent,
         onPressed: () {
-          logger.i(
-              'Updating darkMode from ${sphiaConfig.darkMode} to ${!sphiaConfig.darkMode}');
           sphiaConfig.darkMode = !sphiaConfig.darkMode;
           sphiaConfigProvider.saveConfig();
         },
@@ -307,8 +304,6 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
                   backgroundColor: Colors.transparent,
                   focusColor: Colors.transparent,
                   onPressed: () {
-                    logger.i(
-                        'Updating darkMode from ${sphiaConfig.darkMode} to ${!sphiaConfig.darkMode}');
                     sphiaConfig.darkMode = !sphiaConfig.darkMode;
                     sphiaConfigProvider.saveConfig();
                   },

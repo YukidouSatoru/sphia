@@ -217,8 +217,6 @@ class _DashboardState extends State<Dashboard> {
                             TextButton(
                               child: Text(S.of(context).save),
                               onPressed: () {
-                                logger.i(
-                                    'Updating remoteDNS from ${sphiaConfig.remoteDns} to ${remoteDnsController.text}');
                                 sphiaConfig.remoteDns =
                                     remoteDnsController.text;
                                 sphiaConfigProvider.saveConfig();
@@ -257,8 +255,6 @@ class _DashboardState extends State<Dashboard> {
                             TextButton(
                               child: Text(S.of(context).save),
                               onPressed: () {
-                                logger.i(
-                                    'Updating directDNS from ${sphiaConfig.directDns} to ${directDnsController.text}');
                                 sphiaConfig.directDns =
                                     directDnsController.text;
                                 sphiaConfigProvider.saveConfig();
