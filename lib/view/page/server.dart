@@ -18,7 +18,7 @@ import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/system.dart';
 import 'package:sphia/view/page/agent/server.dart';
 import 'package:sphia/view/page/wrapper.dart';
-import 'package:sphia/view/widget/chart.dart';
+import 'package:sphia/view/widget/dashboard_card/chart.dart';
 import 'package:sphia/view/widget/widget.dart';
 import 'package:path/path.dart' as p;
 
