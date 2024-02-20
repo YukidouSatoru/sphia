@@ -510,14 +510,13 @@ class _DashboardState extends State<Dashboard> {
 
   Future<void> _startTrafficStats() async {
     final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
-    final sphiaConfig = sphiaConfigProvider.config;
     final coreProvider = GetIt.I.get<CoreProvider>();
     if (coreProvider.routing.name == 'sing-box') {
-      _traffic = SingBoxTraffic(sphiaConfig.coreApiPort);
+      _traffic = SingBoxTraffic(sphiaConfigProvider.config.coreApiPort);
     } else {
       _traffic = XrayTraffic(
-        sphiaConfig.coreApiPort,
-        sphiaConfig.multiOutboundSupport,
+        sphiaConfigProvider.config.coreApiPort,
+        sphiaConfigProvider.config.multiOutboundSupport,
       );
     }
 
@@ -543,10 +542,12 @@ class _DashboardState extends State<Dashboard> {
       _downloadLastSecond.value = data['down'];
 
       // for chart
-      _networkChart.uploadSpots
-          .add(FlSpot(nowStamp.toDouble(), data['up'].toDouble()));
-      _networkChart.downloadSpots
-          .add(FlSpot(nowStamp.toDouble(), data['down'].toDouble()));
+      if (sphiaConfigProvider.config.enableSpeedChart) {
+        _networkChart.uploadSpots
+            .add(FlSpot(nowStamp.toDouble(), data['up'].toDouble()));
+        _networkChart.downloadSpots
+            .add(FlSpot(nowStamp.toDouble(), data['down'].toDouble()));
+      }
     }
   }
 
