@@ -264,7 +264,7 @@ class Tray {
       MenuItemLabel(
         label: S.current.hide,
         onClicked: (menuItem) async {
-          await windowManager.hide();
+          await windowManager.close();
         },
       ),
       MenuItemLabel(
