@@ -246,6 +246,7 @@ class _SettingPageState extends State<SettingPage> {
             );
           }
         },
+        enabled: !coreProvider.coreRunning,
       ),
       SphiaWidget.checkboxCard(
         value: sphiaConfig.enableSpeedChart,
