@@ -8,6 +8,7 @@ import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/view/page/wrapper.dart';
+import 'package:window_manager/window_manager.dart';
 
 class LogPage extends StatefulWidget {
   const LogPage({
@@ -18,20 +19,24 @@ class LogPage extends StatefulWidget {
   State<StatefulWidget> createState() => _LogPageState();
 }
 
-class _LogPageState extends State<LogPage> {
+class _LogPageState extends State<LogPage> with WindowListener {
   bool _previousCoreRunning = false;
   final List<String> _logList = [];
   StreamSubscription<String>? _logSubscription;
   final _scrollController = ScrollController();
-  bool isUserScrolling = false;
+  bool _isUserScrolling = false;
+  bool _hasScrollListener = false;
+  bool _isVisible = true;
 
   @override
   void initState() {
     super.initState();
+    windowManager.addListener(this);
   }
 
   @override
   void dispose() {
+    windowManager.removeListener(this);
     _removeLogListener();
     _scrollController.dispose();
     super.dispose();
@@ -48,8 +53,9 @@ class _LogPageState extends State<LogPage> {
         _scrollController.addListener(() {
           if (_scrollController.position.userScrollDirection !=
               ScrollDirection.idle) {
-            isUserScrolling = true;
+            _isUserScrolling = true;
           }
+          _hasScrollListener = true;
         });
         _logList.addAll(coreProvider.routing.preLogList);
         _listenToLogs();
@@ -97,17 +103,25 @@ class _LogPageState extends State<LogPage> {
 
   void _listenToLogs() {
     final coreProvider = GetIt.I.get<CoreProvider>();
+    if (!coreProvider.coreRunning) {
+      return;
+    }
     _logSubscription = coreProvider.routing.logStream.listen((log) {
       _addLog(log);
     });
   }
 
-  void _removeLogListener() {
-    _logList.clear();
-    isUserScrolling = false;
-    _scrollController.removeListener(() {});
+  void _removeLogListener({bool background = false}) {
+    if (!background) {
+      _logList.clear();
+    }
     _logSubscription?.cancel();
     _logSubscription = null;
+    _isUserScrolling = false;
+    if (_hasScrollListener) {
+      _scrollController.removeListener(() {});
+      _hasScrollListener = false;
+    }
   }
 
   void _addLog(String log) {
@@ -121,14 +135,34 @@ class _LogPageState extends State<LogPage> {
       if (_logList.length >= sphiaConfigProvider.config.maxLogCount) {
         _logList.removeAt(0);
       }
-      setState(() {});
-      if (!isUserScrolling) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeOut,
-        );
+      if (_isVisible) {
+        setState(() {});
+      }
+      if (_hasScrollListener) {
+        if (!_isUserScrolling && _isVisible) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeOut,
+          );
+        }
       }
     }
+  }
+
+  @override
+  void onWindowFocus() {
+    setState(() {
+      _isVisible = true;
+    });
+    _listenToLogs();
+  }
+
+  @override
+  void onWindowClose() {
+    setState(() {
+      _isVisible = false;
+    });
+    _removeLogListener(background: true);
   }
 }
