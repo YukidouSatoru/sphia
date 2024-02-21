@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:path/path.dart' as p;
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:quiver/collection.dart';
 import 'package:sphia/app/config/sphia.dart';
@@ -13,13 +12,11 @@ import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/task/subscription.dart';
 import 'package:sphia/app/theme.dart';
-import 'package:sphia/core/core.dart';
 import 'package:sphia/core/hysteria/core.dart';
 import 'package:sphia/core/server/defaults.dart';
 import 'package:sphia/core/sing/core.dart';
 import 'package:sphia/core/xray/core.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/util/system.dart';
 import 'package:sphia/util/uri/uri.dart';
 import 'package:sphia/view/dialog/hysteria.dart';
 import 'package:sphia/view/dialog/server_group.dart';
@@ -196,55 +193,54 @@ class ServerAgent {
 
   Future<bool> _shareConfiguration(Server server) async {
     final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
+    final sphiaConfig = sphiaConfigProvider.config;
     const exportFileName = 'export.json';
-    if ((server.protocol == 'vmess' || server.protocol == 'vless') ||
-        (server.protocol == 'shadowsocks') ||
-        (server.protocol == 'trojan') ||
-        (server.protocol == 'hysteria')) {
-      final protocol = server.protocol;
-      logger.i('Export to File: ${p.join(tempPath, exportFileName)}');
-      late final Core core;
-      if ((protocol == 'vless' &&
-              sphiaConfigProvider.config.vlessProvider ==
-                  VlessProvider.xray.index) ||
-          (protocol == 'vmess' &&
-              sphiaConfigProvider.config.vmessProvider ==
-                  VmessProvider.xray.index) ||
-          protocol == 'shadowsocks' &&
-              sphiaConfigProvider.config.shadowsocksProvider ==
-                  ShadowsocksProvider.xray.index ||
-          protocol == 'trojan' &&
-              sphiaConfigProvider.config.trojanProvider ==
-                  TrojanProvider.xray.index) {
-        core = XrayCore()..configFileName = exportFileName;
-      } else if ((protocol == 'vless' &&
-              sphiaConfigProvider.config.vlessProvider ==
-                  VlessProvider.sing.index) ||
-          (protocol == 'vmess' &&
-              sphiaConfigProvider.config.vmessProvider ==
-                  VmessProvider.sing.index) ||
-          (protocol == 'shadowsocks' &&
-              sphiaConfigProvider.config.shadowsocksProvider ==
-                  ShadowsocksProvider.sing.index) ||
-          (protocol == 'trojan' &&
-              sphiaConfigProvider.config.trojanProvider ==
-                  TrojanProvider.sing.index) ||
-          (protocol == 'hysteria' &&
-              sphiaConfigProvider.config.hysteriaProvider ==
-                  HysteriaProvider.sing.index)) {
-        core = SingBoxCore()..configFileName = exportFileName;
-      } else if (protocol == 'hysteria' &&
-          sphiaConfigProvider.config.hysteriaProvider ==
-              HysteriaProvider.hysteria.index) {
-        core = HysteriaCore()..configFileName = exportFileName;
-      }
-      core.isRouting = true;
-      core.servers = [server];
-      await core.configure();
-      return true;
-    } else {
+
+    final protocol = server.protocol;
+    final protocolToCore = {
+      'vmess': (Server selectedServer, SphiaConfig sphiaConfig) =>
+          (selectedServer.protocolProvider ?? sphiaConfig.vmessProvider) ==
+                  VmessProvider.xray.index
+              ? XrayCore()
+              : SingBoxCore(),
+      'vless': (Server selectedServer, SphiaConfig sphiaConfig) =>
+          (selectedServer.protocolProvider ?? sphiaConfig.vlessProvider) ==
+                  VlessProvider.xray.index
+              ? XrayCore()
+              : SingBoxCore(),
+      'shadowsocks': (Server selectedServer, SphiaConfig sphiaConfig) {
+        final protocolProvider =
+            selectedServer.protocolProvider ?? sphiaConfig.shadowsocksProvider;
+        if (protocolProvider == ShadowsocksProvider.xray.index) {
+          return XrayCore();
+        } else if (protocolProvider == ShadowsocksProvider.sing.index) {
+          return SingBoxCore();
+        } else {
+          return null;
+        }
+      },
+      'trojan': (Server selectedServer, SphiaConfig sphiaConfig) =>
+          (selectedServer.protocolProvider ?? sphiaConfig.trojanProvider) ==
+                  TrojanProvider.xray.index
+              ? XrayCore()
+              : SingBoxCore(),
+      'hysteria': (Server selectedServer, SphiaConfig sphiaConfig) =>
+          (selectedServer.protocolProvider ?? sphiaConfig.hysteriaProvider) ==
+                  HysteriaProvider.sing.index
+              ? SingBoxCore()
+              : HysteriaCore(),
+    };
+    final core = protocolToCore[protocol]?.call(server, sphiaConfig);
+    if (core == null) {
+      logger.e('No supported core for protocol: $protocol');
       return false;
     }
+    core.configFileName = exportFileName;
+    core.isRouting = true;
+    core.servers = [server];
+    logger.i('Sharing Configuration: ${server.id}');
+    await core.configure();
+    return true;
   }
 
   Future<bool> addGroup() async {
