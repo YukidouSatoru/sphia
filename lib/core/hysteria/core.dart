@@ -15,34 +15,35 @@ class HysteriaCore extends Core {
             'hysteria.json');
 
   @override
-  Future<void> configure(Server selectedServer) async {
-    serverId = [selectedServer.id];
-    final jsonString = await generateConfig(selectedServer);
+  Future<void> configure() async {
+    final parameters = HysteriaConfigParameters(servers.first);
+    final jsonString = await generateConfig(parameters);
     await writeConfig(jsonString);
   }
 
   @override
-  Future<String> generateConfig(Server mainServer) async {
-    if (mainServer.protocol == 'hysteria') {
+  Future<String> generateConfig(ConfigParameters parameters) async {
+    final server = (parameters as HysteriaConfigParameters).server;
+    if (server.protocol == 'hysteria') {
       final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
       final hysteriaConfig = HysteriaConfig(
-        server: '${mainServer.address}:${mainServer.port}',
-        protocol: mainServer.hysteriaProtocol ?? 'udp',
-        obfs: mainServer.obfs,
-        alpn: mainServer.alpn,
-        auth: mainServer.authType != 'none'
-            ? (mainServer.authType == 'base64' ? mainServer.authPayload : null)
+        server: '${server.address}:${server.port}',
+        protocol: server.hysteriaProtocol ?? 'udp',
+        obfs: server.obfs,
+        alpn: server.alpn,
+        auth: server.authType != 'none'
+            ? (server.authType == 'base64' ? server.authPayload : null)
             : null,
-        authStr: mainServer.authType != 'none'
-            ? (mainServer.authType == 'str' ? mainServer.authPayload : null)
+        authStr: server.authType != 'none'
+            ? (server.authType == 'str' ? server.authPayload : null)
             : null,
-        serverName: mainServer.serverName,
-        insecure: mainServer.allowInsecure ?? false,
-        upMbps: mainServer.upMbps ?? 10,
-        downMbps: mainServer.downMbps ?? 50,
-        recvWindowConn: mainServer.recvWindowConn,
-        recvWindow: mainServer.recvWindow,
-        disableMtuDiscovery: mainServer.disableMtuDiscovery ?? false,
+        serverName: server.serverName,
+        insecure: server.allowInsecure ?? false,
+        upMbps: server.upMbps ?? 10,
+        downMbps: server.downMbps ?? 50,
+        recvWindowConn: server.recvWindowConn,
+        recvWindow: server.recvWindow,
+        disableMtuDiscovery: server.disableMtuDiscovery ?? false,
         socks5: Socks5(
           listen: '127.0.0.1:${sphiaConfig.additionalSocksPort}',
           timeout: 300,
@@ -53,7 +54,13 @@ class HysteriaCore extends Core {
       return jsonEncode(hysteriaConfig.toJson());
     } else {
       throw Exception(
-          'Hyteria does not support this server type: ${mainServer.protocol}');
+          'Hyteria does not support this server type: ${server.protocol}');
     }
   }
+}
+
+class HysteriaConfigParameters extends ConfigParameters {
+  final Server server;
+
+  HysteriaConfigParameters(this.server);
 }

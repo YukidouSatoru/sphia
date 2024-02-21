@@ -22,7 +22,7 @@ class SphiaController {
         return;
       }
       if (coreProvider.cores.isNotEmpty) {
-        final runningServer = await getRunningServer();
+        final runningServer = getRunningServer();
         if (selectedServer == runningServer) {
           await stopCores();
         } else {
@@ -33,7 +33,6 @@ class SphiaController {
         await startCores(selectedServer);
       }
     } on Exception catch (_) {
-      // logger.e('Failed to start core: $e');
       rethrow;
     }
   }
@@ -124,6 +123,7 @@ class SphiaController {
           defaultServerGroupId,
           additionalServerId,
         ).copyWith(
+          remark: 'Additional Socks Server',
           protocol: 'socks',
           address: sphiaConfig.listen,
           port: additionalServerPort,
@@ -138,13 +138,16 @@ class SphiaController {
       logger.i('Starting cores');
       if (coreProvider.cores.length == 1) {
         // Only routing core
-        await coreProvider.routing.start(selectedServer);
+        coreProvider.routing.servers.add(selectedServer);
+        await coreProvider.routing.start();
       } else {
-        for (var core in coreProvider.cores) {
-          if (core.isRouting && additionalServer != null) {
-            await core.start(additionalServer);
+        for (int i = 0; i < coreProvider.cores.length; i++) {
+          if (coreProvider.cores[i].isRouting && additionalServer != null) {
+            coreProvider.cores[i].servers.add(additionalServer);
+            await coreProvider.cores[i].start();
           } else {
-            await core.start(selectedServer);
+            coreProvider.cores[i].servers.add(selectedServer);
+            await coreProvider.cores[i].start();
           }
         }
       }
@@ -199,7 +202,7 @@ class SphiaController {
     final coreProvider = GetIt.I.get<CoreProvider>();
     if (coreProvider.cores.isNotEmpty) {
       logger.i('Restarting cores');
-      final runningServer = await getRunningServer();
+      final runningServer = getRunningServer();
       try {
         await stopCores();
         await startCores(runningServer);
@@ -207,30 +210,19 @@ class SphiaController {
         logger.e('Failed to restart cores: $e');
         rethrow;
       }
-      // coreProvider.updateCoreRunning(true);
     }
   }
 
   static String getProviderCoreName(int providerIndex) =>
       providerIndex == RoutingProvider.sing.index ? 'sing-box' : 'xray-core';
 
-  static int getRunningServerId() {
+  static Server getRunningServer() {
     final coreProvider = GetIt.I.get<CoreProvider>();
     if (coreProvider.cores.isEmpty) {
       logger.e('No running server');
       throw Exception('No running server');
     }
     // only single server is supported
-    return coreProvider.proxy.serverId.first;
-  }
-
-  static Future<Server> getRunningServer() async {
-    final runningServerId = getRunningServerId();
-    final runningServer = await serverDao.getServerById(runningServerId);
-    if (runningServer == null) {
-      logger.e('Failed to get running server');
-      throw Exception('Failed to get running server');
-    }
-    return runningServer;
+    return coreProvider.proxy.servers.first;
   }
 }

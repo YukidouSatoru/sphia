@@ -239,8 +239,8 @@ class ServerAgent {
         core = HysteriaCore()..configFileName = exportFileName;
       }
       core.isRouting = true;
-      final jsonString = await core.generateConfig(server);
-      await core.writeConfig(jsonString);
+      core.servers = [server];
+      await core.configure();
       return true;
     } else {
       return false;

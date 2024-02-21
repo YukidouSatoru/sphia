@@ -1,7 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/theme.dart';
@@ -37,9 +36,8 @@ class _RunningCoresCardState extends State<RunningCoresCard> {
                   shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
                   title: Text(coreName),
                   onTap: () async {
-                    final serverRemark =
-                        await serverDao.getServerRemarksByIdList(
-                            coreProvider.cores[index].serverId);
+                    final servers = coreProvider.cores[index].servers;
+                    final serverRemarks = servers.map((e) => e.remark).toList();
                     if (!context.mounted) {
                       return;
                     }
@@ -82,7 +80,7 @@ class _RunningCoresCardState extends State<RunningCoresCard> {
                                 ],
                               ),
                               // all running servers
-                              for (var remark in serverRemark) Text(remark),
+                              for (var remark in serverRemarks) Text(remark),
                             ],
                           ),
                         );

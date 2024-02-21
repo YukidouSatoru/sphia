@@ -200,8 +200,7 @@ class _DashboardState extends State<Dashboard> {
     }
 
     if (sphiaConfig.multiOutboundSupport) {
-      final serverIds = coreProvider.routing.serverId;
-      final servers = await serverDao.getServersByIdList(serverIds);
+      final servers = coreProvider.routing.servers;
       if (servers.isEmpty) {
         // probably server is deleted
         return;
@@ -209,7 +208,7 @@ class _DashboardState extends State<Dashboard> {
 
       for (var server in servers) {
         late final String outboundTag;
-        if (server.id == serverIds.first) {
+        if (server.id == servers.first.id) {
           // serverIds.first is the main server's id,
           // but servers.first is not guaranteed to be the main server
           outboundTag = 'proxy';
@@ -238,7 +237,7 @@ class _DashboardState extends State<Dashboard> {
       // just one server
       // when multiple cores are running,
       // the first core is the protocol provider
-      final server = await SphiaController.getRunningServer();
+      final server = SphiaController.getRunningServer();
       final newServer = server.copyWith(
         uplink: Value(server.uplink == null
             ? _totalUpload

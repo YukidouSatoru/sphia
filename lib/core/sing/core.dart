@@ -12,6 +12,7 @@ import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/provider/version_config.dart';
 import 'package:sphia/core/core.dart';
+import 'package:sphia/core/helper.dart';
 import 'package:sphia/core/sing/config.dart';
 import 'package:sphia/core/sing/generate.dart';
 import 'package:sphia/util/system.dart';
@@ -25,14 +26,45 @@ class SingBoxCore extends Core {
         );
 
   @override
-  Future<void> configure(Server selectedServer) async {
-    serverId = [selectedServer.id];
-    final jsonString = await generateConfig(selectedServer);
+  Future<void> configure() async {
+    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+    final ruleConfig = GetIt.I.get<RuleConfigProvider>().config;
+    final outbounds = [
+      SingBoxGenerate.generateOutbound(servers.first)..tag = 'proxy',
+    ];
+    final rules =
+        await ruleDao.getOrderedRulesByGroupId(ruleConfig.selectedRuleGroupId);
+    late final SingConfigParameters parameters;
+
+    // remove disabled rules
+    rules.removeWhere((rule) => !rule.enabled);
+
+    if (sphiaConfig.multiOutboundSupport) {
+      final serversOnRoutingId = await CoreHelper.getRuleOutboundTagList(rules);
+      final serversOnRouting =
+          await serverDao.getServersByIdList(serversOnRoutingId);
+      // add servers on routing to outbounds, outbound.tag is proxy-serverId
+      for (final server in serversOnRouting) {
+        outbounds.add(
+          SingBoxGenerate.generateOutbound(server)..tag = 'proxy-${server.id}',
+        );
+      }
+      servers.addAll(serversOnRouting);
+    } else {
+      rules.removeWhere((rule) =>
+          rule.outboundTag != outboundProxyId &&
+          rule.outboundTag != outboundDirectId &&
+          rule.outboundTag != outboundBlockId);
+    }
+
+    parameters = SingConfigParameters(outbounds, rules);
+
+    final jsonString = await generateConfig(parameters);
     await writeConfig(jsonString);
   }
 
   @override
-  Future<String> generateConfig(Server mainServer) async {
+  Future<String> generateConfig(ConfigParameters parameters) async {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
 
     String level = LogLevel.values[sphiaConfig.logLevel].name;
@@ -51,7 +83,7 @@ class SingBoxCore extends Core {
       dns = await SingBoxGenerate.dns(
         remoteDns: sphiaConfig.remoteDns,
         directDns: sphiaConfig.directDns,
-        serverAddress: mainServer.address,
+        serverAddress: servers.first.address,
         ipv4Only: !sphiaConfig.enableIpv6,
       );
     }
@@ -85,63 +117,25 @@ class SingBoxCore extends Core {
       );
     }
 
-    final ruleConfig = GetIt.I.get<RuleConfigProvider>().config;
-    List<Rule> rules =
-        await ruleDao.getOrderedRulesByGroupId(ruleConfig.selectedRuleGroupId);
-    // remove disabled rules
-    rules.removeWhere((rule) => !rule.enabled);
-    List<Outbound> outboundsOnRouting = [];
-    if (!sphiaConfig.multiOutboundSupport) {
-      rules.removeWhere((rule) =>
-          rule.outboundTag != outboundProxyId &&
-          rule.outboundTag != outboundDirectId &&
-          rule.outboundTag != outboundBlockId);
-    } else {
-      final serversOnRoutingId = await getRuleOutboundTagList(rules);
-      final serversOnRouting =
-          await serverDao.getServersByIdList(serversOnRoutingId);
-      // add servers on routing to outbounds, outbound.tag is proxy-serverId
-      for (final server in serversOnRouting) {
-        outboundsOnRouting.add(
-          SingBoxGenerate.generateOutbound(server)..tag = 'proxy-${server.id}',
-        );
-      }
-      serverId.addAll(serversOnRoutingId);
-    }
     Route? route;
     if (sphiaConfig.enableTun || (!sphiaConfig.enableTun && isRouting)) {
       route = SingBoxGenerate.route(
-        rules,
+        (parameters as SingConfigParameters).rules,
         sphiaConfig.configureDns,
       );
     }
 
-    final outbounds = [
-      SingBoxGenerate.generateOutbound(mainServer)
-        ..tag = 'proxy', // the main proxy
-      ...outboundsOnRouting
-    ];
+    final outbounds = (parameters as SingConfigParameters).outbounds;
 
     if (sphiaConfig.configureDns) {
       outbounds.add(
-        Outbound(
-          type: 'dns',
-          tag: 'dns-out',
-        ),
+        Outbound(type: 'dns', tag: 'dns-out'),
       );
     }
-    outbounds.addAll(
-      [
-        Outbound(
-          type: 'direct',
-          tag: 'direct',
-        ),
-        Outbound(
-          type: 'block',
-          tag: 'block',
-        ),
-      ],
-    );
+    outbounds.addAll([
+      Outbound(type: 'direct', tag: 'direct'),
+      Outbound(type: 'block', tag: 'block'),
+    ]);
 
     Experimental? experimental;
     if (sphiaConfig.enableStatistics && isRouting) {
@@ -186,14 +180,9 @@ class SingBoxCore extends Core {
   }
 }
 
-Future<List<int>> getRuleOutboundTagList(List<Rule> rules) async {
-  final outboundTags = <int>[];
-  for (final rule in rules) {
-    if (rule.outboundTag != outboundProxyId &&
-        rule.outboundTag != outboundDirectId &&
-        rule.outboundTag != outboundBlockId) {
-      outboundTags.add(rule.outboundTag);
-    }
-  }
-  return outboundTags;
+class SingConfigParameters extends ConfigParameters {
+  List<Outbound> outbounds;
+  List<Rule> rules;
+
+  SingConfigParameters(this.outbounds, this.rules);
 }

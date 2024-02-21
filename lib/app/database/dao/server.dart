@@ -63,16 +63,6 @@ class ServerDao {
     return getServerById(selectedServerId);
   }
 
-  Future<List<String>> getServerRemarksByIdList(List<int> id) {
-    if (id.length == 1 && id[0] == additionalServerId) {
-      // means routing core is using additional socks server
-      return Future.value(['Additional Socks Server']);
-    }
-    return (_db.select(_db.servers)..where((tbl) => tbl.id.isIn(id)))
-        .get()
-        .then((value) => value.map((e) => e.remark).toList());
-  }
-
   Future<int> insertServer(Server server) {
     return _db.into(_db.servers).insert(
           ServersCompanion.insert(

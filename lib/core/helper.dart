@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
+import 'package:sphia/app/database/dao/rule.dart';
+import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/util/system.dart';
 
@@ -180,5 +182,17 @@ class CoreHelper {
       }
     }
     return false;
+  }
+
+  static Future<List<int>> getRuleOutboundTagList(List<Rule> rules) async {
+    final outboundTags = <int>[];
+    for (final rule in rules) {
+      if (rule.outboundTag != outboundProxyId &&
+          rule.outboundTag != outboundDirectId &&
+          rule.outboundTag != outboundBlockId) {
+        outboundTags.add(rule.outboundTag);
+      }
+    }
+    return outboundTags;
   }
 }

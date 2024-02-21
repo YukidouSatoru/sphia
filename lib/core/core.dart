@@ -17,20 +17,20 @@ abstract class Core {
   bool _isPreLog = true;
   final List<String> preLogList = [];
   final _logStreamController = StreamController<String>.broadcast();
-  List<int> serverId = [];
+  List<Server> servers = [];
   bool isRouting = false;
 
   Stream<String> get logStream => _logStreamController.stream;
 
   Core(this.name, this.args, this.configFileName);
 
-  Future<void> start(Server selectedServer) async {
+  Future<void> start() async {
     if (!CoreHelper.coreExists(name)) {
       logger.e('Core $name does not exist');
       throw Exception('Core $name does not exist');
     }
 
-    await configure(selectedServer);
+    await configure();
     logger.i('Starting core: $name');
     try {
       _process = await Process.start(
@@ -102,9 +102,9 @@ abstract class Core {
     });
   }
 
-  Future<void> configure(Server selectedServer);
+  Future<void> configure();
 
-  Future<String> generateConfig(Server mainServer);
+  Future<String> generateConfig(ConfigParameters parameters);
 
   Future<void> writeConfig(String jsonString) async {
     SystemUtil.deleteFileIfExists(
@@ -113,3 +113,5 @@ abstract class Core {
     await _configFile.writeAsString(jsonString);
   }
 }
+
+abstract class ConfigParameters {}

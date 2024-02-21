@@ -10,7 +10,7 @@ import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/core/core.dart';
-import 'package:sphia/core/sing/core.dart' show getRuleOutboundTagList;
+import 'package:sphia/core/helper.dart';
 import 'package:sphia/core/xray/config.dart';
 import 'package:sphia/core/xray/generate.dart';
 import 'package:sphia/util/system.dart';
@@ -24,15 +24,43 @@ class XrayCore extends Core {
         );
 
   @override
-  Future<void> configure(Server selectedServer) async {
-    serverId = [selectedServer.id];
-    final jsonString = await generateConfig(selectedServer);
+  Future<void> configure() async {
+    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+    final ruleConfig = GetIt.I.get<RuleConfigProvider>().config;
+    final outbounds = [
+      XrayGenerate.generateOutbound(servers.first)..tag = 'proxy',
+    ];
+    List<Rule> rules =
+        await ruleDao.getOrderedRulesByGroupId(ruleConfig.selectedRuleGroupId);
+    late final XrayConfigParameters parameters;
+
+    rules.removeWhere((rule) => !rule.enabled);
+
+    if (sphiaConfig.multiOutboundSupport) {
+      final serversOnRoutingId = await CoreHelper.getRuleOutboundTagList(rules);
+      final serversOnRouting =
+          await serverDao.getServersByIdList(serversOnRoutingId);
+      for (final server in serversOnRouting) {
+        outbounds.add(
+          XrayGenerate.generateOutbound(server)..tag = 'proxy-${server.id}',
+        );
+      }
+      servers.addAll(serversOnRouting);
+    } else {
+      rules.removeWhere((rule) =>
+          rule.outboundTag != outboundProxyId &&
+          rule.outboundTag != outboundDirectId &&
+          rule.outboundTag != outboundBlockId);
+    }
+
+    parameters = XrayConfigParameters(outbounds, rules);
+
+    final jsonString = await generateConfig(parameters);
     await writeConfig(jsonString);
   }
 
   @override
-  Future<String> generateConfig(Server mainServer) async {
-    final server = mainServer;
+  Future<String> generateConfig(ConfigParameters parameters) async {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
 
     final log = Log(
@@ -68,43 +96,22 @@ class XrayCore extends Core {
       ),
     ];
 
-    final ruleConfig = GetIt.I.get<RuleConfigProvider>().config;
-    List<Rule> rules =
-        await ruleDao.getOrderedRulesByGroupId(ruleConfig.selectedRuleGroupId);
-    rules.removeWhere((rule) => !rule.enabled);
-    List<Outbound> outboundsOnRouting = [];
-    if (!sphiaConfig.multiOutboundSupport) {
-      rules.removeWhere((rule) =>
-          rule.outboundTag != outboundProxyId &&
-          rule.outboundTag != outboundDirectId &&
-          rule.outboundTag != outboundBlockId);
-    } else {
-      final serversOnRoutingId = await getRuleOutboundTagList(rules);
-      final serversOnRouting =
-          await serverDao.getServersByIdList(serversOnRoutingId);
-      for (final server in serversOnRouting) {
-        outboundsOnRouting.add(
-          XrayGenerate.generateOutbound(server)..tag = 'proxy-${server.id}',
-        );
-      }
-      serverId.addAll(serversOnRoutingId);
-    }
     Routing? routing;
     if (isRouting) {
       routing = XrayGenerate.routing(
         domainStrategy: DomainStrategy.values[sphiaConfig.domainStrategy].name,
         domainMatcher: DomainMatcher.values[sphiaConfig.domainMatcher].name,
-        rules: rules,
+        rules: (parameters as XrayConfigParameters).rules,
         enableApi: sphiaConfig.enableStatistics,
       );
     }
 
-    final outbounds = [
-      XrayGenerate.generateOutbound(server)..tag = 'proxy',
-      ...outboundsOnRouting,
+    final outbounds = (parameters as XrayConfigParameters).outbounds;
+
+    outbounds.addAll([
       Outbound(tag: 'direct', protocol: 'freedom'),
       Outbound(tag: 'block', protocol: 'blackhole'),
-    ];
+    ]);
 
     Api? api;
     Policy? policy;
@@ -137,4 +144,11 @@ class XrayCore extends Core {
 
     return jsonEncode(xrayConfig.toJson());
   }
+}
+
+class XrayConfigParameters extends ConfigParameters {
+  List<Outbound> outbounds;
+  List<Rule> rules;
+
+  XrayConfigParameters(this.outbounds, this.rules);
 }
