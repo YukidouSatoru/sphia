@@ -160,19 +160,27 @@ class SphiaController {
     coreProvider.updateCoreRunning(true);
     logger.i('Starting traffic');
     coreProvider.updateTrafficRunning(true);
-    int socksPort = sphiaConfig.socksPort;
-    int httpPort = sphiaConfig.httpPort;
-    if (routingProvider == RoutingProvider.sing.index) {
-      socksPort = sphiaConfig.mixedPort;
-      httpPort = sphiaConfig.mixedPort;
-    }
-    if (sphiaConfig.autoConfigureSystemProxy) {
-      SystemUtil.enableSystemProxy(
-        sphiaConfig.listen,
-        socksPort,
-        httpPort,
-      );
-      await SphiaTray.setMenuItem('sysProxy', true);
+    if (sphiaConfig.enableTun) {
+      coreProvider.updateTunMode(true);
+      // do not enable system proxy in tun mode
+      SystemUtil.disableSystemProxy();
+      return;
+    } else {
+      coreProvider.updateTunMode(false);
+      if (sphiaConfig.autoConfigureSystemProxy) {
+        int socksPort = sphiaConfig.socksPort;
+        int httpPort = sphiaConfig.httpPort;
+        if (routingProvider == RoutingProvider.sing.index) {
+          socksPort = sphiaConfig.mixedPort;
+          httpPort = sphiaConfig.mixedPort;
+        }
+        SystemUtil.enableSystemProxy(
+          sphiaConfig.listen,
+          socksPort,
+          httpPort,
+        );
+        await SphiaTray.setMenuItemCheck('sysProxy', true);
+      }
     }
   }
 
@@ -185,7 +193,7 @@ class SphiaController {
             SystemUtil.getSystemProxy()) {
           // automatically disable system proxy
           SystemUtil.disableSystemProxy();
-          await SphiaTray.setMenuItem('sysProxy', false);
+          await SphiaTray.setMenuItemCheck('sysProxy', false);
         }
       }
       logger.i('Stopping traffic');

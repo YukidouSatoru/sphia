@@ -611,15 +611,15 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                       Provider.of<ServerConfigProvider>(context, listen: false);
                   if (server.id ==
                       serverConfigProvider.config.selectedServerId) {
-                    SphiaTray.setMenuItem('server-${server.id}', false);
+                    SphiaTray.setMenuItemCheck('server-${server.id}', false);
                     serverConfigProvider.config.selectedServerId = 0;
                     serverConfigProvider.saveConfig();
                   } else {
-                    SphiaTray.setMenuItem(
+                    SphiaTray.setMenuItemCheck(
                         'server-${serverConfigProvider.config.selectedServerId}',
                         false);
                     serverConfigProvider.config.selectedServerId = server.id;
-                    SphiaTray.setMenuItem('server-${server.id}', true);
+                    SphiaTray.setMenuItemCheck('server-${server.id}', true);
                     serverConfigProvider.saveConfig();
                   }
                 },

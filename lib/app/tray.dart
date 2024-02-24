@@ -34,7 +34,7 @@ class SphiaTray {
 
   static Function get setMenu => _tray.setMenu;
 
-  static Function get setMenuItem => _tray.setMenuItem;
+  static Function get setMenuItemCheck => _tray._setMenuItemCheck;
 }
 
 class Tray {
@@ -117,7 +117,7 @@ class Tray {
       name: 'server-${server.id}',
       onClicked: (menuItem) async {
         if (!menuItem.checked) {
-          setMenuItem(
+          _setMenuItemCheck(
             'server-${serverConfigProvider.config.selectedServerId}',
             false,
           );
@@ -150,7 +150,7 @@ class Tray {
           onClicked: (menuItem) async {
             if (!menuItem.checked) {
               logger.i('Switching rule group to ${ruleGroup.name}');
-              setMenuItem(
+              _setMenuItemCheck(
                 'rule-${ruleConfigProvider.config.selectedRuleGroupId}',
                 false,
               );
@@ -189,8 +189,6 @@ class Tray {
   }
 
   void setMenu() async {
-    final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
-    final sphiaConfig = sphiaConfigProvider.config;
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     final serverConfig = serverConfigProvider.config;
     final coreProvider = GetIt.I.get<CoreProvider>();
@@ -228,7 +226,10 @@ class Tray {
             SystemUtil.disableSystemProxy();
             await menuItem.setCheck(false);
           } else {
-            if (coreProvider.coreRunning) {
+            final coreProvider = GetIt.I.get<CoreProvider>();
+            if (coreProvider.coreRunning && !coreProvider.tunMode) {
+              final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
+              final sphiaConfig = sphiaConfigProvider.config;
               int socksPort = sphiaConfig.socksPort;
               int httpPort = sphiaConfig.httpPort;
               final routingName = coreProvider.routing.name;
@@ -288,13 +289,13 @@ class Tray {
     await _tray.setContextMenu(_menu);
   }
 
-  void setMenuItem(String name, bool checked) async {
+  void _setMenuItemCheck(String name, bool checked) async {
     final menuItem = await _menu.findItemByName(name);
     if (menuItem == null) {
       logger.w('Menu item $name not found');
       return;
     }
-    logger.i('Setting menu item $name to $checked');
+    logger.i('Setting menu item $name.checked to $checked');
     await _menu.findItemByName(name).setCheck(checked);
   }
 }

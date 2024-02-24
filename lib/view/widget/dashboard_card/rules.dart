@@ -46,10 +46,10 @@ class _RulesCardState extends State<RulesCard> {
                   if (ruleGroup.id !=
                       ruleConfigProvider.config.selectedRuleGroupId) {
                     logger.i('Switching to rule group $index');
-                    SphiaTray.setMenuItem(
+                    SphiaTray.setMenuItemCheck(
                         'rule-${ruleConfigProvider.config.selectedRuleGroupId}',
                         false);
-                    SphiaTray.setMenuItem('rule-${ruleGroup.id}', true);
+                    SphiaTray.setMenuItemCheck('rule-${ruleGroup.id}', true);
                     ruleConfigProvider.config.selectedRuleGroupId =
                         ruleGroup.id;
                     ruleConfigProvider.saveConfig();

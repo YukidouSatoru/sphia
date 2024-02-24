@@ -6,6 +6,7 @@ class CoreProvider extends ChangeNotifier {
   List<Core> cores = [];
   bool coreRunning = false;
   bool trafficRunning = false;
+  bool tunMode = false;
 
   Core get proxy {
     if (cores.length == 1) {
@@ -22,16 +23,21 @@ class CoreProvider extends ChangeNotifier {
     notifyListeners();
     SphiaTray.setIcon(coreRunning);
     if (coreRunning) {
-      SphiaTray.setMenuItem('coreStart', true);
-      SphiaTray.setMenuItem('coreStop', false);
+      SphiaTray.setMenuItemCheck('coreStart', true);
+      SphiaTray.setMenuItemCheck('coreStop', false);
     } else {
-      SphiaTray.setMenuItem('coreStart', false);
-      SphiaTray.setMenuItem('coreStop', true);
+      SphiaTray.setMenuItemCheck('coreStart', false);
+      SphiaTray.setMenuItemCheck('coreStop', true);
     }
   }
 
   void updateTrafficRunning(bool value) {
     trafficRunning = value;
+    notifyListeners();
+  }
+
+  void updateTunMode(bool value) {
+    tunMode = value;
     notifyListeners();
   }
 }
