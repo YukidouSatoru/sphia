@@ -55,7 +55,6 @@ class _LogPageState extends State<LogPage> with WindowListener {
               ScrollDirection.idle) {
             _isUserScrolling = true;
           }
-          _hasScrollListener = true;
         });
         _logList.addAll(coreProvider.routing.preLogList);
         _listenToLogs();
@@ -106,6 +105,7 @@ class _LogPageState extends State<LogPage> with WindowListener {
     if (!coreProvider.coreRunning) {
       return;
     }
+    _hasScrollListener = true;
     _logSubscription = coreProvider.routing.logStream.listen((log) {
       _addLog(log);
     });
