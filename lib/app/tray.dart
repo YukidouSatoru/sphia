@@ -126,7 +126,7 @@ class Tray {
           serverConfigProvider.saveConfig();
           final coreProvider = GetIt.I.get<CoreProvider>();
           if (coreProvider.coreRunning) {
-            await SphiaController.stopCores();
+            await SphiaController.stopCores(keepSysProxy: true);
             await SphiaController.startCores(server);
           }
         } else {

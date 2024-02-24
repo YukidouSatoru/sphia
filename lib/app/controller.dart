@@ -26,7 +26,7 @@ class SphiaController {
         if (selectedServer == runningServer) {
           await stopCores();
         } else {
-          await stopCores();
+          await stopCores(keepSysProxy: true);
           await startCores(selectedServer);
         }
       } else {
@@ -176,13 +176,17 @@ class SphiaController {
     }
   }
 
-  static Future<void> stopCores() async {
+  static Future<void> stopCores({bool keepSysProxy = false}) async {
     final coreProvider = GetIt.I.get<CoreProvider>();
     if (coreProvider.cores.isNotEmpty) {
       final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
-      if (sphiaConfig.autoConfigureSystemProxy || SystemUtil.getSystemProxy()) {
-        SystemUtil.disableSystemProxy();
-        await SphiaTray.setMenuItem('sysProxy', false);
+      if (!keepSysProxy) {
+        if (sphiaConfig.autoConfigureSystemProxy ||
+            SystemUtil.getSystemProxy()) {
+          // automatically disable system proxy
+          SystemUtil.disableSystemProxy();
+          await SphiaTray.setMenuItem('sysProxy', false);
+        }
       }
       logger.i('Stopping traffic');
       coreProvider.updateTrafficRunning(false);
@@ -204,7 +208,7 @@ class SphiaController {
       logger.i('Restarting cores');
       final runningServer = getRunningServer();
       try {
-        await stopCores();
+        await stopCores(keepSysProxy: true);
         await startCores(runningServer);
       } on Exception catch (e) {
         logger.e('Failed to restart cores: $e');
