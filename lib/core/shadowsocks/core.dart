@@ -22,6 +22,7 @@ class ShadowsocksRustCore extends Core {
         '-k',
         server.authPayload,
       ];
+      usedPorts.add(sphiaConfig.additionalSocksPort);
       args.addAll(arguments);
     } else {
       throw Exception(

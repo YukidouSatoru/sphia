@@ -8,6 +8,8 @@ import 'package:sphia/app/log.dart';
 import 'package:sphia/util/system.dart';
 import 'package:sphia/core/helper.dart';
 
+const cacheDbFileName = 'cache.db';
+
 abstract class Core {
   String name;
   List<String> args;
@@ -19,18 +21,21 @@ abstract class Core {
   final _logStreamController = StreamController<String>.broadcast();
   List<Server> servers = [];
   bool isRouting = false;
+  final List<int> usedPorts = [];
 
   Stream<String> get logStream => _logStreamController.stream;
 
   Core(this.name, this.args, this.configFileName);
 
-  Future<void> start() async {
+  Future<void> start({bool manual = false}) async {
     if (!CoreHelper.coreExists(name)) {
       logger.e('Core $name does not exist');
       throw Exception('Core $name does not exist');
     }
 
-    await configure();
+    if (!manual) {
+      await configure();
+    }
     logger.i('Starting core: $name');
     try {
       _process = await Process.start(
@@ -71,7 +76,7 @@ abstract class Core {
     _process = null;
     // check if port is still in use
     await Future.delayed(const Duration(milliseconds: 100));
-    if (await CoreHelper.coreIsStillRunning(isRouting, name)) {
+    if (await CoreHelper.coreIsStillRunning(usedPorts)) {
       logger.w('Detected core $name is still running, killing process: $pid');
       await SystemUtil.killProcess(pid);
     }
@@ -82,8 +87,8 @@ abstract class Core {
     );
     if (name == 'sing-box') {
       SystemUtil.deleteFileIfExists(
-        p.join(tempPath, 'cache.db'),
-        'Deleting cache file: cache.db',
+        p.join(tempPath, cacheDbFileName),
+        'Deleting cache file: $cacheDbFileName',
       );
     }
     if (!_logStreamController.isClosed) {

@@ -1,10 +1,8 @@
 import 'dart:io';
 
-import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
 import 'package:sphia/app/database/dao/rule.dart';
 import 'package:sphia/app/database/database.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/util/system.dart';
 
 const String singBoxUrl = 'https://github.com/SagerNet/sing-box';
@@ -160,22 +158,7 @@ class CoreHelper {
     }
   }
 
-  static Future<bool> coreIsStillRunning(bool isRouting, String name) async {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
-    final ports = <int>[];
-    if (sphiaConfig.enableStatistics) {
-      ports.add(sphiaConfig.coreApiPort);
-    }
-    if (isRouting) {
-      if (name == 'sing-box') {
-        ports.add(sphiaConfig.mixedPort);
-      } else {
-        ports.add(sphiaConfig.socksPort);
-        ports.add(sphiaConfig.httpPort);
-      }
-    } else {
-      ports.add(sphiaConfig.additionalSocksPort);
-    }
+  static Future<bool> coreIsStillRunning(List<int> ports) async {
     for (var port in ports) {
       if (await SystemUtil.portInUse(port)) {
         return true;

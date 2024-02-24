@@ -57,7 +57,18 @@ class SingBoxCore extends Core {
           rule.outboundTag != outboundBlockId);
     }
 
-    parameters = SingConfigParameters(outbounds, rules);
+    final configureDns =
+        sphiaConfig.enableTun || (sphiaConfig.configureDns && isRouting);
+
+    parameters = SingConfigParameters(
+      outbounds: outbounds,
+      rules: rules,
+      configureDns: configureDns,
+      enableApi: sphiaConfig.enableStatistics && isRouting,
+      coreApiPort: sphiaConfig.coreApiPort,
+      enableTun: sphiaConfig.enableTun,
+      sphiaConfig: sphiaConfig,
+    );
 
     final jsonString = await generateConfig(parameters);
     await writeConfig(jsonString);
@@ -65,7 +76,8 @@ class SingBoxCore extends Core {
 
   @override
   Future<String> generateConfig(ConfigParameters parameters) async {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+    final paras = parameters as SingConfigParameters;
+    final sphiaConfig = paras.sphiaConfig;
 
     String level = LogLevel.values[sphiaConfig.logLevel].name;
     if (level == 'warning') {
@@ -79,7 +91,7 @@ class SingBoxCore extends Core {
     );
 
     Dns? dns;
-    if (sphiaConfig.enableTun || (sphiaConfig.configureDns && isRouting)) {
+    if (paras.configureDns) {
       dns = await SingBoxGenerate.dns(
         remoteDns: sphiaConfig.remoteDns,
         directDns: sphiaConfig.directDns,
@@ -88,8 +100,9 @@ class SingBoxCore extends Core {
       );
     }
 
-    List<Inbound> inbounds = [
-      SingBoxGenerate.mixedInbound(
+    List<Inbound> inbounds = [];
+    if (paras.addMixedInbound) {
+      inbounds.add(SingBoxGenerate.mixedInbound(
         sphiaConfig.listen,
         sphiaConfig.mixedPort,
         sphiaConfig.authentication
@@ -100,9 +113,11 @@ class SingBoxCore extends Core {
                 )
               ]
             : null,
-      ),
-    ];
-    if (sphiaConfig.enableTun) {
+      ));
+      usedPorts.add(sphiaConfig.mixedPort);
+    }
+
+    if (paras.enableTun) {
       inbounds.add(
         SingBoxGenerate.tunInbound(
           inet4Address: sphiaConfig.enableIpv4 ? sphiaConfig.ipv4Address : null,
@@ -118,16 +133,16 @@ class SingBoxCore extends Core {
     }
 
     Route? route;
-    if (sphiaConfig.enableTun || (!sphiaConfig.enableTun && isRouting)) {
+    if (paras.configureDns) {
       route = SingBoxGenerate.route(
-        (parameters as SingConfigParameters).rules,
-        sphiaConfig.configureDns,
+        paras.rules,
+        paras.configureDns,
       );
     }
 
-    final outbounds = (parameters as SingConfigParameters).outbounds;
+    final outbounds = paras.outbounds;
 
-    if (sphiaConfig.configureDns) {
+    if (paras.configureDns) {
       outbounds.add(
         Outbound(type: 'dns', tag: 'dns-out'),
       );
@@ -138,7 +153,7 @@ class SingBoxCore extends Core {
     ]);
 
     Experimental? experimental;
-    if (sphiaConfig.enableStatistics && isRouting) {
+    if (paras.enableApi) {
       final versionConfigProvider = GetIt.I.get<VersionConfigProvider>();
       final singBoxVersion =
           versionConfigProvider.config.singBoxVersion?.replaceAll('v', '');
@@ -149,22 +164,23 @@ class SingBoxCore extends Core {
       if (Version.parse(singBoxVersion) >= Version.parse('1.8.0')) {
         experimental = Experimental(
           clashApi: ClashApi(
-            externalController: '127.0.0.1:${sphiaConfig.coreApiPort}',
+            externalController: '127.0.0.1:${paras.coreApiPort}',
           ),
           cacheFile: CacheFile(
             enabled: true,
-            path: p.join(tempPath, 'cache.db'),
+            path: p.join(tempPath, paras.cacheDbFileName),
           ),
         );
       } else {
         experimental = Experimental(
           clashApi: ClashApi(
-            externalController: '127.0.0.1:${sphiaConfig.coreApiPort}',
+            externalController: '127.0.0.1:${paras.coreApiPort}',
             storeSelected: true,
-            cacheFile: p.join(tempPath, 'cache.db'),
+            cacheFile: p.join(tempPath, paras.cacheDbFileName),
           ),
         );
       }
+      usedPorts.add(paras.coreApiPort);
     }
 
     final singBoxConfig = SingBoxConfig(
@@ -181,8 +197,25 @@ class SingBoxCore extends Core {
 }
 
 class SingConfigParameters extends ConfigParameters {
-  List<Outbound> outbounds;
-  List<Rule> rules;
+  final List<Outbound> outbounds;
+  final List<Rule> rules;
+  final bool configureDns;
+  final bool enableApi;
+  final int coreApiPort;
+  final bool enableTun;
+  final bool addMixedInbound;
+  final SphiaConfig sphiaConfig;
+  final String cacheDbFileName;
 
-  SingConfigParameters(this.outbounds, this.rules);
+  SingConfigParameters({
+    required this.outbounds,
+    required this.rules,
+    required this.configureDns,
+    required this.enableApi,
+    required this.coreApiPort,
+    required this.enableTun,
+    this.addMixedInbound = true,
+    required this.sphiaConfig,
+    this.cacheDbFileName = 'cache.db',
+  });
 }

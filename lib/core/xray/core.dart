@@ -53,7 +53,15 @@ class XrayCore extends Core {
           rule.outboundTag != outboundBlockId);
     }
 
-    parameters = XrayConfigParameters(outbounds, rules);
+    final configureDns = sphiaConfig.configureDns && isRouting;
+    final enableApi = sphiaConfig.enableStatistics && isRouting;
+    parameters = XrayConfigParameters(
+      outbounds: outbounds,
+      rules: rules,
+      configureDns: configureDns,
+      enableApi: enableApi,
+      sphiaConfig: sphiaConfig,
+    );
 
     final jsonString = await generateConfig(parameters);
     await writeConfig(jsonString);
@@ -61,15 +69,15 @@ class XrayCore extends Core {
 
   @override
   Future<String> generateConfig(ConfigParameters parameters) async {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
-
+    final paras = parameters as XrayConfigParameters;
+    final sphiaConfig = paras.sphiaConfig;
     final log = Log(
       access: sphiaConfig.saveCoreLog ? SphiaLog.getLogPath(name) : null,
       loglevel: LogLevel.values[sphiaConfig.logLevel].name,
     );
 
     Dns? dns;
-    if (sphiaConfig.configureDns && isRouting) {
+    if (paras.configureDns) {
       dns = XrayGenerate.dns(sphiaConfig.remoteDns, sphiaConfig.directDns);
     }
 
@@ -95,18 +103,19 @@ class XrayCore extends Core {
         enableUdp: sphiaConfig.enableUdp,
       ),
     ];
+    usedPorts.addAll([sphiaConfig.socksPort, sphiaConfig.httpPort]);
 
     Routing? routing;
     if (isRouting) {
       routing = XrayGenerate.routing(
         domainStrategy: DomainStrategy.values[sphiaConfig.domainStrategy].name,
         domainMatcher: DomainMatcher.values[sphiaConfig.domainMatcher].name,
-        rules: (parameters as XrayConfigParameters).rules,
+        rules: paras.rules,
         enableApi: sphiaConfig.enableStatistics,
       );
     }
 
-    final outbounds = (parameters as XrayConfigParameters).outbounds;
+    final outbounds = paras.outbounds;
 
     outbounds.addAll([
       Outbound(tag: 'direct', protocol: 'freedom'),
@@ -116,7 +125,7 @@ class XrayCore extends Core {
     Api? api;
     Policy? policy;
     Stats? stats;
-    if (sphiaConfig.enableStatistics && isRouting) {
+    if (paras.enableApi) {
       api = Api(
         tag: 'api',
         services: ['StatsService'],
@@ -129,6 +138,7 @@ class XrayCore extends Core {
       );
       stats = Stats();
       inbounds.add(XrayGenerate.dokodemoInbound(sphiaConfig.coreApiPort));
+      usedPorts.add(sphiaConfig.coreApiPort);
     }
 
     final xrayConfig = XrayConfig(
@@ -147,8 +157,17 @@ class XrayCore extends Core {
 }
 
 class XrayConfigParameters extends ConfigParameters {
-  List<Outbound> outbounds;
-  List<Rule> rules;
+  final List<Outbound> outbounds;
+  final List<Rule> rules;
+  final bool configureDns;
+  final bool enableApi;
+  final SphiaConfig sphiaConfig;
 
-  XrayConfigParameters(this.outbounds, this.rules);
+  XrayConfigParameters({
+    required this.outbounds,
+    required this.rules,
+    required this.configureDns,
+    required this.enableApi,
+    required this.sphiaConfig,
+  });
 }

@@ -16,16 +16,21 @@ class HysteriaCore extends Core {
 
   @override
   Future<void> configure() async {
-    final parameters = HysteriaConfigParameters(servers.first);
+    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+    final parameters = HysteriaConfigParameters(
+      server: servers.first,
+      additionalSocksPort: sphiaConfig.additionalSocksPort,
+      enableUdp: sphiaConfig.enableUdp,
+    );
     final jsonString = await generateConfig(parameters);
     await writeConfig(jsonString);
   }
 
   @override
   Future<String> generateConfig(ConfigParameters parameters) async {
-    final server = (parameters as HysteriaConfigParameters).server;
+    final paras = parameters as HysteriaConfigParameters;
+    final server = paras.server;
     if (server.protocol == 'hysteria') {
-      final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
       final hysteriaConfig = HysteriaConfig(
         server: '${server.address}:${server.port}',
         protocol: server.hysteriaProtocol ?? 'udp',
@@ -45,11 +50,12 @@ class HysteriaCore extends Core {
         recvWindow: server.recvWindow,
         disableMtuDiscovery: server.disableMtuDiscovery ?? false,
         socks5: Socks5(
-          listen: '127.0.0.1:${sphiaConfig.additionalSocksPort}',
+          listen: '127.0.0.1:${paras.additionalSocksPort}',
           timeout: 300,
-          disableUdp: !sphiaConfig.enableUdp,
+          disableUdp: !paras.enableUdp,
         ),
       );
+      usedPorts.add(paras.additionalSocksPort);
 
       return jsonEncode(hysteriaConfig.toJson());
     } else {
@@ -61,6 +67,12 @@ class HysteriaCore extends Core {
 
 class HysteriaConfigParameters extends ConfigParameters {
   final Server server;
+  final int additionalSocksPort;
+  final bool enableUdp;
 
-  HysteriaConfigParameters(this.server);
+  HysteriaConfigParameters({
+    required this.server,
+    required this.additionalSocksPort,
+    required this.enableUdp,
+  });
 }
