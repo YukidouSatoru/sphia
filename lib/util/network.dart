@@ -18,7 +18,7 @@ class NetworkUtil {
     client.userAgent = userAgent;
     if (coreProvider.coreRunning &&
         (sphiaConfig.updateThroughProxy ||
-            url == 'https://api.ip.sb/ip' ||
+            (url == 'https://api.ip.sb/ip' && !coreProvider.tunMode) ||
             url.contains('sphia'))) {
       client.findProxy = (uri) {
         final port = coreProvider.routing.name == 'sing-box'

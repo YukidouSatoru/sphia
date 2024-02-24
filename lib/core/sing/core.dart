@@ -67,6 +67,7 @@ class SingBoxCore extends Core {
       enableApi: sphiaConfig.enableStatistics && isRouting,
       coreApiPort: sphiaConfig.coreApiPort,
       enableTun: sphiaConfig.enableTun,
+      addMixedInbound: !sphiaConfig.enableTun,
       sphiaConfig: sphiaConfig,
     );
 
@@ -214,7 +215,7 @@ class SingConfigParameters extends ConfigParameters {
     required this.enableApi,
     required this.coreApiPort,
     required this.enableTun,
-    this.addMixedInbound = true,
+    required this.addMixedInbound,
     required this.sphiaConfig,
     this.cacheDbFileName = 'cache.db',
   });
