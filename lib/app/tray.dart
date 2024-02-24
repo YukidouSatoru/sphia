@@ -22,7 +22,7 @@ class SphiaTray {
 
   static Function get addServerItem => _tray.addServerItem;
 
-  static Function get removeServerItem => _tray.remoteServerItem;
+  static Function get removeServerItem => _tray.removeServerItem;
 
   static Function get generateServerItems => _tray.generateServerItems;
 
@@ -94,7 +94,7 @@ class Tray {
     setMenu();
   }
 
-  void remoteServerItem(int serverId) {
+  void removeServerItem(int serverId) {
     serverItems.removeWhere((element) => element.name == 'server-$serverId');
     setMenu();
   }
