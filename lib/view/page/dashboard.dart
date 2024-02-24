@@ -237,7 +237,7 @@ class _DashboardState extends State<Dashboard> {
       // just one server
       // when multiple cores are running,
       // the first core is the protocol provider
-      final server = SphiaController.getRunningServer();
+      final server = await SphiaController.getRunningServer();
       final newServer = server.copyWith(
         uplink: Value(server.uplink == null
             ? _totalUpload

@@ -22,7 +22,7 @@ class SphiaController {
         return;
       }
       if (coreProvider.cores.isNotEmpty) {
-        final runningServer = getRunningServer();
+        final runningServer = await getRunningServer();
         if (selectedServer == runningServer) {
           await stopCores();
         } else {
@@ -206,7 +206,7 @@ class SphiaController {
     final coreProvider = GetIt.I.get<CoreProvider>();
     if (coreProvider.cores.isNotEmpty) {
       logger.i('Restarting cores');
-      final runningServer = getRunningServer();
+      final runningServer = await getRunningServer();
       try {
         await stopCores(keepSysProxy: true);
         await startCores(runningServer);
@@ -220,13 +220,24 @@ class SphiaController {
   static String getProviderCoreName(int providerIndex) =>
       providerIndex == RoutingProvider.sing.index ? 'sing-box' : 'xray-core';
 
-  static Server getRunningServer() {
+  static int getRunningServerId() {
     final coreProvider = GetIt.I.get<CoreProvider>();
     if (coreProvider.cores.isEmpty) {
       logger.e('No running server');
       throw Exception('No running server');
     }
     // only single server is supported
-    return coreProvider.proxy.servers.first;
+    return coreProvider.proxy.servers.first.id;
+  }
+
+  static Future<Server> getRunningServer() async {
+    final runningServerId = getRunningServerId();
+    // do not get server from coreProvider, because it may has been modified
+    final runningServer = await serverDao.getServerById(runningServerId);
+    if (runningServer == null) {
+      logger.e('Failed to get running server');
+      throw Exception('Failed to get running server');
+    }
+    return runningServer;
   }
 }
