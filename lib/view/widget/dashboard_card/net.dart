@@ -57,20 +57,23 @@ class _NetCardState extends State<NetCard> {
           ),
           const Spacer(),
           sphiaConfig.autoGetIp
-              ? ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _currentIp = S.of(context).gettingIp;
-                    });
-                    (() async {
-                      late final String ip;
-                      ip = await NetworkUtil.getIp();
+              ? Align(
+                  heightFactor: 0.5,
+                  child: ElevatedButton(
+                    onPressed: () {
                       setState(() {
-                        _currentIp = ip;
+                        _currentIp = S.of(context).gettingIp;
                       });
-                    })();
-                  },
-                  child: Text(S.of(context).refresh),
+                      (() async {
+                        late final String ip;
+                        ip = await NetworkUtil.getIp();
+                        setState(() {
+                          _currentIp = ip;
+                        });
+                      })();
+                    },
+                    child: Text(S.of(context).refresh),
+                  ),
                 )
               : const SizedBox.shrink(),
         ],
