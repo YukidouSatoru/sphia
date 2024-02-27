@@ -25,7 +25,28 @@ class _RunningCoresCardState extends State<RunningCoresCard> {
     final sphiaConfig = sphiaConfigProvider.config;
     final coreProvider = Provider.of<CoreProvider>(context);
     final runningCoresCard = CardData(
-      title: Text(S.of(context).runningCores),
+      title: Row(
+        children: [
+          Text(S.of(context).runningCores),
+          const Spacer(),
+          Align(
+            heightFactor: 0.5,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: Row(
+                children: [
+                  const Text('Tun  '),
+                  CircleAvatar(
+                    radius: 5,
+                    backgroundColor:
+                        coreProvider.tunMode ? Colors.green : Colors.red,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
       icon: Icons.memory,
       widget: coreProvider.coreRunning
           ? ListView.builder(
