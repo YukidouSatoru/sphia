@@ -205,6 +205,9 @@ class SphiaController {
       for (var core in coreProvider.cores) {
         await core.stop();
       }
+      if (coreProvider.tunMode) {
+        coreProvider.updateTunMode(false);
+      }
       coreProvider.cores = [];
     }
   }
