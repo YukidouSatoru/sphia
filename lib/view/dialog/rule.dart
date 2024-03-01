@@ -8,6 +8,17 @@ import 'package:sphia/core/server/model.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/view/widget/widget.dart';
 
+const network = [
+  '',
+  'tcp',
+  'udp',
+];
+const protocol = [
+  '',
+  'http',
+  'tls',
+];
+
 class RuleDialog extends StatefulWidget {
   final String title;
   final Rule rule;
@@ -29,6 +40,10 @@ class _RuleDialogState extends State<RuleDialog> {
   final _domainController = TextEditingController();
   final _ipController = TextEditingController();
   final _portController = TextEditingController();
+  final _sourceController = TextEditingController();
+  final _sourcePortController = TextEditingController();
+  String _network = '';
+  final _protocolController = TextEditingController();
   final _processNameController = TextEditingController();
 
   @override
@@ -81,6 +96,30 @@ class _RuleDialogState extends State<RuleDialog> {
         labelText: 'Port',
       ),
       SphiaWidget.textInput(
+        controller: _sourceController,
+        labelText: 'Source',
+      ),
+      SphiaWidget.textInput(
+        controller: _sourcePortController,
+        labelText: 'Source Port',
+      ),
+      SphiaWidget.dropdownButton(
+        value: _network,
+        labelText: 'Network',
+        items: network,
+        onChanged: (value) {
+          if (value != null) {
+            setState(() {
+              _network = value;
+            });
+          }
+        },
+      ),
+      SphiaWidget.textInput(
+        controller: _protocolController,
+        labelText: 'Protocol',
+      ),
+      SphiaWidget.textInput(
         controller: _processNameController,
         labelText: 'Process Name',
       ),
@@ -117,6 +156,16 @@ class _RuleDialogState extends State<RuleDialog> {
                 ip: _ipController.text.isEmpty ? null : _ipController.text,
                 port:
                     _portController.text.isEmpty ? null : _portController.text,
+                source: _sourceController.text.isEmpty
+                    ? null
+                    : _sourceController.text,
+                sourcePort: _sourcePortController.text.isEmpty
+                    ? null
+                    : _sourcePortController.text,
+                network: _network.isEmpty ? null : _network,
+                protocol: _protocolController.text.isEmpty
+                    ? null
+                    : _protocolController.text,
                 processName: _processNameController.text.isEmpty
                     ? null
                     : _processNameController.text,
@@ -135,6 +184,10 @@ class _RuleDialogState extends State<RuleDialog> {
     _domainController.text = widget.rule.domain ?? '';
     _ipController.text = widget.rule.ip ?? '';
     _portController.text = widget.rule.port ?? '';
+    _sourceController.text = widget.rule.source ?? '';
+    _sourcePortController.text = widget.rule.sourcePort ?? '';
+    _network = widget.rule.network ?? '';
+    _protocolController.text = widget.rule.protocol ?? '';
     _processNameController.text = widget.rule.processName ?? '';
   }
 
@@ -143,6 +196,9 @@ class _RuleDialogState extends State<RuleDialog> {
     _domainController.dispose();
     _ipController.dispose();
     _portController.dispose();
+    _sourceController.dispose();
+    _sourcePortController.dispose();
+    _protocolController.dispose();
     _processNameController.dispose();
   }
 

@@ -9,6 +9,7 @@ import 'package:sphia/app/database/dao/rule.dart';
 import 'package:sphia/app/database/dao/rule_group.dart';
 import 'package:sphia/app/database/dao/server.dart';
 import 'package:sphia/app/database/dao/server_group.dart';
+import 'package:sphia/app/database/migration.dart';
 import 'package:sphia/app/database/tables.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/util/system.dart';
@@ -109,7 +110,18 @@ class Database extends _$Database {
   Database() : super(_openDatabase());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onUpgrade: (migrator, from, to) async {
+        if (from == 2) {
+          await Migration.from2To3(migrator, servers, rules);
+        }
+      },
+    );
+  }
 }
 
 QueryExecutor _openDatabase() {

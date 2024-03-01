@@ -292,6 +292,22 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
                   Text(
                     'Port: ${rule.port}',
                   ),
+                if (rule.source != null)
+                  Text(
+                    'Source: ${rule.source}',
+                  ),
+                if (rule.sourcePort != null)
+                  Text(
+                    'Source Port: ${rule.sourcePort}',
+                  ),
+                if (rule.network != null)
+                  Text(
+                    'Network: ${rule.network}',
+                  ),
+                if (rule.protocol != null)
+                  Text(
+                    'Protocol: ${rule.protocol}',
+                  ),
                 if (rule.processName != null)
                   Text(
                     'Process Name: ${rule.processName}',

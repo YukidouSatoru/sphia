@@ -88,6 +88,8 @@ class Servers extends Table {
   IntColumn get recvWindow => integer().nullable()();
 
   BoolColumn get disableMtuDiscovery => boolean().nullable()();
+
+  IntColumn get latency => integer().nullable()();
 }
 
 class RuleGroups extends Table {
@@ -112,6 +114,14 @@ class Rules extends Table {
   TextColumn get ip => text().nullable()();
 
   TextColumn get port => text().nullable()();
+
+  TextColumn get source => text().nullable()();
+
+  TextColumn get sourcePort => text().nullable()();
+
+  TextColumn get network => text().nullable()();
+
+  TextColumn get protocol => text().nullable()();
 
   TextColumn get processName => text().nullable()();
 }

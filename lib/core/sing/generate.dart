@@ -85,7 +85,7 @@ class SingBoxGenerate {
     if (configureDns) {
       singBoxRules.add(
         SingBoxRule(
-          protocol: 'dns',
+          protocol: ['dns'],
           outbound: 'dns-out',
         ),
       );

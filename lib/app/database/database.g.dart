@@ -609,6 +609,12 @@ class $ServersTable extends Servers with TableInfo<$ServersTable, Server> {
       requiredDuringInsert: false,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'CHECK ("disable_mtu_discovery" IN (0, 1))'));
+  static const VerificationMeta _latencyMeta =
+      const VerificationMeta('latency');
+  @override
+  late final GeneratedColumn<int> latency = GeneratedColumn<int>(
+      'latency', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -647,7 +653,8 @@ class $ServersTable extends Servers with TableInfo<$ServersTable, Server> {
         downMbps,
         recvWindowConn,
         recvWindow,
-        disableMtuDiscovery
+        disableMtuDiscovery,
+        latency
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -844,6 +851,10 @@ class $ServersTable extends Servers with TableInfo<$ServersTable, Server> {
           disableMtuDiscovery.isAcceptableOrUnknown(
               data['disable_mtu_discovery']!, _disableMtuDiscoveryMeta));
     }
+    if (data.containsKey('latency')) {
+      context.handle(_latencyMeta,
+          latency.isAcceptableOrUnknown(data['latency']!, _latencyMeta));
+    }
     return context;
   }
 
@@ -927,6 +938,8 @@ class $ServersTable extends Servers with TableInfo<$ServersTable, Server> {
           .read(DriftSqlType.int, data['${effectivePrefix}recv_window']),
       disableMtuDiscovery: attachedDatabase.typeMapping.read(
           DriftSqlType.bool, data['${effectivePrefix}disable_mtu_discovery']),
+      latency: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}latency']),
     );
   }
 
@@ -974,6 +987,7 @@ class Server extends DataClass implements Insertable<Server> {
   final int? recvWindowConn;
   final int? recvWindow;
   final bool? disableMtuDiscovery;
+  final int? latency;
   const Server(
       {required this.id,
       required this.groupId,
@@ -1011,7 +1025,8 @@ class Server extends DataClass implements Insertable<Server> {
       this.downMbps,
       this.recvWindowConn,
       this.recvWindow,
-      this.disableMtuDiscovery});
+      this.disableMtuDiscovery,
+      this.latency});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1112,6 +1127,9 @@ class Server extends DataClass implements Insertable<Server> {
     if (!nullToAbsent || disableMtuDiscovery != null) {
       map['disable_mtu_discovery'] = Variable<bool>(disableMtuDiscovery);
     }
+    if (!nullToAbsent || latency != null) {
+      map['latency'] = Variable<int>(latency);
+    }
     return map;
   }
 
@@ -1199,6 +1217,9 @@ class Server extends DataClass implements Insertable<Server> {
       disableMtuDiscovery: disableMtuDiscovery == null && nullToAbsent
           ? const Value.absent()
           : Value(disableMtuDiscovery),
+      latency: latency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(latency),
     );
   }
 
@@ -1244,6 +1265,7 @@ class Server extends DataClass implements Insertable<Server> {
       recvWindow: serializer.fromJson<int?>(json['recvWindow']),
       disableMtuDiscovery:
           serializer.fromJson<bool?>(json['disableMtuDiscovery']),
+      latency: serializer.fromJson<int?>(json['latency']),
     );
   }
   @override
@@ -1287,6 +1309,7 @@ class Server extends DataClass implements Insertable<Server> {
       'recvWindowConn': serializer.toJson<int?>(recvWindowConn),
       'recvWindow': serializer.toJson<int?>(recvWindow),
       'disableMtuDiscovery': serializer.toJson<bool?>(disableMtuDiscovery),
+      'latency': serializer.toJson<int?>(latency),
     };
   }
 
@@ -1327,7 +1350,8 @@ class Server extends DataClass implements Insertable<Server> {
           Value<int?> downMbps = const Value.absent(),
           Value<int?> recvWindowConn = const Value.absent(),
           Value<int?> recvWindow = const Value.absent(),
-          Value<bool?> disableMtuDiscovery = const Value.absent()}) =>
+          Value<bool?> disableMtuDiscovery = const Value.absent(),
+          Value<int?> latency = const Value.absent()}) =>
       Server(
         id: id ?? this.id,
         groupId: groupId ?? this.groupId,
@@ -1376,6 +1400,7 @@ class Server extends DataClass implements Insertable<Server> {
         disableMtuDiscovery: disableMtuDiscovery.present
             ? disableMtuDiscovery.value
             : this.disableMtuDiscovery,
+        latency: latency.present ? latency.value : this.latency,
       );
   @override
   String toString() {
@@ -1416,7 +1441,8 @@ class Server extends DataClass implements Insertable<Server> {
           ..write('downMbps: $downMbps, ')
           ..write('recvWindowConn: $recvWindowConn, ')
           ..write('recvWindow: $recvWindow, ')
-          ..write('disableMtuDiscovery: $disableMtuDiscovery')
+          ..write('disableMtuDiscovery: $disableMtuDiscovery, ')
+          ..write('latency: $latency')
           ..write(')'))
         .toString();
   }
@@ -1459,7 +1485,8 @@ class Server extends DataClass implements Insertable<Server> {
         downMbps,
         recvWindowConn,
         recvWindow,
-        disableMtuDiscovery
+        disableMtuDiscovery,
+        latency
       ]);
   @override
   bool operator ==(Object other) =>
@@ -1501,7 +1528,8 @@ class Server extends DataClass implements Insertable<Server> {
           other.downMbps == this.downMbps &&
           other.recvWindowConn == this.recvWindowConn &&
           other.recvWindow == this.recvWindow &&
-          other.disableMtuDiscovery == this.disableMtuDiscovery);
+          other.disableMtuDiscovery == this.disableMtuDiscovery &&
+          other.latency == this.latency);
 }
 
 class ServersCompanion extends UpdateCompanion<Server> {
@@ -1542,6 +1570,7 @@ class ServersCompanion extends UpdateCompanion<Server> {
   final Value<int?> recvWindowConn;
   final Value<int?> recvWindow;
   final Value<bool?> disableMtuDiscovery;
+  final Value<int?> latency;
   const ServersCompanion({
     this.id = const Value.absent(),
     this.groupId = const Value.absent(),
@@ -1580,6 +1609,7 @@ class ServersCompanion extends UpdateCompanion<Server> {
     this.recvWindowConn = const Value.absent(),
     this.recvWindow = const Value.absent(),
     this.disableMtuDiscovery = const Value.absent(),
+    this.latency = const Value.absent(),
   });
   ServersCompanion.insert({
     this.id = const Value.absent(),
@@ -1619,6 +1649,7 @@ class ServersCompanion extends UpdateCompanion<Server> {
     this.recvWindowConn = const Value.absent(),
     this.recvWindow = const Value.absent(),
     this.disableMtuDiscovery = const Value.absent(),
+    this.latency = const Value.absent(),
   })  : groupId = Value(groupId),
         protocol = Value(protocol),
         remark = Value(remark),
@@ -1663,6 +1694,7 @@ class ServersCompanion extends UpdateCompanion<Server> {
     Expression<int>? recvWindowConn,
     Expression<int>? recvWindow,
     Expression<bool>? disableMtuDiscovery,
+    Expression<int>? latency,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1703,6 +1735,7 @@ class ServersCompanion extends UpdateCompanion<Server> {
       if (recvWindow != null) 'recv_window': recvWindow,
       if (disableMtuDiscovery != null)
         'disable_mtu_discovery': disableMtuDiscovery,
+      if (latency != null) 'latency': latency,
     });
   }
 
@@ -1743,7 +1776,8 @@ class ServersCompanion extends UpdateCompanion<Server> {
       Value<int?>? downMbps,
       Value<int?>? recvWindowConn,
       Value<int?>? recvWindow,
-      Value<bool?>? disableMtuDiscovery}) {
+      Value<bool?>? disableMtuDiscovery,
+      Value<int?>? latency}) {
     return ServersCompanion(
       id: id ?? this.id,
       groupId: groupId ?? this.groupId,
@@ -1782,6 +1816,7 @@ class ServersCompanion extends UpdateCompanion<Server> {
       recvWindowConn: recvWindowConn ?? this.recvWindowConn,
       recvWindow: recvWindow ?? this.recvWindow,
       disableMtuDiscovery: disableMtuDiscovery ?? this.disableMtuDiscovery,
+      latency: latency ?? this.latency,
     );
   }
 
@@ -1899,6 +1934,9 @@ class ServersCompanion extends UpdateCompanion<Server> {
     if (disableMtuDiscovery.present) {
       map['disable_mtu_discovery'] = Variable<bool>(disableMtuDiscovery.value);
     }
+    if (latency.present) {
+      map['latency'] = Variable<int>(latency.value);
+    }
     return map;
   }
 
@@ -1941,7 +1979,8 @@ class ServersCompanion extends UpdateCompanion<Server> {
           ..write('downMbps: $downMbps, ')
           ..write('recvWindowConn: $recvWindowConn, ')
           ..write('recvWindow: $recvWindow, ')
-          ..write('disableMtuDiscovery: $disableMtuDiscovery')
+          ..write('disableMtuDiscovery: $disableMtuDiscovery, ')
+          ..write('latency: $latency')
           ..write(')'))
         .toString();
   }
@@ -2172,6 +2211,29 @@ class $RulesTable extends Rules with TableInfo<$RulesTable, Rule> {
   late final GeneratedColumn<String> port = GeneratedColumn<String>(
       'port', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+      'source', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourcePortMeta =
+      const VerificationMeta('sourcePort');
+  @override
+  late final GeneratedColumn<String> sourcePort = GeneratedColumn<String>(
+      'source_port', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _networkMeta =
+      const VerificationMeta('network');
+  @override
+  late final GeneratedColumn<String> network = GeneratedColumn<String>(
+      'network', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _protocolMeta =
+      const VerificationMeta('protocol');
+  @override
+  late final GeneratedColumn<String> protocol = GeneratedColumn<String>(
+      'protocol', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _processNameMeta =
       const VerificationMeta('processName');
   @override
@@ -2179,8 +2241,21 @@ class $RulesTable extends Rules with TableInfo<$RulesTable, Rule> {
       'process_name', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, groupId, name, enabled, outboundTag, domain, ip, port, processName];
+  List<GeneratedColumn> get $columns => [
+        id,
+        groupId,
+        name,
+        enabled,
+        outboundTag,
+        domain,
+        ip,
+        port,
+        source,
+        sourcePort,
+        network,
+        protocol,
+        processName
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2231,6 +2306,24 @@ class $RulesTable extends Rules with TableInfo<$RulesTable, Rule> {
       context.handle(
           _portMeta, port.isAcceptableOrUnknown(data['port']!, _portMeta));
     }
+    if (data.containsKey('source')) {
+      context.handle(_sourceMeta,
+          source.isAcceptableOrUnknown(data['source']!, _sourceMeta));
+    }
+    if (data.containsKey('source_port')) {
+      context.handle(
+          _sourcePortMeta,
+          sourcePort.isAcceptableOrUnknown(
+              data['source_port']!, _sourcePortMeta));
+    }
+    if (data.containsKey('network')) {
+      context.handle(_networkMeta,
+          network.isAcceptableOrUnknown(data['network']!, _networkMeta));
+    }
+    if (data.containsKey('protocol')) {
+      context.handle(_protocolMeta,
+          protocol.isAcceptableOrUnknown(data['protocol']!, _protocolMeta));
+    }
     if (data.containsKey('process_name')) {
       context.handle(
           _processNameMeta,
@@ -2262,6 +2355,14 @@ class $RulesTable extends Rules with TableInfo<$RulesTable, Rule> {
           .read(DriftSqlType.string, data['${effectivePrefix}ip']),
       port: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}port']),
+      source: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source']),
+      sourcePort: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_port']),
+      network: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}network']),
+      protocol: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}protocol']),
       processName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}process_name']),
     );
@@ -2282,6 +2383,10 @@ class Rule extends DataClass implements Insertable<Rule> {
   final String? domain;
   final String? ip;
   final String? port;
+  final String? source;
+  final String? sourcePort;
+  final String? network;
+  final String? protocol;
   final String? processName;
   const Rule(
       {required this.id,
@@ -2292,6 +2397,10 @@ class Rule extends DataClass implements Insertable<Rule> {
       this.domain,
       this.ip,
       this.port,
+      this.source,
+      this.sourcePort,
+      this.network,
+      this.protocol,
       this.processName});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2310,6 +2419,18 @@ class Rule extends DataClass implements Insertable<Rule> {
     if (!nullToAbsent || port != null) {
       map['port'] = Variable<String>(port);
     }
+    if (!nullToAbsent || source != null) {
+      map['source'] = Variable<String>(source);
+    }
+    if (!nullToAbsent || sourcePort != null) {
+      map['source_port'] = Variable<String>(sourcePort);
+    }
+    if (!nullToAbsent || network != null) {
+      map['network'] = Variable<String>(network);
+    }
+    if (!nullToAbsent || protocol != null) {
+      map['protocol'] = Variable<String>(protocol);
+    }
     if (!nullToAbsent || processName != null) {
       map['process_name'] = Variable<String>(processName);
     }
@@ -2327,6 +2448,17 @@ class Rule extends DataClass implements Insertable<Rule> {
           domain == null && nullToAbsent ? const Value.absent() : Value(domain),
       ip: ip == null && nullToAbsent ? const Value.absent() : Value(ip),
       port: port == null && nullToAbsent ? const Value.absent() : Value(port),
+      source:
+          source == null && nullToAbsent ? const Value.absent() : Value(source),
+      sourcePort: sourcePort == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourcePort),
+      network: network == null && nullToAbsent
+          ? const Value.absent()
+          : Value(network),
+      protocol: protocol == null && nullToAbsent
+          ? const Value.absent()
+          : Value(protocol),
       processName: processName == null && nullToAbsent
           ? const Value.absent()
           : Value(processName),
@@ -2345,6 +2477,10 @@ class Rule extends DataClass implements Insertable<Rule> {
       domain: serializer.fromJson<String?>(json['domain']),
       ip: serializer.fromJson<String?>(json['ip']),
       port: serializer.fromJson<String?>(json['port']),
+      source: serializer.fromJson<String?>(json['source']),
+      sourcePort: serializer.fromJson<String?>(json['sourcePort']),
+      network: serializer.fromJson<String?>(json['network']),
+      protocol: serializer.fromJson<String?>(json['protocol']),
       processName: serializer.fromJson<String?>(json['processName']),
     );
   }
@@ -2360,6 +2496,10 @@ class Rule extends DataClass implements Insertable<Rule> {
       'domain': serializer.toJson<String?>(domain),
       'ip': serializer.toJson<String?>(ip),
       'port': serializer.toJson<String?>(port),
+      'source': serializer.toJson<String?>(source),
+      'sourcePort': serializer.toJson<String?>(sourcePort),
+      'network': serializer.toJson<String?>(network),
+      'protocol': serializer.toJson<String?>(protocol),
       'processName': serializer.toJson<String?>(processName),
     };
   }
@@ -2373,6 +2513,10 @@ class Rule extends DataClass implements Insertable<Rule> {
           Value<String?> domain = const Value.absent(),
           Value<String?> ip = const Value.absent(),
           Value<String?> port = const Value.absent(),
+          Value<String?> source = const Value.absent(),
+          Value<String?> sourcePort = const Value.absent(),
+          Value<String?> network = const Value.absent(),
+          Value<String?> protocol = const Value.absent(),
           Value<String?> processName = const Value.absent()}) =>
       Rule(
         id: id ?? this.id,
@@ -2383,6 +2527,10 @@ class Rule extends DataClass implements Insertable<Rule> {
         domain: domain.present ? domain.value : this.domain,
         ip: ip.present ? ip.value : this.ip,
         port: port.present ? port.value : this.port,
+        source: source.present ? source.value : this.source,
+        sourcePort: sourcePort.present ? sourcePort.value : this.sourcePort,
+        network: network.present ? network.value : this.network,
+        protocol: protocol.present ? protocol.value : this.protocol,
         processName: processName.present ? processName.value : this.processName,
       );
   @override
@@ -2396,14 +2544,18 @@ class Rule extends DataClass implements Insertable<Rule> {
           ..write('domain: $domain, ')
           ..write('ip: $ip, ')
           ..write('port: $port, ')
+          ..write('source: $source, ')
+          ..write('sourcePort: $sourcePort, ')
+          ..write('network: $network, ')
+          ..write('protocol: $protocol, ')
           ..write('processName: $processName')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, groupId, name, enabled, outboundTag, domain, ip, port, processName);
+  int get hashCode => Object.hash(id, groupId, name, enabled, outboundTag,
+      domain, ip, port, source, sourcePort, network, protocol, processName);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2416,6 +2568,10 @@ class Rule extends DataClass implements Insertable<Rule> {
           other.domain == this.domain &&
           other.ip == this.ip &&
           other.port == this.port &&
+          other.source == this.source &&
+          other.sourcePort == this.sourcePort &&
+          other.network == this.network &&
+          other.protocol == this.protocol &&
           other.processName == this.processName);
 }
 
@@ -2428,6 +2584,10 @@ class RulesCompanion extends UpdateCompanion<Rule> {
   final Value<String?> domain;
   final Value<String?> ip;
   final Value<String?> port;
+  final Value<String?> source;
+  final Value<String?> sourcePort;
+  final Value<String?> network;
+  final Value<String?> protocol;
   final Value<String?> processName;
   const RulesCompanion({
     this.id = const Value.absent(),
@@ -2438,6 +2598,10 @@ class RulesCompanion extends UpdateCompanion<Rule> {
     this.domain = const Value.absent(),
     this.ip = const Value.absent(),
     this.port = const Value.absent(),
+    this.source = const Value.absent(),
+    this.sourcePort = const Value.absent(),
+    this.network = const Value.absent(),
+    this.protocol = const Value.absent(),
     this.processName = const Value.absent(),
   });
   RulesCompanion.insert({
@@ -2449,6 +2613,10 @@ class RulesCompanion extends UpdateCompanion<Rule> {
     this.domain = const Value.absent(),
     this.ip = const Value.absent(),
     this.port = const Value.absent(),
+    this.source = const Value.absent(),
+    this.sourcePort = const Value.absent(),
+    this.network = const Value.absent(),
+    this.protocol = const Value.absent(),
     this.processName = const Value.absent(),
   })  : groupId = Value(groupId),
         name = Value(name),
@@ -2463,6 +2631,10 @@ class RulesCompanion extends UpdateCompanion<Rule> {
     Expression<String>? domain,
     Expression<String>? ip,
     Expression<String>? port,
+    Expression<String>? source,
+    Expression<String>? sourcePort,
+    Expression<String>? network,
+    Expression<String>? protocol,
     Expression<String>? processName,
   }) {
     return RawValuesInsertable({
@@ -2474,6 +2646,10 @@ class RulesCompanion extends UpdateCompanion<Rule> {
       if (domain != null) 'domain': domain,
       if (ip != null) 'ip': ip,
       if (port != null) 'port': port,
+      if (source != null) 'source': source,
+      if (sourcePort != null) 'source_port': sourcePort,
+      if (network != null) 'network': network,
+      if (protocol != null) 'protocol': protocol,
       if (processName != null) 'process_name': processName,
     });
   }
@@ -2487,6 +2663,10 @@ class RulesCompanion extends UpdateCompanion<Rule> {
       Value<String?>? domain,
       Value<String?>? ip,
       Value<String?>? port,
+      Value<String?>? source,
+      Value<String?>? sourcePort,
+      Value<String?>? network,
+      Value<String?>? protocol,
       Value<String?>? processName}) {
     return RulesCompanion(
       id: id ?? this.id,
@@ -2497,6 +2677,10 @@ class RulesCompanion extends UpdateCompanion<Rule> {
       domain: domain ?? this.domain,
       ip: ip ?? this.ip,
       port: port ?? this.port,
+      source: source ?? this.source,
+      sourcePort: sourcePort ?? this.sourcePort,
+      network: network ?? this.network,
+      protocol: protocol ?? this.protocol,
       processName: processName ?? this.processName,
     );
   }
@@ -2528,6 +2712,18 @@ class RulesCompanion extends UpdateCompanion<Rule> {
     if (port.present) {
       map['port'] = Variable<String>(port.value);
     }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (sourcePort.present) {
+      map['source_port'] = Variable<String>(sourcePort.value);
+    }
+    if (network.present) {
+      map['network'] = Variable<String>(network.value);
+    }
+    if (protocol.present) {
+      map['protocol'] = Variable<String>(protocol.value);
+    }
     if (processName.present) {
       map['process_name'] = Variable<String>(processName.value);
     }
@@ -2545,6 +2741,10 @@ class RulesCompanion extends UpdateCompanion<Rule> {
           ..write('domain: $domain, ')
           ..write('ip: $ip, ')
           ..write('port: $port, ')
+          ..write('source: $source, ')
+          ..write('sourcePort: $sourcePort, ')
+          ..write('network: $network, ')
+          ..write('protocol: $protocol, ')
           ..write('processName: $processName')
           ..write(')'))
         .toString();

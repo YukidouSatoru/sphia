@@ -10,6 +10,10 @@ class XrayRule {
   List<String>? domain;
   List<String>? ip;
   String? port;
+  List<String>? source;
+  String? sourcePort;
+  String? network;
+  List<String>? protocol;
 
   XrayRule({
     this.inboundTag,
@@ -17,6 +21,10 @@ class XrayRule {
     this.domain,
     this.ip,
     this.port,
+    this.sourcePort,
+    this.network,
+    this.protocol,
+    this.source,
   });
 
   factory XrayRule.fromJson(Map<String, dynamic> json) =>

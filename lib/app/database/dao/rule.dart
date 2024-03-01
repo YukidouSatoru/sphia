@@ -47,6 +47,10 @@ class RuleDao {
             domain: Value(rule.domain),
             ip: Value(rule.ip),
             port: Value(rule.port),
+            source: Value(rule.source),
+            sourcePort: Value(rule.sourcePort),
+            network: Value(rule.network),
+            protocol: Value(rule.protocol),
             processName: Value(rule.processName),
           ),
         );

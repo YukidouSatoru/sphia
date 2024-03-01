@@ -230,6 +230,15 @@ class RuleAgent {
       Rule(
         id: defaultRuleId,
         groupId: defaultGroupId,
+        name: 'Block QUIC',
+        enabled: true,
+        outboundTag: outboundBlockId,
+        port: '443',
+        network: 'udp',
+      ),
+      Rule(
+        id: defaultRuleId,
+        groupId: defaultGroupId,
         name: 'Block ADS',
         enabled: true,
         outboundTag: outboundBlockId,

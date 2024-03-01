@@ -7,21 +7,36 @@ part of 'sing.dart';
 // **************************************************************************
 
 SingBoxRule _$SingBoxRuleFromJson(Map<String, dynamic> json) => SingBoxRule(
-      protocol: json['protocol'] as String?,
-      geosite:
-          (json['geosite'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      geoip:
-          (json['geoip'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      inbound: json['inbound'] as String?,
+      outbound: json['outbound'] as String?,
       domain:
           (json['domain'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      geosite:
+          (json['geosite'] as List<dynamic>?)?.map((e) => e as String).toList(),
       ipCidr:
           (json['ip_cidr'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      geoip:
+          (json['geoip'] as List<dynamic>?)?.map((e) => e as String).toList(),
       port: (json['port'] as List<dynamic>?)?.map((e) => e as int).toList(),
       portRange: (json['port_range'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
-      inbound: json['inbound'] as String?,
-      outbound: json['outbound'] as String?,
+      network: json['network'] as String?,
+      sourceGeoip: (json['source_geoip'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      sourceIpCidr: (json['source_ip_cidr'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      sourcePort: (json['source_port'] as List<dynamic>?)
+          ?.map((e) => e as int)
+          .toList(),
+      sourcePortRange: (json['source_port_range'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      protocol: (json['protocol'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
       processName: (json['process_name'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
@@ -36,15 +51,20 @@ Map<String, dynamic> _$SingBoxRuleToJson(SingBoxRule instance) {
     }
   }
 
-  writeNotNull('protocol', instance.protocol);
+  writeNotNull('inbound', instance.inbound);
+  writeNotNull('outbound', instance.outbound);
   writeNotNull('geosite', instance.geosite);
-  writeNotNull('geoip', instance.geoip);
   writeNotNull('domain', instance.domain);
+  writeNotNull('geoip', instance.geoip);
   writeNotNull('ip_cidr', instance.ipCidr);
   writeNotNull('port', instance.port);
   writeNotNull('port_range', instance.portRange);
-  writeNotNull('inbound', instance.inbound);
-  writeNotNull('outbound', instance.outbound);
+  writeNotNull('source_geoip', instance.sourceGeoip);
+  writeNotNull('source_ip_cidr', instance.sourceIpCidr);
+  writeNotNull('source_port', instance.sourcePort);
+  writeNotNull('source_port_range', instance.sourcePortRange);
+  writeNotNull('network', instance.network);
+  writeNotNull('protocol', instance.protocol);
   writeNotNull('process_name', instance.processName);
   return val;
 }

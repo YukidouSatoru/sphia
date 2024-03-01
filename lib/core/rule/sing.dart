@@ -4,30 +4,44 @@ part 'sing.g.dart';
 
 @JsonSerializable(includeIfNull: false)
 class SingBoxRule {
-  String? protocol;
+  String? inbound;
+  String? outbound;
   List<String>? geosite;
-  List<String>? geoip;
   List<String>? domain;
+  List<String>? geoip;
   @JsonKey(name: 'ip_cidr')
   List<String>? ipCidr;
   List<int>? port;
   @JsonKey(name: 'port_range')
   List<String>? portRange;
-  String? inbound;
-  String? outbound;
+  @JsonKey(name: 'source_geoip')
+  List<String>? sourceGeoip;
+  @JsonKey(name: 'source_ip_cidr')
+  List<String>? sourceIpCidr;
+  @JsonKey(name: 'source_port')
+  List<int>? sourcePort;
+  @JsonKey(name: "source_port_range")
+  List<String>? sourcePortRange;
+  String? network;
+  List<String>? protocol;
   @JsonKey(name: 'process_name')
   List<String>? processName;
 
   SingBoxRule({
-    this.protocol,
-    this.geosite,
-    this.geoip,
-    this.domain,
-    this.ipCidr,
-    this.port,
-    this.portRange,
     this.inbound,
     this.outbound,
+    this.domain,
+    this.geosite,
+    this.ipCidr,
+    this.geoip,
+    this.port,
+    this.portRange,
+    this.network,
+    this.sourceGeoip,
+    this.sourceIpCidr,
+    this.sourcePort,
+    this.sourcePortRange,
+    this.protocol,
     this.processName,
   });
 
