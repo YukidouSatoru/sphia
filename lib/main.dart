@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:sphia/app/app.dart';
@@ -126,7 +127,7 @@ Future<void> configureApp() async {
     await SphiaDatabase.backupDatabase();
     final errorMsg = '''
     An error occurred while loading config: $e
-    Current database file has been backuped to $configPath/sphia.db.bak
+    Current database file has been backuped to ${p.join(tempPath, 'sphia.db.bak')}
     Please restart Sphia to create a new database file''';
     logger.e(errorMsg);
     await showErrorMsg(errorMsg);
