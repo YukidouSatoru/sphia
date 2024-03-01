@@ -62,6 +62,8 @@ class SphiaDatabase {
   }
 
   static Future<void> backupDatabase() async {
+    // close database before backup
+    await _database.close();
     final file = File(p.join(configPath, 'sphia.db'));
     if (!await file.exists()) {
       logger.i('Database file does not exist');
