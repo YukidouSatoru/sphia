@@ -98,6 +98,7 @@ class SphiaUpdatWidget {
     return Container(
       padding: const EdgeInsets.only(bottom: 6.0),
       child: FloatingActionButton(
+        heroTag: UniqueKey(),
         isExtended: true,
         elevation: 0,
         focusElevation: 0,

@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
+import 'package:sphia/util/latency.dart';
 import 'package:sphia/util/system.dart';
 import 'package:sphia/core/helper.dart';
 
@@ -86,10 +87,18 @@ abstract class Core {
       'Deleting config file: $configFileName',
     );
     if (name == 'sing-box') {
-      SystemUtil.deleteFileIfExists(
-        p.join(tempPath, cacheDbFileName),
-        'Deleting cache file: $cacheDbFileName',
-      );
+      if (configFileName == 'latency.json') {
+        // do not delete cache file which currently used by other core
+        SystemUtil.deleteFileIfExists(
+          p.join(tempPath, latencyCacheDbFileName),
+          'Deleting cache file: $latencyCacheDbFileName',
+        );
+      } else {
+        SystemUtil.deleteFileIfExists(
+          p.join(tempPath, cacheDbFileName),
+          'Deleting cache file: $cacheDbFileName',
+        );
+      }
     }
     if (!_logStreamController.isClosed) {
       await _logStreamController.close();

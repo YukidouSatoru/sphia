@@ -88,6 +88,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Failed to check update"),
         "checkingUpdate":
             MessageLookupByLibrary.simpleMessage("Checking update"),
+        "clearLatency": MessageLookupByLibrary.simpleMessage("Clear Latency"),
         "clearTraffic": MessageLookupByLibrary.simpleMessage("Clear Traffic"),
         "configuration": MessageLookupByLibrary.simpleMessage("Configuration"),
         "configureDns": MessageLookupByLibrary.simpleMessage("Configure DNS"),
@@ -222,6 +223,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "ipv6Address": MessageLookupByLibrary.simpleMessage("IPv6 Address"),
         "ipv6AddressMsg":
             MessageLookupByLibrary.simpleMessage("Tun IPv6 address"),
+        "latencyTest": MessageLookupByLibrary.simpleMessage("Latency Test"),
+        "latencyTestFailed":
+            MessageLookupByLibrary.simpleMessage("Latency test failed"),
+        "latencyTestUrl":
+            MessageLookupByLibrary.simpleMessage("Latency Test URL"),
+        "latencyTestUrlMsg": MessageLookupByLibrary.simpleMessage(
+            "URL for latency test, default is http://cp.cloudflare.com"),
         "latestVersion": MessageLookupByLibrary.simpleMessage("Latest Version"),
         "launchUrlFailed":
             MessageLookupByLibrary.simpleMessage("Failed to launch URL"),

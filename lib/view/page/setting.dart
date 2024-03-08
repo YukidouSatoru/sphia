@@ -266,6 +266,24 @@ class _SettingPageState extends State<SettingPage> {
       ),
       const Divider(),
       SphiaWidget.textCard(
+        value: sphiaConfig.latencyTestUrl,
+        title: S.of(context).latencyTestUrl,
+        update: (value) {
+          if (value != null) {
+            sphiaConfig.latencyTestUrl = value;
+            sphiaConfigProvider.saveConfig();
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
+              SphiaWidget.snackBar(
+                S.of(context).latencyTestUrlMsg,
+              ),
+            );
+          }
+        },
+        context: context,
+      ),
+      const Divider(),
+      SphiaWidget.textCard(
         value: sphiaConfig.updateSubscriptionInterval.toString(),
         title: S.of(context).updateSubscriptionInterval,
         update: (value) {

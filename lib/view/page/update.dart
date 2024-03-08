@@ -48,11 +48,11 @@ class _UpdatePageState extends State<UpdatePage> {
           builder: (context) => SphiaWidget.popupMenuButton(
             context: context,
             items: [
-              SphiaWidget.popupMenuItem(
+              PopupMenuItem(
                 value: 'ScanCores',
                 child: Text(S.of(context).scanCores),
               ),
-              SphiaWidget.popupMenuItem(
+              PopupMenuItem(
                 value: 'ImportCore',
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

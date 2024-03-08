@@ -370,6 +370,16 @@ class S {
     );
   }
 
+  /// `Clear Latency`
+  String get clearLatency {
+    return Intl.message(
+      'Clear Latency',
+      name: 'clearLatency',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Clear Traffic`
   String get clearTraffic {
     return Intl.message(
@@ -1265,6 +1275,46 @@ class S {
     return Intl.message(
       'Tun IPv6 address',
       name: 'ipv6AddressMsg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Latency Test`
+  String get latencyTest {
+    return Intl.message(
+      'Latency Test',
+      name: 'latencyTest',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Latency test failed`
+  String get latencyTestFailed {
+    return Intl.message(
+      'Latency test failed',
+      name: 'latencyTestFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Latency Test URL`
+  String get latencyTestUrl {
+    return Intl.message(
+      'Latency Test URL',
+      name: 'latencyTestUrl',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `URL for latency test, default is http://cp.cloudflare.com`
+  String get latencyTestUrlMsg {
+    return Intl.message(
+      'URL for latency test, default is http://cp.cloudflare.com',
+      name: 'latencyTestUrlMsg',
       desc: '',
       args: [],
     );

@@ -428,39 +428,6 @@ class ServerAgent {
     return true;
   }
 
-  Future<bool> clearTraffic(String option) async {
-    final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-    if (option == 'SelectedServer') {
-      final server = await serverDao.getSelectedServer();
-      if (server == null) {
-        return false;
-      }
-
-      final newServer = server.copyWith(
-        uplink: const Value(null),
-        downlink: const Value(null),
-      );
-      await serverDao.updateServer(newServer);
-      final index = serverConfigProvider.servers
-          .indexWhere((element) => element.id == server.id);
-      if (index != -1) {
-        serverConfigProvider.servers[index] = newServer;
-      }
-      return true;
-    } else if (option == 'CurrentGroup') {
-      for (var i = 0; i < serverConfigProvider.servers.length; i++) {
-        final server = serverConfigProvider.servers[i].copyWith(
-          uplink: const Value(null),
-          downlink: const Value(null),
-        );
-        await serverDao.updateServer(server);
-        serverConfigProvider.servers[i] = server;
-      }
-      return true;
-    }
-    return false;
-  }
-
   Future<Server?> _showEditServerDialog(String title, Server server) async {
     if (server.protocol == 'vmess' || server.protocol == 'vless') {
       return showDialog<Server>(

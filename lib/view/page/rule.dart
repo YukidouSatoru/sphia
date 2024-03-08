@@ -99,23 +99,23 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
         SphiaWidget.popupMenuButton(
           context: context,
           items: [
-            SphiaWidget.popupMenuItem(
+            PopupMenuItem(
               value: 'AddGroup',
               child: Text(S.of(context).addGroup),
             ),
-            SphiaWidget.popupMenuItem(
+            PopupMenuItem(
               value: 'EditGroup',
               child: Text(S.of(context).editGroup),
             ),
-            SphiaWidget.popupMenuItem(
+            PopupMenuItem(
               value: 'DeleteGroup',
               child: Text(S.of(context).deleteGroup),
             ),
-            SphiaWidget.popupMenuItem(
+            PopupMenuItem(
               value: 'ReorderGroup',
               child: Text(S.of(context).reorderGroup),
             ),
-            SphiaWidget.popupMenuItem(
+            PopupMenuItem(
               value: 'ResetRules',
               child: Text(S.of(context).resetRules),
             ),
@@ -225,9 +225,9 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
                         child: ReorderableDragStartListener(
                           index: index,
                           child: _buildCard(
-                            rule,
-                            index,
-                            sphiaConfig.useMaterial3,
+                            rule: rule,
+                            index: index,
+                            useMaterial3: sphiaConfig.useMaterial3,
                           ),
                         ),
                       );
@@ -241,6 +241,7 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
           ),
         ),
         floatingActionButton: FloatingActionButton(
+          heroTag: UniqueKey(),
           onPressed: () async {
             late final Rule? newRule;
             if ((newRule = await _agent
@@ -256,7 +257,11 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildCard(Rule rule, int index, bool useMaterial3) {
+  Widget _buildCard({
+    required Rule rule,
+    required int index,
+    required bool useMaterial3,
+  }) {
     return Column(
       children: [
         Card(

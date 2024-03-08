@@ -15,7 +15,10 @@ import 'package:sphia/app/task/task.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/app/tray.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
+import 'package:sphia/util/latency.dart';
 import 'package:sphia/util/system.dart';
+import 'package:sphia/view/dialog/progress.dart';
+import 'package:sphia/view/dialog/traffic.dart';
 import 'package:sphia/view/page/agent/server.dart';
 import 'package:sphia/view/page/wrapper.dart';
 import 'package:sphia/view/widget/dashboard_card/chart.dart';
@@ -140,7 +143,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
           builder: (context) => SphiaWidget.popupMenuButton(
             context: context,
             items: [
-              SphiaWidget.popupMenuItem(
+              PopupMenuItem(
                 value: 'AddServer',
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -150,15 +153,15 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                   ],
                 ),
               ),
-              SphiaWidget.popupMenuItem(
+              PopupMenuItem(
                 value: 'AddGroup',
                 child: Text(S.of(context).addGroup),
               ),
-              SphiaWidget.popupMenuItem(
+              PopupMenuItem(
                 value: 'EditGroup',
                 child: Text(S.of(context).editGroup),
               ),
-              SphiaWidget.popupMenuItem(
+              PopupMenuItem(
                 value: 'UpdateGroup',
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -168,15 +171,25 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                   ],
                 ),
               ),
-              SphiaWidget.popupMenuItem(
+              PopupMenuItem(
                 value: 'DeleteGroup',
                 child: Text(S.of(context).deleteGroup),
               ),
-              SphiaWidget.popupMenuItem(
+              PopupMenuItem(
                 value: 'ReorderGroup',
                 child: Text(S.of(context).reorderGroup),
               ),
-              SphiaWidget.popupMenuItem(
+              PopupMenuItem(
+                value: 'LatencyTest',
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(S.of(context).latencyTest),
+                    const Icon(Icons.arrow_left),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
                 value: 'ClearTraffic',
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -330,6 +343,95 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                     setState(() {});
                   }
                   break;
+                case 'LatencyTest':
+                  final typeMenu = [
+                    const PopupMenuItem(
+                      value: 'ICMP',
+                      child: Text('ICMP'),
+                    ),
+                    const PopupMenuItem(
+                      value: 'TCP',
+                      child: Text('TCP'),
+                    ),
+                    const PopupMenuItem(
+                      value: 'Url',
+                      child: Text('Url'),
+                    ),
+                    PopupMenuItem(
+                      value: 'ClearLatency',
+                      child: Text(S.of(context).clearLatency),
+                    ),
+                  ];
+                  final renderBox = context.findRenderObject() as RenderBox;
+                  final position = renderBox.localToGlobal(Offset.zero);
+                  showMenu(
+                    context: context,
+                    position: RelativeRect.fromLTRB(
+                      position.dx,
+                      position.dy,
+                      position.dx + renderBox.size.width,
+                      position.dy + renderBox.size.height,
+                    ),
+                    items: [
+                      PopupMenuItem(
+                        value: 'SelectedServer',
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(S.of(context).selectedServer),
+                            const Icon(Icons.arrow_left),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'CurrentGroup',
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(S.of(context).currentGroup),
+                            const Icon(Icons.arrow_left),
+                          ],
+                        ),
+                      ),
+                    ],
+                    elevation: 8.0,
+                  ).then((value) async {
+                    if (value != null) {
+                      final renderBox = context.findRenderObject() as RenderBox;
+                      final position = renderBox.localToGlobal(Offset.zero);
+                      showMenu(
+                        context: context,
+                        position: RelativeRect.fromLTRB(
+                          position.dx,
+                          position.dy,
+                          position.dx + renderBox.size.width,
+                          position.dy + renderBox.size.height,
+                        ),
+                        items: typeMenu,
+                        elevation: 8.0,
+                      ).then((type) async {
+                        if (type != null) {
+                          final options = <String, String>{};
+                          if (type == 'ClearLatency') {
+                            options['action'] = 'clear';
+                            options['option'] = value;
+                          } else {
+                            options['action'] = 'test';
+                            options['option'] = value;
+                            options['type'] = type;
+                          }
+                          await showDialog(
+                            context: context,
+                            builder: (context) => ProgressDialog(
+                              options: options,
+                            ),
+                          );
+                          setState(() {});
+                        }
+                      });
+                    }
+                  });
+                  break;
                 case 'ClearTraffic':
                   final renderBox = context.findRenderObject() as RenderBox;
                   final position = renderBox.localToGlobal(Offset.zero);
@@ -352,14 +454,13 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                       ),
                     ],
                     elevation: 8.0,
-                  ).then((value) async {
-                    if (value != null) {
-                      if (await _agent.clearTraffic(
-                        value,
-                      )) {
-                        setState(() {});
-                      }
+                  ).then((type) async {
+                    if (type != null) {
+                      await showDialog(
+                          context: context,
+                          builder: (context) => TrafficDialog(option: type));
                     }
+                    setState(() {});
                   });
                   break;
                 default:
@@ -441,13 +542,15 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                         child: ReorderableDragStartListener(
                           index: index,
                           child: _buildCard(
-                            server,
-                            index,
-                            sphiaConfig.useMaterial3,
-                            sphiaConfig.themeColor,
-                            sphiaConfig.showTransport,
-                            sphiaConfig.showAddress,
-                            server.id == serverConfig.selectedServerId,
+                            server: server,
+                            index: index,
+                            useMaterial3: sphiaConfig.useMaterial3,
+                            themeColorInt: sphiaConfig.themeColor,
+                            isDarkMode: sphiaConfig.darkMode,
+                            showTransport: sphiaConfig.showTransport,
+                            showAddress: sphiaConfig.showAddress,
+                            isSelected:
+                                server.id == serverConfig.selectedServerId,
                           ),
                         ),
                       );
@@ -460,6 +563,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
             ),
           ),
           floatingActionButton: FloatingActionButton(
+            heroTag: UniqueKey(),
             onPressed: _toggleServer,
             child: _isLoading
                 ? const CircularProgressIndicator(
@@ -474,15 +578,16 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildCard(
-    Server server,
-    int index,
-    bool useMaterial3,
-    int themeColorInt,
-    bool showTransport,
-    bool showAddress,
-    bool isSelected,
-  ) {
+  Widget _buildCard({
+    required Server server,
+    required int index,
+    required bool useMaterial3,
+    required int themeColorInt,
+    required bool isDarkMode,
+    required bool showTransport,
+    required bool showAddress,
+    required bool isSelected,
+  }) {
     final themeColor = Color(themeColorInt);
     String serverInfo = server.protocol;
     if (showTransport) {
@@ -525,13 +630,37 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (server.uplink != null && server.downlink != null)
-                  Text(
-                    _getServerTraffic(
-                      server.uplink!.toDouble(),
-                      server.downlink!.toDouble(),
-                    ),
-                  ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    if (server.latency != null)
+                      RichText(
+                          text: TextSpan(children: [
+                        TextSpan(
+                            text: server.latency == latencyFailure
+                                ? 'timeout'
+                                : '${server.latency} ms',
+                            style: TextStyle(
+                                color:
+                                    isDarkMode ? Colors.white : Colors.black)),
+                        TextSpan(
+                          text: '  ◉',
+                          style: TextStyle(
+                            color: _getLatencyColor(server.latency!),
+                          ),
+                        )
+                      ])),
+                    if (server.uplink != null && server.downlink != null)
+                      Text(
+                        _getServerTraffic(
+                          server.uplink!.toDouble(),
+                          server.downlink!.toDouble(),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(width: 8),
                 SphiaWidget.iconButton(
                   icon: Icons.edit,
                   onTap: () async {
@@ -703,6 +832,23 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
     downlink = downlink / unitRates[downlinkUnitIndex];
 
     return '${uplink.toStringAsFixed(2)}${units[uplinkUnitIndex]}↑ ${downlink.toStringAsFixed(2)}${units[downlinkUnitIndex]}↓';
+  }
+
+  Color _getLatencyColor(int latency) {
+    // use A400 color
+    const red = Color.fromARGB(255, 255, 61, 0);
+    const yellow = Color.fromARGB(255, 255, 234, 0);
+    const green = Color.fromARGB(255, 118, 255, 3);
+    if (latency == latencyFailure || latency < 0) {
+      return red;
+    }
+    if (latency <= latencyGreen) {
+      return green;
+    } else if (latency <= latencyYellow) {
+      return yellow;
+    } else {
+      return red;
+    }
   }
 
   Future<void> _deleteServer(int index, Server server) async {

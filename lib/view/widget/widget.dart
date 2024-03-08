@@ -74,16 +74,6 @@ class SphiaWidget {
     );
   }
 
-  static PopupMenuItem<String> popupMenuItem({
-    required String value,
-    required Widget child,
-  }) {
-    return PopupMenuItem<String>(
-      value: value,
-      child: child,
-    );
-  }
-
   static Widget checkboxCard({
     required bool value,
     required String title,

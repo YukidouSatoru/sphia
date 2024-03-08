@@ -38,8 +38,9 @@ class _RunningCoresCardState extends State<RunningCoresCard> {
                   const Text('Tun  '),
                   CircleAvatar(
                     radius: 5,
-                    backgroundColor:
-                        coreProvider.tunMode ? Colors.green : Colors.red,
+                    backgroundColor: coreProvider.tunMode
+                        ? const Color.fromARGB(255, 118, 255, 3)
+                        : Colors.brown,
                   ),
                 ],
               ),

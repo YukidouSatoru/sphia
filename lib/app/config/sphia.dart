@@ -42,6 +42,7 @@ class SphiaConfig {
   bool showAddress;
   bool enableStatistics;
   bool enableSpeedChart;
+  String latencyTestUrl;
   int updateSubscriptionInterval;
   bool updateThroughProxy;
   int userAgent;
@@ -105,6 +106,7 @@ class SphiaConfig {
     required this.showAddress,
     required this.enableStatistics,
     required this.enableSpeedChart,
+    required this.latencyTestUrl,
     required this.updateSubscriptionInterval,
     required this.updateThroughProxy,
     required this.userAgent,
@@ -162,6 +164,7 @@ class SphiaConfig {
       showAddress: false,
       enableStatistics: false,
       enableSpeedChart: false,
+      latencyTestUrl: 'http://cp.cloudflare.com',
       updateSubscriptionInterval: -1,
       updateThroughProxy: false,
       userAgent: UserAgent.chrome.index,
