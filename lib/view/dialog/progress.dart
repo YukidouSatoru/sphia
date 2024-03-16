@@ -68,6 +68,9 @@ class _ProgressDialogState extends State<ProgressDialog> {
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     final servers = <Server>[];
 
+    final isICMP = (type == 'ICMP');
+    final isTCP = (type == 'TCP');
+    final isUrl = (type == 'Url');
     if (option == 'SelectedServer') {
       final server = await serverDao.getSelectedServer();
       if (server == null) {
@@ -75,11 +78,11 @@ class _ProgressDialogState extends State<ProgressDialog> {
       }
       //
       late final int latency;
-      if (type == 'ICMP') {
+      if (isICMP) {
         latency = await IcmpLatency.testIcmpLatency(server.address);
-      } else if (type == 'TCP') {
+      } else if (isTCP) {
         latency = await TcpLatency.testTcpLatency(server.address, server.port);
-      } else if (type == 'Url') {
+      } else if (isUrl) {
         final urlLatency = UrlLatency([server]);
         final tag = 'proxy-${server.id}';
         await urlLatency.init();
@@ -96,9 +99,6 @@ class _ProgressDialogState extends State<ProgressDialog> {
       // option == 'CurrentGroup'
       final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
       servers.addAll(serverConfigProvider.servers);
-      bool isICMP = (type == 'ICMP');
-      bool isTCP = (type == 'TCP');
-      bool isUrl = (type == 'Url');
       late final UrlLatency urlLatency;
       if (isUrl) {
         urlLatency = UrlLatency(servers);
