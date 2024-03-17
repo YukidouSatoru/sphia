@@ -1,12 +1,10 @@
 import 'dart:core';
 
-import 'package:drift/drift.dart' show Value;
-import 'package:sphia/app/database/database.dart';
-import 'package:sphia/core/server/defaults.dart';
+import 'package:sphia/server/xray/server.dart';
 import 'package:sphia/util/uri/uri.dart';
 
 class VlessUtil {
-  static String getUri(Server server) {
+  static String getUri(XrayServer server) {
     final parameters = getParameters(server);
 
     final parameterComponent = parameters.entries
@@ -20,73 +18,58 @@ class VlessUtil {
     return 'vless://${server.authPayload}@${server.address}:${server.port}?$parameterComponent$remarkComponent';
   }
 
-  static Server parseUri(String uri) {
-    String remark = '';
-    String address = '';
-    int port = 0;
-    String uuid = '';
-    String? serverName;
-    String? fingerPrint;
-    String? publicKey;
-    String? shortId;
-    String? spiderX;
-    String? tls;
-    String? transport;
-    String? flow;
-    String? grpcMode;
-    String? serviceName;
-    String? path;
-    String? host;
+  static XrayServer parseUri(String uri) {
+    final server = XrayServer.vlessDefaults();
 
     uri = uri.replaceAll('/?', '?');
 
     if (uri.contains('#')) {
       String parseRemark = UriUtil.extractComponent(uri, '#');
-      remark = parseRemark;
+      server.remark = parseRemark;
       uri = uri.split('#')[0];
     }
 
     final parameters = UriUtil.extractParameters(uri);
 
-    transport = parameters['type'] ?? 'tcp';
-    switch (transport) {
+    server.transport = parameters['type'] ?? 'tcp';
+    switch (server.transport) {
       case 'tcp':
         break;
       case 'ws':
-        path = parameters['path'] != null
+        server.path = parameters['path'] != null
             ? Uri.decodeComponent(parameters['path']!)
             : null;
-        host = parameters['host'] != null
+        server.host = parameters['host'] != null
             ? Uri.decodeComponent(parameters['host']!)
             : null;
         break;
       case 'grpc':
-        grpcMode = parameters['mode'] ?? 'gun';
-        serviceName = parameters['serviceName'];
+        server.grpcMode = parameters['mode'] ?? 'gun';
+        server.serviceName = parameters['serviceName'];
         break;
     }
 
     switch (parameters['flow']) {
       case 'xtls-rprx-vision':
-        flow = 'xtls-rprx-vision';
+        server.flow = 'xtls-rprx-vision';
         break;
       default:
-        flow = null;
+        server.flow = null;
     }
 
-    tls = parameters['security'] ?? 'none';
-    if (tls != 'none') {
-      switch (tls) {
+    server.tls = parameters['security'] ?? 'none';
+    if (server.tls != 'none') {
+      switch (server.tls) {
         case 'tls':
-          serverName = parameters['sni'];
-          fingerPrint = parameters['fp'];
+          server.serverName = parameters['sni'];
+          server.fingerprint = parameters['fp'];
           break;
         case 'reality':
-          serverName = parameters['sni'];
-          fingerPrint = parameters['fp'];
-          publicKey = parameters['pbk'];
-          shortId = parameters['sid'];
-          spiderX = parameters['spx'];
+          server.serverName = parameters['sni'];
+          server.fingerprint = parameters['fp'];
+          server.publicKey = parameters['pbk'];
+          server.shortId = parameters['sid'];
+          server.spiderX = parameters['spx'];
           break;
         default:
           break;
@@ -101,33 +84,13 @@ class VlessUtil {
       throw const FormatException('Failed to parse vless URI');
     }
 
-    address = match.namedGroup('address')!;
-    port = int.parse(match.namedGroup('port')!);
-    uuid = match.namedGroup('uuid')!;
-    return ServerDefaults.xrayDefaults(defaultServerGroupId, defaultServerId)
-        .copyWith(
-      protocol: 'vless',
-      remark: remark,
-      address: address,
-      port: port,
-      authPayload: uuid,
-      encryption: const Value('none'),
-      serverName: Value(serverName),
-      fingerprint: Value(fingerPrint),
-      publicKey: Value(publicKey),
-      shortId: Value(shortId),
-      spiderX: Value(spiderX),
-      tls: Value(tls),
-      transport: Value(transport),
-      flow: Value(flow),
-      grpcMode: Value(grpcMode),
-      serviceName: Value(serviceName),
-      path: Value(path),
-      host: Value(host),
-    );
+    server.address = match.namedGroup('address')!;
+    server.port = int.parse(match.namedGroup('port')!);
+    server.authPayload = match.namedGroup('uuid')!;
+    return server;
   }
 
-  static Map<String, dynamic> transportParameters(Server server) {
+  static Map<String, dynamic> transportParameters(XrayServer server) {
     final transportParameters = <String, Map<String, dynamic>>{
       'tcp': {},
       'ws': {
@@ -146,7 +109,7 @@ class VlessUtil {
     return transportParameters[server.transport]!;
   }
 
-  static Map<String, dynamic> tlsParameters(Server server) {
+  static Map<String, dynamic> tlsParameters(XrayServer server) {
     return server.tls != 'none'
         ? {
             'security': server.tls,
@@ -155,7 +118,7 @@ class VlessUtil {
         : {};
   }
 
-  static Map<String, String?> getParameters(Server server) {
+  static Map<String, String?> getParameters(XrayServer server) {
     return {
       'type': server.transport,
       'encryption': server.encryption,

@@ -86,8 +86,9 @@ class SubscriptionTask {
       );
     }
     if (flag) {
-      serverConfigProvider.servers = await serverDao.getOrderedServersByGroupId(
-          serverConfigProvider.config.selectedServerGroupId);
+      serverConfigProvider.servers =
+          await serverDao.getOrderedServerModelsByGroupId(
+              serverConfigProvider.config.selectedServerGroupId);
       // remember to update the server items in the tray
       SphiaTray.generateServerItems();
       SphiaTray.setMenu();

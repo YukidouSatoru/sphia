@@ -11,6 +11,7 @@ import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/core/sing/config.dart';
 import 'package:sphia/core/sing/core.dart';
 import 'package:sphia/core/sing/generate.dart';
+import 'package:sphia/server/server_model.dart';
 import 'package:sphia/util/system.dart';
 
 const latencyGreen = 200;
@@ -61,7 +62,7 @@ class TcpLatency {
 }
 
 class UrlLatency {
-  List<Server> servers;
+  List<ServerModel> servers;
   final testUrl = GetIt.I<SphiaConfigProvider>().config.latencyTestUrl;
   late final String url;
   late final Map<String, String> params;

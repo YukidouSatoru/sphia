@@ -6,8 +6,6 @@
 
 import 'dart:ui';
 
-import 'package:flutter/widgets.dart';
-
 import 'package:flutter/src/material/color_scheme.dart';
 import 'package:flutter/src/material/ink_well.dart';
 import 'package:flutter/src/material/material.dart';
@@ -16,6 +14,7 @@ import 'package:flutter/src/material/navigation_bar.dart';
 import 'package:flutter/src/material/navigation_rail_theme.dart';
 import 'package:flutter/src/material/text_theme.dart';
 import 'package:flutter/src/material/theme.dart';
+import 'package:flutter/widgets.dart';
 
 const double _kCircularIndicatorDiameter = 56;
 const double _kIndicatorHeight = 32;

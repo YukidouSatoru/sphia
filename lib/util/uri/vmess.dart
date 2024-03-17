@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'dart:core';
 
-import 'package:drift/drift.dart';
-import 'package:sphia/app/database/database.dart';
-import 'package:sphia/core/server/defaults.dart';
+import 'package:sphia/server/xray/server.dart';
 
 class VMessUtil {
-  static String getUri(Server server) {
+  static String getUri(XrayServer server) {
     late final String? path;
     if (server.transport == 'grpc') {
       path = server.serviceName;
@@ -34,21 +32,9 @@ class VMessUtil {
     return 'vmess://${base64UrlEncode(utf8.encode(jsonString))}';
   }
 
-  static Server parseUri(String uri) {
+  static XrayServer parseUri(String uri) {
     String vmessJson;
-    String remark = '';
-    String address = '';
-    int port = 0;
-    String uuid = '';
-    int alterId = 0;
-    String encryption = 'auto';
-    String transport = 'tcp';
-    String? path;
-    String? host;
-    String? tls;
-    String? serverName;
-    String? fingerPrint;
-    String? serviceName;
+    final server = XrayServer.vmessDefaults();
 
     try {
       vmessJson = utf8.decode(base64Url.decode(uri.substring(8)));
@@ -59,49 +45,35 @@ class VMessUtil {
     try {
       Map<String, dynamic> vmess =
           json.decode(vmessJson) as Map<String, dynamic>;
-      remark = vmess['ps'] ?? '';
-      address = vmess['add'];
-      port = vmess['port'] is String ? int.parse(vmess['port']) : vmess['port'];
-      uuid = vmess['id'];
-      alterId = vmess['aid'] is String ? int.parse(vmess['aid']) : vmess['aid'];
+      server.remark = vmess['ps'] ?? '';
+      server.address = vmess['add'];
+      server.port =
+          vmess['port'] is String ? int.parse(vmess['port']) : vmess['port'];
+      server.authPayload = vmess['id'];
+      server.alterId =
+          vmess['aid'] is String ? int.parse(vmess['aid']) : vmess['aid'];
       if (vmess.containsKey('scy')) {
-        encryption = vmess['scy'];
+        server.encryption = vmess['scy'];
       }
       if (vmess.containsKey('type')) {
-        encryption = vmess['type'];
+        server.encryption = vmess['type'];
       }
-      transport = vmess['net'];
-      switch (transport) {
+      server.transport = vmess['net'];
+      switch (server.transport) {
         case 'grpc':
-          serviceName = vmess['path'];
+          server.serviceName = vmess['path'];
           break;
         default:
-          path = vmess['path'];
+          server.path = vmess['path'];
           break;
       }
-      host = vmess['host'];
-      tls = vmess['tls'] ?? 'none';
-      serverName = vmess['sni'];
-      fingerPrint = vmess['fp'];
+      server.host = vmess['host'];
+      server.tls = vmess['tls'] ?? 'none';
+      server.serverName = vmess['sni'];
+      server.fingerprint = vmess['fp'];
     } on Exception catch (_) {
       throw const FormatException('Failed to parse vmess URI');
     }
-    return ServerDefaults.xrayDefaults(defaultServerGroupId, defaultServerId)
-        .copyWith(
-      protocol: 'vmess',
-      remark: remark,
-      address: address,
-      port: port,
-      authPayload: uuid,
-      alterId: Value(alterId),
-      encryption: Value(encryption),
-      transport: Value(transport),
-      path: Value(path),
-      host: Value(host),
-      tls: Value(tls),
-      serverName: Value(serverName),
-      fingerprint: Value(fingerPrint),
-      serviceName: Value(serviceName),
-    );
+    return server;
   }
 }

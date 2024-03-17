@@ -7,6 +7,7 @@ import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
+import 'package:sphia/server/server_model.dart';
 import 'package:sphia/util/system.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:window_manager/window_manager.dart';
@@ -75,7 +76,7 @@ class Tray {
     );
   }
 
-  void addServerItem(Server server) {
+  void addServerItem(ServerModel server) {
     serverItems.add(
       getServerItem(server),
     );
@@ -110,7 +111,7 @@ class Tray {
     }
   }
 
-  MenuItemCheckbox getServerItem(Server server) {
+  MenuItemCheckbox getServerItem(ServerModel server) {
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     return MenuItemCheckbox(
       label: server.remark,

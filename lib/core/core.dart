@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
-import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
+import 'package:sphia/core/helper.dart';
+import 'package:sphia/server/server_model.dart';
 import 'package:sphia/util/latency.dart';
 import 'package:sphia/util/system.dart';
-import 'package:sphia/core/helper.dart';
 
 const cacheDbFileName = 'cache.db';
 
@@ -20,7 +20,7 @@ abstract class Core {
   bool _isPreLog = true;
   final List<String> preLogList = [];
   final _logStreamController = StreamController<String>.broadcast();
-  List<Server> servers = [];
+  List<ServerModel> servers = [];
   bool isRouting = false;
   final List<int> usedPorts = [];
 

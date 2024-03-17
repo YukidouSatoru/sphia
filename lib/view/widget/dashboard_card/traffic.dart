@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/view/widget/dashboard_card/chart.dart';
 import 'package:sphia/view/widget/dashboard_card/card.dart';
+import 'package:sphia/view/widget/dashboard_card/chart.dart';
 import 'package:window_manager/window_manager.dart';
 
 class TrafficCard extends StatefulWidget {

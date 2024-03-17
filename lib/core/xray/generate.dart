@@ -4,6 +4,10 @@ import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/core/rule/extension.dart';
 import 'package:sphia/core/rule/xray.dart';
 import 'package:sphia/core/xray/config.dart';
+import 'package:sphia/server/server_model.dart';
+import 'package:sphia/server/shadowsocks/server.dart';
+import 'package:sphia/server/trojan/server.dart';
+import 'package:sphia/server/xray/server.dart';
 import 'package:sphia/util/uri/uri.dart';
 import 'package:sphia/view/dialog/rule.dart';
 
@@ -66,19 +70,19 @@ class XrayGenerate {
     );
   }
 
-  static Outbound generateOutbound(Server server) {
+  static Outbound generateOutbound(ServerModel server) {
     late Outbound outbound;
     switch (server.protocol) {
       case 'socks':
       case 'vmess':
       case 'vless':
-        outbound = xrayOutbound(server);
+        outbound = xrayOutbound(server as XrayServer);
         break;
       case 'shadowsocks':
-        outbound = shadowsocksOutbound(server);
+        outbound = shadowsocksOutbound(server as ShadowsocksServer);
         break;
       case 'trojan':
-        outbound = trojanOutbound(server);
+        outbound = trojanOutbound(server as TrojanServer);
         break;
       default:
         throw Exception(
@@ -87,7 +91,7 @@ class XrayGenerate {
     return outbound;
   }
 
-  static Outbound xrayOutbound(Server server) {
+  static Outbound xrayOutbound(XrayServer server) {
     if (server.protocol == 'socks') {
       return socksOutbound(server);
     } else if (server.protocol == 'vmess' || server.protocol == 'vless') {
@@ -98,7 +102,7 @@ class XrayGenerate {
     }
   }
 
-  static Outbound socksOutbound(Server server) {
+  static Outbound socksOutbound(XrayServer server) {
     return Outbound(
       protocol: 'socks',
       tag: 'proxy',
@@ -113,11 +117,11 @@ class XrayGenerate {
     );
   }
 
-  static Outbound vProtocolOutbound(Server server) {
-    String security = server.tls ?? 'none';
+  static Outbound vProtocolOutbound(XrayServer server) {
+    String security = server.tls;
     final tlsSettings = security == 'tls'
         ? TlsSettings(
-            allowInsecure: server.allowInsecure ?? false,
+            allowInsecure: server.allowInsecure,
             serverName: server.serverName ?? server.address,
             fingerprint: server.fingerprint,
           )
@@ -132,7 +136,7 @@ class XrayGenerate {
           )
         : null;
     final streamSettings = StreamSettings(
-      network: server.transport ?? 'tcp',
+      network: server.transport,
       security: security,
       tlsSettings: tlsSettings,
       realitySettings: realitySettings,
@@ -174,7 +178,7 @@ class XrayGenerate {
     );
   }
 
-  static Outbound shadowsocksOutbound(Server server) {
+  static Outbound shadowsocksOutbound(ShadowsocksServer server) {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     final userAgent = sphiaConfig.getUserAgent();
     StreamSettings? streamSettings;
@@ -248,7 +252,7 @@ class XrayGenerate {
           Shadowsocks(
             address: server.address,
             port: server.port,
-            method: server.encryption ?? 'aes-128-gcm',
+            method: server.encryption,
             password: server.authPayload,
           )
         ],
@@ -257,12 +261,12 @@ class XrayGenerate {
     );
   }
 
-  static Outbound trojanOutbound(Server server) {
+  static Outbound trojanOutbound(TrojanServer server) {
     final streamSettings = StreamSettings(
       network: 'tcp',
       security: 'tls',
       tlsSettings: TlsSettings(
-        allowInsecure: server.allowInsecure ?? false,
+        allowInsecure: server.allowInsecure,
         serverName: server.serverName ?? server.address,
       ),
     );

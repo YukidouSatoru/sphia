@@ -1,12 +1,11 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:get_it/get_it.dart';
 
 class TrafficDialog extends StatefulWidget {
   final String option;
@@ -62,34 +61,34 @@ class _TrafficDialog extends State<TrafficDialog> {
     try {
       final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
       if (option == 'SelectedServer') {
-        final server = await serverDao.getSelectedServer();
+        final server = await serverDao.getSelectedServerModel();
         if (server == null) {
           return;
         }
-        final newServer = server.copyWith(
-          uplink: const Value(null),
-          downlink: const Value(null),
-        );
-        await serverDao.updateServer(newServer);
+        server.uplink = null;
+        server.downlink = null;
+        await serverDao.updateTraffic(server.id, null, null);
         final index = serverConfigProvider.servers
             .indexWhere((element) => element.id == server.id);
         if (index != -1) {
-          serverConfigProvider.servers[index] = newServer;
+          serverConfigProvider.servers[index] = server;
         }
-        logger.i('Clear Traffic for: ${newServer.address}:${newServer.port}');
+        logger.i('Clear Traffic for: ${server.address}:${server.port}');
       } else {
         // option == 'CurrentGroup'
         for (var i = 0; i < serverConfigProvider.servers.length; i++) {
           if (_cancel) {
             return;
           }
-          final server = serverConfigProvider.servers[i].copyWith(
-            uplink: const Value(null),
-            downlink: const Value(null),
+          serverConfigProvider.servers[i].uplink = null;
+          serverConfigProvider.servers[i].downlink = null;
+          await serverDao.updateTraffic(
+            serverConfigProvider.servers[i].id,
+            null,
+            null,
           );
-          await serverDao.updateServer(server);
-          serverConfigProvider.servers[i] = server;
-          logger.i('Clear Traffic for: ${server.address}:${server.port}');
+          logger.i(
+              'Clear Traffic for: ${serverConfigProvider.servers[i].address}:${serverConfigProvider.servers[i].port}');
         }
       }
     } catch (e) {

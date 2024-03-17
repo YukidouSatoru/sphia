@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:drift/drift.dart' show Value;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -218,41 +217,39 @@ class _DashboardState extends State<Dashboard> {
 
         final proxyLink = await (_traffic as XrayTraffic)
             .queryProxyLinkByOutboundTag(outboundTag);
-        final newServer = server.copyWith(
-          uplink: Value(server.uplink == null
-              ? proxyLink.item1
-              : server.uplink! + proxyLink.item1),
-          downlink: Value(server.downlink == null
-              ? proxyLink.item2
-              : server.downlink! + proxyLink.item2),
-        );
-        await serverDao.updateServer(newServer);
+        int uplink = proxyLink.item1;
+        int downlink = proxyLink.item2;
+        if (server.uplink != null) {
+          uplink += server.uplink!;
+        }
+        if (server.downlink != null) {
+          downlink += server.downlink!;
+        }
+        await serverDao.updateTraffic(server.id, uplink, downlink);
       }
 
       final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-      serverConfigProvider.servers = await serverDao.getOrderedServersByGroupId(
-          serverConfigProvider.config.selectedServerGroupId);
+      serverConfigProvider.servers =
+          await serverDao.getOrderedServerModelsByGroupId(
+              serverConfigProvider.config.selectedServerGroupId);
       _clearTraffic();
     } else {
       // just one server
       // when multiple cores are running,
       // the first core is the protocol provider
-      final server = await SphiaController.getRunningServer();
-      final newServer = server.copyWith(
-        uplink: Value(server.uplink == null
-            ? _totalUpload
-            : server.uplink! + _totalUpload),
-        downlink: Value(server.downlink == null
-            ? _totalDownload
-            : server.downlink! + _totalDownload),
-      );
-      await serverDao.updateServer(newServer);
+      final server = await SphiaController.getRunningServerModel();
+      server.uplink =
+          server.uplink == null ? _totalUpload : server.uplink! + _totalUpload;
+      server.downlink = server.downlink == null
+          ? _totalDownload
+          : server.downlink! + _totalDownload;
+      await serverDao.updateTraffic(server.id, server.uplink, server.downlink);
       _clearTraffic();
       final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
       final index = serverConfigProvider.servers
-          .indexWhere((element) => element.id == newServer.id);
+          .indexWhere((element) => element.id == server.id);
       if (index != -1) {
-        serverConfigProvider.servers[index] = newServer;
+        serverConfigProvider.servers[index] = server;
         // serverConfigProvider.notify();
       }
     }

@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
 import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:sphia/core/helper.dart';
 import 'package:sphia/util/network.dart';
 import 'package:sphia/util/system.dart';
 import 'package:sphia/view/page/about.dart';
-import 'package:sphia/core/helper.dart';
 import 'package:updat/updat.dart';
 
 class SphiaUpdatWidget {
@@ -98,7 +98,6 @@ class SphiaUpdatWidget {
     return Container(
       padding: const EdgeInsets.only(bottom: 6.0),
       child: FloatingActionButton(
-        heroTag: UniqueKey(),
         isExtended: true,
         elevation: 0,
         focusElevation: 0,

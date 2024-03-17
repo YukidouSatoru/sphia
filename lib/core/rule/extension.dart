@@ -3,6 +3,7 @@ import 'package:sphia/core/rule/sing.dart';
 import 'package:sphia/core/rule/xray.dart';
 
 const defaultRuleId = -1;
+const defaultRuleGroupId = -1;
 
 extension RuleExtension on Rule {
   XrayRule toXrayRule() {

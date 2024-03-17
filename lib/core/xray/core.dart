@@ -39,7 +39,7 @@ class XrayCore extends Core {
     if (sphiaConfig.multiOutboundSupport) {
       final serversOnRoutingId = await CoreHelper.getRuleOutboundTagList(rules);
       final serversOnRouting =
-          await serverDao.getServersByIdList(serversOnRoutingId);
+          await serverDao.getServerModelsByIdList(serversOnRoutingId);
       for (final server in serversOnRouting) {
         outbounds.add(
           XrayGenerate.generateOutbound(server)..tag = 'proxy-${server.id}',

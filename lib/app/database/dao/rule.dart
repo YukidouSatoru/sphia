@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
+import 'package:sphia/core/rule/rule_model.dart';
 
 const outboundProxyId = -2;
 const outboundDirectId = -1;
@@ -11,20 +12,33 @@ class RuleDao {
 
   RuleDao(this._db);
 
-  Future<List<Rule>> getRules() {
-    return _db.select(_db.rules).get();
-  }
-
   Future<List<Rule>> getRulesByGroupId(int groupId) {
     return (_db.select(_db.rules)..where((tbl) => tbl.groupId.equals(groupId)))
         .get();
   }
 
+  Future<List<RuleModel>> getRuleModelsByGroupId(int groupId) {
+    return getRulesByGroupId(groupId).then((value) {
+      return value.map((e) => RuleModel.fromRule(e)).toList();
+    });
+  }
+
   Future<List<Rule>> getOrderedRulesByGroupId(int groupId) async {
-    logger.i('Getting ordered rules by group id: $groupId');
     final order = await getRulesOrder(groupId);
     final rules = await getRulesByGroupId(groupId);
     final orderedRules = <Rule>[];
+    for (final id in order) {
+      final rule = rules.firstWhere((element) => element.id == id);
+      orderedRules.add(rule);
+    }
+    return orderedRules;
+  }
+
+  Future<List<RuleModel>> getOrderedRuleModelsByGroupId(int groupId) async {
+    logger.i('Getting ordered rules by group id: $groupId');
+    final order = await getRulesOrder(groupId);
+    final rules = await getRuleModelsByGroupId(groupId);
+    final orderedRules = <RuleModel>[];
     for (final id in order) {
       final rule = rules.firstWhere((element) => element.id == id);
       orderedRules.add(rule);
@@ -37,31 +51,18 @@ class RuleDao {
         .getSingleOrNull();
   }
 
-  Future<int> insertRule(Rule rule) {
-    return _db.into(_db.rules).insert(
-          RulesCompanion.insert(
-            groupId: rule.groupId,
-            name: rule.name,
-            enabled: rule.enabled,
-            outboundTag: rule.outboundTag,
-            domain: Value(rule.domain),
-            ip: Value(rule.ip),
-            port: Value(rule.port),
-            source: Value(rule.source),
-            sourcePort: Value(rule.sourcePort),
-            network: Value(rule.network),
-            protocol: Value(rule.protocol),
-            processName: Value(rule.processName),
-          ),
-        );
+  Future<int> insertRule(RuleModel rule) {
+    return _db.into(_db.rules).insert(rule.toCompanion());
   }
 
-  Future<void> updateRule(Rule rule) async {
-    final oldRule = await getRuleById(rule.id);
-    if (oldRule == null) {
-      return;
-    }
-    await _db.update(_db.rules).replace(rule.copyWith());
+  Future<void> updateRule(RuleModel rule) async {
+    await (_db.update(_db.rules)..where((tbl) => tbl.id.equals(rule.id)))
+        .write(rule.toRule());
+  }
+
+  Future<void> updateEnabled(int id, bool enabled) async {
+    await (_db.update(_db.rules)..where((tbl) => tbl.id.equals(id)))
+        .write(RulesCompanion(enabled: Value(enabled)));
   }
 
   Future<void> deleteRule(int id) {

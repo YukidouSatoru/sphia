@@ -13,9 +13,9 @@ import 'package:sphia/view/page/rule.dart';
 import 'package:sphia/view/page/server.dart';
 import 'package:sphia/view/page/setting.dart';
 import 'package:sphia/view/page/update.dart';
+import 'package:sphia/view/widget/navigation_rail.dart' as sphia_rail;
 import 'package:sphia/view/widget/updat.dart';
 import 'package:sphia/view/widget/window_caption.dart';
-import 'package:sphia/view/widget/navigation_rail.dart' as sphia_rail;
 import 'package:window_manager/window_manager.dart';
 
 class SphiaApp extends StatefulWidget {

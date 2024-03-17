@@ -42,7 +42,7 @@ class SingBoxCore extends Core {
     if (sphiaConfig.multiOutboundSupport) {
       final serversOnRoutingId = await CoreHelper.getRuleOutboundTagList(rules);
       final serversOnRouting =
-          await serverDao.getServersByIdList(serversOnRoutingId);
+          await serverDao.getServerModelsByIdList(serversOnRoutingId);
       // add servers on routing to outbounds, outbound.tag is proxy-serverId
       for (final server in serversOnRouting) {
         outbounds.add(

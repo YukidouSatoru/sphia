@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
 import 'package:quiver/collection.dart';
 import 'package:sphia/app/controller.dart';
@@ -15,6 +16,11 @@ import 'package:sphia/app/task/task.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/app/tray.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
+import 'package:sphia/server/hysteria/server.dart';
+import 'package:sphia/server/server_model.dart';
+import 'package:sphia/server/shadowsocks/server.dart';
+import 'package:sphia/server/trojan/server.dart';
+import 'package:sphia/server/xray/server.dart';
 import 'package:sphia/util/latency.dart';
 import 'package:sphia/util/system.dart';
 import 'package:sphia/view/dialog/progress.dart';
@@ -23,7 +29,6 @@ import 'package:sphia/view/page/agent/server.dart';
 import 'package:sphia/view/page/wrapper.dart';
 import 'package:sphia/view/widget/dashboard_card/chart.dart';
 import 'package:sphia/view/widget/widget.dart';
-import 'package:path/path.dart' as p;
 
 class ServerPage extends StatefulWidget {
   const ServerPage({
@@ -83,8 +88,9 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
   Future<void> _loadServers() async {
     final serverConfigProvider =
         Provider.of<ServerConfigProvider>(context, listen: false);
-    serverConfigProvider.servers = await serverDao.getOrderedServersByGroupId(
-        serverConfigProvider.serverGroups[_index].id);
+    serverConfigProvider.servers =
+        await serverDao.getOrderedServerModelsByGroupId(
+            serverConfigProvider.serverGroups[_index].id);
   }
 
   void _updateTabController() {
@@ -242,7 +248,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                     elevation: 8.0,
                   ).then((value) async {
                     if (value != null) {
-                      final Server? newServer = await _agent.addServer(
+                      final ServerModel? newServer = await _agent.addServer(
                           serverConfigProvider.serverGroups[_index].id, value);
                       if (newServer != null) {
                         serverConfigProvider.servers.add(newServer);
@@ -563,7 +569,6 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
             ),
           ),
           floatingActionButton: FloatingActionButton(
-            heroTag: UniqueKey(),
             onPressed: _toggleServer,
             child: _isLoading
                 ? const CircularProgressIndicator(
@@ -579,7 +584,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
   }
 
   Widget _buildCard({
-    required Server server,
+    required ServerModel server,
     required int index,
     required bool useMaterial3,
     required int themeColorInt,
@@ -591,22 +596,20 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
     final themeColor = Color(themeColorInt);
     String serverInfo = server.protocol;
     if (showTransport) {
-      if ((server.protocol == 'vmess' || server.protocol == 'vless') &&
-          server.transport != null) {
+      if (server is XrayServer) {
         serverInfo += ' - ${server.transport}';
-        if (server.tls != null && server.tls != 'none') {
+        if (server.tls != 'none') {
           serverInfo += ' + ${server.tls}';
         }
-      } else if (server.protocol == 'shadowsocks' && server.plugin != null) {
+      } else if (server is ShadowsocksServer && server.plugin != null) {
         if (server.plugin == 'obfs-local' || server.plugin == 'simple-obfs') {
           serverInfo += ' - http';
         } else if (server.plugin == 'simple-obfs-tls') {
           serverInfo += ' - tls';
         }
-      } else if (server.protocol == 'trojan') {
+      } else if (server is TrojanServer) {
         serverInfo += ' - tcp';
-      } else if (server.protocol == 'hysteria' &&
-          server.hysteriaProtocol != null) {
+      } else if (server is HysteriaServer) {
         serverInfo += ' - ${server.hysteriaProtocol}';
       }
     }
@@ -664,7 +667,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                 SphiaWidget.iconButton(
                   icon: Icons.edit,
                   onTap: () async {
-                    late final Server? newServer;
+                    late final ServerModel? newServer;
                     if ((newServer = await _agent.editServer(server)) != null) {
                       if (!mounted) {
                         return;
@@ -781,7 +784,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
 
   Future<void> _toggleServer() async {
     final coreProvider = Provider.of<CoreProvider>(context, listen: false);
-    final server = await serverDao.getSelectedServer();
+    final server = await serverDao.getSelectedServerModel();
     if (server == null) {
       if (coreProvider.coreRunning) {
         await SphiaController.stopCores();
@@ -851,7 +854,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
     }
   }
 
-  Future<void> _deleteServer(int index, Server server) async {
+  Future<void> _deleteServer(int index, ServerModel server) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(

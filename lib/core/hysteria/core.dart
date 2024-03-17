@@ -3,10 +3,10 @@ import 'dart:core';
 
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
-import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/core/core.dart';
 import 'package:sphia/core/hysteria/config.dart';
+import 'package:sphia/server/hysteria/server.dart';
 import 'package:sphia/util/system.dart';
 
 class HysteriaCore extends Core {
@@ -18,7 +18,7 @@ class HysteriaCore extends Core {
   Future<void> configure() async {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     final parameters = HysteriaConfigParameters(
-      server: servers.first,
+      server: servers.first as HysteriaServer,
       additionalSocksPort: sphiaConfig.additionalSocksPort,
       enableUdp: sphiaConfig.enableUdp,
     );
@@ -33,7 +33,7 @@ class HysteriaCore extends Core {
     if (server.protocol == 'hysteria') {
       final hysteriaConfig = HysteriaConfig(
         server: '${server.address}:${server.port}',
-        protocol: server.hysteriaProtocol ?? 'udp',
+        protocol: server.hysteriaProtocol,
         obfs: server.obfs,
         alpn: server.alpn,
         auth: server.authType != 'none'
@@ -43,12 +43,12 @@ class HysteriaCore extends Core {
             ? (server.authType == 'str' ? server.authPayload : null)
             : null,
         serverName: server.serverName,
-        insecure: server.allowInsecure ?? false,
-        upMbps: server.upMbps ?? 10,
-        downMbps: server.downMbps ?? 50,
+        insecure: server.insecure,
+        upMbps: server.upMbps,
+        downMbps: server.downMbps,
         recvWindowConn: server.recvWindowConn,
         recvWindow: server.recvWindow,
-        disableMtuDiscovery: server.disableMtuDiscovery ?? false,
+        disableMtuDiscovery: server.disableMtuDiscovery,
         socks5: Socks5(
           listen: '127.0.0.1:${paras.additionalSocksPort}',
           timeout: 300,
@@ -66,7 +66,7 @@ class HysteriaCore extends Core {
 }
 
 class HysteriaConfigParameters extends ConfigParameters {
-  final Server server;
+  final HysteriaServer server;
   final int additionalSocksPort;
   final bool enableUdp;
 

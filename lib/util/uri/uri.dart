@@ -5,6 +5,11 @@ import 'package:get_it/get_it.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:sphia/server/hysteria/server.dart';
+import 'package:sphia/server/server_model.dart';
+import 'package:sphia/server/shadowsocks/server.dart';
+import 'package:sphia/server/trojan/server.dart';
+import 'package:sphia/server/xray/server.dart';
 import 'package:sphia/util/network.dart';
 import 'package:sphia/util/uri/hysteria.dart';
 import 'package:sphia/util/uri/shadowsocks.dart';
@@ -13,37 +18,37 @@ import 'package:sphia/util/uri/vless.dart';
 import 'package:sphia/util/uri/vmess.dart';
 
 class UriUtil {
-  static String? getUri(server) {
+  static String? getUri(ServerModel server) {
     switch (server.protocol) {
       case 'vless':
-        return VlessUtil.getUri(server);
+        return VlessUtil.getUri(server as XrayServer);
       case 'vmess':
-        return VMessUtil.getUri(server);
+        return VMessUtil.getUri(server as XrayServer);
       case 'shadowsocks':
-        return ShadowsocksUtil.getUri(server);
+        return ShadowsocksUtil.getUri(server as ShadowsocksServer);
       case 'trojan':
-        return TrojanUtil.getUri(server);
+        return TrojanUtil.getUri(server as TrojanServer);
       case 'hysteria':
-        return HysteriaUtil.getUri(server);
+        return HysteriaUtil.getUri(server as HysteriaServer);
     }
     return null;
   }
 
-  static Server? parseUri(String uri) {
+  static ServerModel? parseUri(String uri) {
     try {
       uri = uri.trim();
       String scheme = uri.split('://')[0];
       switch (scheme) {
         case 'vless':
-          return VlessUtil.parseUri(uri);
+          return VlessUtil.parseUri(uri) as ServerModel;
         case 'vmess':
-          return VMessUtil.parseUri(uri);
+          return VMessUtil.parseUri(uri) as ServerModel;
         case 'ss':
-          return ShadowsocksUtil.parseUri(uri);
+          return ShadowsocksUtil.parseUri(uri) as ServerModel;
         case 'trojan':
-          return TrojanUtil.parseUri(uri);
+          return TrojanUtil.parseUri(uri) as ServerModel;
         case 'hysteria':
-          return HysteriaUtil.parseUri(uri);
+          return HysteriaUtil.parseUri(uri) as ServerModel;
       }
     } on Exception catch (e) {
       logger.e('$e: $uri');
@@ -90,7 +95,7 @@ class UriUtil {
 
       for (final uri in uris) {
         final newServer = parseUri(uri);
-        if (newServer is Server) {
+        if (newServer is ServerModel) {
           final oldIndex = oldServers.indexWhere(
             (e) =>
                 e.remark == newServer.remark &&
@@ -103,10 +108,8 @@ class UriUtil {
             oldOrder.removeAt(oldIndex);
             oldServers.removeAt(oldIndex);
           } else {
-            newOrder.add(await serverDao.insertServerByGroupId(
-              groupId,
-              newServer,
-            ));
+            newOrder.add(
+                await serverDao.insertServer(newServer..groupId = groupId));
           }
         }
       }

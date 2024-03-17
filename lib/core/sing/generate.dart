@@ -2,12 +2,17 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 import 'package:sphia/app/database/database.dart';
+import 'package:sphia/core/helper.dart';
 import 'package:sphia/core/rule/extension.dart';
 import 'package:sphia/core/rule/sing.dart';
 import 'package:sphia/core/sing/config.dart';
+import 'package:sphia/server/hysteria/server.dart';
+import 'package:sphia/server/server_model.dart';
+import 'package:sphia/server/shadowsocks/server.dart';
+import 'package:sphia/server/trojan/server.dart';
+import 'package:sphia/server/xray/server.dart';
 import 'package:sphia/util/system.dart';
 import 'package:sphia/view/dialog/rule.dart';
-import 'package:sphia/core/helper.dart';
 
 class SingBoxGenerate {
   static const ipRegExp = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}';
@@ -136,22 +141,22 @@ class SingBoxGenerate {
     );
   }
 
-  static Outbound generateOutbound(Server server) {
+  static Outbound generateOutbound(ServerModel server) {
     late Outbound outbound;
     switch (server.protocol) {
       case 'socks':
       case 'vmess':
       case 'vless':
-        outbound = xrayOutbound(server);
+        outbound = xrayOutbound(server as XrayServer);
         break;
       case 'shadowsocks':
-        outbound = shadowsocksOutbound(server);
+        outbound = shadowsocksOutbound(server as ShadowsocksServer);
         break;
       case 'trojan':
-        outbound = trojanOutbound(server);
+        outbound = trojanOutbound(server as TrojanServer);
         break;
       case 'hysteria':
-        outbound = hysteriaOutbound(server);
+        outbound = hysteriaOutbound(server as HysteriaServer);
         break;
       default:
         throw Exception(
@@ -160,7 +165,7 @@ class SingBoxGenerate {
     return outbound;
   }
 
-  static Outbound xrayOutbound(Server server) {
+  static Outbound xrayOutbound(XrayServer server) {
     if (server.protocol == 'socks') {
       return socksOutbound(server);
     } else if (server.protocol == 'vmess' || server.protocol == 'vless') {
@@ -171,7 +176,7 @@ class SingBoxGenerate {
     }
   }
 
-  static Outbound socksOutbound(Server server) {
+  static Outbound socksOutbound(XrayServer server) {
     return Outbound(
       type: 'socks',
       server: server.address,
@@ -180,7 +185,7 @@ class SingBoxGenerate {
     );
   }
 
-  static Outbound vProtocolOutbound(Server server) {
+  static Outbound vProtocolOutbound(XrayServer server) {
     final utls = UTls(
       enabled: server.fingerprint != null && server.fingerprint != 'none',
       fingerprint: server.fingerprint,
@@ -193,12 +198,12 @@ class SingBoxGenerate {
     final tls = Tls(
       enabled: server.tls == 'tls',
       serverName: server.serverName ?? server.address,
-      insecure: server.allowInsecure ?? false,
+      insecure: server.allowInsecure,
       utls: utls,
       reality: reality,
     );
     final transport = Transport(
-      type: server.transport ?? 'tcp',
+      type: server.transport,
       host: server.transport == 'httpupgrade'
           ? (server.host ?? server.address)
           : null,
@@ -221,7 +226,7 @@ class SingBoxGenerate {
     );
   }
 
-  static Outbound shadowsocksOutbound(Server server) {
+  static Outbound shadowsocksOutbound(ShadowsocksServer server) {
     return Outbound(
       type: 'shadowsocks',
       server: server.address,
@@ -233,11 +238,11 @@ class SingBoxGenerate {
     );
   }
 
-  static Outbound trojanOutbound(Server server) {
+  static Outbound trojanOutbound(TrojanServer server) {
     final tls = Tls(
       enabled: true,
       serverName: server.serverName ?? server.address,
-      insecure: server.allowInsecure ?? false,
+      insecure: server.allowInsecure,
     );
     return Outbound(
       type: 'trojan',
@@ -249,11 +254,11 @@ class SingBoxGenerate {
     );
   }
 
-  static Outbound hysteriaOutbound(Server server) {
+  static Outbound hysteriaOutbound(HysteriaServer server) {
     final tls = Tls(
       enabled: true,
       serverName: server.serverName ?? server.address,
-      insecure: server.allowInsecure ?? false,
+      insecure: server.insecure,
       alpn: server.alpn?.split(','),
     );
     return Outbound(

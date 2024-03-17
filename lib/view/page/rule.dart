@@ -6,6 +6,7 @@ import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/app/tray.dart';
+import 'package:sphia/core/rule/rule_model.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/view/dialog/rule.dart';
 import 'package:sphia/view/page/agent/rule.dart';
@@ -24,7 +25,7 @@ class RulePage extends StatefulWidget {
 class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
   late int _index;
   late final RuleAgent _agent;
-  List<Rule> _rules = [];
+  List<RuleModel> _rules = [];
   TabController? _tabController;
 
   @override
@@ -49,8 +50,8 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
   Future<void> _loadRules() async {
     final ruleConfigProvider =
         Provider.of<RuleConfigProvider>(context, listen: false);
-    _rules = await ruleDao
-        .getOrderedRulesByGroupId(ruleConfigProvider.ruleGroups[_index].id);
+    _rules = await ruleDao.getOrderedRuleModelsByGroupId(
+        ruleConfigProvider.ruleGroups[_index].id);
   }
 
   void _updateTabController() {
@@ -241,9 +242,8 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          heroTag: UniqueKey(),
           onPressed: () async {
-            late final Rule? newRule;
+            late final RuleModel? newRule;
             if ((newRule = await _agent
                     .addRule(ruleConfigProvider.ruleGroups[_index].id)) !=
                 null) {
@@ -258,7 +258,7 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
   }
 
   Widget _buildCard({
-    required Rule rule,
+    required RuleModel rule,
     required int index,
     required bool useMaterial3,
   }) {
@@ -325,19 +325,15 @@ class _RulePageState extends State<RulePage> with TickerProviderStateMixin {
                 Switch(
                   value: rule.enabled,
                   onChanged: (bool value) async {
-                    _rules[index] = rule.copyWith(
-                      enabled: value,
-                    );
-                    await ruleDao.updateRule(
-                      _rules[index],
-                    );
+                    _rules[index].enabled = value;
+                    await ruleDao.updateEnabled(rule.id, value);
                     setState(() {});
                   },
                 ),
                 SphiaWidget.iconButton(
                   icon: Icons.edit,
                   onTap: () async {
-                    late final Rule? newRule;
+                    late final RuleModel? newRule;
                     if ((newRule = await _agent.editRule(rule)) != null) {
                       _rules[index] = newRule!;
                       setState(() {});

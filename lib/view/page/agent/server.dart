@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -13,10 +12,14 @@ import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/task/subscription.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/core/hysteria/core.dart';
-import 'package:sphia/core/server/defaults.dart';
 import 'package:sphia/core/sing/core.dart';
 import 'package:sphia/core/xray/core.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
+import 'package:sphia/server/hysteria/server.dart';
+import 'package:sphia/server/server_model.dart';
+import 'package:sphia/server/shadowsocks/server.dart';
+import 'package:sphia/server/trojan/server.dart';
+import 'package:sphia/server/xray/server.dart';
 import 'package:sphia/util/uri/uri.dart';
 import 'package:sphia/view/dialog/hysteria.dart';
 import 'package:sphia/view/dialog/server_group.dart';
@@ -30,81 +33,79 @@ class ServerAgent {
 
   ServerAgent(this.context);
 
-  Future<Server?> addServer(int groupId, String protocol) async {
-    late final Server? newServer;
+  Future<ServerModel?> addServer(int groupId, String protocol) async {
+    late final ServerModel? server;
     switch (protocol) {
       case 'vmess':
       case 'vless':
-        newServer = await _showEditServerDialog(
+        server = await _showEditServerDialog(
           protocol == 'vmess'
               ? '${S.current.add} VMess ${S.current.server}'
               : '${S.current.add} Vless ${S.current.server}',
-          ServerDefaults.xrayDefaults(groupId, defaultServerId).copyWith(
-              protocol: protocol,
-              encryption: Value((protocol == 'vmess' ? 'auto' : 'none'))),
+          protocol == 'vmess'
+              ? (XrayServer.vmessDefaults()..groupId = groupId)
+              : (XrayServer.vlessDefaults()..groupId = groupId),
         );
         break;
       case 'shadowsocks':
-        newServer = await _showEditServerDialog(
+        server = await _showEditServerDialog(
           '${S.current.add} Shadowsocks ${S.current.server}',
-          ServerDefaults.shadowsocksDefaults(groupId, defaultServerId),
+          ShadowsocksServer.defaults()..groupId = groupId,
         );
         break;
       case 'trojan':
-        newServer = await _showEditServerDialog(
+        server = await _showEditServerDialog(
           '${S.current.add} Trojan ${S.current.server}',
-          ServerDefaults.trojanDefaults(groupId, defaultServerId),
+          TrojanServer.defaults()..groupId = groupId,
         );
         break;
       case 'hysteria':
-        newServer = await _showEditServerDialog(
+        server = await _showEditServerDialog(
           '${S.current.add} Hysteria ${S.current.server}',
-          ServerDefaults.hysteriaDefaults(groupId, defaultServerId),
+          HysteriaServer.defaults()..groupId = groupId,
         );
         break;
       case 'clipboard':
         List<String> uris = await UriUtil.importUriFromClipboard();
         if (uris.isNotEmpty) {
-          List<Server> newServer = [];
+          List<ServerModel> servers = [];
           for (var uri in uris) {
             try {
               final server = UriUtil.parseUri(uri);
               if (server != null) {
-                newServer.add(server);
+                servers.add(server..groupId = groupId);
               }
             } on Exception catch (e) {
               logger.e('Failed to parse uri: $uri\n$e');
             }
           }
-          await serverDao.insertServersByGroupId(groupId, newServer);
+          await serverDao.insertServers(servers);
           await serverDao.refreshServersOrder(groupId);
         }
         return null;
       default:
         return null;
     }
-    if (newServer == null) {
+    if (server == null) {
       return null;
     }
-    logger.i('Adding Server: ${newServer.remark}');
-    final serverId = await serverDao.insertServer(newServer);
+    logger.i('Adding Server: ${server.remark}');
+    final serverId = await serverDao.insertServer(server);
     await serverDao.refreshServersOrder(groupId);
-    return newServer.copyWith(id: serverId);
+    return server..id = serverId;
   }
 
-  Future<Server?> editServer(Server server) async {
-    Server? editedServer = await _getEditedServer(server);
+  Future<ServerModel?> editServer(ServerModel server) async {
+    final ServerModel? editedServer = await _getEditedServer(server);
     if (editedServer == null || editedServer == server) {
       return null;
     }
-    editedServer = editedServer.copyWith(
-        uplink: Value(server.uplink), downlink: Value(server.downlink));
     logger.i('Editing Server: ${server.id}');
     await serverDao.updateServer(editedServer);
     return editedServer;
   }
 
-  Future<Server?> _getEditedServer(Server server) async {
+  Future<ServerModel?> _getEditedServer(ServerModel server) async {
     if (server.protocol == 'vmess' || server.protocol == 'vless') {
       switch (server.protocol) {
         case 'vmess':
@@ -147,7 +148,7 @@ class ServerAgent {
   }
 
   Future<bool> shareServer(String option, int serverId) async {
-    final server = await serverDao.getServerById(serverId);
+    final server = await serverDao.getServerModelById(serverId);
     if (server == null) {
       return false;
     }
@@ -191,24 +192,24 @@ class ServerAgent {
     );
   }
 
-  Future<bool> _shareConfiguration(Server server) async {
+  Future<bool> _shareConfiguration(ServerModel server) async {
     final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
     final sphiaConfig = sphiaConfigProvider.config;
     const exportFileName = 'export.json';
 
     final protocol = server.protocol;
     final protocolToCore = {
-      'vmess': (Server selectedServer, SphiaConfig sphiaConfig) =>
+      'vmess': (ServerModel selectedServer, SphiaConfig sphiaConfig) =>
           (selectedServer.protocolProvider ?? sphiaConfig.vmessProvider) ==
                   VmessProvider.xray.index
               ? XrayCore()
               : SingBoxCore(),
-      'vless': (Server selectedServer, SphiaConfig sphiaConfig) =>
+      'vless': (ServerModel selectedServer, SphiaConfig sphiaConfig) =>
           (selectedServer.protocolProvider ?? sphiaConfig.vlessProvider) ==
                   VlessProvider.xray.index
               ? XrayCore()
               : SingBoxCore(),
-      'shadowsocks': (Server selectedServer, SphiaConfig sphiaConfig) {
+      'shadowsocks': (ServerModel selectedServer, SphiaConfig sphiaConfig) {
         final protocolProvider =
             selectedServer.protocolProvider ?? sphiaConfig.shadowsocksProvider;
         if (protocolProvider == ShadowsocksProvider.xray.index) {
@@ -219,12 +220,12 @@ class ServerAgent {
           return null;
         }
       },
-      'trojan': (Server selectedServer, SphiaConfig sphiaConfig) =>
+      'trojan': (ServerModel selectedServer, SphiaConfig sphiaConfig) =>
           (selectedServer.protocolProvider ?? sphiaConfig.trojanProvider) ==
                   TrojanProvider.xray.index
               ? XrayCore()
               : SingBoxCore(),
-      'hysteria': (Server selectedServer, SphiaConfig sphiaConfig) =>
+      'hysteria': (ServerModel selectedServer, SphiaConfig sphiaConfig) =>
           (selectedServer.protocolProvider ?? sphiaConfig.hysteriaProvider) ==
                   HysteriaProvider.sing.index
               ? SingBoxCore()
@@ -428,28 +429,31 @@ class ServerAgent {
     return true;
   }
 
-  Future<Server?> _showEditServerDialog(String title, Server server) async {
+  Future<ServerModel?> _showEditServerDialog(
+      String title, ServerModel server) async {
     if (server.protocol == 'vmess' || server.protocol == 'vless') {
-      return showDialog<Server>(
+      return showDialog<ServerModel>(
         context: context,
-        builder: (context) => XrayServerDialog(title: title, server: server),
+        builder: (context) =>
+            XrayServerDialog(title: title, server: server as XrayServer),
       );
     } else if (server.protocol == 'shadowsocks') {
-      return showDialog<Server>(
+      return showDialog<ServerModel>(
         context: context,
-        builder: (context) =>
-            ShadowsocksServerDialog(title: title, server: server),
+        builder: (context) => ShadowsocksServerDialog(
+            title: title, server: server as ShadowsocksServer),
       );
     } else if (server.protocol == 'trojan') {
-      return showDialog<Server>(
-        context: context,
-        builder: (context) => TrojanServerDialog(title: title, server: server),
-      );
-    } else if (server.protocol == 'hysteria') {
-      return showDialog<Server>(
+      return showDialog<ServerModel>(
         context: context,
         builder: (context) =>
-            HysteriaServerDialog(title: title, server: server),
+            TrojanServerDialog(title: title, server: server as TrojanServer),
+      );
+    } else if (server.protocol == 'hysteria') {
+      return showDialog<ServerModel>(
+        context: context,
+        builder: (context) => HysteriaServerDialog(
+            title: title, server: server as HysteriaServer),
       );
     }
     return null;

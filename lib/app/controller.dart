@@ -1,28 +1,28 @@
 import 'package:get_it/get_it.dart';
 import 'package:sphia/app/config/sphia.dart';
-import 'package:sphia/app/database/dao/server.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/tray.dart';
 import 'package:sphia/core/hysteria/core.dart';
-import 'package:sphia/core/server/defaults.dart';
-import 'package:sphia/core/shadowsocks/core.dart';
 import 'package:sphia/core/sing/core.dart';
+import 'package:sphia/core/ssrust/core.dart';
 import 'package:sphia/core/xray/core.dart';
+import 'package:sphia/server/server_model.dart';
+import 'package:sphia/server/xray/server.dart';
 import 'package:sphia/util/system.dart';
 
 class SphiaController {
   static Future<void> toggleCores() async {
     final coreProvider = GetIt.I.get<CoreProvider>();
     try {
-      final selectedServer = await serverDao.getSelectedServer();
+      final selectedServer = await serverDao.getSelectedServerModel();
       if (selectedServer == null) {
         return;
       }
       if (coreProvider.cores.isNotEmpty) {
-        final runningServer = await getRunningServer();
+        final runningServer = await getRunningServerModel();
         if (selectedServer == runningServer) {
           await stopCores();
         } else {
@@ -37,13 +37,13 @@ class SphiaController {
     }
   }
 
-  static Future<void> startCores(Server selectedServer) async {
+  static Future<void> startCores(ServerModel selectedServer) async {
     final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
     final coreProvider = GetIt.I.get<CoreProvider>();
     final protocol = selectedServer.protocol;
     final int routingProvider =
         selectedServer.routingProvider ?? sphiaConfig.routingProvider;
-    late final Server? additionalServer;
+    late final ServerModel? additionalServer;
 
     coreProvider.cores = [];
 
@@ -61,17 +61,17 @@ class SphiaController {
       }
     } else {
       final protocolToCore = {
-        'vmess': (Server selectedServer, SphiaConfig sphiaConfig) =>
+        'vmess': (ServerModel selectedServer, SphiaConfig sphiaConfig) =>
             (selectedServer.protocolProvider ?? sphiaConfig.vmessProvider) ==
                     VmessProvider.xray.index
                 ? XrayCore()
                 : SingBoxCore(),
-        'vless': (Server selectedServer, SphiaConfig sphiaConfig) =>
+        'vless': (ServerModel selectedServer, SphiaConfig sphiaConfig) =>
             (selectedServer.protocolProvider ?? sphiaConfig.vlessProvider) ==
                     VlessProvider.xray.index
                 ? XrayCore()
                 : SingBoxCore(),
-        'shadowsocks': (Server selectedServer, SphiaConfig sphiaConfig) {
+        'shadowsocks': (ServerModel selectedServer, SphiaConfig sphiaConfig) {
           final protocolProvider = selectedServer.protocolProvider ??
               sphiaConfig.shadowsocksProvider;
           if (protocolProvider == ShadowsocksProvider.xray.index) {
@@ -82,12 +82,12 @@ class SphiaController {
             return ShadowsocksRustCore();
           }
         },
-        'trojan': (Server selectedServer, SphiaConfig sphiaConfig) =>
+        'trojan': (ServerModel selectedServer, SphiaConfig sphiaConfig) =>
             (selectedServer.protocolProvider ?? sphiaConfig.trojanProvider) ==
                     TrojanProvider.xray.index
                 ? XrayCore()
                 : SingBoxCore(),
-        'hysteria': (Server selectedServer, SphiaConfig sphiaConfig) =>
+        'hysteria': (ServerModel selectedServer, SphiaConfig sphiaConfig) =>
             (selectedServer.protocolProvider ?? sphiaConfig.hysteriaProvider) ==
                     HysteriaProvider.sing.index
                 ? SingBoxCore()
@@ -119,15 +119,10 @@ class SphiaController {
             additionalServerPort = sphiaConfig.additionalSocksPort;
           }
         }
-        additionalServer = ServerDefaults.xrayDefaults(
-          defaultServerGroupId,
-          additionalServerId,
-        ).copyWith(
-          remark: 'Additional Socks Server',
-          protocol: 'socks',
-          address: sphiaConfig.listen,
-          port: additionalServerPort,
-        );
+        additionalServer = XrayServer.socksDefaults()
+          ..remark = 'Additional Socks Server'
+          ..address = sphiaConfig.listen
+          ..port = additionalServerPort;
       } else {
         // mark the first core as routing
         coreProvider.cores.add(core..isRouting = true);
@@ -217,7 +212,7 @@ class SphiaController {
     final coreProvider = GetIt.I.get<CoreProvider>();
     if (coreProvider.cores.isNotEmpty) {
       logger.i('Restarting cores');
-      final runningServer = await getRunningServer();
+      final runningServer = await getRunningServerModel();
       try {
         await stopCores(keepSysProxy: true);
         await startCores(runningServer);
@@ -241,14 +236,15 @@ class SphiaController {
     return coreProvider.proxy.servers.first.id;
   }
 
-  static Future<Server> getRunningServer() async {
+  static Future<ServerModel> getRunningServerModel() async {
     final runningServerId = getRunningServerId();
     // do not get server from coreProvider, because it may has been modified
-    final runningServer = await serverDao.getServerById(runningServerId);
-    if (runningServer == null) {
+    final runningServerModel =
+        await serverDao.getServerModelById(runningServerId);
+    if (runningServerModel == null) {
       logger.e('Failed to get running server');
       throw Exception('Failed to get running server');
     }
-    return runningServer;
+    return runningServerModel;
   }
 }

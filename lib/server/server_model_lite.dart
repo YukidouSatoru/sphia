@@ -1,8 +1,8 @@
-class ServerModel {
+class ServerModelLite {
   final int id;
   final String remark;
 
-  ServerModel({required this.id, required this.remark});
+  ServerModelLite({required this.id, required this.remark});
 
   @override
   String toString() => remark;

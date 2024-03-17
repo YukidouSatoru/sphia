@@ -1,7 +1,6 @@
-import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
-import 'package:sphia/app/database/database.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
+import 'package:sphia/server/hysteria/server.dart';
 import 'package:sphia/view/dialog/xray.dart';
 import 'package:sphia/view/widget/widget.dart';
 
@@ -11,7 +10,7 @@ const disableMtuDiscovery = ['false', 'true'];
 
 class HysteriaServerDialog extends StatefulWidget {
   final String title;
-  final Server server;
+  final HysteriaServer server;
 
   const HysteriaServerDialog({
     super.key,
@@ -254,33 +253,32 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
                 address: _addressController.text,
                 port: int.parse(_portController.text),
                 remark: _remarkController.text,
-                hysteriaProtocol: Value(_hysteriaProtocol),
-                obfs: Value(_obfsController.text.trim().isNotEmpty
+                hysteriaProtocol: _hysteriaProtocol,
+                obfs: _obfsController.text.trim().isNotEmpty
                     ? _obfsController.text
-                    : null),
-                alpn: Value(_alpnController.text.trim().isNotEmpty
+                    : null,
+                alpn: _alpnController.text.trim().isNotEmpty
                     ? _alpnController.text
-                    : null),
-                authType: Value(_authType),
+                    : null,
+                authType: _authType,
                 authPayload: _authPayloadController.text.trim().isNotEmpty
                     ? _authPayloadController.text
                     : null,
-                serverName: Value(_sniController.text.trim().isNotEmpty
+                serverName: _sniController.text.trim().isNotEmpty
                     ? _sniController.text
-                    : null),
-                allowInsecure: Value(_insecure == 'true'),
-                upMbps: Value(int.parse(_upMbpsController.text)),
-                downMbps: Value(int.parse(_downMbpsController.text)),
-                recvWindowConn: Value(
-                    _recvWindowConnController.text.trim().isNotEmpty
-                        ? int.parse(_recvWindowConnController.text)
-                        : null),
-                recvWindow: Value(_recvWindowController.text.trim().isNotEmpty
+                    : null,
+                insecure: _insecure == 'true',
+                upMbps: int.parse(_upMbpsController.text),
+                downMbps: int.parse(_downMbpsController.text),
+                recvWindowConn: _recvWindowConnController.text.trim().isNotEmpty
+                    ? int.parse(_recvWindowConnController.text)
+                    : null,
+                recvWindow: _recvWindowController.text.trim().isNotEmpty
                     ? int.parse(_recvWindowController.text)
-                    : null),
-                disableMtuDiscovery: Value(_disableMtuDiscovery == 'true'),
-                routingProvider: Value(_routingProvider),
-                protocolProvider: Value(_protocolProvider),
+                    : null,
+                disableMtuDiscovery: _disableMtuDiscovery == 'true',
+                routingProvider: _routingProvider,
+                protocolProvider: _protocolProvider,
               );
               Navigator.pop(context, server);
             }
@@ -296,13 +294,13 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
     _remarkController.text = server.remark;
     _addressController.text = server.address;
     _portController.text = server.port.toString();
-    _hysteriaProtocol = server.hysteriaProtocol ?? 'udp';
+    _hysteriaProtocol = server.hysteriaProtocol;
     _obfsController.text = server.obfs ?? '';
     _alpnController.text = server.alpn ?? '';
-    _authType = server.authType ?? 'none';
+    _authType = server.authType;
     _authPayloadController.text = server.authPayload;
     _sniController.text = server.serverName ?? '';
-    _insecure = server.allowInsecure.toString();
+    _insecure = server.insecure.toString();
     _upMbpsController.text = server.upMbps.toString();
     _downMbpsController.text = server.downMbps.toString();
     _recvWindowConnController.text =

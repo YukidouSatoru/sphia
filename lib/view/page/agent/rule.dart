@@ -8,6 +8,7 @@ import 'package:sphia/app/provider/rule_config.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/core/rule/extension.dart';
+import 'package:sphia/core/rule/rule_model.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/view/dialog/rule.dart';
 import 'package:sphia/view/dialog/rule_group.dart';
@@ -18,16 +19,10 @@ class RuleAgent {
 
   RuleAgent(this.context);
 
-  Future<Rule?> addRule(int groupId) async {
-    Rule? rule = await _showEditRuleDialog(
+  Future<RuleModel?> addRule(int groupId) async {
+    final RuleModel? rule = await _showEditRuleDialog(
       '${S.current.add} ${S.current.rule}',
-      Rule(
-        id: defaultRuleId,
-        groupId: groupId,
-        name: '',
-        enabled: true,
-        outboundTag: outboundProxyId,
-      ),
+      RuleModel.defaults()..groupId = groupId,
     );
     if (rule == null) {
       return null;
@@ -35,19 +30,19 @@ class RuleAgent {
     logger.i('Adding Rule: ${rule.name}');
     final ruleId = await ruleDao.insertRule(rule);
     await ruleDao.refreshRulesOrder(groupId);
-    return rule.copyWith(id: ruleId);
+    return rule..id = ruleId;
   }
 
-  Future<Rule?> editRule(Rule rule) async {
-    Rule? newRule = await _showEditRuleDialog(
+  Future<RuleModel?> editRule(RuleModel rule) async {
+    final RuleModel? editedRule = await _showEditRuleDialog(
         '${S.of(context).edit} ${S.of(context).rule}', rule);
-    if (newRule == null || newRule == rule) {
+    if (editedRule == null || editedRule == rule) {
       return null;
     }
     logger.i('Editing Rule: ${rule.id}');
-    await ruleDao.updateRule(newRule);
-    // await ruleDao.refreshRulesOrderByGroupId(newRule.groupId);
-    return newRule;
+    await ruleDao.updateRule(editedRule);
+    // await ruleDao.refreshRulesOrderByGroupId(editedRule.groupId);
+    return editedRule;
   }
 
   Future<bool> deleteRule(int ruleId) async {
@@ -227,7 +222,7 @@ class RuleAgent {
         .updateRuleGroupsOrder([defaultGroupId, directGroupId, globalGroupId]);
     // insert default rules
     final rules = [
-      Rule(
+      RuleModel(
         id: defaultRuleId,
         groupId: defaultGroupId,
         name: 'Block QUIC',
@@ -236,7 +231,7 @@ class RuleAgent {
         port: '443',
         network: 'udp',
       ),
-      Rule(
+      RuleModel(
         id: defaultRuleId,
         groupId: defaultGroupId,
         name: 'Block ADS',
@@ -244,7 +239,7 @@ class RuleAgent {
         outboundTag: outboundBlockId,
         domain: 'geosite:category-ads-all',
       ),
-      Rule(
+      RuleModel(
         id: defaultRuleId,
         groupId: defaultGroupId,
         name: 'Bypass CN Domains',
@@ -252,7 +247,7 @@ class RuleAgent {
         outboundTag: outboundDirectId,
         domain: 'geosite:cn',
       ),
-      Rule(
+      RuleModel(
         id: defaultRuleId,
         groupId: defaultGroupId,
         name: 'Bypass CN & Local IPs',
@@ -260,7 +255,7 @@ class RuleAgent {
         outboundTag: outboundDirectId,
         ip: 'geoip:private,geoip:cn',
       ),
-      Rule(
+      RuleModel(
         id: defaultRuleId,
         groupId: defaultGroupId,
         name: 'Proxy',
@@ -268,7 +263,7 @@ class RuleAgent {
         outboundTag: outboundProxyId,
         port: '0-65535',
       ),
-      Rule(
+      RuleModel(
         id: defaultRuleId,
         groupId: directGroupId,
         name: 'Direct',
@@ -276,7 +271,7 @@ class RuleAgent {
         outboundTag: outboundDirectId,
         port: '0-65535',
       ),
-      Rule(
+      RuleModel(
         id: defaultRuleId,
         groupId: globalGroupId,
         name: 'Proxy',
@@ -306,8 +301,8 @@ class RuleAgent {
     return true;
   }
 
-  Future<Rule?> _showEditRuleDialog(String title, Rule rule) async {
-    return showDialog<Rule>(
+  Future<RuleModel?> _showEditRuleDialog(String title, RuleModel rule) async {
+    return showDialog<RuleModel>(
       context: context,
       builder: (context) => RuleDialog(title: title, rule: rule),
     );

@@ -4,8 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:sphia/app/database/dao/rule.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/core/server/model.dart';
+import 'package:sphia/core/rule/rule_model.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
+import 'package:sphia/server/server_model_lite.dart';
 import 'package:sphia/view/widget/widget.dart';
 
 const network = [
@@ -21,7 +22,7 @@ const protocol = [
 
 class RuleDialog extends StatefulWidget {
   final String title;
-  final Rule rule;
+  final RuleModel rule;
 
   const RuleDialog({
     super.key,
@@ -144,7 +145,7 @@ class _RuleDialogState extends State<RuleDialog> {
         ElevatedButton(
           onPressed: () {
             if (_formKey.currentState?.validate() == true) {
-              final rule = Rule(
+              final rule = RuleModel(
                 id: widget.rule.id,
                 groupId: widget.rule.groupId,
                 enabled: widget.rule.enabled,
@@ -204,7 +205,7 @@ class _RuleDialogState extends State<RuleDialog> {
 
   Widget _buildDropdownSearch(BuildContext context, String outboundTagDisplay) {
     final sphiaConfig = Provider.of<SphiaConfigProvider>(context).config;
-    return DropdownSearch<ServerModel>(
+    return DropdownSearch<ServerModelLite>(
       popupProps: PopupProps.menu(
           scrollbarProps: const ScrollbarProps(
             thickness: 0,
@@ -223,23 +224,24 @@ class _RuleDialogState extends State<RuleDialog> {
             );
           }),
       asyncItems: (query) async {
-        List<ServerModel> items = [
-          ServerModel(
+        List<ServerModelLite> items = [
+          ServerModelLite(
             id: outboundProxyId,
             remark: 'proxy',
           ),
-          ServerModel(
+          ServerModelLite(
             id: outboundDirectId,
             remark: 'direct',
           ),
-          ServerModel(
+          ServerModelLite(
             id: outboundBlockId,
             remark: 'block',
           ),
         ];
         final servers = await serverDao.getServers();
         for (var i = 0; i < servers.length; i++) {
-          items.add(ServerModel(id: servers[i].id, remark: servers[i].remark));
+          items.add(
+              ServerModelLite(id: servers[i].id, remark: servers[i].remark));
         }
         return items;
       },
@@ -253,7 +255,7 @@ class _RuleDialogState extends State<RuleDialog> {
           _outboundTag = value.id;
         }
       },
-      selectedItem: ServerModel(
+      selectedItem: ServerModelLite(
         id: _outboundTag,
         remark: outboundTagDisplay,
       ),

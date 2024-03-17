@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:sphia/app/database/database.dart';
@@ -65,14 +64,12 @@ class _ProgressDialogState extends State<ProgressDialog> {
   Future<void> latencyTest(String option, String type) async {
     logger.i('Testing Latency: option=$option, type=$type');
 
-    final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-    final servers = <Server>[];
-
     final isICMP = (type == 'ICMP');
     final isTCP = (type == 'TCP');
     final isUrl = (type == 'Url');
+    final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     if (option == 'SelectedServer') {
-      final server = await serverDao.getSelectedServer();
+      final server = await serverDao.getSelectedServerModel();
       if (server == null) {
         return;
       }
@@ -88,33 +85,30 @@ class _ProgressDialogState extends State<ProgressDialog> {
         await urlLatency.init();
         latency = await urlLatency.testUrlLatency(tag);
       }
-      await serverDao.updateServer(server.copyWith(latency: Value(latency)));
+      server.latency = latency;
+      await serverDao.updateLatency(server.id, latency);
       final index =
           serverConfigProvider.servers.indexWhere((e) => e.id == server.id);
       if (index != -1) {
-        serverConfigProvider.servers[index] =
-            server.copyWith(latency: Value(latency));
+        serverConfigProvider.servers[index] = server;
       }
     } else {
       // option == 'CurrentGroup'
-      final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-      servers.addAll(serverConfigProvider.servers);
       late final UrlLatency urlLatency;
       if (isUrl) {
-        urlLatency = UrlLatency(servers);
+        urlLatency = UrlLatency(serverConfigProvider.servers);
         await urlLatency.init();
       }
-      for (var i = 0; i < servers.length; i++) {
+      for (var i = 0; i < serverConfigProvider.servers.length; i++) {
         if (_cancel) {
           if (isUrl) {
             await urlLatency.stop();
           }
           return;
         }
-        final server = servers[i];
+        final server = serverConfigProvider.servers[i];
         late final int latency;
         if (isUrl) {
-          final server = servers[i];
           final tag = 'proxy-${server.id}';
           latency = await urlLatency.testUrlLatency(tag);
         } else if (isTCP) {
@@ -123,9 +117,8 @@ class _ProgressDialogState extends State<ProgressDialog> {
         } else if (isICMP) {
           latency = await IcmpLatency.testIcmpLatency(server.address);
         }
-        await serverDao.updateServer(server.copyWith(latency: Value(latency)));
-        serverConfigProvider.servers[i] =
-            server.copyWith(latency: Value(latency));
+        serverConfigProvider.servers[i].latency = latency;
+        await serverDao.updateLatency(server.id, latency);
       }
     }
   }
@@ -133,18 +126,16 @@ class _ProgressDialogState extends State<ProgressDialog> {
   Future<void> clearLatency(String option) async {
     final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
     if (option == 'SelectedServer') {
-      final server = await serverDao.getSelectedServer();
+      final server = await serverDao.getSelectedServerModel();
       if (server == null) {
         return;
       }
-      final newServer = server.copyWith(
-        latency: const Value(null),
-      );
-      await serverDao.updateServer(newServer);
+      server.latency = null;
+      await serverDao.updateLatency(server.id, null);
       final index = serverConfigProvider.servers
           .indexWhere((element) => element.id == server.id);
       if (index != -1) {
-        serverConfigProvider.servers[index] = newServer;
+        serverConfigProvider.servers[index] = server;
       }
     } else {
       // option == 'CurrentGroup'
@@ -152,11 +143,11 @@ class _ProgressDialogState extends State<ProgressDialog> {
         if (_cancel) {
           return;
         }
-        final server = serverConfigProvider.servers[i].copyWith(
-          latency: const Value(null),
+        serverConfigProvider.servers[i].latency = null;
+        await serverDao.updateLatency(
+          serverConfigProvider.servers[i].id,
+          null,
         );
-        await serverDao.updateServer(server);
-        serverConfigProvider.servers[i] = server;
       }
     }
   }
