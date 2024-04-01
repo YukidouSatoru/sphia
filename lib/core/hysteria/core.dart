@@ -1,22 +1,24 @@
 import 'dart:convert';
 import 'dart:core';
 
-import 'package:get_it/get_it.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
-import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:sphia/app/notifier/config/sphia_config.dart';
 import 'package:sphia/core/core.dart';
 import 'package:sphia/core/hysteria/config.dart';
 import 'package:sphia/server/hysteria/server.dart';
 import 'package:sphia/util/system.dart';
 
 class HysteriaCore extends Core {
+  late final Ref ref;
+
   HysteriaCore()
       : super('hysteria', ['-c', p.join(tempPath, 'hysteria.json')],
             'hysteria.json');
 
   @override
   Future<void> configure() async {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+    final sphiaConfig = ref.read(sphiaConfigNotifierProvider);
     final parameters = HysteriaConfigParameters(
       server: servers.first as HysteriaServer,
       additionalSocksPort: sphiaConfig.additionalSocksPort,

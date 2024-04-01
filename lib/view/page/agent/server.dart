@@ -1,25 +1,23 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:qr_flutter/qr_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quiver/collection.dart';
-import 'package:sphia/app/config/sphia.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
-import 'package:sphia/app/provider/server_config.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/app/task/subscription.dart';
+import 'package:sphia/app/notifier/config/server_config.dart';
+import 'package:sphia/app/notifier/config/sphia_config.dart';
+import 'package:sphia/app/notifier/data/server.dart';
+import 'package:sphia/app/notifier/data/server_group.dart';
 import 'package:sphia/app/theme.dart';
-import 'package:sphia/core/hysteria/core.dart';
-import 'package:sphia/core/sing/core.dart';
-import 'package:sphia/core/xray/core.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/server/hysteria/server.dart';
 import 'package:sphia/server/server_model.dart';
 import 'package:sphia/server/shadowsocks/server.dart';
 import 'package:sphia/server/trojan/server.dart';
 import 'package:sphia/server/xray/server.dart';
+import 'package:sphia/util/subscription.dart';
 import 'package:sphia/util/uri/uri.dart';
 import 'package:sphia/view/dialog/hysteria.dart';
 import 'package:sphia/view/dialog/server_group.dart';
@@ -28,41 +26,87 @@ import 'package:sphia/view/dialog/trojan.dart';
 import 'package:sphia/view/dialog/xray.dart';
 import 'package:sphia/view/widget/widget.dart';
 
-class ServerAgent {
-  BuildContext context;
+part 'server.g.dart';
 
-  ServerAgent(this.context);
+@riverpod
+class ServerGroupIndexNotifier extends _$ServerGroupIndexNotifier {
+  @override
+  int build() {
+    final serverConfig = ref.read(serverConfigNotifierProvider);
+    final serverGroups = ref.read(serverGroupNotifierProvider);
+    final index = serverGroups.indexWhere(
+        (element) => element.id == serverConfig.selectedServerGroupId);
+    return index == -1 ? 0 : index;
+  }
 
-  Future<ServerModel?> addServer(int groupId, String protocol) async {
+  void setIndex(int index) => state = index;
+}
+
+enum ServerGroupAction {
+  add,
+  edit,
+  update,
+  delete,
+  reorder,
+  none,
+}
+
+@riverpod
+class ServerGroupStatus extends _$ServerGroupStatus {
+  @override
+  ServerGroupAction build() {
+    return ServerGroupAction.none;
+  }
+
+  void set(ServerGroupAction action) {
+    state = action;
+  }
+
+  void reset() {
+    state = ServerGroupAction.none;
+  }
+}
+
+mixin ServerAgent {
+  Future<void> addServer({
+    required int groupId,
+    required String protocol,
+    required WidgetRef ref,
+  }) async {
+    final context = ref.context;
     late final ServerModel? server;
     switch (protocol) {
       case 'vmess':
       case 'vless':
         server = await _showEditServerDialog(
-          protocol == 'vmess'
-              ? '${S.current.add} VMess ${S.current.server}'
-              : '${S.current.add} Vless ${S.current.server}',
-          protocol == 'vmess'
+          title: protocol == 'vmess'
+              ? '${S.of(context).add} VMess ${S.of(context).server}'
+              : '${S.of(context).add} Vless ${S.of(context).server}',
+          server: protocol == 'vmess'
               ? (XrayServer.vmessDefaults()..groupId = groupId)
               : (XrayServer.vlessDefaults()..groupId = groupId),
+          context: context,
         );
         break;
       case 'shadowsocks':
         server = await _showEditServerDialog(
-          '${S.current.add} Shadowsocks ${S.current.server}',
-          ShadowsocksServer.defaults()..groupId = groupId,
+          title: '${S.of(context).add} Shadowsocks ${S.of(context).server}',
+          server: ShadowsocksServer.defaults()..groupId = groupId,
+          context: context,
         );
         break;
       case 'trojan':
         server = await _showEditServerDialog(
-          '${S.current.add} Trojan ${S.current.server}',
-          TrojanServer.defaults()..groupId = groupId,
+          title: '${S.of(context).add} Trojan ${S.of(context).server}',
+          server: TrojanServer.defaults()..groupId = groupId,
+          context: context,
         );
         break;
       case 'hysteria':
         server = await _showEditServerDialog(
-          '${S.current.add} Hysteria ${S.current.server}',
-          HysteriaServer.defaults()..groupId = groupId,
+          title: '${S.of(context).add} Hysteria ${S.of(context).server}',
+          server: HysteriaServer.defaults()..groupId = groupId,
+          context: context,
         );
         break;
       case 'clipboard':
@@ -79,179 +123,80 @@ class ServerAgent {
               logger.e('Failed to parse uri: $uri\n$e');
             }
           }
-          await serverDao.insertServers(servers);
+          if (servers.isEmpty) {
+            return;
+          }
+          logger.i('Adding Servers from Clipboard');
+          final idList = await serverDao.insertServers(servers);
           await serverDao.refreshServersOrder(groupId);
+          final notifier = ref.read(serverNotifierProvider.notifier);
+          notifier.addServers(servers
+            ..asMap().forEach((index, server) {
+              server.id = idList[index];
+            }));
         }
-        return null;
+        return;
       default:
-        return null;
+        break;
     }
     if (server == null) {
-      return null;
+      return;
     }
     logger.i('Adding Server: ${server.remark}');
     final serverId = await serverDao.insertServer(server);
     await serverDao.refreshServersOrder(groupId);
-    return server..id = serverId;
+    final notifier = ref.read(serverNotifierProvider.notifier);
+    notifier.addServer(server..id = serverId);
   }
 
-  Future<ServerModel?> editServer(ServerModel server) async {
-    final ServerModel? editedServer = await _getEditedServer(server);
-    if (editedServer == null || editedServer == server) {
-      return null;
-    }
-    logger.i('Editing Server: ${server.id}');
-    await serverDao.updateServer(editedServer);
-    return editedServer;
-  }
-
-  Future<ServerModel?> _getEditedServer(ServerModel server) async {
+  Future<ServerModel?> getEditedServer({
+    required ServerModel server,
+    required BuildContext context,
+  }) async {
     if (server.protocol == 'vmess' || server.protocol == 'vless') {
       switch (server.protocol) {
         case 'vmess':
         case 'vless':
           return await _showEditServerDialog(
-            server.protocol == 'vmess'
-                ? '${S.current.edit} VMess ${S.current.server}'
-                : '${S.current.edit} Vless ${S.current.server}',
-            server,
+            title: server.protocol == 'vmess'
+                ? '${S.of(context).edit} VMess ${S.of(context).server}'
+                : '${S.of(context).edit} Vless ${S.of(context).server}',
+            server: server,
+            context: context,
           );
       }
     } else if (server.protocol == 'shadowsocks') {
       return await _showEditServerDialog(
-        '${S.current.edit} Shadowsocks ${S.current.server}',
-        server,
+        title: '${S.of(context).edit} Shadowsocks ${S.of(context).server}',
+        server: server,
+        context: context,
       );
     } else if (server.protocol == 'trojan') {
       return await _showEditServerDialog(
-        '${S.current.edit} Trojan ${S.current.server}',
-        server,
+        title: '${S.of(context).edit} Trojan ${S.of(context).server}',
+        server: server,
+        context: context,
       );
     } else if (server.protocol == 'hysteria') {
       return await _showEditServerDialog(
-        '${S.current.edit} Hysteria ${S.current.server}',
-        server,
+        title: '${S.of(context).edit} Hysteria ${S.of(context).server}',
+        server: server,
+        context: context,
       );
     }
     return null;
   }
 
-  Future<bool> deleteServer(int serverId) async {
-    final server = await serverDao.getServerById(serverId);
-    if (server == null) {
-      return false;
-    }
-    logger.i('Deleting Server: ${server.id}');
-    await serverDao.deleteServer(serverId);
-    await serverDao.refreshServersOrder(server.groupId);
-    return true;
-  }
-
-  Future<bool> shareServer(String option, int serverId) async {
-    final server = await serverDao.getServerModelById(serverId);
-    if (server == null) {
-      return false;
-    }
-    switch (option) {
-      case 'QRCode':
-        String? uri = UriUtil.getUri(server);
-        if (uri != null) {
-          _shareQRCode(uri);
-        }
-        return true;
-      case 'ExportToClipboard':
-        String? uri = UriUtil.getUri(server);
-        if (uri != null) {
-          UriUtil.exportUriToClipboard(uri);
-        }
-        return true;
-      case 'Configuration':
-        return _shareConfiguration(server);
-      default:
-        return false;
-    }
-  }
-
-  void _shareQRCode(String uri) async {
-    logger.i('Sharing QRCode: $uri');
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: SizedBox(
-            width: 300,
-            height: 300,
-            child: QrImageView(
-              data: uri,
-              version: QrVersions.auto,
-              backgroundColor: Colors.white,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<bool> _shareConfiguration(ServerModel server) async {
-    final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
-    final sphiaConfig = sphiaConfigProvider.config;
-    const exportFileName = 'export.json';
-
-    final protocol = server.protocol;
-    final protocolToCore = {
-      'vmess': (ServerModel selectedServer, SphiaConfig sphiaConfig) =>
-          (selectedServer.protocolProvider ?? sphiaConfig.vmessProvider) ==
-                  VmessProvider.xray.index
-              ? XrayCore()
-              : SingBoxCore(),
-      'vless': (ServerModel selectedServer, SphiaConfig sphiaConfig) =>
-          (selectedServer.protocolProvider ?? sphiaConfig.vlessProvider) ==
-                  VlessProvider.xray.index
-              ? XrayCore()
-              : SingBoxCore(),
-      'shadowsocks': (ServerModel selectedServer, SphiaConfig sphiaConfig) {
-        final protocolProvider =
-            selectedServer.protocolProvider ?? sphiaConfig.shadowsocksProvider;
-        if (protocolProvider == ShadowsocksProvider.xray.index) {
-          return XrayCore();
-        } else if (protocolProvider == ShadowsocksProvider.sing.index) {
-          return SingBoxCore();
-        } else {
-          return null;
-        }
-      },
-      'trojan': (ServerModel selectedServer, SphiaConfig sphiaConfig) =>
-          (selectedServer.protocolProvider ?? sphiaConfig.trojanProvider) ==
-                  TrojanProvider.xray.index
-              ? XrayCore()
-              : SingBoxCore(),
-      'hysteria': (ServerModel selectedServer, SphiaConfig sphiaConfig) =>
-          (selectedServer.protocolProvider ?? sphiaConfig.hysteriaProvider) ==
-                  HysteriaProvider.sing.index
-              ? SingBoxCore()
-              : HysteriaCore(),
-    };
-    final core = protocolToCore[protocol]?.call(server, sphiaConfig);
-    if (core == null) {
-      logger.e('No supported core for protocol: $protocol');
-      return false;
-    }
-    core.configFileName = exportFileName;
-    core.isRouting = true;
-    core.servers = [server];
-    logger.i('Sharing Configuration: ${server.id}');
-    await core.configure();
-    return true;
-  }
-
-  Future<bool> addGroup() async {
+  Future<void> addGroup(WidgetRef ref) async {
+    final context = ref.context;
     final serverGroupMap = await _showEditServerGroupDialog(
-      S.of(context).addGroup,
-      '',
-      '',
+      title: S.of(context).addGroup,
+      groupName: '',
+      subscription: '',
+      context: context,
     );
     if (serverGroupMap == null) {
-      return false;
+      return;
     }
     final newGroupName = serverGroupMap['groupName'];
     final subscription = serverGroupMap['subscription'];
@@ -260,124 +205,187 @@ class ServerAgent {
     final groupId =
         await serverGroupDao.insertServerGroup(newGroupName, subscription);
     await serverGroupDao.refreshServerGroupsOrder();
-    final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-    serverConfigProvider.serverGroups.add(ServerGroup(
+    final actionNotifier = ref.read(serverGroupStatusProvider.notifier);
+    actionNotifier.set(ServerGroupAction.add);
+    final serverGroupNotifier = ref.read(serverGroupNotifierProvider.notifier);
+    serverGroupNotifier.addGroup(ServerGroup(
       id: groupId,
       name: newGroupName,
       subscription: subscription,
     ));
     if (fetchSubscription && subscription.isNotEmpty) {
       try {
-        await updateGroup('CurrentGroup', groupId);
+        await updateGroup(type: 'CurrentGroup', groupId: groupId, ref: ref);
       } on Exception catch (e) {
         if (context.mounted) {
           await SphiaWidget.showDialogWithMsg(
-            context,
-            '${S.current.updateGroupFailed}: $e',
+            context: context,
+            message: '${S.of(context).updateGroupFailed}: $e',
           );
         }
       }
     }
-    return true;
+    return;
   }
 
-  Future<bool> editGroup(ServerGroup serverGroup) async {
+  Future<void> editGroup({
+    required ServerGroup serverGroup,
+    required WidgetRef ref,
+  }) async {
+    final context = ref.context;
     if (serverGroup.name == 'Default') {
-      await _showErrorDialog(serverGroup.name);
-      return false;
+      await _showErrorDialog(groupName: serverGroup.name, context: context);
+      return;
     }
     final serverGroupMap = await _showEditServerGroupDialog(
-      S.of(context).editGroup,
-      serverGroup.name,
-      serverGroup.subscription,
-    );
+        title: S.of(context).editGroup,
+        groupName: serverGroup.name,
+        subscription: serverGroup.subscription,
+        context: context);
     if (serverGroupMap == null) {
-      return false;
+      return;
     }
     final newGroupName = serverGroupMap['groupName'];
     final subscription = serverGroupMap['subscription'];
     if ((newGroupName == serverGroup.name &&
         subscription == serverGroup.subscription)) {
-      return false;
+      return;
     }
     logger.i('Editing Server Group: ${serverGroup.id}');
     await serverGroupDao.updateServerGroup(
         serverGroup.id, newGroupName, subscription);
-    final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-    serverConfigProvider.serverGroups[serverConfigProvider.serverGroups
-        .indexWhere((element) => element.id == serverGroup.id)] = ServerGroup(
+    final actionNotifier = ref.read(serverGroupStatusProvider.notifier);
+    actionNotifier.set(ServerGroupAction.edit);
+    final notifier = ref.read(serverGroupNotifierProvider.notifier);
+    notifier.updateGroup(ServerGroup(
       id: serverGroup.id,
       name: newGroupName,
       subscription: subscription,
-    );
-    return true;
+    ));
+    return;
   }
 
-  Future<bool> updateGroup(String type, int groupId) async {
+  Future<void> updateGroup({
+    required String type,
+    int? groupId,
+    required WidgetRef ref,
+  }) async {
+    final serverConfig = ref.read(serverConfigNotifierProvider);
+    final actionNotifier = ref.read(serverGroupStatusProvider.notifier);
+    final subscriptionUtil = ref.read(subscriptionUtilProvider.notifier);
     switch (type) {
       case 'CurrentGroup':
-        final serverGroup = await serverGroupDao.getServerGroupById(groupId);
+        final id = groupId ?? serverConfig.selectedServerGroupId;
+        final serverGroup = await serverGroupDao.getServerGroupById(id);
         if (serverGroup == null) {
-          return false;
+          return;
         }
         final subscription = serverGroup.subscription;
         if (subscription.isEmpty) {
           logger.w('Subscription is empty');
-          return false;
+          return;
         }
         final groupName = serverGroup.name;
         logger.i('Updating Server Group: $groupName');
         try {
-          await UriUtil.updateSingleGroup(groupId, subscription);
+          await subscriptionUtil.updateSingleGroup(
+            groupId: id,
+            subscription: subscription,
+          );
         } on Exception catch (e) {
           logger.e('Failed to update group: $groupName\n$e');
           rethrow;
         }
+        actionNotifier.set(ServerGroupAction.update);
+        final context = ref.context;
         if (context.mounted) {
           SphiaWidget.showDialogWithMsg(
-            context,
-            S.of(context).updatedGroupSuccessfully,
+            context: context,
+            message: S.of(context).updatedGroupSuccessfully,
           );
         }
-        return true;
+        return;
       case 'AllGroups':
-        return SubscriptionTask.updateSubscriptions(
-          showDialog: true,
-          context: context,
-        );
+        int count = 0;
+        bool flag = false;
+        final serverGroups = await serverGroupDao.getOrderedServerGroups();
+        final subscriptionUtil = ref.read(subscriptionUtilProvider.notifier);
+        for (var serverGroup in serverGroups) {
+          final subscription = serverGroup.subscription;
+          if (subscription.isEmpty) {
+            continue;
+          }
+          logger.i('Updating Server Group: ${serverGroup.name}');
+          try {
+            await subscriptionUtil.updateSingleGroup(
+              groupId: serverGroup.id,
+              subscription: subscription,
+            );
+            flag = true;
+            count++;
+          } on Exception catch (e) {
+            logger.e('Failed to update group: ${serverGroup.name}\n$e');
+            continue;
+          }
+        }
+        final context = ref.context;
+        if (context.mounted) {
+          final total = serverGroups.length;
+          SphiaWidget.showDialogWithMsg(
+            context: context,
+            message:
+                S.of(context).numSubscriptionsHaveBeenUpdated(count, total),
+          );
+        }
+        if (flag) {
+          final serverConfig = ref.read(serverConfigNotifierProvider);
+          final id = serverConfig.selectedServerGroupId;
+          final servers = await serverDao.getOrderedServerModelsByGroupId(id);
+          final serverNotifier = ref.read(serverNotifierProvider.notifier);
+          serverNotifier.setServers(servers);
+        }
       default:
-        return false;
+        return;
     }
   }
 
-  Future<bool> deleteGroup(int groupId) async {
+  Future<void> deleteGroup({
+    required int groupId,
+    required WidgetRef ref,
+  }) async {
+    final context = ref.context;
     final groupName = await serverGroupDao.getServerGroupNameById(groupId);
     if (groupName == null) {
-      return false;
+      return;
     }
     if (groupName == 'Default') {
-      await _showErrorDialog(groupName);
-      return false;
+      if (context.mounted) {
+        await _showErrorDialog(groupName: groupName, context: ref.context);
+      }
+      return;
     }
     logger.i('Deleting Server Group: $groupId');
     await serverGroupDao.deleteServerGroup(groupId);
     await serverGroupDao.refreshServerGroupsOrder();
-    final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-    serverConfigProvider.serverGroups
-        .removeWhere((element) => element.id == groupId);
-    if (serverConfigProvider.config.selectedServerGroupId == groupId) {
-      serverConfigProvider.config.selectedServerGroupId = 1;
-      serverConfigProvider.saveConfig();
+    final actionNotifier = ref.read(serverGroupStatusProvider.notifier);
+    actionNotifier.set(ServerGroupAction.delete);
+    final notifier = ref.read(serverGroupNotifierProvider.notifier);
+    notifier.removeGroup(groupId);
+    if (ref.read(serverConfigNotifierProvider).selectedServerGroupId ==
+        groupId) {
+      final notifier = ref.read(serverConfigNotifierProvider.notifier);
+      notifier.updateValue('selectedServerGroupId', 1);
     }
-    return true;
+    return;
   }
 
-  Future<bool> reorderGroup() async {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
-    final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-    final serverGroups = serverConfigProvider.serverGroups;
+  Future<bool> reorderGroup(WidgetRef ref) async {
+    final context = ref.context;
+    final useMaterial3 = ref.read(
+        sphiaConfigNotifierProvider.select((value) => value.useMaterial3));
+    final serverGroups = ref.read(serverGroupNotifierProvider);
     final oldOrder = serverGroups.map((e) => e.id).toList();
-    final shape = SphiaTheme.listTileShape(sphiaConfig.useMaterial3);
+    final shape = SphiaTheme.listTileShape(useMaterial3);
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -426,11 +434,18 @@ class ServerAgent {
 
     logger.i('Reordered Server Groups');
     await serverGroupDao.updateServerGroupsOrder(newOrder);
+    final actionNotifier = ref.read(serverGroupStatusProvider.notifier);
+    actionNotifier.set(ServerGroupAction.reorder);
+    final notifier = ref.read(serverGroupNotifierProvider.notifier);
+    notifier.setGroups(serverGroups);
     return true;
   }
 
-  Future<ServerModel?> _showEditServerDialog(
-      String title, ServerModel server) async {
+  Future<ServerModel?> _showEditServerDialog({
+    required String title,
+    required ServerModel server,
+    required BuildContext context,
+  }) async {
     if (server.protocol == 'vmess' || server.protocol == 'vless') {
       return showDialog<ServerModel>(
         context: context,
@@ -459,8 +474,12 @@ class ServerAgent {
     return null;
   }
 
-  Future<Map<String, dynamic>?> _showEditServerGroupDialog(
-      String title, String groupName, String subscription) async {
+  Future<Map<String, dynamic>?> _showEditServerGroupDialog({
+    required String title,
+    required String groupName,
+    required String subscription,
+    required BuildContext context,
+  }) async {
     final serverGroupMap = {
       'groupName': groupName,
       'subscription': subscription,
@@ -474,8 +493,11 @@ class ServerAgent {
     );
   }
 
-  Future<void> _showErrorDialog(String groupName) async {
-    final msg = '${S.current.cannotEditOrDeleteGroup}: $groupName';
-    return SphiaWidget.showDialogWithMsg(context, msg);
+  Future<void> _showErrorDialog({
+    required String groupName,
+    required BuildContext context,
+  }) async {
+    final title = '${S.of(context).cannotEditOrDeleteGroup}: $groupName';
+    return SphiaWidget.showDialogWithMsg(context: context, message: title);
   }
 }

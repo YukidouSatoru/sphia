@@ -17,24 +17,24 @@ class ServerGroupDialog extends StatefulWidget {
 }
 
 class _ServerGroupDialogState extends State<ServerGroupDialog> {
-  final groupNameController = TextEditingController();
-  final subscriptionController = TextEditingController();
-  bool fetchSubscription = false;
-  late final bool isEdit;
-  final formKey = GlobalKey<FormState>();
+  final _groupNameController = TextEditingController();
+  final _subscriptionController = TextEditingController();
+  bool _fetchSubscription = false;
+  late final bool _isEdit;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    groupNameController.text = widget.serverGroupMap['groupName']!;
-    subscriptionController.text = widget.serverGroupMap['subscription']!;
-    isEdit = widget.serverGroupMap['groupName']!.isNotEmpty;
+    _groupNameController.text = widget.serverGroupMap['groupName']!;
+    _subscriptionController.text = widget.serverGroupMap['subscription']!;
+    _isEdit = widget.serverGroupMap['groupName']!.isNotEmpty;
   }
 
   @override
   void dispose() {
-    groupNameController.dispose();
-    subscriptionController.dispose();
+    _groupNameController.dispose();
+    _subscriptionController.dispose();
     super.dispose();
   }
 
@@ -44,12 +44,12 @@ class _ServerGroupDialogState extends State<ServerGroupDialog> {
       scrollable: true,
       title: Text(widget.title),
       content: Form(
-        key: formKey,
+        key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SphiaWidget.textInput(
-              controller: groupNameController,
+              controller: _groupNameController,
               labelText: S.of(context).groupName,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -59,17 +59,17 @@ class _ServerGroupDialogState extends State<ServerGroupDialog> {
               },
             ),
             SphiaWidget.textInput(
-              controller: subscriptionController,
+              controller: _subscriptionController,
               labelText: S.of(context).subscription,
             ),
-            if (!isEdit)
+            if (!_isEdit)
               SphiaWidget.dropdownButton(
                 value: S.of(context).no,
                 labelText: S.of(context).fetchSubscription,
                 items: [S.of(context).no, S.of(context).yes],
                 onChanged: (value) {
                   if (value != null) {
-                    fetchSubscription = value == S.of(context).yes;
+                    _fetchSubscription = value == S.of(context).yes;
                   }
                 },
               ),
@@ -86,12 +86,12 @@ class _ServerGroupDialogState extends State<ServerGroupDialog> {
         TextButton(
           child: Text(S.of(context).save),
           onPressed: () {
-            if (formKey.currentState!.validate()) {
+            if (_formKey.currentState!.validate()) {
               Navigator.of(context).pop(
                 {
-                  'groupName': groupNameController.text.trim(),
-                  'subscription': subscriptionController.text.trim(),
-                  'fetchSubscription': fetchSubscription,
+                  'groupName': _groupNameController.text.trim(),
+                  'subscription': _subscriptionController.text.trim(),
+                  'fetchSubscription': _fetchSubscription,
                 },
               );
             }

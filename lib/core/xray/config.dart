@@ -3,7 +3,7 @@ import 'package:sphia/core/rule/xray.dart';
 
 part 'config.g.dart';
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class XrayConfig {
   Log? log;
   Dns? dns;
@@ -31,7 +31,7 @@ class XrayConfig {
   Map<String, dynamic> toJson() => _$XrayConfigToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Sniffing {
   bool enabled = true;
   List<String> destOverride = ['http', 'tls'];
@@ -44,7 +44,7 @@ class Sniffing {
   Map<String, dynamic> toJson() => _$SniffingToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Dns {
   List<DnsServer> servers;
 
@@ -57,7 +57,7 @@ class Dns {
   Map<String, dynamic> toJson() => _$DnsToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class DnsServer {
   String address;
   List<String>? domains;
@@ -75,7 +75,7 @@ class DnsServer {
   Map<String, dynamic> toJson() => _$DnsServerToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Log {
   String? access;
   String? error;
@@ -92,7 +92,7 @@ class Log {
   Map<String, dynamic> toJson() => _$LogToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Inbound {
   String? tag;
   int port;
@@ -116,7 +116,7 @@ class Inbound {
   Map<String, dynamic> toJson() => _$InboundToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class InboundSetting {
   String? auth;
   List<Accounts>? accounts;
@@ -136,7 +136,7 @@ class InboundSetting {
   Map<String, dynamic> toJson() => _$InboundSettingToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Accounts {
   String user;
   String pass;
@@ -152,7 +152,7 @@ class Accounts {
   Map<String, dynamic> toJson() => _$AccountsToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Outbound {
   String? tag;
   String protocol;
@@ -174,7 +174,7 @@ class Outbound {
   Map<String, dynamic> toJson() => _$OutboundToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class OutboundSetting {
   List<Vnext>? vnext;
   List<dynamic>? servers;
@@ -190,7 +190,7 @@ class OutboundSetting {
   Map<String, dynamic> toJson() => _$OutboundSettingToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Socks {
   String address;
   int port;
@@ -207,7 +207,7 @@ class Socks {
   Map<String, dynamic> toJson() => _$SocksToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Vnext {
   String address;
   int port;
@@ -224,7 +224,7 @@ class Vnext {
   Map<String, dynamic> toJson() => _$VnextToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Shadowsocks {
   String address;
   int port;
@@ -244,7 +244,7 @@ class Shadowsocks {
   Map<String, dynamic> toJson() => _$ShadowsocksToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Trojan {
   String address;
   int port;
@@ -261,7 +261,7 @@ class Trojan {
   Map<String, dynamic> toJson() => _$TrojanToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class User {
   String? user;
   String? pass;
@@ -286,7 +286,7 @@ class User {
   Map<String, dynamic> toJson() => _$UserToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class StreamSettings {
   String network;
   String security;
@@ -312,7 +312,7 @@ class StreamSettings {
   Map<String, dynamic> toJson() => _$StreamSettingsToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class TcpSettings {
   Header? header;
 
@@ -326,7 +326,7 @@ class TcpSettings {
   Map<String, dynamic> toJson() => _$TcpSettingsToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Header {
   String? type;
   Request? request;
@@ -341,7 +341,7 @@ class Header {
   Map<String, dynamic> toJson() => _$HeaderToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Request {
   String? version;
   String? method;
@@ -368,7 +368,7 @@ class Request {
   Map<String, dynamic> toJson() => _$RequestToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class TcpHeaders {
   @JsonKey(name: 'Host')
   List<String>? host;
@@ -403,7 +403,7 @@ class TcpHeaders {
   Map<String, dynamic> toJson() => _$TcpHeadersToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class GrpcSettings {
   String? serviceName;
   bool? multiMode;
@@ -419,7 +419,7 @@ class GrpcSettings {
   Map<String, dynamic> toJson() => _$GrpcSettingsToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class WsSettings {
   String path;
   Headers? headers;
@@ -435,7 +435,7 @@ class WsSettings {
   Map<String, dynamic> toJson() => _$WsSettingsToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Headers {
   String? host;
 
@@ -449,7 +449,7 @@ class Headers {
   Map<String, dynamic> toJson() => _$HeadersToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class TlsSettings {
   bool allowInsecure;
   String? serverName;
@@ -467,7 +467,7 @@ class TlsSettings {
   Map<String, dynamic> toJson() => _$TlsSettingsToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class RealitySettings {
   String? serverName;
   String fingerprint;
@@ -489,7 +489,7 @@ class RealitySettings {
   Map<String, dynamic> toJson() => _$RealitySettingsToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Mux {
   bool enabled;
   int concurrency;
@@ -504,7 +504,7 @@ class Mux {
   Map<String, dynamic> toJson() => _$MuxToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Routing {
   String domainStrategy;
 
@@ -524,7 +524,7 @@ class Routing {
   Map<String, dynamic> toJson() => _$RoutingToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Api {
   String tag;
   List<String>? services;
@@ -539,7 +539,7 @@ class Api {
   Map<String, dynamic> toJson() => _$ApiToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Policy {
   System system;
 
@@ -552,7 +552,7 @@ class Policy {
   Map<String, dynamic> toJson() => _$PolicyToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class System {
   bool? statsInboundUplink;
   bool? statsInboundDownlink;
@@ -571,7 +571,7 @@ class System {
   Map<String, dynamic> toJson() => _$SystemToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Stats {
   Stats();
 

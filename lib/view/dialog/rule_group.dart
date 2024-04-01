@@ -17,18 +17,18 @@ class RuleGroupDialog extends StatefulWidget {
 }
 
 class _RuleGroupDialogState extends State<RuleGroupDialog> {
-  final groupNameController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
+  final _groupNameController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    groupNameController.text = widget.groupName;
+    _groupNameController.text = widget.groupName;
   }
 
   @override
   void dispose() {
-    groupNameController.dispose();
+    _groupNameController.dispose();
     super.dispose();
   }
 
@@ -38,12 +38,12 @@ class _RuleGroupDialogState extends State<RuleGroupDialog> {
       title: Text(widget.title),
       scrollable: true,
       content: Form(
-        key: formKey,
+        key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SphiaWidget.textInput(
-              controller: groupNameController,
+              controller: _groupNameController,
               labelText: S.of(context).groupName,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -65,9 +65,9 @@ class _RuleGroupDialogState extends State<RuleGroupDialog> {
         TextButton(
           child: Text(S.of(context).save),
           onPressed: () {
-            if (formKey.currentState!.validate()) {
+            if (_formKey.currentState!.validate()) {
               Navigator.of(context).pop(
-                groupNameController.text.trim(),
+                _groupNameController.text.trim(),
               );
             }
           },

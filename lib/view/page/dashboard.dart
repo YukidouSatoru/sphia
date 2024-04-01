@@ -1,71 +1,24 @@
-import 'dart:convert';
-
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:provider/provider.dart';
-import 'package:sphia/app/controller.dart';
-import 'package:sphia/app/database/database.dart';
-import 'package:sphia/app/log.dart';
-import 'package:sphia/app/provider/core.dart';
-import 'package:sphia/app/provider/server_config.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/util/traffic/traffic.dart';
-import 'package:sphia/view/page/wrapper.dart';
-import 'package:sphia/view/widget/dashboard_card/chart.dart';
-import 'package:sphia/view/widget/dashboard_card/dns.dart';
-import 'package:sphia/view/widget/dashboard_card/net.dart';
-import 'package:sphia/view/widget/dashboard_card/rules.dart';
-import 'package:sphia/view/widget/dashboard_card/running_cores.dart';
-import 'package:sphia/view/widget/dashboard_card/traffic.dart';
+import 'package:sphia/view/card/dashboard_card/dns.dart';
+import 'package:sphia/view/card/dashboard_card/net.dart';
+import 'package:sphia/view/card/dashboard_card/rule_group.dart';
+import 'package:sphia/view/card/dashboard_card/running_cores.dart';
+import 'package:sphia/view/card/dashboard_card/traffic.dart';
+import 'package:sphia/view/wrapper/page.dart';
 
-class Dashboard extends StatefulWidget {
-  const Dashboard({
-    super.key,
-  });
-
-  @override
-  State<StatefulWidget> createState() => _DashboardState();
-}
-
-class _DashboardState extends State<Dashboard> {
-  bool _previousTrafficRunning = false;
-  Traffic? _traffic;
+class Dashboard extends ConsumerWidget {
   final _cardRunningCores = const RunningCoresCard();
-  final _cardRules = const RulesCard();
+  final _cardRuleGroup = const RuleGroupCard();
   final _cardDns = const DnsCard();
-  final _cardTraffic = TrafficCard();
-  final _networkChart = NetworkChart();
-  late final NetCard _cardNet;
+  final _cardTraffic = const TrafficCard();
+  final _cardNet = const NetCard();
 
-  int _totalUpload = 0;
-  int _totalDownload = 0;
+  const Dashboard({super.key});
 
   @override
-  void initState() {
-    super.initState();
-    _cardNet = NetCard(
-      networkChart: _networkChart,
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final sphiaConfigProvider = Provider.of<SphiaConfigProvider>(context);
-    final coreProvider = Provider.of<CoreProvider>(context);
-    final sphiaConfig = sphiaConfigProvider.config;
-
-    if (coreProvider.trafficRunning != _previousTrafficRunning) {
-      _trafficStats(coreProvider.trafficRunning, sphiaConfig.enableStatistics);
-      _previousTrafficRunning = coreProvider.trafficRunning;
-    }
-
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         title: Text(S.of(context).dashboard),
@@ -86,7 +39,7 @@ class _DashboardState extends State<Dashboard> {
                         const SizedBox(width: edgehorizontalSpacing),
                         Flexible(child: _cardRunningCores),
                         const SizedBox(width: cardhorizontalSpacing),
-                        Flexible(child: _cardRules),
+                        Flexible(child: _cardRuleGroup),
                         const SizedBox(width: cardhorizontalSpacing),
                         Flexible(child: _cardDns),
                         const SizedBox(width: edgehorizontalSpacing),
@@ -114,153 +67,5 @@ class _DashboardState extends State<Dashboard> {
         ),
       ),
     );
-  }
-
-  void _trafficStats(bool trafficRunning, bool enableStats) async {
-    if (trafficRunning && enableStats) {
-      await _startTrafficStats();
-    } else {
-      await _stopTrafficStats();
-    }
-  }
-
-  Future<void> _startTrafficStats() async {
-    final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
-    final coreProvider = GetIt.I.get<CoreProvider>();
-    if (coreProvider.routing.name == 'sing-box') {
-      _traffic = SingBoxTraffic(sphiaConfigProvider.config.coreApiPort);
-    } else {
-      _traffic = XrayTraffic(
-        sphiaConfigProvider.config.coreApiPort,
-        sphiaConfigProvider.config.multiOutboundSupport,
-      );
-    }
-
-    _clearTraffic();
-
-    try {
-      await _traffic!.start();
-    } catch (e) {
-      _traffic = null;
-      logger.e('Failed to start/stop traffic: $e');
-      return;
-    }
-
-    final stream = _traffic!.apiStreamController.stream;
-    await for (var dataJson in stream) {
-      final data = json.decode(dataJson.toString());
-      final nowStamp = DateTime.now().millisecondsSinceEpoch;
-
-      _totalUpload = data['uplink'];
-      _totalDownload = data['downlink'];
-
-      // for total
-      _cardTraffic.totalUpload.value = data['uplink'];
-      _cardTraffic.totalDownload.value = data['downlink'];
-      // for speed
-      _cardTraffic.uploadLastSecond.value = data['up'];
-      _cardTraffic.downloadLastSecond.value = data['down'];
-
-      // for chart
-      if (sphiaConfigProvider.config.enableSpeedChart) {
-        _networkChart.uploadSpots
-            .add(FlSpot(nowStamp.toDouble(), data['up'].toDouble()));
-        _networkChart.downloadSpots
-            .add(FlSpot(nowStamp.toDouble(), data['down'].toDouble()));
-      }
-    }
-  }
-
-  Future<void> _stopTrafficStats() async {
-    if (_traffic != null) {
-      await _updateServerTraffic();
-      await _traffic!.stop();
-      _traffic = null;
-    }
-  }
-
-  Future<void> _updateServerTraffic() async {
-    if (_totalUpload == 0 && _totalDownload == 0) {
-      // no need to update traffic
-      return;
-    }
-
-    final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
-    final sphiaConfig = sphiaConfigProvider.config;
-    final coreProvider = GetIt.I.get<CoreProvider>();
-
-    if (sphiaConfig.multiOutboundSupport &&
-        coreProvider.routing.name == 'sing-box') {
-      /*
-      sing-box does not support traffic statistics for each outbound
-      when multiOutboundSupport is enabled
-       */
-      return;
-    }
-
-    if (sphiaConfig.multiOutboundSupport) {
-      final servers = coreProvider.routing.servers;
-      if (servers.isEmpty) {
-        // probably server is deleted
-        return;
-      }
-
-      for (var server in servers) {
-        late final String outboundTag;
-        if (server.id == servers.first.id) {
-          // serverIds.first is the main server's id,
-          // but servers.first is not guaranteed to be the main server
-          outboundTag = 'proxy';
-        } else {
-          outboundTag = 'proxy-${server.id}';
-        }
-
-        final proxyLink = await (_traffic as XrayTraffic)
-            .queryProxyLinkByOutboundTag(outboundTag);
-        int uplink = proxyLink.item1;
-        int downlink = proxyLink.item2;
-        if (server.uplink != null) {
-          uplink += server.uplink!;
-        }
-        if (server.downlink != null) {
-          downlink += server.downlink!;
-        }
-        await serverDao.updateTraffic(server.id, uplink, downlink);
-      }
-
-      final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-      serverConfigProvider.servers =
-          await serverDao.getOrderedServerModelsByGroupId(
-              serverConfigProvider.config.selectedServerGroupId);
-      _clearTraffic();
-    } else {
-      // just one server
-      // when multiple cores are running,
-      // the first core is the protocol provider
-      final server = await SphiaController.getRunningServerModel();
-      server.uplink =
-          server.uplink == null ? _totalUpload : server.uplink! + _totalUpload;
-      server.downlink = server.downlink == null
-          ? _totalDownload
-          : server.downlink! + _totalDownload;
-      await serverDao.updateTraffic(server.id, server.uplink, server.downlink);
-      _clearTraffic();
-      final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
-      final index = serverConfigProvider.servers
-          .indexWhere((element) => element.id == server.id);
-      if (index != -1) {
-        serverConfigProvider.servers[index] = server;
-        // serverConfigProvider.notify();
-      }
-    }
-  }
-
-  void _clearTraffic() {
-    _totalUpload = 0;
-    _totalDownload = 0;
-    _cardTraffic.totalUpload.value = 0;
-    _cardTraffic.totalDownload.value = 0;
-    _cardTraffic.uploadLastSecond.value = 0;
-    _cardTraffic.downloadLastSecond.value = 0;
   }
 }

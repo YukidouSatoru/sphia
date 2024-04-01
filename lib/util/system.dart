@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:get_it/get_it.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:path/path.dart' as p;
 import 'package:sphia/app/log.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
 
 enum OS { windows, linux, macos }
 
@@ -84,13 +82,12 @@ class SystemUtil {
     }
   }
 
-  static void configureStartup() async {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+  static void configureStartup(bool startOnBoot) async {
     launchAtStartup.setup(
       appName: 'Sphia',
       appPath: execPath,
     );
-    if (sphiaConfig.startOnBoot) {
+    if (startOnBoot) {
       logger.i('Enabling startup');
       await launchAtStartup.enable();
     } else {

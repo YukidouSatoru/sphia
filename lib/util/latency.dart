@@ -2,12 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dart_ping/dart_ping.dart';
-import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
+import 'package:sphia/app/config/sphia.dart';
+import 'package:sphia/app/config/version.dart';
 import 'package:sphia/app/database/dao/rule.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/core/sing/config.dart';
 import 'package:sphia/core/sing/core.dart';
 import 'package:sphia/core/sing/generate.dart';
@@ -63,7 +63,6 @@ class TcpLatency {
 
 class UrlLatency {
   List<ServerModel> servers;
-  final testUrl = GetIt.I<SphiaConfigProvider>().config.latencyTestUrl;
   late final String url;
   late final Map<String, String> params;
   final client = HttpClient();
@@ -72,7 +71,7 @@ class UrlLatency {
     ..args = ['run', '-c', p.join(tempPath, 'latency.json'), '--disable-color']
     ..configFileName = 'latency.json';
 
-  UrlLatency(this.servers) {
+  UrlLatency({required this.servers, required String testUrl}) {
     url = 'http://localhost:$latencyApiPort/proxies';
     params = {'timeout': timeout.inMilliseconds.toString(), 'url': testUrl};
   }
@@ -102,7 +101,8 @@ class UrlLatency {
     return latencyFailure;
   }
 
-  Future<void> init() async {
+  Future<void> init(
+      SphiaConfig sphiaConfig, VersionConfig versionConfig) async {
     final outbounds = <Outbound>[];
     for (final server in servers) {
       outbounds.add(
@@ -129,7 +129,8 @@ class UrlLatency {
       coreApiPort: latencyApiPort,
       enableTun: false,
       addMixedInbound: false,
-      sphiaConfig: GetIt.I<SphiaConfigProvider>().config..enableCoreLog = false,
+      sphiaConfig: sphiaConfig.copyWith(enableCoreLog: false),
+      versionConfig: versionConfig,
       cacheDbFileName: latencyCacheDbFileName,
     );
     try {

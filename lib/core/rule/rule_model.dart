@@ -95,6 +95,38 @@ class RuleModel {
     );
   }
 
+  RuleModel copyWith({
+    int? id,
+    int? groupId,
+    String? name,
+    bool? enabled,
+    int? outboundTag,
+    String? domain,
+    String? ip,
+    String? port,
+    String? source,
+    String? sourcePort,
+    String? network,
+    String? protocol,
+    String? processName,
+  }) {
+    return RuleModel(
+      id: id ?? this.id,
+      groupId: groupId ?? this.groupId,
+      name: name ?? this.name,
+      enabled: enabled ?? this.enabled,
+      outboundTag: outboundTag ?? this.outboundTag,
+      domain: domain ?? this.domain,
+      ip: ip ?? this.ip,
+      port: port ?? this.port,
+      source: source ?? this.source,
+      sourcePort: sourcePort ?? this.sourcePort,
+      network: network ?? this.network,
+      protocol: protocol ?? this.protocol,
+      processName: processName ?? this.processName,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

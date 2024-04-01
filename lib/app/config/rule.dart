@@ -1,23 +1,15 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'rule.freezed.dart';
 
 part 'rule.g.dart';
 
-@JsonSerializable(includeIfNull: false)
-class RuleConfig {
-  int selectedRuleGroupId;
-
-  RuleConfig({
-    required this.selectedRuleGroupId,
-  });
-
-  factory RuleConfig.defaults() {
-    return RuleConfig(
-      selectedRuleGroupId: 1,
-    );
-  }
+@freezed
+class RuleConfig with _$RuleConfig {
+  const factory RuleConfig({
+    @Default(1) int selectedRuleGroupId,
+  }) = _RuleConfig;
 
   factory RuleConfig.fromJson(Map<String, dynamic> json) =>
       _$RuleConfigFromJson(json);
-
-  Map<String, dynamic> toJson() => _$RuleConfigToJson(this);
 }

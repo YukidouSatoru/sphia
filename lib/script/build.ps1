@@ -12,6 +12,7 @@ Set-Content $aboutPageDart -Value $content
 
 Write-Host "Building Sphia"
 flutter pub get
+dart run build_runner build
 flutter config --enable-windows-desktop
 flutter_distributor release --name prod --jobs release-windows-exe
 $exe = Get-Item -Path dist\*\sphia-windows.exe

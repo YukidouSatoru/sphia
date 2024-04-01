@@ -3,7 +3,7 @@ import 'package:sphia/core/rule/sing.dart';
 
 part 'config.g.dart';
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class SingBoxConfig {
   Log? log;
   Dns? dns;
@@ -27,7 +27,7 @@ class SingBoxConfig {
   Map<String, dynamic> toJson() => _$SingBoxConfigToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Log {
   bool disabled;
   String? level;
@@ -46,7 +46,7 @@ class Log {
   Map<String, dynamic> toJson() => _$LogToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Dns {
   List<DnsServer> servers;
   List<SingBoxDnsRule> rules;
@@ -61,7 +61,7 @@ class Dns {
   Map<String, dynamic> toJson() => _$DnsToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class DnsServer {
   String tag;
   String address;
@@ -84,7 +84,7 @@ class DnsServer {
   Map<String, dynamic> toJson() => _$DnsServerToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Route {
   Geoip? geoip;
   Geosite? geosite;
@@ -107,7 +107,7 @@ class Route {
   Map<String, dynamic> toJson() => _$RouteToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Geoip {
   String path;
 
@@ -120,7 +120,7 @@ class Geoip {
   Map<String, dynamic> toJson() => _$GeoipToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Geosite {
   String path;
 
@@ -134,7 +134,7 @@ class Geosite {
   Map<String, dynamic> toJson() => _$GeositeToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Inbound {
   String type;
   String? tag;
@@ -181,7 +181,7 @@ class Inbound {
   Map<String, dynamic> toJson() => _$InboundToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Outbound {
   String type;
   String? tag;
@@ -252,7 +252,7 @@ class Outbound {
   Map<String, dynamic> toJson() => _$OutboundToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Tls {
   bool enabled;
   @JsonKey(name: 'server_name')
@@ -276,7 +276,7 @@ class Tls {
   Map<String, dynamic> toJson() => _$TlsToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class UTls {
   bool enabled;
   String? fingerprint;
@@ -291,7 +291,7 @@ class UTls {
   Map<String, dynamic> toJson() => _$UTlsToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Reality {
   bool enabled;
   @JsonKey(name: 'public_key')
@@ -311,7 +311,7 @@ class Reality {
   Map<String, dynamic> toJson() => _$RealityToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Transport {
   String type;
   String? host;
@@ -332,7 +332,7 @@ class Transport {
   Map<String, dynamic> toJson() => _$TransportToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class User {
   String? username;
   String? password;
@@ -347,7 +347,7 @@ class User {
   Map<String, dynamic> toJson() => _$UserToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Experimental {
   @JsonKey(name: 'clash_api')
   ClashApi? clashApi;
@@ -365,7 +365,7 @@ class Experimental {
   Map<String, dynamic> toJson() => _$ExperimentalToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class ClashApi {
   @JsonKey(name: 'external_controller')
   String externalController;
@@ -386,7 +386,7 @@ class ClashApi {
   Map<String, dynamic> toJson() => _$ClashApiToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class CacheFile {
   bool enabled;
   String path;

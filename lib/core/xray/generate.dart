@@ -1,6 +1,4 @@
-import 'package:get_it/get_it.dart';
 import 'package:sphia/app/database/database.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/core/rule/extension.dart';
 import 'package:sphia/core/rule/xray.dart';
 import 'package:sphia/core/xray/config.dart';
@@ -70,7 +68,7 @@ class XrayGenerate {
     );
   }
 
-  static Outbound generateOutbound(ServerModel server) {
+  static Outbound generateOutbound(ServerModel server, String userAgent) {
     late Outbound outbound;
     switch (server.protocol) {
       case 'socks':
@@ -79,7 +77,7 @@ class XrayGenerate {
         outbound = xrayOutbound(server as XrayServer);
         break;
       case 'shadowsocks':
-        outbound = shadowsocksOutbound(server as ShadowsocksServer);
+        outbound = shadowsocksOutbound(server as ShadowsocksServer, userAgent);
         break;
       case 'trojan':
         outbound = trojanOutbound(server as TrojanServer);
@@ -178,9 +176,8 @@ class XrayGenerate {
     );
   }
 
-  static Outbound shadowsocksOutbound(ShadowsocksServer server) {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
-    final userAgent = sphiaConfig.getUserAgent();
+  static Outbound shadowsocksOutbound(
+      ShadowsocksServer server, String userAgent) {
     StreamSettings? streamSettings;
     String? network;
     String security = 'none';

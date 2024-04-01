@@ -2,41 +2,39 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:get_it/get_it.dart';
-import 'package:provider/provider.dart';
-import 'package:sphia/app/provider/core.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sphia/app/notifier/config/sphia_config.dart';
+import 'package:sphia/app/notifier/core_state.dart';
+import 'package:sphia/app/notifier/proxy.dart';
+import 'package:sphia/app/notifier/visible.dart';
+import 'package:sphia/app/state/core_state.dart';
+import 'package:sphia/app/state/proxy.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/view/page/wrapper.dart';
-import 'package:window_manager/window_manager.dart';
+import 'package:sphia/view/wrapper/page.dart';
 
-class LogPage extends StatefulWidget {
+class LogPage extends ConsumerStatefulWidget {
   const LogPage({
     super.key,
   });
 
   @override
-  State<StatefulWidget> createState() => _LogPageState();
+  ConsumerState<LogPage> createState() => _LogPageState();
 }
 
-class _LogPageState extends State<LogPage> with WindowListener {
-  bool _previousCoreRunning = false;
+class _LogPageState extends ConsumerState<LogPage> {
   final List<String> _logList = [];
   StreamSubscription<String>? _logSubscription;
   final _scrollController = ScrollController();
   bool _isUserScrolling = false;
   bool _hasScrollListener = false;
-  bool _isVisible = true;
 
   @override
   void initState() {
     super.initState();
-    windowManager.addListener(this);
   }
 
   @override
   void dispose() {
-    windowManager.removeListener(this);
     _removeLogListener();
     _scrollController.dispose();
     super.dispose();
@@ -44,24 +42,39 @@ class _LogPageState extends State<LogPage> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    final sphiaConfigProvider = Provider.of<SphiaConfigProvider>(context);
-    final coreProvider = Provider.of<CoreProvider>(context);
-    if (_previousCoreRunning != coreProvider.coreRunning) {
-      _previousCoreRunning = coreProvider.coreRunning;
-      if (coreProvider.coreRunning &&
-          sphiaConfigProvider.config.enableCoreLog) {
-        _scrollController.addListener(() {
-          if (_scrollController.position.userScrollDirection !=
-              ScrollDirection.idle) {
-            _isUserScrolling = true;
+    final enableCoreLog = ref.watch(
+        sphiaConfigNotifierProvider.select((value) => value.enableCoreLog));
+    final saveCoreLog = ref.watch(
+        sphiaConfigNotifierProvider.select((value) => value.saveCoreLog));
+    final coreRunning =
+        ref.watch(proxyNotifierProvider.select((value) => value.coreRunning));
+    void proxyListener(ProxyState? previous, ProxyState next) {
+      if (previous != null) {
+        if (previous.coreRunning != next.coreRunning) {
+          if (next.coreRunning && enableCoreLog && (!saveCoreLog)) {
+            _scrollController.addListener(() {
+              if (_scrollController.position.userScrollDirection !=
+                  ScrollDirection.idle) {
+                _isUserScrolling = true;
+              }
+            });
+            final coreState = ref.read(coreStateNotifierProvider).valueOrNull;
+            if (coreState != null && coreState.cores.isNotEmpty) {
+              _logList.addAll(coreState.routing.preLogList);
+              final visible = ref.read(visibleNotifierProvider);
+              _listenToLogs();
+              if (!visible) {
+                _removeLogListener(background: true);
+              }
+            }
+          } else {
+            _removeLogListener();
           }
-        });
-        _logList.addAll(coreProvider.routing.preLogList);
-        _listenToLogs();
-      } else {
-        _removeLogListener();
+        }
       }
     }
+
+    ref.listen(proxyNotifierProvider, proxyListener);
     return Scaffold(
       appBar: AppBar(
         title: Text(S.of(context).log),
@@ -76,9 +89,7 @@ class _LogPageState extends State<LogPage> with WindowListener {
               surfaceTintColor: Colors.transparent,
               elevation: 2,
               margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-              child: coreProvider.coreRunning &&
-                      sphiaConfigProvider.config.enableCoreLog &&
-                      (!sphiaConfigProvider.config.saveCoreLog)
+              child: coreRunning && enableCoreLog && (!saveCoreLog)
                   ? SingleChildScrollView(
                       controller: _scrollController,
                       child: SelectableText(
@@ -93,7 +104,7 @@ class _LogPageState extends State<LogPage> with WindowListener {
                   : Center(
                       child: Text(S.of(context).noLogsAvailable),
                     ),
-            )
+            ),
           ],
         ),
       ),
@@ -101,14 +112,13 @@ class _LogPageState extends State<LogPage> with WindowListener {
   }
 
   void _listenToLogs() {
-    final coreProvider = GetIt.I.get<CoreProvider>();
-    if (!coreProvider.coreRunning) {
-      return;
-    }
     _hasScrollListener = true;
-    _logSubscription = coreProvider.routing.logStream.listen((log) {
-      _addLog(log);
-    });
+    final coreState = ref.watch(coreStateNotifierProvider).valueOrNull;
+    if (coreState != null) {
+      _logSubscription = coreState.logStream.listen((log) {
+        _addLog(log);
+      });
+    }
   }
 
   void _removeLogListener({bool background = false}) {
@@ -119,50 +129,48 @@ class _LogPageState extends State<LogPage> with WindowListener {
     _logSubscription = null;
     _isUserScrolling = false;
     if (_hasScrollListener) {
-      _scrollController.removeListener(() {});
+      _scrollController.removeListener(() {
+        if (_scrollController.position.userScrollDirection !=
+            ScrollDirection.idle) {
+          _isUserScrolling = true;
+        }
+      });
       _hasScrollListener = false;
+      if (!background) {
+        _scrollController.jumpTo(0);
+      }
     }
   }
 
   void _addLog(String log) {
-    final sphiaConfigProvider = GetIt.I.get<SphiaConfigProvider>();
+    final maxLogCount = ref.watch(
+        sphiaConfigNotifierProvider.select((value) => value.maxLogCount));
+    final visible = ref.watch(visibleNotifierProvider);
     final trimLog = log.trim();
     if (trimLog.isNotEmpty &&
         trimLog != '\n' &&
         trimLog != '\r\n' &&
         trimLog != '\r') {
       _logList.add(trimLog);
-      if (_logList.length >= sphiaConfigProvider.config.maxLogCount) {
+      if (_logList.length >= maxLogCount) {
         _logList.removeAt(0);
       }
-      if (_isVisible) {
-        setState(() {});
+      if (visible) {
+        setState(() {
+          // trigger rebuild
+        });
       }
       if (_hasScrollListener) {
-        if (!_isUserScrolling && _isVisible) {
-          _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeOut,
-          );
+        if (!_isUserScrolling && visible) {
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOut,
+            );
+          }
         }
       }
     }
-  }
-
-  @override
-  void onWindowFocus() {
-    setState(() {
-      _isVisible = true;
-    });
-    _listenToLogs();
-  }
-
-  @override
-  void onWindowClose() {
-    setState(() {
-      _isVisible = false;
-    });
-    _removeLogListener(background: true);
   }
 }

@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/app/theme.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 
 class SphiaWidget {
@@ -71,180 +68,6 @@ class SphiaWidget {
     return PopupMenuButton<String>(
       itemBuilder: (context) => items,
       onSelected: onItemSelected,
-    );
-  }
-
-  static Widget checkboxCard({
-    required bool value,
-    required String title,
-    required void Function(bool?) onChanged,
-    bool enabled = true,
-  }) {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
-    return ListTile(
-      enabled: enabled,
-      shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
-      title: Text(title),
-      trailing: Container(
-        alignment: Alignment.centerRight,
-        width: 20,
-        child: Checkbox(
-          value: value,
-          onChanged: enabled ? onChanged : null,
-        ),
-      ),
-      onTap: enabled
-          ? () {
-              onChanged(!value);
-            }
-          : null,
-    );
-  }
-
-  static Widget textCard({
-    required String value,
-    required String title,
-    required void Function(String?) update,
-    required BuildContext context,
-    bool enabled = true,
-  }) {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
-    return ListTile(
-      enabled: enabled,
-      shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
-      title: Text(title),
-      trailing: Text(value),
-      onTap: () async {
-        TextEditingController controller = TextEditingController();
-        controller.text = value;
-        String? newValue = await showDialog<String>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text(title),
-              content: TextFormField(
-                controller: controller,
-              ),
-              actions: [
-                TextButton(
-                  child: Text(S.of(context).cancel),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                TextButton(
-                  child: Text(S.of(context).save),
-                  onPressed: () {
-                    Navigator.of(context).pop(controller.text);
-                  },
-                ),
-              ],
-            );
-          },
-        );
-        update(newValue);
-      },
-    );
-  }
-
-  static Widget itemsCard({
-    required int value,
-    required String title,
-    required List<String> items,
-    required void Function(int?) update,
-    required BuildContext context,
-  }) {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
-    return ListTile(
-      shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
-      title: Text(title),
-      trailing: Text(items[value]),
-      onTap: () async {
-        int? newValue = await showDialog<int>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text(title),
-              content: SizedBox(
-                width: double.minPositive,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: items.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                      shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
-                      title: Text(items[index]),
-                      trailing: Icon(
-                        index == value ? Icons.check : null,
-                      ),
-                      onTap: () {
-                        Navigator.of(context).pop(index);
-                      },
-                    );
-                  },
-                ),
-              ),
-            );
-          },
-        );
-        update(newValue);
-      },
-    );
-  }
-
-  static Widget colorsCard({
-    required int value,
-    required String title,
-    required Map<int, String> items,
-    required void Function(int?) update,
-    required BuildContext context,
-  }) {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
-    return ListTile(
-      shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
-      title: Text(title),
-      trailing: Text(
-        "❖ ${items[value] ?? "Sphia"}",
-        style: TextStyle(
-          color: Color(value),
-        ),
-      ),
-      onTap: () async {
-        int? newValue = await showDialog<int>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text(title),
-              content: SizedBox(
-                width: double.minPositive,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: items.keys.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final color = items.keys.elementAt(index);
-                    return ListTile(
-                      shape: SphiaTheme.listTileShape(sphiaConfig.useMaterial3),
-                      title: Text(
-                        "❖ ${items[color]}",
-                        style: TextStyle(
-                          color: Color(color),
-                        ),
-                      ),
-                      trailing: Icon(
-                        color == value ? Icons.check : null,
-                      ),
-                      onTap: () {
-                        Navigator.of(context).pop(items.keys.elementAt(index));
-                      },
-                    );
-                  },
-                ),
-              ),
-            );
-          },
-        );
-        update(newValue);
-      },
     );
   }
 
@@ -464,15 +287,19 @@ class SphiaWidget {
     );
   }
 
-  static Future<void> showDialogWithMsg(
-    BuildContext context,
-    String message,
-  ) async {
+  static Future<void> showDialogWithMsg({
+    required BuildContext context,
+    required String message,
+  }) async {
     await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          content: Text(message),
+          content: Padding(
+            padding:
+                const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 4),
+            child: Text(message, style: const TextStyle(fontSize: 14)),
+          ),
           actions: [
             TextButton(
               child: Text(S.of(context).ok),

@@ -1,23 +1,33 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 
-import 'package:get_it/get_it.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:pub_semver/pub_semver.dart';
 import 'package:sphia/app/config/sphia.dart';
+import 'package:sphia/app/config/version.dart';
 import 'package:sphia/app/database/dao/rule.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
-import 'package:sphia/app/provider/rule_config.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/app/provider/version_config.dart';
+import 'package:sphia/app/notifier/config/rule_config.dart';
+import 'package:sphia/app/notifier/config/sphia_config.dart';
+import 'package:sphia/app/notifier/config/version_config.dart';
 import 'package:sphia/core/core.dart';
 import 'package:sphia/core/helper.dart';
 import 'package:sphia/core/sing/config.dart';
 import 'package:sphia/core/sing/generate.dart';
+import 'package:sphia/util/latency.dart';
 import 'package:sphia/util/system.dart';
 
+const cacheDbFileName = 'cache.db';
+
 class SingBoxCore extends Core {
+  late final Ref ref;
+  final _logStreamController = StreamController<String>.broadcast();
+
+  Stream<String> get logStream => _logStreamController.stream;
+
   SingBoxCore()
       : super(
           'sing-box',
@@ -26,9 +36,42 @@ class SingBoxCore extends Core {
         );
 
   @override
+  Future<void> stop() async {
+    await super.stop();
+    if (configFileName == 'latency.json') {
+      // do not delete cache file which currently used by other core
+      SystemUtil.deleteFileIfExists(
+        p.join(tempPath, latencyCacheDbFileName),
+        'Deleting cache file: $latencyCacheDbFileName',
+      );
+    } else {
+      SystemUtil.deleteFileIfExists(
+        p.join(tempPath, cacheDbFileName),
+        'Deleting cache file: $cacheDbFileName',
+      );
+    }
+    if (!_logStreamController.isClosed) {
+      await _logStreamController.close();
+    }
+  }
+
+  @override
+  void listenToProcessStream(Stream<List<int>> stream) {
+    logSubscription = stream.transform(utf8.decoder).listen((data) {
+      if (data.trim().isNotEmpty) {
+        _logStreamController.add(data);
+        if (isPreLog) {
+          preLogList.add(data);
+        }
+      }
+    });
+  }
+
+  @override
   Future<void> configure() async {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
-    final ruleConfig = GetIt.I.get<RuleConfigProvider>().config;
+    final sphiaConfig = ref.read(sphiaConfigNotifierProvider);
+    final ruleConfig = ref.read(ruleConfigNotifierProvider);
+    final versionConfig = ref.read(versionConfigNotifierProvider);
     final outbounds = [
       SingBoxGenerate.generateOutbound(servers.first)..tag = 'proxy',
     ];
@@ -69,6 +112,7 @@ class SingBoxCore extends Core {
       enableTun: sphiaConfig.enableTun,
       addMixedInbound: !sphiaConfig.enableTun,
       sphiaConfig: sphiaConfig,
+      versionConfig: versionConfig,
     );
 
     final jsonString = await generateConfig(parameters);
@@ -80,7 +124,7 @@ class SingBoxCore extends Core {
     final paras = parameters as SingConfigParameters;
     final sphiaConfig = paras.sphiaConfig;
 
-    String level = LogLevel.values[sphiaConfig.logLevel].name;
+    String level = sphiaConfig.logLevel.name;
     if (level == 'warning') {
       level = 'warn';
     }
@@ -124,7 +168,7 @@ class SingBoxCore extends Core {
           inet4Address: sphiaConfig.enableIpv4 ? sphiaConfig.ipv4Address : null,
           inet6Address: sphiaConfig.enableIpv6 ? sphiaConfig.ipv6Address : null,
           mtu: sphiaConfig.mtu,
-          stack: TunStack.values[sphiaConfig.stack].name,
+          stack: sphiaConfig.stack.name,
           autoRoute: sphiaConfig.autoRoute,
           strictRoute: sphiaConfig.strictRoute,
           sniff: sphiaConfig.enableSniffing,
@@ -155,9 +199,8 @@ class SingBoxCore extends Core {
 
     Experimental? experimental;
     if (paras.enableApi) {
-      final versionConfigProvider = GetIt.I.get<VersionConfigProvider>();
-      final singBoxVersion =
-          versionConfigProvider.config.singBoxVersion?.replaceAll('v', '');
+      final versionConfig = paras.versionConfig;
+      final singBoxVersion = versionConfig.singBoxVersion?.replaceAll('v', '');
       if (singBoxVersion == null) {
         logger.e('SingBox version is null');
         throw Exception('SingBox version is null');
@@ -206,6 +249,7 @@ class SingConfigParameters extends ConfigParameters {
   final bool enableTun;
   final bool addMixedInbound;
   final SphiaConfig sphiaConfig;
+  final VersionConfig versionConfig;
   final String cacheDbFileName;
 
   SingConfigParameters({
@@ -217,6 +261,7 @@ class SingConfigParameters extends ConfigParameters {
     required this.enableTun,
     required this.addMixedInbound,
     required this.sphiaConfig,
+    required this.versionConfig,
     this.cacheDbFileName = 'cache.db',
   });
 }

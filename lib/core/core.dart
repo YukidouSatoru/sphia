@@ -6,10 +6,7 @@ import 'package:path/path.dart' as p;
 import 'package:sphia/app/log.dart';
 import 'package:sphia/core/helper.dart';
 import 'package:sphia/server/server_model.dart';
-import 'package:sphia/util/latency.dart';
 import 'package:sphia/util/system.dart';
-
-const cacheDbFileName = 'cache.db';
 
 abstract class Core {
   String name;
@@ -17,14 +14,12 @@ abstract class Core {
   late String configFileName;
   late final File _configFile = File(p.join(tempPath, configFileName));
   Process? _process;
-  bool _isPreLog = true;
+  bool isPreLog = true;
+  StreamSubscription? logSubscription;
   final List<String> preLogList = [];
-  final _logStreamController = StreamController<String>.broadcast();
   List<ServerModel> servers = [];
-  bool isRouting = false;
   final List<int> usedPorts = [];
-
-  Stream<String> get logStream => _logStreamController.stream;
+  bool isRouting = false;
 
   Core(this.name, this.args, this.configFileName);
 
@@ -62,7 +57,7 @@ abstract class Core {
         throw Exception('\n${preLogList.join('\n')}');
       }
     } on TimeoutException catch (_) {
-      _isPreLog = false;
+      isPreLog = false;
     }
   }
 
@@ -72,6 +67,7 @@ abstract class Core {
       return;
     }
     logger.i('Stopping core: $name');
+    await logSubscription?.cancel();
     _process!.kill();
     final pid = _process!.pid;
     _process = null;
@@ -86,30 +82,12 @@ abstract class Core {
       _configFile.path,
       'Deleting config file: $configFileName',
     );
-    if (name == 'sing-box') {
-      if (configFileName == 'latency.json') {
-        // do not delete cache file which currently used by other core
-        SystemUtil.deleteFileIfExists(
-          p.join(tempPath, latencyCacheDbFileName),
-          'Deleting cache file: $latencyCacheDbFileName',
-        );
-      } else {
-        SystemUtil.deleteFileIfExists(
-          p.join(tempPath, cacheDbFileName),
-          'Deleting cache file: $cacheDbFileName',
-        );
-      }
-    }
-    if (!_logStreamController.isClosed) {
-      await _logStreamController.close();
-    }
   }
 
   void listenToProcessStream(Stream<List<int>> stream) {
-    stream.transform(utf8.decoder).listen((data) {
+    logSubscription = stream.transform(utf8.decoder).listen((data) {
       if (data.trim().isNotEmpty) {
-        _logStreamController.add(data);
-        if (_isPreLog) {
+        if (isPreLog) {
           preLogList.add(data);
         }
       }

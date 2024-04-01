@@ -1,5 +1,6 @@
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/server/hysteria/server.dart';
+import 'package:sphia/server/server_model_lite.dart';
 import 'package:sphia/server/shadowsocks/server.dart';
 import 'package:sphia/server/trojan/server.dart';
 import 'package:sphia/server/xray/server.dart';
@@ -125,5 +126,9 @@ class ServerModel {
         protocolProvider.hashCode ^
         authPayload.hashCode ^
         latency.hashCode;
+  }
+
+  ServerModelLite toLite() {
+    return ServerModelLite(id: id, remark: remark);
   }
 }

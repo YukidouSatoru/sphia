@@ -1,8 +1,6 @@
 import 'package:drift/drift.dart';
-import 'package:get_it/get_it.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
-import 'package:sphia/app/provider/server_config.dart';
 import 'package:sphia/server/server_model.dart';
 
 const additionalServerId = -1;
@@ -55,12 +53,6 @@ class ServerDao {
         .then((value) => value?.remark ?? '');
   }
 
-  Future<bool> checkServerExistsById(int id) {
-    return (_db.select(_db.servers)..where((tbl) => tbl.id.equals(id)))
-        .getSingleOrNull()
-        .then((value) => value != null);
-  }
-
   Future<Server?> getServerById(int id) {
     if (id == additionalServerId) {
       return Future.value(null);
@@ -78,22 +70,17 @@ class ServerDao {
         .then((value) => value == null ? null : ServerModel.fromServer(value));
   }
 
-  Future<ServerModel?> getSelectedServerModel() async {
-    final selectedServerId =
-        GetIt.I.get<ServerConfigProvider>().config.selectedServerId;
-    return getServerModelById(selectedServerId);
-  }
-
   Future<int> insertServer(ServerModel server) {
     return _db.into(_db.servers).insert(server.toCompanion());
   }
 
-  Future<void> insertServers(List<ServerModel> servers) async {
-    return _db.batch((b) {
-      for (final server in servers) {
-        b.insert(_db.servers, server.toCompanion());
-      }
-    });
+  Future<List<int>> insertServers(List<ServerModel> servers) async {
+    final idList = <int>[];
+    for (final server in servers) {
+      final id = await insertServer(server);
+      idList.add(id);
+    }
+    return idList;
   }
 
   Future<void> updateServer(ServerModel server) async {

@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'xray.g.dart';
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class XrayRule {
   String type = 'field';
   String? inboundTag;

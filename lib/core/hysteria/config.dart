@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'config.g.dart';
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class HysteriaConfig {
   String server;
   String protocol;
@@ -49,7 +49,7 @@ class HysteriaConfig {
   Map<String, dynamic> toJson() => _$HysteriaConfigToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class Socks5 {
   String listen;
   int? timeout;

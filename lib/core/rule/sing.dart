@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'sing.g.dart';
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class SingBoxRule {
   String? inbound;
   String? outbound;
@@ -51,7 +51,7 @@ class SingBoxRule {
   Map<String, dynamic> toJson() => _$SingBoxRuleToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable()
 class SingBoxDnsRule {
   List<String>? geosite;
   List<String>? geoip;

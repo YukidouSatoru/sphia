@@ -1,29 +1,17 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'server.freezed.dart';
 
 part 'server.g.dart';
 
-@JsonSerializable(includeIfNull: false)
-class ServerConfig {
-  int selectedServerGroupId;
-  int selectedServerId;
-  int updatedSubscriptionTime;
-
-  ServerConfig({
-    required this.selectedServerGroupId,
-    required this.selectedServerId,
-    required this.updatedSubscriptionTime,
-  });
-
-  factory ServerConfig.defaults() {
-    return ServerConfig(
-      selectedServerGroupId: 1,
-      selectedServerId: 0,
-      updatedSubscriptionTime: 0,
-    );
-  }
+@freezed
+class ServerConfig with _$ServerConfig {
+  const factory ServerConfig({
+    @Default(1) int selectedServerGroupId,
+    @Default(0) int selectedServerId,
+    @Default(0) int updatedSubscriptionTime,
+  }) = _ServerConfig;
 
   factory ServerConfig.fromJson(Map<String, dynamic> json) =>
       _$ServerConfigFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ServerConfigToJson(this);
 }

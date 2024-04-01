@@ -1,131 +1,106 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:sphia/app/provider/core.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/app/task/subscription.dart';
-import 'package:sphia/app/task/task.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sphia/app/config/sphia.dart';
+import 'package:sphia/app/notifier/config/sphia_config.dart';
+import 'package:sphia/app/notifier/proxy.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/system.dart';
-import 'package:sphia/view/page/wrapper.dart';
+import 'package:sphia/view/widget/setting_widget/checkbox_card.dart';
+import 'package:sphia/view/widget/setting_widget/colors_card.dart';
+import 'package:sphia/view/widget/setting_widget/items_card.dart';
+import 'package:sphia/view/widget/setting_widget/text_card.dart';
 import 'package:sphia/view/widget/widget.dart';
+import 'package:sphia/view/wrapper/page.dart';
 
-class SettingPage extends StatefulWidget {
+class SettingPage extends ConsumerStatefulWidget {
   const SettingPage({
     super.key,
   });
 
   @override
-  State<StatefulWidget> createState() => _SettingPageState();
+  ConsumerState<SettingPage> createState() => _SettingPageState();
 }
 
-class _SettingPageState extends State<SettingPage> {
-  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
-      GlobalKey<ScaffoldMessengerState>();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
+class _SettingPageState extends ConsumerState<SettingPage> {
+  final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
   @override
   Widget build(BuildContext context) {
-    final sphiaConfigProvider = Provider.of<SphiaConfigProvider>(context);
-    final sphiaConfig = sphiaConfigProvider.config;
-    final coreProvider = Provider.of<CoreProvider>(context);
-
+    final currentState = _scaffoldMessengerKey.currentState;
+    final notifier = ref.watch(sphiaConfigNotifierProvider.notifier);
+    final coreRunning =
+        ref.watch(proxyNotifierProvider.select((value) => value.coreRunning));
     final sphiaWidgets = [
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.startOnBoot,
+      CheckboxCard(
         title: S.of(context).startOnBoot,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.startOnBoot = value;
-            sphiaConfigProvider.saveConfig();
-            SystemUtil.configureStartup();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).startOnBootMsg,
-              ),
-            );
-          }
+        selector: (value) => value.startOnBoot,
+        updater: (value) {
+          notifier.updateValue('startOnBoot', value);
+          SystemUtil.configureStartup(value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).startOnBootMsg,
+            ),
+          );
         },
       ),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.autoRunServer,
+      CheckboxCard(
         title: S.of(context).autoRunServer,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.autoRunServer = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).autoRunServerMsg,
-              ),
-            );
-          }
+        selector: (value) => value.autoRunServer,
+        updater: (value) {
+          notifier.updateValue('autoRunServer', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).autoRunServerMsg,
+            ),
+          );
         },
       ),
       const Divider(),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.useMaterial3,
+      CheckboxCard(
         title: S.of(context).useMaterial3,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.useMaterial3 = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).useMaterial3Msg,
-              ),
-            );
-          }
+        selector: (value) => value.useMaterial3,
+        updater: (value) {
+          notifier.updateValue('useMaterial3', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).useMaterial3Msg,
+            ),
+          );
         },
       ),
-      SphiaWidget.itemsCard(
-        value: sphiaConfig.navigationStyle,
+      ItemsCard(
         title: S.of(context).navigationStyle,
         items: navigationStyleList,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.navigationStyle = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).navigationStyleMsg,
-              ),
-            );
-          }
+        selector: (value) => value.navigationStyle.index,
+        updater: (value) {
+          notifier.updateValue(
+              'navigationStyle', NavigationStyle.values[value].name);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).navigationStyleMsg,
+            ),
+          );
         },
-        context: context,
       ),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.darkMode,
+      CheckboxCard(
         title: S.of(context).darkMode,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.darkMode = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).darkModeMsg,
-              ),
-            );
-          }
+        selector: (value) => value.darkMode,
+        updater: (value) {
+          notifier.updateValue('darkMode', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).darkModeMsg,
+            ),
+          );
         },
       ),
-      SphiaWidget.colorsCard(
-        value: sphiaConfig.themeColor,
-        title: S.of(context).themeColor,
+      ColorsCard(
         items: {
           Colors.red.value: 'Red',
           Colors.orange.value: 'Orange',
@@ -136,1015 +111,819 @@ class _SettingPageState extends State<SettingPage> {
           Colors.cyan.value: 'Cyan',
           Colors.deepPurple.value: 'Deep Purple',
         },
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.themeColor = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
+        updater: (value) {
+          notifier.updateValue('themeColor', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).themeColorMsg,
+            ),
+          );
+        },
+      ),
+      TextCard(
+        title: S.of(context).themeColorArgb,
+        selector: (value) {
+          return "${value.themeColor >> 24},${(value.themeColor >> 16) & 0xFF},${(value.themeColor >> 8) & 0xFF},${value.themeColor & 0xFF}";
+        },
+        updater: (value) {
+          late int a, r, g, b;
+          try {
+            a = int.parse(value.split(',')[0]);
+            r = int.parse(value.split(',')[1]);
+            g = int.parse(value.split(',')[2]);
+            b = int.parse(value.split(',')[3]);
+          } on Exception catch (_) {
+            currentState?.hideCurrentSnackBar();
+            currentState?.showSnackBar(
+              SphiaWidget.snackBar(
+                S.of(context).themeColorWarn,
+              ),
+            );
+            return;
+          }
+          legalValue(int number) => (number >= 0 && number < 256);
+          if (legalValue(a) &&
+              legalValue(r) &&
+              legalValue(g) &&
+              legalValue(b)) {
+            final argbValue = (a << 24) | (r << 16) | (g << 8) | b;
+            notifier.updateValue('themeColor', argbValue);
+            currentState?.hideCurrentSnackBar();
+            currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).themeColorMsg,
               ),
             );
+          } else {
+            currentState?.hideCurrentSnackBar();
+            currentState?.showSnackBar(
+              SphiaWidget.snackBar(
+                S.of(context).themeColorWarn,
+              ),
+            );
           }
         },
-        context: context,
-      ),
-      SphiaWidget.textCard(
-        value:
-            "${sphiaConfig.themeColor >> 24},${(sphiaConfig.themeColor >> 16) & 0xFF},${(sphiaConfig.themeColor >> 8) & 0xFF},${sphiaConfig.themeColor & 0xFF}",
-        title: S.of(context).themeColorArgb,
-        update: (value) {
-          if (value != null) {
-            late int a, r, g, b;
-            try {
-              a = int.parse(value.split(',')[0]);
-              r = int.parse(value.split(',')[1]);
-              g = int.parse(value.split(',')[2]);
-              b = int.parse(value.split(',')[3]);
-            } on Exception catch (_) {
-              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-              _scaffoldMessengerKey.currentState?.showSnackBar(
-                SphiaWidget.snackBar(
-                  S.of(context).themeColorWarn,
-                ),
-              );
-              return;
-            }
-            legalValue(int number) => (number >= 0 && number < 256);
-            if (legalValue(a) &&
-                legalValue(r) &&
-                legalValue(g) &&
-                legalValue(b)) {
-              final argbValue = (a << 24) | (r << 16) | (g << 8) | b;
-              sphiaConfig.themeColor = argbValue;
-              sphiaConfigProvider.saveConfig();
-              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-              _scaffoldMessengerKey.currentState?.showSnackBar(
-                SphiaWidget.snackBar(
-                  S.of(context).themeColorMsg,
-                ),
-              );
-            } else {
-              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-              _scaffoldMessengerKey.currentState?.showSnackBar(
-                SphiaWidget.snackBar(
-                  S.of(context).themeColorWarn,
-                ),
-              );
-            }
-          }
-        },
-        context: context,
       ),
       const Divider(),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.showTransport,
+      CheckboxCard(
         title: S.of(context).showTransport,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.showTransport = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).showTransportMsg,
-              ),
-            );
-          }
+        selector: (value) => value.showTransport,
+        updater: (value) {
+          notifier.updateValue('showTransport', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).showTransportMsg,
+            ),
+          );
         },
       ),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.showAddress,
+      CheckboxCard(
         title: S.of(context).showAddress,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.showAddress = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).showAddressMsg,
-              ),
-            );
-          }
+        selector: (value) => value.showAddress,
+        updater: (value) {
+          notifier.updateValue('showAddress', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).showAddressMsg,
+            ),
+          );
         },
       ),
       const Divider(),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.enableStatistics,
+      CheckboxCard(
         title: S.of(context).enableStatistics,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.enableStatistics = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).enableStatisticsMsg,
-              ),
-            );
+        selector: (value) => value.enableStatistics,
+        updater: (value) {
+          notifier.updateValue('enableStatistics', value);
+          if (!value) {
+            notifier.updateValue('enableSpeedChart', false);
           }
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).enableStatisticsMsg,
+            ),
+          );
         },
-        enabled: !coreProvider.coreRunning,
+        enabled: !coreRunning,
       ),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.enableSpeedChart,
+      CheckboxCard(
         title: S.of(context).enableSpeedChart,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.enableSpeedChart = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).enableSpeedChartMsg,
-              ),
-            );
+        selector: (value) => value.enableSpeedChart,
+        updater: (value) {
+          notifier.updateValue('enableSpeedChart', value);
+          if (value) {
+            notifier.updateValue('enableStatistics', true);
           }
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).enableSpeedChartMsg,
+            ),
+          );
         },
+        enabled: !coreRunning ||
+            (coreRunning &&
+                ref.read(sphiaConfigNotifierProvider).enableStatistics),
       ),
       const Divider(),
-      SphiaWidget.textCard(
-        value: sphiaConfig.latencyTestUrl,
+      TextCard(
         title: S.of(context).latencyTestUrl,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.latencyTestUrl = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).latencyTestUrlMsg,
-              ),
-            );
-          }
+        selector: (value) => value.latencyTestUrl,
+        updater: (value) {
+          notifier.updateValue('latencyTestUrl', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).latencyTestUrlMsg,
+            ),
+          );
         },
-        context: context,
       ),
       const Divider(),
-      SphiaWidget.textCard(
-        value: sphiaConfig.updateSubscriptionInterval.toString(),
-        title: S.of(context).updateSubscriptionInterval,
-        update: (value) {
-          if (value != null) {
-            late final int? newValue;
-            if ((newValue = int.tryParse(value)) == null) {
-              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-              _scaffoldMessengerKey.currentState?.showSnackBar(
-                SphiaWidget.snackBar(
-                  S.of(context).updateSubscriptionIntervalWarn,
-                ),
-              );
-              return;
-            }
-            if (newValue! < 0 && newValue != -1) {
-              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-              _scaffoldMessengerKey.currentState?.showSnackBar(
-                SphiaWidget.snackBar(
-                  S.of(context).updateSubscriptionIntervalWarn,
-                ),
-              );
-              return;
-            }
-            sphiaConfig.updateSubscriptionInterval = newValue;
-            sphiaConfigProvider.saveConfig();
-            if (sphiaConfig.updateSubscriptionInterval != -1) {
-              SphiaTask.addTask(SubscriptionTask.generate());
-            } else {
-              SphiaTask.cancelTask(SubscriptionTask.name);
-            }
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).updateSubscriptionIntervalMsg,
-              ),
-            );
-          }
-        },
-        context: context,
-      ),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.updateThroughProxy,
+      CheckboxCard(
         title: S.of(context).updateThroughProxy,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.updateThroughProxy = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).updateThroughProxyMsg,
-              ),
-            );
-          }
+        selector: (value) => value.updateThroughProxy,
+        updater: (value) {
+          notifier.updateValue('updateThroughProxy', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).updateThroughProxyMsg,
+            ),
+          );
         },
       ),
-      SphiaWidget.itemsCard(
-        value: sphiaConfig.userAgent,
+      ItemsCard(
         title: S.of(context).userAgent,
         items: userAgentList,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.userAgent = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).userAgentMsg,
-              ),
-            );
-          }
+        selector: (value) => value.userAgent.index,
+        updater: (value) {
+          notifier.updateValue('userAgent', UserAgent.values[value].name);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).userAgentMsg,
+            ),
+          );
         },
-        context: context,
       ),
     ];
     final proxyWidgets = [
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.autoGetIp,
+      CheckboxCard(
         title: S.of(context).autoGetIp,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.autoGetIp = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).autoGetIpMsg,
-              ),
-            );
-          }
+        selector: (value) => value.autoGetIp,
+        updater: (value) {
+          notifier.updateValue('autoGetIp', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).autoGetIpMsg,
+            ),
+          );
         },
       ),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.multiOutboundSupport,
+      CheckboxCard(
         title: S.of(context).multiOutboundSupport,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.multiOutboundSupport = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).multiOutboundSupportMsg,
-              ),
-            );
-          }
+        selector: (value) => value.multiOutboundSupport,
+        updater: (value) {
+          notifier.updateValue('multiOutboundSupport', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).multiOutboundSupportMsg,
+            ),
+          );
         },
-        enabled: !coreProvider.coreRunning,
+        enabled: !coreRunning,
       ),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.autoConfigureSystemProxy,
+      CheckboxCard(
         title: S.of(context).autoConfigureSystemProxy,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.autoConfigureSystemProxy = value;
-            if (value) {
-              sphiaConfig.enableTun = false;
-            }
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).autoConfigureSystemProxyMsg,
-              ),
-            );
+        selector: (value) => value.autoConfigureSystemProxy,
+        updater: (value) {
+          notifier.updateValue('autoConfigureSystemProxy', value);
+          if (value) {
+            notifier.updateValue('enableTun', false);
           }
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).autoConfigureSystemProxyMsg,
+            ),
+          );
         },
-        enabled: !coreProvider.coreRunning,
+        enabled: !coreRunning,
       ),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.enableTun,
+      CheckboxCard(
         title: S.of(context).enableTun,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.enableTun = value;
-            if (value) {
-              sphiaConfig.autoConfigureSystemProxy = false;
-            }
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).enableTunMsg,
-              ),
-            );
+        selector: (value) => value.enableTun,
+        updater: (value) {
+          notifier.updateValue('enableTun', value);
+          if (value) {
+            notifier.updateValue('autoConfigureSystemProxy', false);
           }
+
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).enableTunMsg,
+            ),
+          );
         },
       ),
       const Divider(),
-      SphiaWidget.textCard(
-        value: sphiaConfig.socksPort.toString(),
+      TextCard(
         title: S.of(context).socksPort,
-        update: (value) {
-          if (value != null) {
-            late final int? newValue;
-            if ((newValue = int.tryParse(value)) == null ||
-                newValue! < 0 ||
-                newValue > 65535) {
-              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-              _scaffoldMessengerKey.currentState?.showSnackBar(
-                SphiaWidget.snackBar(
-                  S.of(context).portInvalidMsg,
-                ),
-              );
-              return;
-            }
-            sphiaConfig.socksPort = newValue;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
+        selector: (value) => value.socksPort.toString(),
+        updater: (value) {
+          late final int? newValue;
+          if ((newValue = int.tryParse(value)) == null ||
+              newValue! < 0 ||
+              newValue > 65535) {
+            currentState?.hideCurrentSnackBar();
+            currentState?.showSnackBar(
               SphiaWidget.snackBar(
-                S.of(context).socksPortMsg,
+                S.of(context).portInvalidMsg,
               ),
             );
+            return;
           }
+          notifier.updateValue('socksPort', newValue);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).socksPortMsg,
+            ),
+          );
         },
-        context: context,
-        enabled: !coreProvider.coreRunning,
+        enabled: !coreRunning,
       ),
-      SphiaWidget.textCard(
-        value: sphiaConfig.httpPort.toString(),
+      TextCard(
         title: S.of(context).httpPort,
-        update: (value) {
-          if (value != null) {
-            late final int? newValue;
-            if ((newValue = int.tryParse(value)) == null ||
-                newValue! < 0 ||
-                newValue > 65535) {
-              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-              _scaffoldMessengerKey.currentState?.showSnackBar(
-                SphiaWidget.snackBar(
-                  S.of(context).portInvalidMsg,
-                ),
-              );
-              return;
-            }
-            sphiaConfig.httpPort = newValue;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
+        selector: (value) => value.httpPort.toString(),
+        updater: (value) {
+          late final int? newValue;
+          if ((newValue = int.tryParse(value)) == null ||
+              newValue! < 0 ||
+              newValue > 65535) {
+            currentState?.hideCurrentSnackBar();
+            currentState?.showSnackBar(
               SphiaWidget.snackBar(
-                S.of(context).httpPortMsg,
+                S.of(context).portInvalidMsg,
               ),
             );
+            return;
           }
+          notifier.updateValue('httpPort', newValue);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).httpPortMsg,
+            ),
+          );
         },
-        context: context,
-        enabled: !coreProvider.coreRunning,
+        enabled: !coreRunning,
       ),
-      SphiaWidget.textCard(
-        value: sphiaConfig.mixedPort.toString(),
+      TextCard(
         title: S.of(context).mixedPort,
-        update: (value) {
-          if (value != null) {
-            late final int? newValue;
-            if ((newValue = int.tryParse(value)) == null ||
-                newValue! < 0 ||
-                newValue > 65535) {
-              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-              _scaffoldMessengerKey.currentState?.showSnackBar(
-                SphiaWidget.snackBar(
-                  S.of(context).portInvalidMsg,
-                ),
-              );
-              return;
-            }
-            sphiaConfig.mixedPort = newValue;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
+        selector: (value) => value.mixedPort.toString(),
+        updater: (value) {
+          late final int? newValue;
+          if ((newValue = int.tryParse(value)) == null ||
+              newValue! < 0 ||
+              newValue > 65535) {
+            currentState?.hideCurrentSnackBar();
+            currentState?.showSnackBar(
               SphiaWidget.snackBar(
-                S.of(context).mixedPortMsg,
+                S.of(context).portInvalidMsg,
               ),
             );
+            return;
           }
+          notifier.updateValue('mixedPort', newValue);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).mixedPortMsg,
+            ),
+          );
         },
-        context: context,
-        enabled: !coreProvider.coreRunning,
+        enabled: !coreRunning,
       ),
-      SphiaWidget.textCard(
-        value: sphiaConfig.listen,
+      TextCard(
         title: S.of(context).listen,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.listen = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).listenMsg,
-              ),
-            );
-          }
+        selector: (value) => value.listen,
+        updater: (value) {
+          notifier.updateValue('listen', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).listenMsg,
+            ),
+          );
         },
-        context: context,
-        enabled: !coreProvider.coreRunning,
+        enabled: !coreRunning,
       ),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.enableUdp,
+      CheckboxCard(
         title: S.of(context).enableUdp,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.enableUdp = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).enableUdpMsg,
-              ),
-            );
-          }
+        selector: (value) => value.enableUdp,
+        updater: (value) {
+          notifier.updateValue('enableUdp', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).enableUdpMsg,
+            ),
+          );
         },
-        enabled: !coreProvider.coreRunning,
+        enabled: !coreRunning,
       ),
       const Divider(),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.authentication,
+      CheckboxCard(
         title: S.of(context).authentication,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.authentication = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).authenticationMsg,
-              ),
-            );
-          }
+        selector: (value) => value.authentication,
+        updater: (value) {
+          notifier.updateValue('authentication', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).authenticationMsg,
+            ),
+          );
         },
-        enabled: !coreProvider.coreRunning,
+        enabled: !coreRunning,
       ),
-      SphiaWidget.textCard(
-        value: sphiaConfig.user,
+      TextCard(
         title: S.of(context).user,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.user = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).userMsg,
-              ),
-            );
-          }
+        selector: (value) => value.user,
+        updater: (value) {
+          notifier.updateValue('user', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).userMsg,
+            ),
+          );
         },
-        context: context,
-        enabled: !coreProvider.coreRunning,
+        enabled: !coreRunning,
       ),
-      SphiaWidget.textCard(
-        value: sphiaConfig.password,
+      TextCard(
         title: S.of(context).password,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.password = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).passwordMsg,
-              ),
-            );
-          }
+        selector: (value) => value.password,
+        updater: (value) {
+          notifier.updateValue('password', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).passwordMsg,
+            ),
+          );
         },
-        context: context,
-        enabled: !coreProvider.coreRunning,
+        enabled: !coreRunning,
       ),
     ];
     final coreWidgets = [
-      SphiaWidget.textCard(
-        value: sphiaConfig.coreApiPort.toString(),
+      TextCard(
         title: S.of(context).coreApiPort,
-        update: (value) {
-          if (value != null) {
-            late final int? newValue;
-            if ((newValue = int.tryParse(value)) == null ||
-                newValue! < 0 ||
-                newValue > 65535) {
-              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-              _scaffoldMessengerKey.currentState?.showSnackBar(
-                SphiaWidget.snackBar(
-                  S.of(context).portInvalidMsg,
-                ),
-              );
-              return;
-            }
-            sphiaConfig.coreApiPort = newValue;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
+        selector: (value) => value.coreApiPort.toString(),
+        updater: (value) {
+          late final int? newValue;
+          if ((newValue = int.tryParse(value)) == null ||
+              newValue! < 0 ||
+              newValue > 65535) {
+            currentState?.hideCurrentSnackBar();
+            currentState?.showSnackBar(
               SphiaWidget.snackBar(
-                S.of(context).coreApiPortMsg,
+                S.of(context).portInvalidMsg,
               ),
             );
+            return;
           }
+          notifier.updateValue('coreApiPort', newValue);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).coreApiPortMsg,
+            ),
+          );
         },
-        context: context,
-        enabled: !coreProvider.coreRunning,
+        enabled: !coreRunning,
       ),
       const Divider(),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.enableSniffing,
+      CheckboxCard(
         title: S.of(context).enableSniffing,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.enableSniffing = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).enableSniffingMsg,
-              ),
-            );
-          }
+        selector: (value) => value.enableSniffing,
+        updater: (value) {
+          notifier.updateValue('enableSniffing', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).enableSniffingMsg,
+            ),
+          );
         },
       ),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.configureDns,
+      CheckboxCard(
         title: S.of(context).configureDns,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.configureDns = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).configureDnsMsg,
-              ),
-            );
-          }
+        selector: (value) => value.configureDns,
+        updater: (value) {
+          notifier.updateValue('configureDns', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).configureDnsMsg,
+            ),
+          );
         },
       ),
-      SphiaWidget.textCard(
-        value: sphiaConfig.remoteDns,
+      TextCard(
         title: S.of(context).remoteDns,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.remoteDns = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).remoteDnsMsg,
-              ),
-            );
-          }
+        selector: (value) => value.remoteDns,
+        updater: (value) {
+          notifier.updateValue('remoteDns', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).remoteDnsMsg,
+            ),
+          );
         },
-        context: context,
       ),
-      SphiaWidget.textCard(
-        value: sphiaConfig.directDns,
+      TextCard(
         title: S.of(context).directDns,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.directDns = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).directDnsMsg,
-              ),
-            );
-          }
+        selector: (value) => value.directDns,
+        updater: (value) {
+          notifier.updateValue('directDns', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).directDnsMsg,
+            ),
+          );
         },
-        context: context,
       ),
       const Divider(),
-      SphiaWidget.itemsCard(
-        value: sphiaConfig.domainStrategy,
+      ItemsCard(
         title: S.of(context).domainStrategy,
         items: domainStrategyList,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.domainStrategy = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).domainStrategyMsg,
-              ),
-            );
-          }
+        selector: (value) => value.domainStrategy.index,
+        updater: (value) {
+          notifier.updateValue(
+              'domainStrategy', DomainStrategy.values[value].name);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).domainStrategyMsg,
+            ),
+          );
         },
-        context: context,
       ),
-      SphiaWidget.itemsCard(
-        value: sphiaConfig.domainMatcher,
+      ItemsCard(
         title: S.of(context).domainMatcher,
         items: domainMatcherList,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.domainMatcher = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).domainMatcherMsg,
-              ),
-            );
-          }
+        selector: (value) => value.domainMatcher.index,
+        updater: (value) {
+          notifier.updateValue(
+              'domainMatcher', DomainMatcher.values[value].name);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).domainMatcherMsg,
+            ),
+          );
         },
-        context: context,
       ),
       const Divider(),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.enableCoreLog,
+      CheckboxCard(
         title: S.of(context).enableCoreLog,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.enableCoreLog = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).enableCoreLogMsg,
-              ),
-            );
-          }
+        selector: (value) => value.enableCoreLog,
+        updater: (value) {
+          notifier.updateValue('enableCoreLog', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).enableCoreLogMsg,
+            ),
+          );
         },
       ),
-      SphiaWidget.itemsCard(
-        value: sphiaConfig.logLevel,
+      ItemsCard(
         title: S.of(context).logLevel,
         items: logLevelList,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.logLevel = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).logLevelMsg,
-              ),
-            );
-          }
+        selector: (value) => value.logLevel.index,
+        updater: (value) {
+          notifier.updateValue('logLevel', LogLevel.values[value].name);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).logLevelMsg,
+            ),
+          );
         },
-        context: context,
       ),
-      SphiaWidget.textCard(
-        value: sphiaConfig.maxLogCount.toString(),
+      TextCard(
         title: S.of(context).maxLogCount,
-        update: (value) {
-          if (value != null) {
-            late final int? newValue;
-            if ((newValue = int.tryParse(value)) == null || newValue! < 0) {
-              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-              _scaffoldMessengerKey.currentState?.showSnackBar(
-                SphiaWidget.snackBar(
-                  S.of(context).enterValidNumberMsg,
-                ),
-              );
-              return;
-            }
-            sphiaConfig.maxLogCount = newValue;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
+        selector: (value) => value.maxLogCount.toString(),
+        updater: (value) {
+          late final int? newValue;
+          if ((newValue = int.tryParse(value)) == null || newValue! < 0) {
+            currentState?.hideCurrentSnackBar();
+            currentState?.showSnackBar(
               SphiaWidget.snackBar(
-                S.of(context).maxLogCountMsg,
+                S.of(context).enterValidNumberMsg,
               ),
             );
+            return;
           }
+          notifier.updateValue('maxLogCount', newValue);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).maxLogCountMsg,
+            ),
+          );
         },
-        context: context,
       ),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.saveCoreLog,
+      CheckboxCard(
         title: S.of(context).saveCoreLog,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.saveCoreLog = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).saveCoreLogMsg,
-              ),
-            );
-          }
+        selector: (value) => value.saveCoreLog,
+        updater: (value) {
+          notifier.updateValue('saveCoreLog', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).saveCoreLogMsg,
+            ),
+          );
         },
       ),
     ];
 
     final providerWidgets = [
-      SphiaWidget.itemsCard(
-        value: sphiaConfig.routingProvider,
+      ItemsCard(
         title: S.of(context).routingProvider,
         items: routingProviderList,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.routingProvider = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).routingProviderMsg,
-              ),
-            );
-          }
+        selector: (value) => value.routingProvider.index,
+        updater: (value) {
+          notifier.updateValue(
+              'routingProvider', RoutingProvider.values[value].name);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).routingProviderMsg,
+            ),
+          );
         },
-        context: context,
       ),
-      SphiaWidget.itemsCard(
-        value: sphiaConfig.vmessProvider,
+      ItemsCard(
         title: S.of(context).vmessProvider,
         items: vmessProviderList,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.vmessProvider = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).vmessProviderMsg,
-              ),
-            );
-          }
+        selector: (value) => value.vmessProvider.index,
+        updater: (value) {
+          notifier.updateValue(
+              'vmessProvider', VmessProvider.values[value].name);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).vmessProviderMsg,
+            ),
+          );
         },
-        context: context,
       ),
-      SphiaWidget.itemsCard(
-        value: sphiaConfig.vlessProvider,
+      ItemsCard(
         title: S.of(context).vlessProvider,
         items: vlessProviderList,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.vlessProvider = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).vlessProviderMsg,
-              ),
-            );
-          }
+        selector: (value) => value.vlessProvider.index,
+        updater: (value) {
+          notifier.updateValue(
+              'vlessProvider', VlessProvider.values[value].name);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).vlessProviderMsg,
+            ),
+          );
         },
-        context: context,
       ),
-      SphiaWidget.itemsCard(
-        value: sphiaConfig.shadowsocksProvider,
+      ItemsCard(
         title: S.of(context).shadowsocksProvider,
         items: shadowsocksProviderList,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.shadowsocksProvider = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).shadowsocksProviderMsg,
-              ),
-            );
-          }
+        selector: (value) => value.shadowsocksProvider.index,
+        updater: (value) {
+          notifier.updateValue(
+              'shadowsocksProvider', ShadowsocksProvider.values[value].name);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).shadowsocksProviderMsg,
+            ),
+          );
         },
-        context: context,
       ),
-      SphiaWidget.itemsCard(
-        value: sphiaConfig.trojanProvider,
+      ItemsCard(
         title: S.of(context).trojanProvider,
         items: trojanProviderList,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.trojanProvider = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).trojanProviderMsg,
-              ),
-            );
-          }
+        selector: (value) => value.trojanProvider.index,
+        updater: (value) {
+          notifier.updateValue(
+              'trojanProvider', TrojanProvider.values[value].name);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).trojanProviderMsg,
+            ),
+          );
         },
-        context: context,
       ),
-      SphiaWidget.itemsCard(
-        value: sphiaConfig.hysteriaProvider,
+      ItemsCard(
         title: S.of(context).hysteriaProvider,
-        items: ['sing-box', 'hysteria'],
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.hysteriaProvider = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).hysteriaProviderMsg,
-              ),
-            );
-          }
+        items: hysteriaProviderList,
+        selector: (value) => value.hysteriaProvider.index,
+        updater: (value) {
+          notifier.updateValue(
+              'hysteriaProvider', HysteriaProvider.values[value].name);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).hysteriaProviderMsg,
+            ),
+          );
         },
-        context: context,
       ),
       const Divider(),
-      SphiaWidget.textCard(
-        value: sphiaConfig.additionalSocksPort.toString(),
+      TextCard(
         title: S.of(context).additionalSocksPort,
-        update: (value) {
-          if (value != null) {
-            late final int? newValue;
-            if ((newValue = int.tryParse(value)) == null ||
-                newValue! < 0 ||
-                newValue > 65535) {
-              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-              _scaffoldMessengerKey.currentState?.showSnackBar(
-                SphiaWidget.snackBar(
-                  S.of(context).portInvalidMsg,
-                ),
-              );
-              return;
-            }
-            sphiaConfig.additionalSocksPort = newValue;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
+        selector: (value) => value.additionalSocksPort.toString(),
+        updater: (value) {
+          late final int? newValue;
+          if ((newValue = int.tryParse(value)) == null ||
+              newValue! < 0 ||
+              newValue > 65535) {
+            currentState?.hideCurrentSnackBar();
+            currentState?.showSnackBar(
               SphiaWidget.snackBar(
-                S.of(context).additionalSocksPortMsg,
+                S.of(context).portInvalidMsg,
               ),
             );
+            return;
           }
+          notifier.updateValue('additionalSocksPort', newValue);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).additionalSocksPortMsg,
+            ),
+          );
         },
-        context: context,
-        enabled: !coreProvider.coreRunning,
+        enabled: !coreRunning,
       ),
     ];
     final tunWidgets = [
-      SphiaWidget.itemsCard(
-        value: sphiaConfig.tunProvider,
+      ItemsCard(
         title: S.of(context).tunProvider,
         items: tunProviderList,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.tunProvider = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).tunProviderMsg,
-              ),
-            );
-          }
+        selector: (value) => value.tunProvider.index,
+        updater: (value) {
+          notifier.updateValue('tunProvider', TunProvider.values[value].name);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).tunProviderMsg,
+            ),
+          );
         },
-        context: context,
       ),
       const Divider(),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.enableIpv4,
+      CheckboxCard(
         title: S.of(context).enableIpv4,
-        onChanged: (value) {
-          if (value != null) {
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).enableIpv4Msg,
-              ),
-            );
-          }
+        selector: (value) => value.enableIpv4,
+        updater: (value) {
+          notifier.updateValue('enableIpv4', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).enableIpv4Msg,
+            ),
+          );
         },
       ),
-      SphiaWidget.textCard(
-        value: sphiaConfig.ipv4Address,
+      TextCard(
         title: S.of(context).ipv4Address,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.ipv4Address = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).ipv4AddressMsg,
-              ),
-            );
-          }
+        selector: (value) => value.ipv4Address,
+        updater: (value) {
+          notifier.updateValue('ipv4Address', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).ipv4AddressMsg,
+            ),
+          );
         },
-        context: context,
       ),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.enableIpv6,
+      CheckboxCard(
         title: S.of(context).enableIpv6,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.enableIpv6 = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).enableIpv6Msg,
-              ),
-            );
-          }
+        selector: (value) => value.enableIpv6,
+        updater: (value) {
+          notifier.updateValue('enableIpv6', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).enableIpv6Msg,
+            ),
+          );
         },
       ),
-      SphiaWidget.textCard(
-        value: sphiaConfig.ipv6Address,
+      TextCard(
         title: S.of(context).ipv6Address,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.ipv4Address = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).ipv6AddressMsg,
-              ),
-            );
-          }
+        selector: (value) => value.ipv6Address,
+        updater: (value) {
+          notifier.updateValue('ipv6Address', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).ipv6AddressMsg,
+            ),
+          );
         },
-        context: context,
       ),
       const Divider(),
-      SphiaWidget.textCard(
-        value: sphiaConfig.mtu.toString(),
+      TextCard(
         title: S.of(context).mtu,
-        update: (value) {
-          if (value != null) {
-            late final int? newValue;
-            if ((newValue = int.tryParse(value)) == null) {
-              _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-              _scaffoldMessengerKey.currentState?.showSnackBar(
-                SphiaWidget.snackBar(
-                  S.of(context).enterValidNumberMsg,
-                ),
-              );
-              return;
-            }
-            sphiaConfig.mtu = newValue!;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
+        selector: (value) => value.mtu.toString(),
+        updater: (value) {
+          late final int? newValue;
+          if ((newValue = int.tryParse(value)) == null) {
+            currentState?.hideCurrentSnackBar();
+            currentState?.showSnackBar(
               SphiaWidget.snackBar(
-                S.of(context).mtuMsg,
+                S.of(context).enterValidNumberMsg,
               ),
             );
+            return;
           }
+          notifier.updateValue('mtu', newValue);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).mtuMsg,
+            ),
+          );
         },
-        context: context,
       ),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.endpointIndependentNat,
+      CheckboxCard(
         title: S.of(context).endpointIndependentNat,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.endpointIndependentNat = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).endpointIndependentNatMsg,
-              ),
-            );
-          }
+        selector: (value) => value.endpointIndependentNat,
+        updater: (value) {
+          notifier.updateValue('endpointIndependentNat', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).endpointIndependentNatMsg,
+            ),
+          );
         },
       ),
-      SphiaWidget.itemsCard(
-        value: sphiaConfig.stack,
+      ItemsCard(
         title: S.of(context).stack,
         items: tunStackList,
-        update: (value) {
-          if (value != null) {
-            sphiaConfig.stack = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).stackMsg,
-              ),
-            );
-          }
+        selector: (value) => value.stack.index,
+        updater: (value) {
+          notifier.updateValue('stack', TunStack.values[value].name);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).stackMsg,
+            ),
+          );
         },
-        context: context,
       ),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.autoRoute,
+      CheckboxCard(
         title: S.of(context).autoRoute,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.autoRoute = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).autoRouteMsg,
-              ),
-            );
-          }
+        selector: (value) => value.autoRoute,
+        updater: (value) {
+          notifier.updateValue('autoRoute', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).autoRouteMsg,
+            ),
+          );
         },
       ),
-      SphiaWidget.checkboxCard(
-        value: sphiaConfig.strictRoute,
+      CheckboxCard(
         title: S.of(context).strictRoute,
-        onChanged: (value) {
-          if (value != null) {
-            sphiaConfig.strictRoute = value;
-            sphiaConfigProvider.saveConfig();
-            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              SphiaWidget.snackBar(
-                S.of(context).strictRouteMsg,
-              ),
-            );
-          }
+        selector: (value) => value.strictRoute,
+        updater: (value) {
+          notifier.updateValue('strictRoute', value);
+          currentState?.hideCurrentSnackBar();
+          currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).strictRouteMsg,
+            ),
+          );
         },
       ),
     ];

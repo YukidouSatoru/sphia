@@ -8,11 +8,23 @@ import 'package:sphia/app/log.dart';
 import 'package:sphia/util/traffic/xray/command.pbgrpc.dart';
 import 'package:tuple/tuple.dart';
 
+class TrafficData {
+  final int uplink;
+  final int downlink;
+  final int up;
+  final int down;
+
+  TrafficData(this.uplink, this.downlink, this.up, this.down);
+}
+
 abstract class Traffic {
   int apiPort;
+  int uplink = 0;
+  int downlink = 0;
 
-  Stream<Map<String, int>> get apiStream => apiStreamController.stream;
-  final apiStreamController = StreamController<Map<String, int>>.broadcast();
+  final _apiStreamController = StreamController<TrafficData>.broadcast();
+
+  Stream<TrafficData> get apiStream => _apiStreamController.stream;
 
   Traffic(this.apiPort);
 
@@ -25,7 +37,7 @@ abstract class Traffic {
   Future<void> _ensureApiAvailability() async {
     int tryCount = 0;
     await Future.doWhile(() async {
-      final isApiAvailable = await checkAvailability();
+      final isApiAvailable = await _checkAvailability();
       if (!isApiAvailable) {
         await Future.delayed(const Duration(milliseconds: 100));
         tryCount++;
@@ -37,7 +49,7 @@ abstract class Traffic {
     });
   }
 
-  Future<bool> checkAvailability() async {
+  Future<bool> _checkAvailability() async {
     try {
       final socket = await Socket.connect('localhost', apiPort);
       socket.destroy();
@@ -49,55 +61,48 @@ abstract class Traffic {
 }
 
 class XrayTraffic extends Traffic {
-  late ClientChannel channel;
-  late StatsServiceClient client;
-  int previousUplink = 0;
-  int previousDownlink = 0;
-  late Timer timer;
-  bool isMultiOutboundSupport;
+  late ClientChannel _channel;
+  late StatsServiceClient _client;
+  late Timer _timer;
+  final bool _isMultiOutboundSupport;
 
-  XrayTraffic(int apiPort, this.isMultiOutboundSupport) : super(apiPort) {
-    channel = ClientChannel(
+  XrayTraffic(int apiPort, this._isMultiOutboundSupport) : super(apiPort) {
+    _channel = ClientChannel(
       'localhost',
       port: apiPort,
       options: const ChannelOptions(
         credentials: ChannelCredentials.insecure(),
       ),
     );
-    client = StatsServiceClient(channel);
+    _client = StatsServiceClient(_channel);
   }
 
   @override
   Future<void> start() async {
     await super.start();
     logger.i('Starting XrayTraffic');
-    timer = Timer.periodic(const Duration(seconds: 1), (_) async {
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) async {
       try {
-        late final int uplink;
-        late final int downlink;
-        if (!isMultiOutboundSupport) {
-          uplink = await queryOutboundUplink('proxy');
-          downlink = await queryOutboundDownlink('proxy');
+        late final int curUplink;
+        late final int curDownlink;
+        if (!_isMultiOutboundSupport) {
+          curUplink = await queryOutboundUplink('proxy');
+          curDownlink = await queryOutboundDownlink('proxy');
         } else {
           final totalProxyLink = await queryTotalProxyLink();
-          uplink = totalProxyLink.item1;
-          downlink = totalProxyLink.item2;
+          curUplink = totalProxyLink.item1;
+          curDownlink = totalProxyLink.item2;
         }
 
-        final up = uplink - previousUplink;
-        final down = downlink - previousDownlink;
+        final up = curUplink - uplink;
+        final down = curDownlink - downlink;
 
-        apiStreamController.add(<String, int>{
-          '"uplink"': uplink,
-          '"downlink"': downlink,
-          '"up"': up,
-          '"down"': down,
-        });
+        _apiStreamController.add(TrafficData(uplink, downlink, up, down));
 
-        previousUplink = uplink;
-        previousDownlink = downlink;
+        uplink = curUplink;
+        downlink = curDownlink;
       } catch (_) {
-        timer.cancel();
+        _timer.cancel();
         rethrow;
       }
     });
@@ -106,14 +111,14 @@ class XrayTraffic extends Traffic {
   @override
   Future<void> stop() async {
     logger.i('Stopping XrayTraffic');
-    timer.cancel();
-    await apiStreamController.close();
-    await channel.shutdown();
+    _timer.cancel();
+    await _apiStreamController.close();
+    await _channel.shutdown();
   }
 
   Future<Tuple2<int, int>> queryTotalProxyLink() async {
     final uplinkRequest = QueryStatsRequest();
-    final response = await client.queryStats(uplinkRequest);
+    final response = await _client.queryStats(uplinkRequest);
     final stats = response.writeToJsonMap()['1'];
     int totalUplink = 0;
     int totalDownlink = 0;
@@ -143,7 +148,7 @@ class XrayTraffic extends Traffic {
   Future<int> queryOutboundUplink(String outboundTag) {
     final uplinkRequest = QueryStatsRequest()
       ..pattern = 'outbound>>>$outboundTag>>>traffic>>>uplink';
-    return client.queryStats(uplinkRequest).then((response) {
+    return _client.queryStats(uplinkRequest).then((response) {
       try {
         final uplink = int.tryParse(response.writeToJsonMap()['1'][0]['2']);
         if (uplink == null) {
@@ -160,7 +165,7 @@ class XrayTraffic extends Traffic {
   Future<int> queryOutboundDownlink(String outboundTag) {
     final downlinkRequest = QueryStatsRequest()
       ..pattern = 'outbound>>>$outboundTag>>>traffic>>>downlink';
-    return client.queryStats(downlinkRequest).then((response) {
+    return _client.queryStats(downlinkRequest).then((response) {
       try {
         final downlink = int.tryParse(response.writeToJsonMap()['1'][0]['2']);
         if (downlink == null) {
@@ -176,14 +181,12 @@ class XrayTraffic extends Traffic {
 }
 
 class SingBoxTraffic extends Traffic {
-  late Uri url;
-  final client = http.Client();
-  StreamSubscription? subscription;
-  int uplink = 0;
-  int downlink = 0;
+  late Uri _url;
+  final _client = http.Client();
+  late StreamSubscription _subscription;
 
   SingBoxTraffic(int apiPort) : super(apiPort) {
-    url = Uri.parse('http://localhost:$apiPort/traffic');
+    _url = Uri.parse('http://localhost:$apiPort/traffic');
   }
 
   @override
@@ -191,24 +194,19 @@ class SingBoxTraffic extends Traffic {
     await super.start();
     logger.i('Starting SingBoxTraffic');
     try {
-      final request = http.Request('GET', url);
-      final response = await client.send(request);
+      final request = http.Request('GET', _url);
+      final response = await _client.send(request);
       if (response.statusCode != 200) {
         throw Exception('Failed to get response: ${response.statusCode}');
       }
-      subscription = response.stream.listen((data) async {
+      _subscription = response.stream.listen((data) async {
         final decoded = utf8.decode(data);
         final json = jsonDecode(decoded);
         final int up = json['up'] ?? 0;
         final int down = json['down'] ?? 0;
         uplink += up;
         downlink += down;
-        apiStreamController.add(<String, int>{
-          '"uplink"': uplink,
-          '"downlink"': downlink,
-          '"up"': up,
-          '"down"': down,
-        });
+        _apiStreamController.add(TrafficData(uplink, downlink, up, down));
       }, onError: (e) {
         throw Exception('Failed to get response: $e');
       });
@@ -220,8 +218,8 @@ class SingBoxTraffic extends Traffic {
   @override
   Future<void> stop() async {
     logger.i('Stopping SingBoxTraffic');
-    await subscription?.cancel();
-    await apiStreamController.close();
-    client.close();
+    await _subscription.cancel();
+    await _apiStreamController.close();
+    _client.close();
   }
 }

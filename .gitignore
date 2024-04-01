@@ -48,3 +48,5 @@ app.*.map.json
 /config/
 /log/
 /temp/
+*.g.dart
+*.freezed.dart

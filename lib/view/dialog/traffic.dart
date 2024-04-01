@@ -1,36 +1,30 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
-import 'package:sphia/app/provider/server_config.dart';
+import 'package:sphia/app/notifier/config/server_config.dart';
+import 'package:sphia/app/notifier/data/server.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 
-class TrafficDialog extends StatefulWidget {
+class TrafficDialog extends ConsumerWidget {
   final String option;
 
-  const TrafficDialog({super.key, required this.option});
+  const TrafficDialog({
+    super.key,
+    required this.option,
+  });
 
   @override
-  State<TrafficDialog> createState() => _TrafficDialog();
-}
-
-class _TrafficDialog extends State<TrafficDialog> {
-  bool _cancel = false;
-  Future<void>? _operation;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _operation = clearTraffic(widget.option);
-      _operation!.whenComplete(() => Navigator.of(context).pop());
+  Widget build(BuildContext context, WidgetRef ref) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final Future<void> operation = clearTraffic(option, ref);
+      await operation;
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(S.of(context).clearTraffic),
       content: const Column(
@@ -39,56 +33,36 @@ class _TrafficDialog extends State<TrafficDialog> {
           CircularProgressIndicator(),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            _cancel = true;
-          },
-          child: Text(S.of(context).cancel),
-        )
-      ],
     );
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  Future<void> clearTraffic(String option) async {
+  Future<void> clearTraffic(String option, WidgetRef ref) async {
     logger.i('Clearing Traffic: option=$option');
-
     try {
-      final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
       if (option == 'SelectedServer') {
-        final server = await serverDao.getSelectedServerModel();
+        final notifier = ref.read(serverNotifierProvider.notifier);
+        final serverConfig = ref.read(serverConfigNotifierProvider);
+        final id = serverConfig.selectedServerId;
+        final server = await serverDao.getServerModelById(id);
         if (server == null) {
+          logger.w('Selected server not exists');
           return;
         }
-        server.uplink = null;
-        server.downlink = null;
         await serverDao.updateTraffic(server.id, null, null);
-        final index = serverConfigProvider.servers
-            .indexWhere((element) => element.id == server.id);
-        if (index != -1) {
-          serverConfigProvider.servers[index] = server;
-        }
-        logger.i('Clear Traffic for: ${server.address}:${server.port}');
+        notifier.updateServer(
+          server
+            ..uplink = null
+            ..downlink = null,
+          shouldUpdateLite: false,
+        );
       } else {
         // option == 'CurrentGroup'
-        for (var i = 0; i < serverConfigProvider.servers.length; i++) {
-          if (_cancel) {
+        final servers = ref.watch(serverNotifierProvider);
+        for (var i = 0; i < servers.length; i++) {
+          if (!ref.context.mounted) {
             return;
           }
-          serverConfigProvider.servers[i].uplink = null;
-          serverConfigProvider.servers[i].downlink = null;
-          await serverDao.updateTraffic(
-            serverConfigProvider.servers[i].id,
-            null,
-            null,
-          );
-          logger.i(
-              'Clear Traffic for: ${serverConfigProvider.servers[i].address}:${serverConfigProvider.servers[i].port}');
+          await serverDao.updateTraffic(servers[i].id, null, null);
         }
       }
     } catch (e) {

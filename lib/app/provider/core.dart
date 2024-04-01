@@ -1,43 +1,21 @@
-import 'package:flutter/material.dart';
-import 'package:sphia/app/tray.dart';
-import 'package:sphia/core/core.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:sphia/core/hysteria/core.dart';
+import 'package:sphia/core/sing/core.dart';
+import 'package:sphia/core/ssrust/core.dart';
+import 'package:sphia/core/xray/core.dart';
 
-class CoreProvider extends ChangeNotifier {
-  List<Core> cores = [];
-  bool coreRunning = false;
-  bool trafficRunning = false;
-  bool tunMode = false;
+part 'core.g.dart';
 
-  Core get proxy {
-    if (cores.length == 1) {
-      return cores.first;
-    } else {
-      return cores.firstWhere((core) => !core.isRouting);
-    }
-  }
+@riverpod
+SingBoxCore singBoxCore(Ref ref) => SingBoxCore()..ref = ref;
 
-  Core get routing => cores.firstWhere((core) => core.isRouting);
+@riverpod
+XrayCore xrayCore(Ref ref) => XrayCore()..ref = ref;
 
-  void updateCoreRunning(bool value) {
-    coreRunning = value;
-    notifyListeners();
-    SphiaTray.setIcon(coreRunning);
-    if (coreRunning) {
-      SphiaTray.setMenuItemCheck('coreStart', true);
-      SphiaTray.setMenuItemCheck('coreStop', false);
-    } else {
-      SphiaTray.setMenuItemCheck('coreStart', false);
-      SphiaTray.setMenuItemCheck('coreStop', true);
-    }
-  }
+@riverpod
+ShadowsocksRustCore shadowsocksRustCore(Ref ref) =>
+    ShadowsocksRustCore()..ref = ref;
 
-  void updateTrafficRunning(bool value) {
-    trafficRunning = value;
-    notifyListeners();
-  }
-
-  void updateTunMode(bool value) {
-    tunMode = value;
-    notifyListeners();
-  }
-}
+@riverpod
+HysteriaCore hysteriaCore(Ref ref) => HysteriaCore()..ref = ref;

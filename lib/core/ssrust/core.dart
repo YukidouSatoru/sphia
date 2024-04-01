@@ -1,18 +1,20 @@
 import 'dart:core';
 
-import 'package:get_it/get_it.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sphia/app/notifier/config/sphia_config.dart';
 import 'package:sphia/core/core.dart';
 import 'package:sphia/server/shadowsocks/server.dart';
 
 class ShadowsocksRustCore extends Core {
+  late final Ref ref;
+
   ShadowsocksRustCore() : super('shadowsocks-rust', [], '');
 
   @override
   Future<void> configure() async {
+    final sphiaConfig = ref.read(sphiaConfigNotifierProvider);
     final server = servers.first as ShadowsocksServer;
     if (server.protocol == 'shadowsocks') {
-      final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
       final arguments = [
         '-s',
         '${server.address}:${server.port}',

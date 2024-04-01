@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/view/page/wrapper.dart';
+import 'package:sphia/view/wrapper/page.dart';
 
 const sphiaVersion = '0.7.9';
 const sphiaBuildNumber = 10;

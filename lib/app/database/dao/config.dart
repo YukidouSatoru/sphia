@@ -1,17 +1,12 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
-import 'package:get_it/get_it.dart';
 import 'package:sphia/app/config/rule.dart';
 import 'package:sphia/app/config/server.dart';
 import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/config/version.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
-import 'package:sphia/app/provider/rule_config.dart';
-import 'package:sphia/app/provider/server_config.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/app/provider/version_config.dart';
 
 class SphiaConfigDao {
   final Database _db;
@@ -26,17 +21,17 @@ class SphiaConfigDao {
       await (_db.into(_db.config).insert(
             ConfigCompanion.insert(
               id: const Value(sphiaConfigId),
-              config: const JsonEncoder().convert(SphiaConfig.defaults()),
+              config: const JsonEncoder().convert(const SphiaConfig()),
             ),
           ));
-      return const JsonEncoder().convert(SphiaConfig.defaults().toJson());
+      return const JsonEncoder().convert(const SphiaConfig().toJson());
     }
     return sphiaConfig.config;
   }
 
   Future<SphiaConfig> loadConfig() async {
     logger.i('Loading Sphia config');
-    final defaultConfig = SphiaConfig.defaults();
+    const defaultConfig = SphiaConfig();
     try {
       final json = await getConfigJson();
       var data = jsonDecode(json);
@@ -65,8 +60,7 @@ class SphiaConfigDao {
     }
   }
 
-  void saveConfig() async {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
+  void saveConfig(SphiaConfig sphiaConfig) async {
     final jsonString = jsonEncode(sphiaConfig.toJson());
     try {
       await (_db.update(_db.config)
@@ -92,17 +86,17 @@ class ServerConfigDao {
       await (_db.into(_db.config).insert(
             ConfigCompanion.insert(
               id: const Value(serverConfigId),
-              config: const JsonEncoder().convert(ServerConfig.defaults()),
+              config: const JsonEncoder().convert(const ServerConfig()),
             ),
           ));
-      return const JsonEncoder().convert(ServerConfig.defaults().toJson());
+      return const JsonEncoder().convert(const ServerConfig().toJson());
     }
     return serverConfig.config;
   }
 
   Future<ServerConfig> loadConfig() async {
     logger.i('Loading server config');
-    final defaultConfig = ServerConfig.defaults();
+    const defaultConfig = ServerConfig();
     try {
       final json = await getConfigJson();
       var data = jsonDecode(json);
@@ -120,8 +114,7 @@ class ServerConfigDao {
     }
   }
 
-  void saveConfig() async {
-    final serverConfig = GetIt.I.get<ServerConfigProvider>().config;
+  void saveConfig(ServerConfig serverConfig) async {
     final jsonString = jsonEncode(serverConfig.toJson());
     try {
       await (_db.update(_db.config)
@@ -147,17 +140,17 @@ class RuleConfigDao {
       await (_db.into(_db.config).insert(
             ConfigCompanion.insert(
               id: const Value(ruleConfigId),
-              config: const JsonEncoder().convert(RuleConfig.defaults()),
+              config: const JsonEncoder().convert(const RuleConfig()),
             ),
           ));
-      return const JsonEncoder().convert(RuleConfig.defaults().toJson());
+      return const JsonEncoder().convert(const RuleConfig().toJson());
     }
     return ruleConfig.config;
   }
 
   Future<RuleConfig> loadConfig() async {
     logger.i('Loading rule config');
-    final defaultConfig = RuleConfig.defaults();
+    const defaultConfig = RuleConfig();
     try {
       final json = await getConfigJson();
       var data = jsonDecode(json);
@@ -175,8 +168,7 @@ class RuleConfigDao {
     }
   }
 
-  void saveConfig() async {
-    final ruleConfig = GetIt.I.get<RuleConfigProvider>().config;
+  void saveConfig(RuleConfig ruleConfig) async {
     final jsonString = jsonEncode(ruleConfig.toJson());
     try {
       await (_db.update(_db.config)
@@ -202,10 +194,10 @@ class VersionConfigDao {
       await (_db.into(_db.config).insert(
             ConfigCompanion.insert(
               id: const Value(versionConfigId),
-              config: const JsonEncoder().convert(VersionConfig.empty()),
+              config: const JsonEncoder().convert(const VersionConfig()),
             ),
           ));
-      return const JsonEncoder().convert(VersionConfig.empty().toJson());
+      return const JsonEncoder().convert(const VersionConfig().toJson());
     }
     return versionConfig.config;
   }
@@ -221,8 +213,7 @@ class VersionConfigDao {
     }
   }
 
-  void saveConfig() async {
-    final versionConfig = GetIt.I.get<VersionConfigProvider>().config;
+  void saveConfig(VersionConfig versionConfig) async {
     final jsonString = jsonEncode(versionConfig.toJson());
     try {
       await (_db.update(_db.config)

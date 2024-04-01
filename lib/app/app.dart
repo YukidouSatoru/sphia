@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sphia/app/config/sphia.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:sphia/app/notifier/config/sphia_config.dart';
+import 'package:sphia/app/notifier/visible.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/system.dart';
@@ -16,20 +18,31 @@ import 'package:sphia/view/page/update.dart';
 import 'package:sphia/view/widget/navigation_rail.dart' as sphia_rail;
 import 'package:sphia/view/widget/updat.dart';
 import 'package:sphia/view/widget/window_caption.dart';
+import 'package:sphia/view/wrapper/tray.dart';
 import 'package:window_manager/window_manager.dart';
 
-class SphiaApp extends StatefulWidget {
+part 'app.g.dart';
+
+@riverpod
+class NavigationIndexNotifier extends _$NavigationIndexNotifier {
+  @override
+  int build() => 0;
+
+  void setIndex(int index) {
+    state = index;
+  }
+}
+
+class SphiaApp extends ConsumerStatefulWidget {
   const SphiaApp({
     super.key,
   });
 
   @override
-  State<StatefulWidget> createState() => _SphiaAppState();
+  ConsumerState<SphiaApp> createState() => _SphiaAppState();
 }
 
-class _SphiaAppState extends State<SphiaApp> with WindowListener {
-  int _index = 0;
-
+class _SphiaAppState extends ConsumerState<SphiaApp> with WindowListener {
   @override
   void initState() {
     super.initState();
@@ -55,11 +68,18 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    final sphiaConfigProvider = Provider.of<SphiaConfigProvider>(context);
-    final sphiaConfig = sphiaConfigProvider.config;
+    final index = ref.watch(navigationIndexNotifierProvider);
+    final navigationStyle = ref.watch(
+        sphiaConfigNotifierProvider.select((value) => value.navigationStyle));
+    final darkMode = ref
+        .watch(sphiaConfigNotifierProvider.select((value) => value.darkMode));
+    final useMaterial3 = ref.watch(
+        sphiaConfigNotifierProvider.select((value) => value.useMaterial3));
+    final themeColor = ref
+        .watch(sphiaConfigNotifierProvider.select((value) => value.themeColor));
     dynamic navigation;
 
-    if (sphiaConfig.navigationStyle == NavigationStyle.rail.index) {
+    if (navigationStyle == NavigationStyle.rail) {
       navigation = _getNavigationRail(context);
     } else {
       navigation = _getNavigationDrawer(context);
@@ -88,8 +108,7 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
           : SphiaWindowCaption(
               title: titleText,
               backgroundColor: Colors.transparent,
-              brightness:
-                  sphiaConfig.darkMode ? Brightness.dark : Brightness.light,
+              brightness: darkMode ? Brightness.dark : Brightness.light,
             ),
     );
 
@@ -102,60 +121,61 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
       ],
       supportedLocales: S.delegate.supportedLocales,
       theme: SphiaTheme.getThemeData(
-        sphiaConfig.useMaterial3,
-        sphiaConfig.darkMode,
-        sphiaConfig.themeColor,
+        useMaterial3,
+        darkMode,
+        themeColor,
         context,
       ),
-      home: Scaffold(
-        appBar: titleBar,
-        body: Column(
-          children: <Widget>[
-            Expanded(
-              child: Row(
-                children: [
-                  navigation,
-                  // Pages
-                  Expanded(
-                    child: IndexedStack(
-                      index: _index,
-                      children: const [
-                        Dashboard(),
-                        ServerPage(),
-                        RulePage(),
-                        SettingPage(),
-                        UpdatePage(),
-                        LogPage(),
-                        AboutPage(),
-                      ],
+      home: TrayWrapper(
+        child: Scaffold(
+          appBar: titleBar,
+          body: Column(
+            children: <Widget>[
+              Expanded(
+                child: Row(
+                  children: [
+                    navigation,
+                    // Pages
+                    Expanded(
+                      child: IndexedStack(
+                        index: index,
+                        children: const [
+                          Dashboard(),
+                          ServerPage(),
+                          RulePage(),
+                          SettingPage(),
+                          UpdatePage(),
+                          LogPage(),
+                          AboutPage(),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            )
-          ],
+                  ],
+                ),
+              )
+            ],
+          ),
+          floatingActionButton: navigationStyle == NavigationStyle.drawer
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    SphiaUpdatWidget(darkMode),
+                    _getDrawerFloatingButton(),
+                  ],
+                )
+              : null,
+          floatingActionButtonLocation:
+              navigationStyle == NavigationStyle.drawer
+                  ? FloatingActionButtonLocation.miniStartFloat
+                  : null,
         ),
-        floatingActionButton:
-            sphiaConfig.navigationStyle == NavigationStyle.drawer.index
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      SphiaUpdatWidget().updatWidget(),
-                      _getDrawerFloatingButton(),
-                    ],
-                  )
-                : null,
-        floatingActionButtonLocation:
-            sphiaConfig.navigationStyle == NavigationStyle.drawer.index
-                ? FloatingActionButtonLocation.miniStartFloat
-                : null,
       ),
     );
   }
 
   Widget _getDrawerFloatingButton() {
-    final sphiaConfigProvider = Provider.of<SphiaConfigProvider>(context);
-    final sphiaConfig = sphiaConfigProvider.config;
+    final darkMode = ref
+        .watch(sphiaConfigNotifierProvider.select((value) => value.darkMode));
     return Container(
       padding: const EdgeInsets.only(bottom: 6.0),
       child: FloatingActionButton(
@@ -165,29 +185,28 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
         highlightElevation: 0,
         hoverElevation: 0,
         disabledElevation: 0,
-        foregroundColor: sphiaConfig.darkMode ? Colors.white : Colors.black,
+        foregroundColor: darkMode ? Colors.white : Colors.black,
         splashColor: Colors.transparent,
         hoverColor: Colors.transparent,
         backgroundColor: Colors.transparent,
         focusColor: Colors.transparent,
         onPressed: () {
-          sphiaConfig.darkMode = !sphiaConfig.darkMode;
-          sphiaConfigProvider.saveConfig();
+          final notifier = ref.read(sphiaConfigNotifierProvider.notifier);
+          notifier.updateValue('darkMode', !darkMode);
         },
         child: Icon(
-          sphiaConfig.darkMode ? Icons.light_mode : Icons.dark_mode,
+          darkMode ? Icons.light_mode : Icons.dark_mode,
         ),
       ),
     );
   }
 
   NavigationDrawer _getNavigationDrawer(BuildContext context) {
+    final index = ref.watch(navigationIndexNotifierProvider);
     return NavigationDrawer(
-      selectedIndex: _index,
-      onDestinationSelected: (index) {
-        setState(() {
-          _index = index;
-        });
+      selectedIndex: index,
+      onDestinationSelected: (idx) {
+        ref.read(navigationIndexNotifierProvider.notifier).setIndex(idx);
       },
       children: [
         NavigationDrawerDestination(
@@ -272,14 +291,13 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
   }
 
   sphia_rail.NavigationRail _getNavigationRail(BuildContext context) {
-    final sphiaConfigProvider = Provider.of<SphiaConfigProvider>(context);
-    final sphiaConfig = sphiaConfigProvider.config;
+    final darkMode = ref
+        .watch(sphiaConfigNotifierProvider.select((value) => value.darkMode));
+    final index = ref.watch(navigationIndexNotifierProvider);
     return sphia_rail.NavigationRail(
-      selectedIndex: _index,
+      selectedIndex: index,
       onDestinationSelected: (index) {
-        setState(() {
-          _index = index;
-        });
+        ref.read(navigationIndexNotifierProvider.notifier).setIndex(index);
       },
       trailing: Expanded(
         child: Align(
@@ -287,7 +305,7 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              SphiaUpdatWidget().updatWidget(),
+              SphiaUpdatWidget(darkMode),
               Container(
                 padding: const EdgeInsets.only(bottom: 6.0),
                 child: FloatingActionButton(
@@ -297,18 +315,18 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
                   highlightElevation: 0,
                   hoverElevation: 0,
                   disabledElevation: 0,
-                  foregroundColor:
-                      sphiaConfig.darkMode ? Colors.white : Colors.black,
+                  foregroundColor: darkMode ? Colors.white : Colors.black,
                   splashColor: Colors.transparent,
                   hoverColor: Colors.transparent,
                   backgroundColor: Colors.transparent,
                   focusColor: Colors.transparent,
                   onPressed: () {
-                    sphiaConfig.darkMode = !sphiaConfig.darkMode;
-                    sphiaConfigProvider.saveConfig();
+                    final notifier =
+                        ref.read(sphiaConfigNotifierProvider.notifier);
+                    notifier.updateValue('darkMode', !darkMode);
                   },
                   child: Icon(
-                    sphiaConfig.darkMode ? Icons.light_mode : Icons.dark_mode,
+                    darkMode ? Icons.light_mode : Icons.dark_mode,
                   ),
                 ),
               ),
@@ -385,7 +403,16 @@ class _SphiaAppState extends State<SphiaApp> with WindowListener {
   }
 
   @override
+  void onWindowFocus() {
+    super.onWindowFocus();
+    final visibleNotifier = ref.read(visibleNotifierProvider.notifier);
+    visibleNotifier.set(true);
+  }
+
+  @override
   void onWindowClose() async {
+    final visibleNotifier = ref.read(visibleNotifierProvider.notifier);
+    visibleNotifier.set(false);
     // Prevent close
     await windowManager.hide();
   }

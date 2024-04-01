@@ -1,29 +1,51 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'version.freezed.dart';
 
 part 'version.g.dart';
 
-@JsonSerializable(includeIfNull: false)
-class VersionConfig {
-  String? singBoxVersion;
-  String? xrayCoreVersion;
-  String? shadowsocksRustVersion;
-  String? hysteriaVersion;
-  String? singBoxRulesVersion;
-  String? v2rayRulesVersion;
-
-  VersionConfig({
-    this.singBoxVersion,
-    this.xrayCoreVersion,
-    this.shadowsocksRustVersion,
-    this.hysteriaVersion,
-    this.singBoxRulesVersion,
-    this.v2rayRulesVersion,
-  });
-
-  factory VersionConfig.empty() => VersionConfig();
+@freezed
+class VersionConfig with _$VersionConfig {
+  const factory VersionConfig({
+    String? singBoxVersion,
+    String? xrayCoreVersion,
+    String? shadowsocksRustVersion,
+    String? hysteriaVersion,
+    String? singBoxRulesVersion,
+    String? v2rayRulesVersion,
+  }) = _VersionConfig;
 
   factory VersionConfig.fromJson(Map<String, dynamic> json) =>
       _$VersionConfigFromJson(json);
+}
 
-  Map<String, dynamic> toJson() => _$VersionConfigToJson(this);
+extension VersionConfigExtension on VersionConfig {
+  String? getVersion(String coreName) {
+    switch (coreName) {
+      case 'sing-box':
+        return singBoxVersion;
+      case 'xray-core':
+        return xrayCoreVersion;
+      case 'shadowsocks-rust':
+        return shadowsocksRustVersion;
+      case 'hysteria':
+        return hysteriaVersion;
+      case 'sing-box-rules':
+        return singBoxRulesVersion;
+      case 'v2ray-rules-dat':
+        return v2rayRulesVersion;
+      default:
+        return null;
+    }
+  }
+
+  String generateLog() {
+    var json = toJson();
+    final List<String> logList = [];
+    // json.removeWhere((key, value) => value == null);
+    json.forEach((key, value) {
+      logList.add('$key: $value');
+    });
+    return logList.join('\n');
+  }
 }

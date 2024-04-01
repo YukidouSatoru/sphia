@@ -1,9 +1,7 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:sphia/app/database/dao/rule.dart';
 import 'package:sphia/app/database/database.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
 import 'package:sphia/core/rule/rule_model.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/server/server_model_lite.dart';
@@ -78,7 +76,12 @@ class _RuleDialogState extends State<RuleDialog> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final outboundTagDisplay = snapshot.data as String;
-            return _buildDropdownSearch(context, outboundTagDisplay);
+            final darkMode = Theme.of(context).brightness == Brightness.dark;
+            return _buildDropdownSearch(
+              context: context,
+              outboundTagDisplay: outboundTagDisplay,
+              darkMode: darkMode,
+            );
           } else {
             return const CircularProgressIndicator();
           }
@@ -203,8 +206,11 @@ class _RuleDialogState extends State<RuleDialog> {
     _processNameController.dispose();
   }
 
-  Widget _buildDropdownSearch(BuildContext context, String outboundTagDisplay) {
-    final sphiaConfig = Provider.of<SphiaConfigProvider>(context).config;
+  Widget _buildDropdownSearch({
+    required BuildContext context,
+    required String outboundTagDisplay,
+    required bool darkMode,
+  }) {
     return DropdownSearch<ServerModelLite>(
       popupProps: PopupProps.menu(
           scrollbarProps: const ScrollbarProps(
@@ -215,7 +221,7 @@ class _RuleDialogState extends State<RuleDialog> {
             height: MediaQuery.of(context).size.height * 1 / 3,
           ),
           containerBuilder: (context, child) {
-            final color = sphiaConfig.darkMode
+            final color = darkMode
                 ? Color.lerp(Colors.black, Colors.grey[700], 0.6)
                 : Color.lerp(Colors.white, Colors.grey[300], 0.6);
             return Ink(

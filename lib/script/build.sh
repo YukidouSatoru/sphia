@@ -24,6 +24,7 @@ if [[ "$(uname)" == "Linux" ]]; then
 
     echo "Building Sphia"
     flutter pub get
+    dart run build_runner build
     flutter config --enable-linux-desktop
     flutter_distributor release --name prod --jobs release-linux-appimage
     appimage=$(find dist -type f -name 'sphia-linux.AppImage' -print -quit)
@@ -35,6 +36,7 @@ else
 
     echo "Building Sphia"
     flutter pub get
+    dart run build_runner build
     flutter config --enable-macos-desktop
     flutter_distributor release --name prod --jobs release-macos-dmg
     dmg=$(find dist -type f -name 'sphia-macos.dmg' -print -quit)

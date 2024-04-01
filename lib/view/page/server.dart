@@ -1,144 +1,76 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:path/path.dart' as p;
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quiver/collection.dart';
-import 'package:sphia/app/controller.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
-import 'package:sphia/app/provider/core.dart';
-import 'package:sphia/app/provider/server_config.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/app/task/subscription.dart';
-import 'package:sphia/app/task/task.dart';
-import 'package:sphia/app/theme.dart';
-import 'package:sphia/app/tray.dart';
+import 'package:sphia/app/notifier/config/server_config.dart';
+import 'package:sphia/app/notifier/core_state.dart';
+import 'package:sphia/app/notifier/data/server.dart';
+import 'package:sphia/app/notifier/data/server_group.dart';
+import 'package:sphia/app/notifier/proxy.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
-import 'package:sphia/server/hysteria/server.dart';
-import 'package:sphia/server/server_model.dart';
-import 'package:sphia/server/shadowsocks/server.dart';
-import 'package:sphia/server/trojan/server.dart';
-import 'package:sphia/server/xray/server.dart';
-import 'package:sphia/util/latency.dart';
-import 'package:sphia/util/system.dart';
+import 'package:sphia/view/card/server_card.dart';
 import 'package:sphia/view/dialog/progress.dart';
 import 'package:sphia/view/dialog/traffic.dart';
 import 'package:sphia/view/page/agent/server.dart';
-import 'package:sphia/view/page/wrapper.dart';
-import 'package:sphia/view/widget/dashboard_card/chart.dart';
 import 'package:sphia/view/widget/widget.dart';
+import 'package:sphia/view/wrapper/page.dart';
 
-class ServerPage extends StatefulWidget {
+class ServerPage extends ConsumerStatefulWidget {
   const ServerPage({
     super.key,
   });
 
   @override
-  State<StatefulWidget> createState() => _ServerPageState();
+  ConsumerState<ServerPage> createState() => _ServerPageState();
 }
 
-class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
-  late int _index;
-  bool _isLoading = false;
-  late final ServerAgent _agent;
-  bool _scrollToLastSelectServer = true;
-  final _cardKey = GlobalKey();
+class _ServerPageState extends ConsumerState<ServerPage>
+    with TickerProviderStateMixin, ServerAgent {
   final _scrollController = ScrollController();
-  TabController? _tabController;
+  late TabController _tabController;
+  final _cardKey = GlobalKey();
+  bool _scrollToServerFlag = true;
 
   @override
   void initState() {
     super.initState();
-    final serverConfigProvider =
-        Provider.of<ServerConfigProvider>(context, listen: false);
-    final serverConfig = serverConfigProvider.config;
-    _index = serverConfigProvider.serverGroups.indexWhere(
-        (element) => element.id == serverConfig.selectedServerGroupId);
-    _updateTabController();
-    _loadServers().then((_) {
-      SphiaTray.generateRuleItems();
-      SphiaTray.generateServerItems();
-      SphiaTray.initTray();
-      SphiaTray.setMenu();
-      setState(() {});
-    });
-    _agent = ServerAgent(context);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final sphiaConfigProvider =
-          Provider.of<SphiaConfigProvider>(context, listen: false);
-      final sphiaConfig = sphiaConfigProvider.config;
-      if (sphiaConfig.autoRunServer) {
-        _toggleServer();
-      }
-      if (sphiaConfig.updateSubscriptionInterval != -1) {
-        SphiaTask.addTask(SubscriptionTask.generate());
-      }
-    });
+    final index = ref.read(serverGroupIndexNotifierProvider);
+    final length = ref.read(serverGroupNotifierProvider).length;
+    _updateTabController(index, length, init: true);
   }
 
   @override
   void dispose() {
-    _tabController?.dispose();
+    _tabController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
-  Future<void> _loadServers() async {
-    final serverConfigProvider =
-        Provider.of<ServerConfigProvider>(context, listen: false);
-    serverConfigProvider.servers =
-        await serverDao.getOrderedServerModelsByGroupId(
-            serverConfigProvider.serverGroups[_index].id);
-  }
-
-  void _updateTabController() {
-    _tabController?.removeListener(() {});
-    _tabController?.dispose();
-    final serverConfigProvider =
-        Provider.of<ServerConfigProvider>(context, listen: false);
-    final serverConfig = serverConfigProvider.config;
-    if (_index == serverConfigProvider.serverGroups.length) {
-      _index -= 1;
-      serverConfig.selectedServerGroupId =
-          serverConfigProvider.serverGroups[_index].id;
-    }
-    serverConfigProvider.saveConfigWithoutNotify();
-    _tabController = TabController(
-      initialIndex: _index,
-      length: serverConfigProvider.serverGroups.length,
-      vsync: this,
-    );
-    _tabController!.addListener(() async {
-      switchTab() async {
-        _index = _tabController!.index;
-        await _loadServers();
-        serverConfig.selectedServerGroupId =
-            serverConfigProvider.serverGroups[_index].id;
-        serverConfigProvider.saveConfig();
-        _scrollToLastSelectServer = true;
-        SphiaTray.generateServerItems();
-        SphiaTray.setMenu();
-        setState(() {});
-      }
-
-      if (_tabController!.indexIsChanging) {
-        await switchTab();
-        return;
-      } else if (_tabController!.index != _index) {
-        await switchTab();
-        return;
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final sphiaConfig = Provider.of<SphiaConfigProvider>(context).config;
-    final coreProvider = Provider.of<CoreProvider>(context);
-    final serverConfigProvider = Provider.of<ServerConfigProvider>(context);
-    final serverConfig = serverConfigProvider.config;
+    final serverGroups = ref.watch(serverGroupNotifierProvider);
+    final index = ref.watch(serverGroupIndexNotifierProvider);
+    void serverGroupIndexListener(int? previous, int next) async {
+      if (previous != null) {
+        final notifier = ref.read(serverNotifierProvider.notifier);
+        notifier.clearServers();
+        final groupId = serverGroups[next].id;
+        final servers =
+            await serverDao.getOrderedServerModelsByGroupId(groupId);
+        notifier.setServers(servers);
+        _scrollToServerFlag = true;
+        final serverConfigNotifier =
+            ref.read(serverConfigNotifierProvider.notifier);
+        serverConfigNotifier.updateValue('selectedServerGroupId', groupId);
+      }
+    }
+
+    ref.listen(serverGroupIndexNotifierProvider, serverGroupIndexListener);
+    ref.listen(serverGroupNotifierProvider, serverGroupListener);
+
     final appBar = AppBar(
       title: Text(
         S.of(context).servers,
@@ -248,41 +180,17 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                     elevation: 8.0,
                   ).then((value) async {
                     if (value != null) {
-                      final ServerModel? newServer = await _agent.addServer(
-                          serverConfigProvider.serverGroups[_index].id, value);
-                      if (newServer != null) {
-                        serverConfigProvider.servers.add(newServer);
-                        SphiaTray.addServerItem(newServer);
-                        setState(() {});
-                      } else {
-                        if (value == 'clipboard') {
-                          await _loadServers();
-                          SphiaTray.generateServerItems();
-                          SphiaTray.setMenu();
-                          setState(() {});
-                        }
-                      }
+                      final id = serverGroups[index].id;
+                      await addServer(groupId: id, protocol: value, ref: ref);
                     }
                   });
                   break;
                 case 'AddGroup':
-                  if (await _agent.addGroup()) {
-                    _index = serverConfigProvider.serverGroups.length - 1;
-                    serverConfig.selectedServerGroupId =
-                        serverConfigProvider.serverGroups[_index].id;
-                    serverConfigProvider.saveConfigWithoutNotify();
-                    _updateTabController();
-                    await _loadServers();
-                    SphiaTray.generateServerItems();
-                    SphiaTray.setMenu();
-                    setState(() {});
-                  }
+                  await addGroup(ref);
                   break;
                 case 'EditGroup':
-                  if (await _agent
-                      .editGroup(serverConfigProvider.serverGroups[_index])) {
-                    setState(() {});
-                  }
+                  final serverGroup = serverGroups[index];
+                  await editGroup(serverGroup: serverGroup, ref: ref);
                   break;
                 case 'UpdateGroup':
                   final renderBox = context.findRenderObject() as RenderBox;
@@ -310,44 +218,26 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                     if (value == null) {
                       return;
                     }
+                    final id = serverGroups[index].id;
                     try {
-                      if (await _agent.updateGroup(
-                        value,
-                        serverConfigProvider.serverGroups[_index].id,
-                      )) {
-                        await _loadServers();
-                        SphiaTray.generateServerItems();
-                        SphiaTray.setMenu();
-                        setState(() {});
-                      }
+                      await updateGroup(type: value, groupId: id, ref: ref);
                     } on Exception catch (e) {
                       if (!context.mounted) {
                         return;
                       }
                       await SphiaWidget.showDialogWithMsg(
-                        context,
-                        '${S.current.updateGroupFailed}: $e',
+                        context: context,
+                        message: '${S.of(context).updateGroupFailed}: $e',
                       );
                     }
                   });
                   break;
                 case 'DeleteGroup':
-                  if (await _agent.deleteGroup(
-                      serverConfigProvider.serverGroups[_index].id)) {
-                    _updateTabController();
-                    await _loadServers();
-                    SphiaTray.generateServerItems();
-                    SphiaTray.setMenu();
-                    setState(() {});
-                  }
+                  final id = serverGroups[index].id;
+                  await deleteGroup(groupId: id, ref: ref);
                   break;
                 case 'ReorderGroup':
-                  if (await _agent.reorderGroup()) {
-                    await _loadServers();
-                    SphiaTray.generateServerItems();
-                    SphiaTray.setMenu();
-                    setState(() {});
-                  }
+                  await reorderGroup(ref);
                   break;
                 case 'LatencyTest':
                   final typeMenu = [
@@ -419,20 +309,24 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                         if (type != null) {
                           final options = <String, String>{};
                           if (type == 'ClearLatency') {
-                            options['action'] = 'clear';
+                            options['action'] = 'Clear';
                             options['option'] = value;
                           } else {
-                            options['action'] = 'test';
+                            options['action'] = 'Test';
                             options['option'] = value;
                             options['type'] = type;
                           }
                           await showDialog(
                             context: context,
+                            barrierDismissible: false,
                             builder: (context) => ProgressDialog(
                               options: options,
                             ),
                           );
-                          setState(() {});
+                          if (value == 'CurrentGroup') {
+                            final id = serverGroups[index].id;
+                            await _updateServers(id);
+                          }
                         }
                       });
                     }
@@ -463,10 +357,17 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                   ).then((type) async {
                     if (type != null) {
                       await showDialog(
-                          context: context,
-                          builder: (context) => TrafficDialog(option: type));
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => TrafficDialog(
+                          option: type,
+                        ),
+                      );
+                      if (type == 'CurrentGroup') {
+                        final id = serverGroups[index].id;
+                        await _updateServers(id);
+                      }
                     }
-                    setState(() {});
                   });
                   break;
                 default:
@@ -479,7 +380,7 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
       bottom: TabBar(
         controller: _tabController,
         indicatorColor: Theme.of(context).tabBarTheme.indicatorColor,
-        tabs: serverConfigProvider.serverGroups
+        tabs: serverGroups
             .map((group) => Tab(
                   text: group.name,
                 ))
@@ -487,37 +388,29 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
       ),
     );
     return DefaultTabController(
-      initialIndex: _index,
-      length: serverConfigProvider.serverGroups.length,
+      initialIndex: index,
+      length: serverGroups.length,
       child: ScaffoldMessenger(
         child: Scaffold(
           appBar: appBar,
           body: PageWrapper(
             child: TabBarView(
               controller: _tabController,
-              children:
-                  serverConfigProvider.serverGroups.map<Widget>((serverGroup) {
-                if (_index ==
-                    serverConfigProvider.serverGroups.indexOf(serverGroup)) {
+              children: serverGroups.map<Widget>((serverGroup) {
+                if (index == serverGroups.indexOf(serverGroup)) {
+                  final servers = ref.watch(serverNotifierProvider);
                   return ReorderableListView.builder(
                     buildDefaultDragHandles: false,
                     proxyDecorator: (child, index, animation) => child,
                     // https://github.com/flutter/flutter/issues/63527
                     onReorder: (int oldIndex, int newIndex) async {
-                      final oldOrder = serverConfigProvider.servers
-                          .map((e) => e.id)
-                          .toList();
-                      setState(() {
-                        if (oldIndex < newIndex) {
-                          newIndex -= 1;
-                        }
-                        final server =
-                            serverConfigProvider.servers.removeAt(oldIndex);
-                        serverConfigProvider.servers.insert(newIndex, server);
-                      });
-                      final newOrder = serverConfigProvider.servers
-                          .map((e) => e.id)
-                          .toList();
+                      final oldOrder = servers.map((e) => e.id).toList();
+                      if (oldIndex < newIndex) {
+                        newIndex -= 1;
+                      }
+                      final server = servers.removeAt(oldIndex);
+                      servers.insert(newIndex, server);
+                      final newOrder = servers.map((e) => e.id).toList();
                       if (listsEqual(oldOrder, newOrder)) {
                         return;
                       }
@@ -525,38 +418,36 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
                         serverGroup.id,
                         newOrder,
                       );
-                      SphiaTray.generateServerItems();
-                      SphiaTray.setMenu();
+                      final notifier =
+                          ref.read(serverNotifierProvider.notifier);
+                      notifier.setServers(servers);
                     },
                     scrollController: _scrollController,
-                    itemCount: serverConfigProvider.servers.length,
+                    itemCount: servers.length,
                     itemBuilder: (context, index) {
-                      final server = serverConfigProvider.servers[index];
-                      if (_scrollToLastSelectServer) {
-                        _scrollToLastSelectServer = false;
-                        final targetId = serverConfig.selectedServerId;
+                      final server = servers[index];
+                      if (_scrollToServerFlag) {
+                        _scrollToServerFlag = false;
                         WidgetsBinding.instance.addPostFrameCallback((_) {
-                          _scrollToServer(
-                            serverConfigProvider.servers.indexWhere(
-                              (element) => element.id == targetId,
-                            ),
-                          );
+                          final serverConfig =
+                              ref.read(serverConfigNotifierProvider);
+                          final targetId = serverConfig.selectedServerId;
+                          final index = servers
+                              .indexWhere((element) => element.id == targetId);
+                          _scrollToServer(index);
                         });
                       }
                       return RepaintBoundary(
-                        key: Key('${serverGroup.id}-$index'),
+                        key: index == 0
+                            ? _cardKey
+                            : Key('${serverGroup.id} - $index'),
                         child: ReorderableDragStartListener(
                           index: index,
-                          child: _buildCard(
-                            server: server,
-                            index: index,
-                            useMaterial3: sphiaConfig.useMaterial3,
-                            themeColorInt: sphiaConfig.themeColor,
-                            isDarkMode: sphiaConfig.darkMode,
-                            showTransport: sphiaConfig.showTransport,
-                            showAddress: sphiaConfig.showAddress,
-                            isSelected:
-                                server.id == serverConfig.selectedServerId,
+                          child: ProviderScope(
+                            overrides: [
+                              currentServerProvider.overrideWithValue(server),
+                            ],
+                            child: const ServerCard(),
                           ),
                         ),
                       );
@@ -570,211 +461,117 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: _toggleServer,
-            child: _isLoading
-                ? const CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  )
-                : Icon(
-                    coreProvider.coreRunning ? Icons.flash_on : Icons.flash_off,
-                  ),
+            child: ref.watch(coreStateNotifierProvider).when(
+              data: (coreState) {
+                if (coreState.cores.isEmpty) {
+                  return const Icon(Icons.flash_off);
+                } else {
+                  return const Icon(Icons.flash_on);
+                }
+              },
+              error: (error, _) {
+                logger.e('Failed to get core state: $error');
+                return const Icon(Icons.flash_off);
+              },
+              loading: () {
+                return const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                );
+              },
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildCard({
-    required ServerModel server,
-    required int index,
-    required bool useMaterial3,
-    required int themeColorInt,
-    required bool isDarkMode,
-    required bool showTransport,
-    required bool showAddress,
-    required bool isSelected,
-  }) {
-    final themeColor = Color(themeColorInt);
-    String serverInfo = server.protocol;
-    if (showTransport) {
-      if (server is XrayServer) {
-        serverInfo += ' - ${server.transport}';
-        if (server.tls != 'none') {
-          serverInfo += ' + ${server.tls}';
-        }
-      } else if (server is ShadowsocksServer && server.plugin != null) {
-        if (server.plugin == 'obfs-local' || server.plugin == 'simple-obfs') {
-          serverInfo += ' - http';
-        } else if (server.plugin == 'simple-obfs-tls') {
-          serverInfo += ' - tls';
-        }
-      } else if (server is TrojanServer) {
-        serverInfo += ' - tcp';
-      } else if (server is HysteriaServer) {
-        serverInfo += ' - ${server.hysteriaProtocol}';
+  void serverGroupListener(
+    List<ServerGroup>? previous,
+    List<ServerGroup> next,
+  ) async {
+    if (previous != null) {
+      final preLength = previous.length;
+      final nextLength = next.length;
+      final action = ref.read(serverGroupStatusProvider);
+      final index = ref.read(serverGroupIndexNotifierProvider);
+      final indexNotifier = ref.read(serverGroupIndexNotifierProvider.notifier);
+      switch (action) {
+        case ServerGroupAction.add:
+          // added a new group
+          _updateTabController(preLength, nextLength);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            indexNotifier.setIndex(preLength);
+          });
+          break;
+        case ServerGroupAction.edit:
+          break;
+        case ServerGroupAction.update:
+          final id = next[index].id;
+          await _updateServers(id);
+          break;
+        case ServerGroupAction.delete:
+          // deleted a group
+          if (index == nextLength) {
+            // if the last group is deleted
+            indexNotifier.setIndex(index - 1);
+            _updateTabController(index - 1, nextLength);
+            _tabController.animateTo(index - 1);
+          } else {
+            indexNotifier.setIndex(index);
+            _updateTabController(index, nextLength);
+            final id = next[index].id;
+            await _updateServers(id);
+          }
+          break;
+        case ServerGroupAction.reorder:
+          final id = next[index].id;
+          await _updateServers(id);
+          break;
+        default:
+          break;
       }
+      final actionNotifier = ref.read(serverGroupStatusProvider.notifier);
+      actionNotifier.reset();
     }
-    return Column(
-      children: [
-        Card(
-          key: index == 0 ? _cardKey : null,
-          elevation: 2,
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-          color: isSelected ? themeColor : null,
-          child: ListTile(
-            shape: SphiaTheme.listTileShape(useMaterial3),
-            title: Text(server.remark),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(serverInfo),
-                if (showAddress) Text('${server.address}:${server.port}')
-              ],
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (server.latency != null)
-                      RichText(
-                          text: TextSpan(children: [
-                        TextSpan(
-                            text: server.latency == latencyFailure
-                                ? 'timeout'
-                                : '${server.latency} ms',
-                            style: TextStyle(
-                                color:
-                                    isDarkMode ? Colors.white : Colors.black)),
-                        TextSpan(
-                          text: '  ◉',
-                          style: TextStyle(
-                            color: _getLatencyColor(server.latency!),
-                          ),
-                        )
-                      ])),
-                    if (server.uplink != null && server.downlink != null)
-                      Text(
-                        _getServerTraffic(
-                          server.uplink!.toDouble(),
-                          server.downlink!.toDouble(),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(width: 8),
-                SphiaWidget.iconButton(
-                  icon: Icons.edit,
-                  onTap: () async {
-                    late final ServerModel? newServer;
-                    if ((newServer = await _agent.editServer(server)) != null) {
-                      if (!mounted) {
-                        return;
-                      }
-                      final serverConfigProvider =
-                          Provider.of<ServerConfigProvider>(context,
-                              listen: false);
-                      serverConfigProvider.servers[index] = newServer!;
-                      SphiaTray.modifyServerItemLabel(
-                          server.id, newServer.remark);
-                      setState(() {});
-                    }
-                  },
-                ),
-                SphiaWidget.popupMenuIconButton(
-                  icon: Icons.share,
-                  items: [
-                    PopupMenuItem(
-                      value: 'QRCode',
-                      child: Text(S.of(context).qrCode),
-                    ),
-                    PopupMenuItem(
-                      value: 'ExportToClipboard',
-                      child: Text(S.of(context).exportToClipboard),
-                    ),
-                    PopupMenuItem(
-                      value: 'Configuration',
-                      child: Text(S.of(context).configuration),
-                    )
-                  ],
-                  onItemSelected: (value) async {
-                    if (await _agent.shareServer(value, server.id)) {
-                      if (value == 'Configuration') {
-                        if (!mounted) {
-                          return;
-                        }
-                        await SphiaWidget.showDialogWithMsg(
-                          context,
-                          '${S.of(context).exportToFile}: ${p.join(tempPath, 'export.json')}',
-                        );
-                      } else if (value == 'ExportToClipboard') {
-                        if (!mounted) {
-                          return;
-                        }
-                        await SphiaWidget.showDialogWithMsg(
-                          context,
-                          S.of(context).exportToClipboard,
-                        );
-                      }
-                    } else {
-                      if (value == 'Configuration') {
-                        if (!mounted) {
-                          return;
-                        }
-                        await SphiaWidget.showDialogWithMsg(
-                          context,
-                          S.of(context).noConfigurationFileGenerated,
-                        );
-                      }
-                    }
-                  },
-                ),
-                SphiaWidget.iconButton(
-                  icon: Icons.delete,
-                  onTap: () => _deleteServer(index, server),
-                )
-              ],
-            ),
-            onTap: () {
-              setState(
-                () {
-                  final serverConfigProvider =
-                      Provider.of<ServerConfigProvider>(context, listen: false);
-                  if (server.id ==
-                      serverConfigProvider.config.selectedServerId) {
-                    SphiaTray.setMenuItemCheck('server-${server.id}', false);
-                    serverConfigProvider.config.selectedServerId = 0;
-                    serverConfigProvider.saveConfig();
-                  } else {
-                    SphiaTray.setMenuItemCheck(
-                        'server-${serverConfigProvider.config.selectedServerId}',
-                        false);
-                    serverConfigProvider.config.selectedServerId = server.id;
-                    SphiaTray.setMenuItemCheck('server-${server.id}', true);
-                    serverConfigProvider.saveConfig();
-                  }
-                },
-              );
-            },
-          ),
-        ),
-      ],
+  }
+
+  Future<void> _updateServers(int id) async {
+    final servers = await serverDao.getOrderedServerModelsByGroupId(id);
+    final notifier = ref.read(serverNotifierProvider.notifier);
+    notifier.setServers(servers);
+  }
+
+  void _updateTabController(int index, int length, {bool init = false}) {
+    if (!init) {
+      _tabController.removeListener(() {
+        final indexNotifier =
+            ref.read(serverGroupIndexNotifierProvider.notifier);
+        indexNotifier.setIndex(_tabController.index);
+      });
+      _tabController.dispose();
+    }
+    _tabController = TabController(
+      initialIndex: index,
+      length: length,
+      vsync: this,
     );
+    _tabController.addListener(() {
+      final indexNotifier = ref.read(serverGroupIndexNotifierProvider.notifier);
+      indexNotifier.setIndex(_tabController.index);
+    });
   }
 
   void _scrollToServer(int index) {
     if (_cardKey.currentContext == null) {
       return;
     }
+    // has rendered
+    final renderBox = _cardKey.currentContext!.findRenderObject() as RenderBox;
+    final height = renderBox.size.height;
     if (index == -1) {
       return;
     }
     logger.i('Scrolling to server $index');
-    final RenderBox renderBox =
-        _cardKey.currentContext!.findRenderObject() as RenderBox;
-    final size = renderBox.size;
-    final height = size.height;
     _scrollController.animateTo(
       height * index,
       duration: const Duration(milliseconds: 500),
@@ -783,107 +580,36 @@ class _ServerPageState extends State<ServerPage> with TickerProviderStateMixin {
   }
 
   Future<void> _toggleServer() async {
-    final coreProvider = Provider.of<CoreProvider>(context, listen: false);
-    final server = await serverDao.getSelectedServerModel();
+    final serverConfig = ref.read(serverConfigNotifierProvider);
+    final coreStateNotifier = ref.read(coreStateNotifierProvider.notifier);
+    final id = serverConfig.selectedServerId;
+    final server = await serverDao.getServerModelById(id);
     if (server == null) {
-      if (coreProvider.coreRunning) {
-        await SphiaController.stopCores();
+      final proxyState = ref.read(proxyNotifierProvider);
+      if (proxyState.coreRunning) {
+        await coreStateNotifier.stopCores();
       } else {
         if (!mounted) {
           return;
         }
-        await SphiaWidget.showDialogWithMsg(
-          context,
-          S.of(context).noServerSelected,
-        );
         logger.w('No server selected');
-        setState(() {});
+        await SphiaWidget.showDialogWithMsg(
+          context: context,
+          message: S.of(context).noServerSelected,
+        );
       }
       return;
     }
-    setState(() {
-      _isLoading = true;
-    });
     try {
-      await SphiaController.toggleCores();
+      await coreStateNotifier.toggleCores(server);
     } on Exception catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
       if (!mounted) {
         return;
       }
       await SphiaWidget.showDialogWithMsg(
-        context,
-        '${S.current.coreStartFailed}: $e',
+        context: context,
+        message: '${S.current.coreStartFailed}: $e',
       );
-    }
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  String _getServerTraffic(double uplink, double downlink) {
-    if (uplink == 0 && downlink == 0) {
-      return '';
-    }
-    int uplinkUnitIndex = uplink > 0 ? (log(uplink) / log(1024)).floor() : 0;
-    int downlinkUnitIndex =
-        downlink > 0 ? (log(downlink) / log(1024)).floor() : 0;
-
-    uplink = uplink / unitRates[uplinkUnitIndex];
-    downlink = downlink / unitRates[downlinkUnitIndex];
-
-    return '${uplink.toStringAsFixed(2)}${units[uplinkUnitIndex]}↑ ${downlink.toStringAsFixed(2)}${units[downlinkUnitIndex]}↓';
-  }
-
-  Color _getLatencyColor(int latency) {
-    // use A400 color
-    const red = Color.fromARGB(255, 255, 61, 0);
-    const yellow = Color.fromARGB(255, 255, 234, 0);
-    const green = Color.fromARGB(255, 118, 255, 3);
-    if (latency == latencyFailure || latency < 0) {
-      return red;
-    }
-    if (latency <= latencyGreen) {
-      return green;
-    } else if (latency <= latencyYellow) {
-      return yellow;
-    } else {
-      return red;
-    }
-  }
-
-  Future<void> _deleteServer(int index, ServerModel server) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(S.of(context).deleteServer),
-        content: Text(S.of(context).deleteServerConfirm(server.remark)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(S.of(context).cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(S.of(context).delete),
-          ),
-        ],
-      ),
-    );
-    if (confirm == null || !confirm) {
-      return;
-    }
-    if (await _agent.deleteServer(server.id)) {
-      if (!mounted) {
-        return;
-      }
-      final serverConfigProvider =
-          Provider.of<ServerConfigProvider>(context, listen: false);
-      serverConfigProvider.servers.removeAt(index);
-      SphiaTray.removeServerItem(server.id);
-      setState(() {});
     }
   }
 }

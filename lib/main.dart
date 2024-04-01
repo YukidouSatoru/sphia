@@ -1,10 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
 import 'package:sphia/app/app.dart';
 import 'package:sphia/app/config/rule.dart';
 import 'package:sphia/app/config/server.dart';
@@ -12,14 +11,10 @@ import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/config/version.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
-import 'package:sphia/app/provider/core.dart';
-import 'package:sphia/app/provider/rule_config.dart';
-import 'package:sphia/app/provider/server_config.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
-import 'package:sphia/app/provider/task.dart';
-import 'package:sphia/app/provider/version_config.dart';
-import 'package:sphia/app/tray.dart';
+import 'package:sphia/app/provider/config.dart';
+import 'package:sphia/app/provider/data.dart';
 import 'package:sphia/util/system.dart';
+import 'package:sphia/util/tray.dart';
 import 'package:sphia/view/page/about.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -134,36 +129,21 @@ Future<void> configureApp() async {
     return;
   }
 
-  final sphiaConfigProvider = SphiaConfigProvider(sphiaConfig);
-  final coreProvider = CoreProvider();
-  final taskProvider = TaskProvider();
-  final serverConfigProvider = ServerConfigProvider(
-    serverConfig,
-    await serverGroupDao.getOrderedServerGroups(),
-  );
-  final ruleConfigProvider = RuleConfigProvider(
-    ruleConfig,
-    await ruleGroupDao.getOrderedRuleGroups(),
-  );
-  final versionConfigProvider = VersionConfigProvider(versionConfig);
-
-  // Register providers
-  final getIt = GetIt.I;
-  getIt.registerSingleton<SphiaConfigProvider>(sphiaConfigProvider);
-  getIt.registerSingleton<CoreProvider>(coreProvider);
-  getIt.registerSingleton<TaskProvider>(taskProvider);
-  getIt.registerSingleton<ServerConfigProvider>(serverConfigProvider);
-  getIt.registerSingleton<RuleConfigProvider>(ruleConfigProvider);
-  getIt.registerSingleton<VersionConfigProvider>(versionConfigProvider);
-
   // Print versions of cores
-  final versions = versionConfigProvider.generateLog();
+  final versions = versionConfig.generateLog();
   if (versions.isNotEmpty) {
     logger.i(versions);
   }
 
-  // Init tray
-  SphiaTray.init();
+  // Load data
+  final serverGroups = await serverGroupDao.getOrderedServerGroups();
+  final serverGroupId = serverConfig.selectedServerGroupId;
+  final servers =
+      await serverDao.getOrderedServerModelsByGroupId(serverGroupId);
+  final serversLite = servers.map((e) => e.toLite()).toList();
+  final ruleGroupId = ruleConfig.selectedRuleGroupId;
+  final ruleGroups = await ruleGroupDao.getOrderedRuleGroups();
+  final rules = await ruleDao.getOrderedRuleModelsByGroupId(ruleGroupId);
 
   await windowManager.ensureInitialized();
 
@@ -180,28 +160,23 @@ Future<void> configureApp() async {
     await windowManager.focus();
   });
 
+  // Build tray
+  logger.i('Building tray');
+  await TrayUtil.setIcon(coreRunning: false);
+
   // Run app
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (context) => getIt.get<SphiaConfigProvider>(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => getIt.get<CoreProvider>(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => getIt.get<TaskProvider>(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => getIt.get<ServerConfigProvider>(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => getIt.get<RuleConfigProvider>(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => getIt.get<VersionConfigProvider>(),
-        ),
+    ProviderScope(
+      overrides: [
+        sphiaConfigProvider.overrideWithValue(sphiaConfig),
+        serverConfigProvider.overrideWithValue(serverConfig),
+        ruleConfigProvider.overrideWithValue(ruleConfig),
+        versionConfigProvider.overrideWithValue(versionConfig),
+        serverGroupsProvider.overrideWithValue(serverGroups),
+        serversProvider.overrideWithValue(servers),
+        serversLiteProvider.overrideWithValue(serversLite),
+        ruleGroupsProvider.overrideWithValue(ruleGroups),
+        rulesProvider.overrideWithValue(rules),
       ],
       child: const SphiaApp(),
     ),

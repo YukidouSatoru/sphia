@@ -1,42 +1,67 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
-import 'package:sphia/app/provider/server_config.dart';
+import 'package:sphia/app/notifier/config/server_config.dart';
+import 'package:sphia/app/notifier/config/sphia_config.dart';
+import 'package:sphia/app/notifier/config/version_config.dart';
+import 'package:sphia/app/notifier/data/server.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/util/latency.dart';
 
-class ProgressDialog extends StatefulWidget {
-  final Map<String, String> options;
+part 'progress.g.dart';
 
-  const ProgressDialog({super.key, required this.options});
-
+@riverpod
+class ProgressDialogCancelNotifier extends _$ProgressDialogCancelNotifier {
   @override
-  State<ProgressDialog> createState() => _ProgressDialogState();
+  bool build() {
+    return false;
+  }
+
+  void updateValue(bool value) {
+    state = value;
+  }
 }
 
-class _ProgressDialogState extends State<ProgressDialog> {
-  bool _cancel = false;
-  Future<void>? _operation;
+class ProgressDialog extends ConsumerStatefulWidget {
+  final Map<String, String> options;
+
+  const ProgressDialog({
+    super.key,
+    required this.options,
+  });
+
+  @override
+  ConsumerState<ProgressDialog> createState() => _ProgressDialogState();
+}
+
+class _ProgressDialogState extends ConsumerState<ProgressDialog> {
+  final _completer = Completer<void>();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.options['action'] == 'clear') {
-        _operation = clearLatency(widget.options['option']!);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      late final Future<void> operation;
+      if (widget.options['action'] == 'Clear') {
+        operation = clearLatency(widget.options['option']!, ref);
       } else {
-        _operation =
-            latencyTest(widget.options['option']!, widget.options['type']!);
+        operation = latencyTest(
+            widget.options['option']!, widget.options['type']!, ref);
       }
-      _operation!.whenComplete(() => Navigator.of(context).pop());
+      await operation;
+      if (_completer.isCompleted && mounted) {
+        Navigator.of(context).pop();
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final isCancel = ref.watch(progressDialogCancelNotifierProvider);
     return AlertDialog(
       title: Text(S.of(context).latencyTest),
       content: const Column(
@@ -47,30 +72,35 @@ class _ProgressDialogState extends State<ProgressDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () {
-            _cancel = true;
-          },
+          onPressed: isCancel
+              ? null
+              : () {
+                  _completer.complete();
+                  final notifier =
+                      ref.read(progressDialogCancelNotifierProvider.notifier);
+                  notifier.updateValue(true);
+                },
           child: Text(S.of(context).cancel),
         )
       ],
     );
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  Future<void> latencyTest(String option, String type) async {
+  Future<void> latencyTest(String option, String type, WidgetRef ref) async {
     logger.i('Testing Latency: option=$option, type=$type');
 
     final isICMP = (type == 'ICMP');
     final isTCP = (type == 'TCP');
     final isUrl = (type == 'Url');
-    final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
+    final sphiaConfig = ref.read(sphiaConfigNotifierProvider);
+    final testUrl = sphiaConfig.latencyTestUrl;
+    final serverConfig = ref.read(serverConfigNotifierProvider);
     if (option == 'SelectedServer') {
-      final server = await serverDao.getSelectedServerModel();
+      final notifier = ref.read(serverNotifierProvider.notifier);
+      final id = serverConfig.selectedServerId;
+      final server = await serverDao.getServerModelById(id);
       if (server == null) {
+        logger.e('Selected server not exists');
         return;
       }
       //
@@ -80,33 +110,35 @@ class _ProgressDialogState extends State<ProgressDialog> {
       } else if (isTCP) {
         latency = await TcpLatency.testTcpLatency(server.address, server.port);
       } else if (isUrl) {
-        final urlLatency = UrlLatency([server]);
+        final urlLatency = UrlLatency(servers: [server], testUrl: testUrl);
         final tag = 'proxy-${server.id}';
-        await urlLatency.init();
+        final versionConfig = ref.read(versionConfigNotifierProvider);
+        await urlLatency.init(sphiaConfig, versionConfig);
         latency = await urlLatency.testUrlLatency(tag);
+        urlLatency.stop();
       }
-      server.latency = latency;
       await serverDao.updateLatency(server.id, latency);
-      final index =
-          serverConfigProvider.servers.indexWhere((e) => e.id == server.id);
-      if (index != -1) {
-        serverConfigProvider.servers[index] = server;
-      }
+      notifier.updateServer(
+        server..latency = latency,
+        shouldUpdateLite: false,
+      );
     } else {
       // option == 'CurrentGroup'
+      final servers = ref.read(serverNotifierProvider);
       late final UrlLatency urlLatency;
       if (isUrl) {
-        urlLatency = UrlLatency(serverConfigProvider.servers);
-        await urlLatency.init();
+        urlLatency = UrlLatency(servers: servers, testUrl: testUrl);
+        final versionConfig = ref.read(versionConfigNotifierProvider);
+        await urlLatency.init(sphiaConfig, versionConfig);
       }
-      for (var i = 0; i < serverConfigProvider.servers.length; i++) {
-        if (_cancel) {
+      for (var i = 0; i < servers.length; i++) {
+        if (_completer.isCompleted) {
           if (isUrl) {
             await urlLatency.stop();
           }
           return;
         }
-        final server = serverConfigProvider.servers[i];
+        final server = servers[i];
         late final int latency;
         if (isUrl) {
           final tag = 'proxy-${server.id}';
@@ -117,38 +149,45 @@ class _ProgressDialogState extends State<ProgressDialog> {
         } else if (isICMP) {
           latency = await IcmpLatency.testIcmpLatency(server.address);
         }
-        serverConfigProvider.servers[i].latency = latency;
         await serverDao.updateLatency(server.id, latency);
       }
+      if (isUrl) {
+        await urlLatency.stop();
+      }
     }
+    _completer.complete();
   }
 
-  Future<void> clearLatency(String option) async {
-    final serverConfigProvider = GetIt.I.get<ServerConfigProvider>();
+  Future<void> clearLatency(String option, WidgetRef ref) async {
+    logger.i('Clearing Latency: option=$option');
+
+    final serverConfig = ref.read(serverConfigNotifierProvider);
     if (option == 'SelectedServer') {
-      final server = await serverDao.getSelectedServerModel();
+      final notifier = ref.read(serverNotifierProvider.notifier);
+      final id = serverConfig.selectedServerId;
+      final server = await serverDao.getServerModelById(id);
       if (server == null) {
+        logger.e('Selected server not exists');
         return;
       }
-      server.latency = null;
       await serverDao.updateLatency(server.id, null);
-      final index = serverConfigProvider.servers
-          .indexWhere((element) => element.id == server.id);
-      if (index != -1) {
-        serverConfigProvider.servers[index] = server;
-      }
+      notifier.updateServer(
+        server..latency = null,
+        shouldUpdateLite: false,
+      );
     } else {
       // option == 'CurrentGroup'
-      for (var i = 0; i < serverConfigProvider.servers.length; i++) {
-        if (_cancel) {
+      final servers = ref.read(serverNotifierProvider);
+      for (var i = 0; i < servers.length; i++) {
+        if (_completer.isCompleted) {
           return;
         }
-        serverConfigProvider.servers[i].latency = null;
         await serverDao.updateLatency(
-          serverConfigProvider.servers[i].id,
+          servers[i].id,
           null,
         );
       }
     }
+    _completer.complete();
   }
 }

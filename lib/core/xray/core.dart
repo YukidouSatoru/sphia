@@ -1,14 +1,15 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 
-import 'package:get_it/get_it.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:sphia/app/config/sphia.dart';
 import 'package:sphia/app/database/dao/rule.dart';
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/app/log.dart';
-import 'package:sphia/app/provider/rule_config.dart';
-import 'package:sphia/app/provider/sphia_config.dart';
+import 'package:sphia/app/notifier/config/rule_config.dart';
+import 'package:sphia/app/notifier/config/sphia_config.dart';
 import 'package:sphia/core/core.dart';
 import 'package:sphia/core/helper.dart';
 import 'package:sphia/core/xray/config.dart';
@@ -16,6 +17,11 @@ import 'package:sphia/core/xray/generate.dart';
 import 'package:sphia/util/system.dart';
 
 class XrayCore extends Core {
+  late final Ref ref;
+  final _logStreamController = StreamController<String>.broadcast();
+
+  Stream<String> get logStream => _logStreamController.stream;
+
   XrayCore()
       : super(
           'xray-core',
@@ -24,11 +30,32 @@ class XrayCore extends Core {
         );
 
   @override
+  Future<void> stop() async {
+    await super.stop();
+    if (!_logStreamController.isClosed) {
+      await _logStreamController.close();
+    }
+  }
+
+  @override
+  void listenToProcessStream(Stream<List<int>> stream) {
+    logSubscription = stream.transform(utf8.decoder).listen((data) {
+      if (data.trim().isNotEmpty) {
+        _logStreamController.add(data);
+        if (isPreLog) {
+          preLogList.add(data);
+        }
+      }
+    });
+  }
+
+  @override
   Future<void> configure() async {
-    final sphiaConfig = GetIt.I.get<SphiaConfigProvider>().config;
-    final ruleConfig = GetIt.I.get<RuleConfigProvider>().config;
+    final sphiaConfig = ref.read(sphiaConfigNotifierProvider);
+    final ruleConfig = ref.read(ruleConfigNotifierProvider);
+    final userAgent = sphiaConfig.getUserAgent();
     final outbounds = [
-      XrayGenerate.generateOutbound(servers.first)..tag = 'proxy',
+      XrayGenerate.generateOutbound(servers.first, userAgent)..tag = 'proxy',
     ];
     List<Rule> rules =
         await ruleDao.getOrderedRulesByGroupId(ruleConfig.selectedRuleGroupId);
@@ -42,7 +69,8 @@ class XrayCore extends Core {
           await serverDao.getServerModelsByIdList(serversOnRoutingId);
       for (final server in serversOnRouting) {
         outbounds.add(
-          XrayGenerate.generateOutbound(server)..tag = 'proxy-${server.id}',
+          XrayGenerate.generateOutbound(server, userAgent)
+            ..tag = 'proxy-${server.id}',
         );
       }
       servers.addAll(serversOnRouting);
@@ -73,7 +101,7 @@ class XrayCore extends Core {
     final sphiaConfig = paras.sphiaConfig;
     final log = Log(
       access: sphiaConfig.saveCoreLog ? SphiaLog.getLogPath(name) : null,
-      loglevel: LogLevel.values[sphiaConfig.logLevel].name,
+      loglevel: sphiaConfig.logLevel.name,
     );
 
     Dns? dns;
@@ -108,8 +136,8 @@ class XrayCore extends Core {
     Routing? routing;
     if (isRouting) {
       routing = XrayGenerate.routing(
-        domainStrategy: DomainStrategy.values[sphiaConfig.domainStrategy].name,
-        domainMatcher: DomainMatcher.values[sphiaConfig.domainMatcher].name,
+        domainStrategy: sphiaConfig.domainStrategy.name,
+        domainMatcher: sphiaConfig.domainMatcher.name,
         rules: paras.rules,
         enableApi: sphiaConfig.enableStatistics,
       );
