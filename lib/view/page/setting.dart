@@ -26,7 +26,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final currentState = _scaffoldMessengerKey.currentState;
     final notifier = ref.watch(sphiaConfigNotifierProvider.notifier);
     final coreRunning =
         ref.watch(proxyNotifierProvider.select((value) => value.coreRunning));
@@ -37,8 +36,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         updater: (value) {
           notifier.updateValue('startOnBoot', value);
           SystemUtil.configureStartup(value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).startOnBootMsg,
             ),
@@ -50,8 +49,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.autoRunServer,
         updater: (value) {
           notifier.updateValue('autoRunServer', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).autoRunServerMsg,
             ),
@@ -64,8 +63,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.useMaterial3,
         updater: (value) {
           notifier.updateValue('useMaterial3', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).useMaterial3Msg,
             ),
@@ -79,8 +78,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         updater: (value) {
           notifier.updateValue(
               'navigationStyle', NavigationStyle.values[value].name);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).navigationStyleMsg,
             ),
@@ -92,8 +91,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.darkMode,
         updater: (value) {
           notifier.updateValue('darkMode', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).darkModeMsg,
             ),
@@ -113,8 +112,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         },
         updater: (value) {
           notifier.updateValue('themeColor', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).themeColorMsg,
             ),
@@ -134,8 +133,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             g = int.parse(value.split(',')[2]);
             b = int.parse(value.split(',')[3]);
           } on Exception catch (_) {
-            currentState?.hideCurrentSnackBar();
-            currentState?.showSnackBar(
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).themeColorWarn,
               ),
@@ -149,15 +148,15 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               legalValue(b)) {
             final argbValue = (a << 24) | (r << 16) | (g << 8) | b;
             notifier.updateValue('themeColor', argbValue);
-            currentState?.hideCurrentSnackBar();
-            currentState?.showSnackBar(
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).themeColorMsg,
               ),
             );
           } else {
-            currentState?.hideCurrentSnackBar();
-            currentState?.showSnackBar(
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).themeColorWarn,
               ),
@@ -171,8 +170,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.showTransport,
         updater: (value) {
           notifier.updateValue('showTransport', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).showTransportMsg,
             ),
@@ -184,8 +183,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.showAddress,
         updater: (value) {
           notifier.updateValue('showAddress', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).showAddressMsg,
             ),
@@ -201,8 +200,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           if (!value) {
             notifier.updateValue('enableSpeedChart', false);
           }
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).enableStatisticsMsg,
             ),
@@ -218,8 +217,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           if (value) {
             notifier.updateValue('enableStatistics', true);
           }
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).enableSpeedChartMsg,
             ),
@@ -235,8 +234,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.latencyTestUrl,
         updater: (value) {
           notifier.updateValue('latencyTestUrl', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).latencyTestUrlMsg,
             ),
@@ -249,8 +248,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.updateThroughProxy,
         updater: (value) {
           notifier.updateValue('updateThroughProxy', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).updateThroughProxyMsg,
             ),
@@ -263,8 +262,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.userAgent.index,
         updater: (value) {
           notifier.updateValue('userAgent', UserAgent.values[value].name);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).userAgentMsg,
             ),
@@ -278,8 +277,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.autoGetIp,
         updater: (value) {
           notifier.updateValue('autoGetIp', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).autoGetIpMsg,
             ),
@@ -291,8 +290,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.multiOutboundSupport,
         updater: (value) {
           notifier.updateValue('multiOutboundSupport', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).multiOutboundSupportMsg,
             ),
@@ -308,8 +307,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           if (value) {
             notifier.updateValue('enableTun', false);
           }
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).autoConfigureSystemProxyMsg,
             ),
@@ -326,8 +325,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             notifier.updateValue('autoConfigureSystemProxy', false);
           }
 
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).enableTunMsg,
             ),
@@ -343,8 +342,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           if ((newValue = int.tryParse(value)) == null ||
               newValue! < 0 ||
               newValue > 65535) {
-            currentState?.hideCurrentSnackBar();
-            currentState?.showSnackBar(
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).portInvalidMsg,
               ),
@@ -352,8 +351,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             return;
           }
           notifier.updateValue('socksPort', newValue);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).socksPortMsg,
             ),
@@ -369,8 +368,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           if ((newValue = int.tryParse(value)) == null ||
               newValue! < 0 ||
               newValue > 65535) {
-            currentState?.hideCurrentSnackBar();
-            currentState?.showSnackBar(
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).portInvalidMsg,
               ),
@@ -378,8 +377,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             return;
           }
           notifier.updateValue('httpPort', newValue);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).httpPortMsg,
             ),
@@ -395,8 +394,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           if ((newValue = int.tryParse(value)) == null ||
               newValue! < 0 ||
               newValue > 65535) {
-            currentState?.hideCurrentSnackBar();
-            currentState?.showSnackBar(
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).portInvalidMsg,
               ),
@@ -404,8 +403,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             return;
           }
           notifier.updateValue('mixedPort', newValue);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).mixedPortMsg,
             ),
@@ -418,8 +417,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.listen,
         updater: (value) {
           notifier.updateValue('listen', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).listenMsg,
             ),
@@ -432,8 +431,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.enableUdp,
         updater: (value) {
           notifier.updateValue('enableUdp', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).enableUdpMsg,
             ),
@@ -447,8 +446,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.authentication,
         updater: (value) {
           notifier.updateValue('authentication', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).authenticationMsg,
             ),
@@ -461,8 +460,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.user,
         updater: (value) {
           notifier.updateValue('user', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).userMsg,
             ),
@@ -475,8 +474,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.password,
         updater: (value) {
           notifier.updateValue('password', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).passwordMsg,
             ),
@@ -494,8 +493,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           if ((newValue = int.tryParse(value)) == null ||
               newValue! < 0 ||
               newValue > 65535) {
-            currentState?.hideCurrentSnackBar();
-            currentState?.showSnackBar(
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).portInvalidMsg,
               ),
@@ -503,8 +502,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             return;
           }
           notifier.updateValue('coreApiPort', newValue);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).coreApiPortMsg,
             ),
@@ -518,8 +517,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.enableSniffing,
         updater: (value) {
           notifier.updateValue('enableSniffing', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).enableSniffingMsg,
             ),
@@ -531,8 +530,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.configureDns,
         updater: (value) {
           notifier.updateValue('configureDns', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).configureDnsMsg,
             ),
@@ -544,8 +543,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.remoteDns,
         updater: (value) {
           notifier.updateValue('remoteDns', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).remoteDnsMsg,
             ),
@@ -557,8 +556,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.directDns,
         updater: (value) {
           notifier.updateValue('directDns', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).directDnsMsg,
             ),
@@ -573,8 +572,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         updater: (value) {
           notifier.updateValue(
               'domainStrategy', DomainStrategy.values[value].name);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).domainStrategyMsg,
             ),
@@ -588,8 +587,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         updater: (value) {
           notifier.updateValue(
               'domainMatcher', DomainMatcher.values[value].name);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).domainMatcherMsg,
             ),
@@ -602,8 +601,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.enableCoreLog,
         updater: (value) {
           notifier.updateValue('enableCoreLog', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).enableCoreLogMsg,
             ),
@@ -616,8 +615,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.logLevel.index,
         updater: (value) {
           notifier.updateValue('logLevel', LogLevel.values[value].name);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).logLevelMsg,
             ),
@@ -630,8 +629,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         updater: (value) {
           late final int? newValue;
           if ((newValue = int.tryParse(value)) == null || newValue! < 0) {
-            currentState?.hideCurrentSnackBar();
-            currentState?.showSnackBar(
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).enterValidNumberMsg,
               ),
@@ -639,8 +638,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             return;
           }
           notifier.updateValue('maxLogCount', newValue);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).maxLogCountMsg,
             ),
@@ -652,8 +651,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.saveCoreLog,
         updater: (value) {
           notifier.updateValue('saveCoreLog', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).saveCoreLogMsg,
             ),
@@ -670,8 +669,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         updater: (value) {
           notifier.updateValue(
               'routingProvider', RoutingProvider.values[value].name);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).routingProviderMsg,
             ),
@@ -685,8 +684,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         updater: (value) {
           notifier.updateValue(
               'vmessProvider', VmessProvider.values[value].name);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).vmessProviderMsg,
             ),
@@ -700,8 +699,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         updater: (value) {
           notifier.updateValue(
               'vlessProvider', VlessProvider.values[value].name);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).vlessProviderMsg,
             ),
@@ -715,8 +714,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         updater: (value) {
           notifier.updateValue(
               'shadowsocksProvider', ShadowsocksProvider.values[value].name);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).shadowsocksProviderMsg,
             ),
@@ -730,8 +729,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         updater: (value) {
           notifier.updateValue(
               'trojanProvider', TrojanProvider.values[value].name);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).trojanProviderMsg,
             ),
@@ -745,8 +744,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         updater: (value) {
           notifier.updateValue(
               'hysteriaProvider', HysteriaProvider.values[value].name);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).hysteriaProviderMsg,
             ),
@@ -762,8 +761,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           if ((newValue = int.tryParse(value)) == null ||
               newValue! < 0 ||
               newValue > 65535) {
-            currentState?.hideCurrentSnackBar();
-            currentState?.showSnackBar(
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).portInvalidMsg,
               ),
@@ -771,8 +770,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             return;
           }
           notifier.updateValue('additionalSocksPort', newValue);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).additionalSocksPortMsg,
             ),
@@ -788,8 +787,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.tunProvider.index,
         updater: (value) {
           notifier.updateValue('tunProvider', TunProvider.values[value].name);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).tunProviderMsg,
             ),
@@ -802,8 +801,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.enableIpv4,
         updater: (value) {
           notifier.updateValue('enableIpv4', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).enableIpv4Msg,
             ),
@@ -815,8 +814,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.ipv4Address,
         updater: (value) {
           notifier.updateValue('ipv4Address', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).ipv4AddressMsg,
             ),
@@ -828,8 +827,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.enableIpv6,
         updater: (value) {
           notifier.updateValue('enableIpv6', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).enableIpv6Msg,
             ),
@@ -841,8 +840,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.ipv6Address,
         updater: (value) {
           notifier.updateValue('ipv6Address', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).ipv6AddressMsg,
             ),
@@ -856,8 +855,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         updater: (value) {
           late final int? newValue;
           if ((newValue = int.tryParse(value)) == null) {
-            currentState?.hideCurrentSnackBar();
-            currentState?.showSnackBar(
+            _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
               SphiaWidget.snackBar(
                 S.of(context).enterValidNumberMsg,
               ),
@@ -865,8 +864,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             return;
           }
           notifier.updateValue('mtu', newValue);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).mtuMsg,
             ),
@@ -878,8 +877,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.endpointIndependentNat,
         updater: (value) {
           notifier.updateValue('endpointIndependentNat', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).endpointIndependentNatMsg,
             ),
@@ -892,8 +891,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.stack.index,
         updater: (value) {
           notifier.updateValue('stack', TunStack.values[value].name);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).stackMsg,
             ),
@@ -905,8 +904,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.autoRoute,
         updater: (value) {
           notifier.updateValue('autoRoute', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).autoRouteMsg,
             ),
@@ -918,8 +917,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         selector: (value) => value.strictRoute,
         updater: (value) {
           notifier.updateValue('strictRoute', value);
-          currentState?.hideCurrentSnackBar();
-          currentState?.showSnackBar(
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
             SphiaWidget.snackBar(
               S.of(context).strictRouteMsg,
             ),
