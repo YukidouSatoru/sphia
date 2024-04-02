@@ -505,10 +505,6 @@ class _ServerPageState extends ConsumerState<ServerPage>
           break;
         case ServerGroupAction.edit:
           break;
-        case ServerGroupAction.update:
-          final id = next[index].id;
-          await _updateServers(id);
-          break;
         case ServerGroupAction.delete:
           // deleted a group
           if (index == nextLength) {

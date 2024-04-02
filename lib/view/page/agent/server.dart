@@ -45,7 +45,6 @@ class ServerGroupIndexNotifier extends _$ServerGroupIndexNotifier {
 enum ServerGroupAction {
   add,
   edit,
-  update,
   delete,
   reorder,
   none,
@@ -271,7 +270,6 @@ mixin ServerAgent {
     required WidgetRef ref,
   }) async {
     final serverConfig = ref.read(serverConfigNotifierProvider);
-    final actionNotifier = ref.read(serverGroupStatusProvider.notifier);
     final subscriptionUtil = ref.read(subscriptionUtilProvider.notifier);
     switch (type) {
       case 'CurrentGroup':
@@ -296,7 +294,13 @@ mixin ServerAgent {
           logger.e('Failed to update group: $groupName\n$e');
           rethrow;
         }
-        actionNotifier.set(ServerGroupAction.update);
+        final serverNotifier = ref.read(serverNotifierProvider.notifier);
+        final servers = await serverDao.getOrderedServerModelsByGroupId(id);
+        final curId = ref.read(serverConfigNotifierProvider
+            .select((value) => value.selectedServerGroupId));
+        if (curId == id) {
+          serverNotifier.setServers(servers);
+        }
         final context = ref.context;
         if (context.mounted) {
           SphiaWidget.showDialogWithMsg(
@@ -328,6 +332,13 @@ mixin ServerAgent {
             continue;
           }
         }
+        if (flag) {
+          final serverConfig = ref.read(serverConfigNotifierProvider);
+          final id = serverConfig.selectedServerGroupId;
+          final servers = await serverDao.getOrderedServerModelsByGroupId(id);
+          final serverNotifier = ref.read(serverNotifierProvider.notifier);
+          serverNotifier.setServers(servers);
+        }
         final context = ref.context;
         if (context.mounted) {
           final total = serverGroups.length;
@@ -336,13 +347,6 @@ mixin ServerAgent {
             message:
                 S.of(context).numSubscriptionsHaveBeenUpdated(count, total),
           );
-        }
-        if (flag) {
-          final serverConfig = ref.read(serverConfigNotifierProvider);
-          final id = serverConfig.selectedServerGroupId;
-          final servers = await serverDao.getOrderedServerModelsByGroupId(id);
-          final serverNotifier = ref.read(serverNotifierProvider.notifier);
-          serverNotifier.setServers(servers);
         }
       default:
         return;
