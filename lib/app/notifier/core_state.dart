@@ -67,7 +67,10 @@ class CoreStateNotifier extends _$CoreStateNotifier {
         }
       }
     } on Exception catch (_) {
-      await stopCores();
+      for (var core in cores) {
+        await core.stop();
+      }
+      state = const AsyncValue.data(CoreState(cores: []));
       rethrow;
     }
     state = AsyncValue.data(CoreState(cores: cores));
