@@ -150,6 +150,12 @@ class XrayGenerate {
               multiMode: server.grpcMode == 'multi',
             )
           : null,
+      httpUpgradeSettings: server.transport == 'httpupgrade'
+          ? HttpUpgradeSettings(
+              path: server.path ?? '/',
+              headers: Headers(host: server.host ?? server.address),
+            )
+          : null,
     );
     return Outbound(
       protocol: server.protocol,

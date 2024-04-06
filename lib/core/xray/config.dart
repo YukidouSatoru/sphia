@@ -295,6 +295,7 @@ class StreamSettings {
   TcpSettings? tcpSettings;
   WsSettings? wsSettings;
   GrpcSettings? grpcSettings;
+  HttpUpgradeSettings? httpUpgradeSettings;
 
   StreamSettings({
     required this.network,
@@ -304,6 +305,7 @@ class StreamSettings {
     this.tcpSettings,
     this.wsSettings,
     this.grpcSettings,
+    this.httpUpgradeSettings,
   });
 
   factory StreamSettings.fromJson(Map<String, dynamic> json) =>
@@ -487,6 +489,22 @@ class RealitySettings {
       _$RealitySettingsFromJson(json);
 
   Map<String, dynamic> toJson() => _$RealitySettingsToJson(this);
+}
+
+@JsonSerializable()
+class HttpUpgradeSettings {
+  String path;
+  Headers? headers;
+
+  HttpUpgradeSettings({
+    required this.path,
+    this.headers,
+  });
+
+  factory HttpUpgradeSettings.fromJson(Map<String, dynamic> json) =>
+      _$HttpUpgradeSettingsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$HttpUpgradeSettingsToJson(this);
 }
 
 @JsonSerializable()
