@@ -56,6 +56,8 @@ class _NetworkChartState extends ConsumerState<NetworkChart> {
   double _up = 0.0;
   double _down = 0.0;
 
+  bool _isVisible = true;
+
   void _startTimer() {
     if (_yAxisTimer != null) {
       return;
@@ -76,21 +78,27 @@ class _NetworkChartState extends ConsumerState<NetworkChart> {
             _downloadSpots.fold(0, (maxY, spot) => max(maxY, spot.y));
       }
       _countFlip = (_countFlip == 40 ? 0 : _countFlip + 1);
-      setState(() {
-        final double axisY = max(_maxUploadY, _maxDownloadY);
-        _maxY = axisY / 4 * 5;
-        _unitIndex = getUnit(axisY.toInt());
-      });
+      final double axisY = max(_maxUploadY, _maxDownloadY);
+      _maxY = axisY / 4 * 5;
+      _unitIndex = getUnit(axisY.toInt());
+      if (_isVisible) {
+        setState(() {});
+      }
+    });
+  }
+
+  void _setVisiblity(bool visible) {
+    setState(() {
+      _isVisible = visible;
     });
   }
 
   void _stopTimer() {
-    if (_yAxisTimer == null) {
-      return;
+    if (_yAxisTimer != null) {
+      logger.i('Stopping speed chart timer');
+      _yAxisTimer?.cancel();
+      _yAxisTimer = null;
     }
-    logger.i('Stopping speed chart timer');
-    _yAxisTimer?.cancel();
-    _yAxisTimer = null;
   }
 
   void _trafficListener(TrafficState? previous, TrafficState next) {
@@ -112,7 +120,6 @@ class _NetworkChartState extends ConsumerState<NetworkChart> {
         if (enableSpeedChart) {
           _startTimer();
         } else {
-          _stopTimer();
           _clearSpots();
         }
       } else {
@@ -129,9 +136,8 @@ class _NetworkChartState extends ConsumerState<NetworkChart> {
       if (!trafficRunning) {
         return;
       }
-      if (!next) {
-        _stopTimer();
-      } else {
+      _setVisiblity(next);
+      if (next) {
         final enableSpeedChart = ref.read(sphiaConfigNotifierProvider
             .select((value) => value.enableSpeedChart));
         if (enableSpeedChart) {
