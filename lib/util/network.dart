@@ -34,18 +34,39 @@ class NetworkUtil extends _$NetworkUtil {
         logger.e('Core state is null');
         throw Exception('Core state is null');
       }
-      client.findProxy = (uri) {
-        final port = coreState.routing.name == 'sing-box'
-            ? sphiaConfig.mixedPort
-            : sphiaConfig.httpPort;
-        final proxyUrl = '${sphiaConfig.listen}:${port.toString()}';
-        if (sphiaConfig.authentication) {
-          final user = sphiaConfig.user;
-          final password = sphiaConfig.password;
-          return 'PROXY $user:$password@$proxyUrl';
+
+      final port = coreState.routing.name == 'sing-box'
+          ? sphiaConfig.mixedPort
+          : sphiaConfig.httpPort;
+      final proxyUrl = '${sphiaConfig.listen}:${port.toString()}';
+
+      try {
+        int tryCount = 0;
+        while (tryCount < 5) {
+          try {
+            final socket = await Socket.connect(sphiaConfig.listen, port);
+            await socket.close();
+            break;
+          } catch (_) {
+            if (tryCount == 4) {
+              // 5th try
+              throw Exception('Local server is not ready');
+            }
+            await Future.delayed(const Duration(milliseconds: 100));
+            tryCount++;
+          }
         }
-        return 'PROXY $proxyUrl';
-      };
+      } catch (_) {
+        rethrow;
+      }
+
+      if (sphiaConfig.authentication) {
+        final user = sphiaConfig.user;
+        final password = sphiaConfig.password;
+        client.findProxy = (uri) => 'PROXY $user:$password@$proxyUrl';
+      } else {
+        client.findProxy = (uri) => 'PROXY $proxyUrl';
+      }
     }
     final uri = Uri.parse(url);
     try {
