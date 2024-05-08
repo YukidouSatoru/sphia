@@ -40,7 +40,7 @@ class NetworkUtil extends _$NetworkUtil {
     client.userAgent = userAgent;
     if (proxyState.coreRunning &&
         (sphiaConfig.updateThroughProxy ||
-            (url == 'https://api.ip.sb/ip' && !proxyState.tunMode) ||
+            url == 'https://api.ip.sb/ip' ||
             url.contains('sphia'))) {
       final coreState = ref.read(coreStateNotifierProvider).valueOrNull;
       if (coreState == null) {

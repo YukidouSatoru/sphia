@@ -110,7 +110,7 @@ class SingBoxCore extends Core {
       enableApi: sphiaConfig.enableStatistics && isRouting,
       coreApiPort: sphiaConfig.coreApiPort,
       enableTun: sphiaConfig.enableTun,
-      addMixedInbound: !sphiaConfig.enableTun,
+      addMixedInbound: true,
       sphiaConfig: sphiaConfig,
       versionConfig: versionConfig,
     );
