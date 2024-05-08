@@ -18,6 +18,19 @@ class NetworkUtil extends _$NetworkUtil {
   @override
   void build() {}
 
+  static Future<bool> isServerAvailable(int port, {int maxRetry = 3}) async {
+    for (var i = 0; i < maxRetry; i++) {
+      try {
+        final socket = await Socket.connect('localhost', port);
+        await socket.close();
+        return true;
+      } catch (_) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+    }
+    return false;
+  }
+
   Future<HttpClientResponse> getHttpResponse(String url) async {
     final sphiaConfig = ref.read(sphiaConfigNotifierProvider);
     final proxyState = ref.read(proxyNotifierProvider);
@@ -39,26 +52,6 @@ class NetworkUtil extends _$NetworkUtil {
           ? sphiaConfig.mixedPort
           : sphiaConfig.httpPort;
       final proxyUrl = '${sphiaConfig.listen}:${port.toString()}';
-
-      try {
-        int tryCount = 0;
-        while (tryCount < 5) {
-          try {
-            final socket = await Socket.connect(sphiaConfig.listen, port);
-            await socket.close();
-            break;
-          } catch (_) {
-            if (tryCount == 4) {
-              // 5th try
-              throw Exception('Local server is not ready');
-            }
-            await Future.delayed(const Duration(milliseconds: 100));
-            tryCount++;
-          }
-        }
-      } catch (_) {
-        rethrow;
-      }
 
       if (sphiaConfig.authentication) {
         final user = sphiaConfig.user;

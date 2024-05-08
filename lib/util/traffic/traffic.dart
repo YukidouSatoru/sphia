@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:grpc/grpc.dart';
 import 'package:http/http.dart' as http;
 import 'package:sphia/app/log.dart';
+import 'package:sphia/util/network.dart';
 import 'package:sphia/util/traffic/xray/command.pbgrpc.dart';
 import 'package:tuple/tuple.dart';
 
@@ -29,35 +29,12 @@ abstract class Traffic {
   Traffic(this.apiPort);
 
   Future<void> start() async {
-    await _ensureApiAvailability();
+    if (!await NetworkUtil.isServerAvailable(apiPort)) {
+      throw Exception('API server is not available');
+    }
   }
 
   Future<void> stop();
-
-  Future<void> _ensureApiAvailability() async {
-    int tryCount = 0;
-    await Future.doWhile(() async {
-      final isApiAvailable = await _checkAvailability();
-      if (!isApiAvailable) {
-        await Future.delayed(const Duration(milliseconds: 100));
-        tryCount++;
-      }
-      if (tryCount > 10) {
-        throw Exception('API is not available');
-      }
-      return !isApiAvailable;
-    });
-  }
-
-  Future<bool> _checkAvailability() async {
-    try {
-      final socket = await Socket.connect('localhost', apiPort);
-      socket.destroy();
-      return true;
-    } on SocketException catch (_) {
-      return false;
-    }
-  }
 }
 
 class XrayTraffic extends Traffic {

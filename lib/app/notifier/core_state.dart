@@ -10,6 +10,7 @@ import 'package:sphia/app/state/core_state.dart';
 import 'package:sphia/core/core.dart';
 import 'package:sphia/server/server_model.dart';
 import 'package:sphia/server/xray/server.dart';
+import 'package:sphia/util/network.dart';
 import 'package:sphia/util/system.dart';
 import 'package:sphia/util/tray.dart';
 
@@ -74,16 +75,31 @@ class CoreStateNotifier extends _$CoreStateNotifier {
       rethrow;
     }
     state = AsyncValue.data(CoreState(cores: cores));
+
+    int socksPort = sphiaConfig.socksPort;
+    int httpPort = sphiaConfig.httpPort;
+    final routingProvider =
+        selectedServer.routingProvider ?? sphiaConfig.routingProvider.index;
+    if (routingProvider == RoutingProvider.sing.index) {
+      socksPort = sphiaConfig.mixedPort;
+      httpPort = sphiaConfig.mixedPort;
+    }
+
     final proxyNotifier = ref.read(proxyNotifierProvider.notifier);
-    // wait for core to start, or get ip may be failed
-    await Future.delayed(const Duration(milliseconds: 200));
+    final localServerAvailable = await NetworkUtil.isServerAvailable(httpPort);
+    if (!localServerAvailable) {
+      logger.e('Local server is not available');
+      throw Exception('Local server is not available');
+    }
     proxyNotifier.setCoreRunning(true);
     await TrayUtil.setIcon(coreRunning: true);
+
     final enableStatistics = sphiaConfig.enableStatistics;
     if (enableStatistics) {
       final trafficNotifier = ref.read(trafficNotifierProvider.notifier);
       await trafficNotifier.start();
     }
+
     if (sphiaConfig.enableTun) {
       proxyNotifier.setTunMode(true);
       // do not enable system proxy in tun mode
@@ -92,14 +108,6 @@ class CoreStateNotifier extends _$CoreStateNotifier {
     } else {
       proxyNotifier.setTunMode(false);
       if (sphiaConfig.autoConfigureSystemProxy) {
-        int socksPort = sphiaConfig.socksPort;
-        int httpPort = sphiaConfig.httpPort;
-        final routingProvider =
-            selectedServer.routingProvider ?? sphiaConfig.routingProvider.index;
-        if (routingProvider == RoutingProvider.sing.index) {
-          socksPort = sphiaConfig.mixedPort;
-          httpPort = sphiaConfig.mixedPort;
-        }
         SystemUtil.enableSystemProxy(
           sphiaConfig.listen,
           socksPort,
