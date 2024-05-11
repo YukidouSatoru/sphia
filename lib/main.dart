@@ -160,9 +160,11 @@ Future<void> configureApp() async {
     await windowManager.focus();
   });
 
-  // Build tray
-  logger.i('Building tray');
-  await TrayUtil.setIcon(coreRunning: false);
+  if (SystemUtil.os != OS.linux) {
+    // Build tray
+    logger.i('Building tray');
+    await TrayUtil.setIcon(coreRunning: false);
+  }
 
   // Run app
   runApp(
