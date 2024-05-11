@@ -88,7 +88,7 @@ class XrayServer extends ServerModel {
         port: 0,
         authPayload: const Uuid().v4(),
         encryption: 'none',
-        flow: 'none',
+        flow: null,
         transport: 'tcp',
         tls: 'none',
         allowInsecure: false,
