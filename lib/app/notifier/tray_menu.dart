@@ -25,6 +25,8 @@ class TrayMenuNotifier extends _$TrayMenuNotifier {
         ref.watch(proxyNotifierProvider.select((value) => value.coreRunning));
     final systemProxy =
         ref.watch(proxyNotifierProvider.select((value) => value.systemProxy));
+    final tunMode =
+        ref.watch(proxyNotifierProvider.select((value) => value.tunMode));
     final servers = ref.watch(serverLiteNotifierProvider);
     final ruleGroups = ref.watch(ruleGroupNotifierProvider);
     return [
@@ -59,16 +61,13 @@ class TrayMenuNotifier extends _$TrayMenuNotifier {
       MenuItem.checkbox(
         label: S.current.systemProxy,
         checked: systemProxy,
+        disabled: !coreRunning || tunMode,
         onClick: (menuItem) async {
           final proxyStateNotifier = ref.read(proxyNotifierProvider.notifier);
           if (menuItem.checked != null && menuItem.checked!) {
             SystemUtil.disableSystemProxy();
             proxyStateNotifier.setSystemProxy(false);
           } else {
-            final proxyState = ref.read(proxyNotifierProvider);
-            if (!proxyState.coreRunning || proxyState.tunMode) {
-              return;
-            }
             final sphiaConfig = ref.read(sphiaConfigNotifierProvider);
             int socksPort = sphiaConfig.socksPort;
             int httpPort = sphiaConfig.httpPort;

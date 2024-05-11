@@ -332,6 +332,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             ),
           );
         },
+        enabled: !coreRunning,
       ),
       const Divider(),
       TextCard(

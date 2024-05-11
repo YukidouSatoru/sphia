@@ -51,16 +51,19 @@ class CoreStateNotifier extends _$CoreStateNotifier {
     state = const AsyncValue.loading();
     final cores = await _addCores(selectedServer);
     final sphiaConfig = ref.read(sphiaConfigNotifierProvider);
+    late final String routingProviderName;
     try {
       logger.i('Starting cores');
       if (cores.length == 1) {
         // Only routing core
         cores.first.servers.add(selectedServer);
         await cores.first.start();
+        routingProviderName = cores.first.name;
       } else {
         for (int i = 0; i < cores.length; i++) {
           if (cores[i].isRouting) {
             await cores[i].start();
+            routingProviderName = cores[i].name;
           } else {
             cores[i].servers.add(selectedServer);
             await cores[i].start();
@@ -78,18 +81,24 @@ class CoreStateNotifier extends _$CoreStateNotifier {
 
     int socksPort = sphiaConfig.socksPort;
     int httpPort = sphiaConfig.httpPort;
-    final routingProvider =
-        selectedServer.routingProvider ?? sphiaConfig.routingProvider.index;
-    if (routingProvider == RoutingProvider.sing.index) {
+    if (routingProviderName == 'sing-box') {
       socksPort = sphiaConfig.mixedPort;
       httpPort = sphiaConfig.mixedPort;
     }
 
     final proxyNotifier = ref.read(proxyNotifierProvider.notifier);
-    final localServerAvailable = await NetworkUtil.isServerAvailable(httpPort);
+    final localServerAvailable = await NetworkUtil.isServerAvailable(
+      httpPort,
+      maxRetry: 10,
+    );
     if (!localServerAvailable) {
+      // stop cores
+      await stopCores();
       logger.e('Local server is not available');
       throw Exception('Local server is not available');
+    }
+    if (sphiaConfig.enableTun) {
+      proxyNotifier.setTunMode(true);
     }
     proxyNotifier.setCoreRunning(true);
     await TrayUtil.setIcon(coreRunning: true);
@@ -101,7 +110,6 @@ class CoreStateNotifier extends _$CoreStateNotifier {
     }
 
     if (sphiaConfig.enableTun) {
-      proxyNotifier.setTunMode(true);
       // do not enable system proxy in tun mode
       SystemUtil.disableSystemProxy();
       proxyNotifier.setSystemProxy(false);
