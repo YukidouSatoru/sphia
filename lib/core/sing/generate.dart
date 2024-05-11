@@ -202,17 +202,20 @@ class SingBoxGenerate {
       utls: utls,
       reality: reality,
     );
-    final transport = Transport(
-      type: server.transport,
-      host: server.transport == 'httpupgrade'
-          ? (server.host ?? server.address)
-          : null,
-      path: server.transport == 'ws' || server.transport == 'httpupgrade'
-          ? (server.path ?? '/')
-          : null,
-      serviceName:
-          server.transport == 'grpc' ? (server.serviceName ?? '/') : null,
-    );
+    Transport? transport;
+    if (server.transport != 'tcp') {
+      transport = Transport(
+        type: server.transport,
+        host: server.transport == 'httpupgrade'
+            ? (server.host ?? server.address)
+            : null,
+        path: server.transport == 'ws' || server.transport == 'httpupgrade'
+            ? (server.path ?? '/')
+            : null,
+        serviceName:
+            server.transport == 'grpc' ? (server.serviceName ?? '/') : null,
+      );
+    }
     return Outbound(
       type: server.protocol,
       server: server.address,
