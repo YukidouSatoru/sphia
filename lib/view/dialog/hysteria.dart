@@ -248,10 +248,14 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
         ElevatedButton(
           onPressed: () {
             if (_formKey.currentState?.validate() == true) {
-              final server = widget.server.copyWith(
+              final server = HysteriaServer(
+                id: widget.server.id,
+                groupId: widget.server.groupId,
                 protocol: widget.server.protocol,
                 address: _addressController.text,
                 port: int.parse(_portController.text),
+                uplink: widget.server.uplink,
+                downlink: widget.server.downlink,
                 remark: _remarkController.text,
                 hysteriaProtocol: _hysteriaProtocol,
                 obfs: _obfsController.text.trim().isNotEmpty
@@ -263,7 +267,7 @@ class _HysteriaServerDialogState extends State<HysteriaServerDialog> {
                 authType: _authType,
                 authPayload: _authPayloadController.text.trim().isNotEmpty
                     ? _authPayloadController.text
-                    : null,
+                    : '',
                 serverName: _sniController.text.trim().isNotEmpty
                     ? _sniController.text
                     : null,

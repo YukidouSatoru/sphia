@@ -86,33 +86,6 @@ class HysteriaServer extends ServerModel {
       );
 
   @override
-  Server toServer() => Server(
-        id: id,
-        groupId: groupId,
-        protocol: protocol,
-        remark: remark,
-        address: address,
-        port: port,
-        uplink: uplink,
-        downlink: downlink,
-        routingProvider: routingProvider,
-        protocolProvider: protocolProvider,
-        authPayload: authPayload,
-        latency: latency,
-        hysteriaProtocol: hysteriaProtocol,
-        obfs: obfs,
-        alpn: alpn,
-        authType: authType,
-        serverName: serverName,
-        allowInsecure: insecure,
-        upMbps: upMbps,
-        downMbps: downMbps,
-        recvWindowConn: recvWindowConn,
-        recvWindow: recvWindow,
-        disableMtuDiscovery: disableMtuDiscovery,
-      );
-
-  @override
   ServersCompanion toCompanion() => ServersCompanion(
         groupId: Value(groupId),
         protocol: Value(protocol),
@@ -136,57 +109,6 @@ class HysteriaServer extends ServerModel {
         recvWindowConn: Value(recvWindowConn),
         recvWindow: Value(recvWindow),
         disableMtuDiscovery: Value(disableMtuDiscovery),
-      );
-
-  HysteriaServer copyWith({
-    int? id,
-    int? groupId,
-    String? protocol,
-    String? remark,
-    String? address,
-    int? port,
-    int? uplink,
-    int? downlink,
-    int? routingProvider,
-    int? protocolProvider,
-    String? authPayload,
-    int? latency,
-    String? hysteriaProtocol,
-    String? obfs,
-    String? alpn,
-    String? authType,
-    String? serverName,
-    bool? insecure,
-    int? upMbps,
-    int? downMbps,
-    int? recvWindowConn,
-    int? recvWindow,
-    bool? disableMtuDiscovery,
-  }) =>
-      HysteriaServer(
-        id: id ?? this.id,
-        groupId: groupId ?? this.groupId,
-        protocol: protocol ?? this.protocol,
-        remark: remark ?? this.remark,
-        address: address ?? this.address,
-        port: port ?? this.port,
-        uplink: uplink ?? this.uplink,
-        downlink: downlink ?? this.downlink,
-        routingProvider: routingProvider ?? this.routingProvider,
-        protocolProvider: protocolProvider ?? this.protocolProvider,
-        authPayload: authPayload ?? this.authPayload,
-        latency: latency ?? this.latency,
-        hysteriaProtocol: hysteriaProtocol ?? this.hysteriaProtocol,
-        obfs: obfs ?? this.obfs,
-        alpn: alpn ?? this.alpn,
-        authType: authType ?? this.authType,
-        serverName: serverName ?? this.serverName,
-        insecure: insecure ?? this.insecure,
-        upMbps: upMbps ?? this.upMbps,
-        downMbps: downMbps ?? this.downMbps,
-        recvWindowConn: recvWindowConn ?? this.recvWindowConn,
-        recvWindow: recvWindow ?? this.recvWindow,
-        disableMtuDiscovery: disableMtuDiscovery ?? this.disableMtuDiscovery,
       );
 
   @override

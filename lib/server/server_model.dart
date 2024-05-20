@@ -59,23 +59,6 @@ class ServerModel {
     }
   }
 
-  Server toServer() {
-    switch (protocol) {
-      case 'hysteria':
-        return (this as HysteriaServer).toServer();
-      case 'shadowsocks':
-        return (this as ShadowsocksServer).toServer();
-      case 'trojan':
-        return (this as TrojanServer).toServer();
-      case 'vmess':
-      case 'vless':
-      case 'socks':
-        return (this as XrayServer).toServer();
-      default:
-        throw Exception('Unsupported protocol: $protocol');
-    }
-  }
-
   ServersCompanion toCompanion() {
     switch (protocol) {
       case 'hysteria':

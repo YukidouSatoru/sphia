@@ -173,10 +173,14 @@ class _ShadowsocksServerDialogState extends State<ShadowsocksServerDialog> {
         ElevatedButton(
           onPressed: () {
             if (_formKey.currentState?.validate() == true) {
-              final server = widget.server.copyWith(
+              final server = ShadowsocksServer(
+                id: widget.server.id,
+                groupId: widget.server.groupId,
                 protocol: widget.server.protocol,
                 address: _addressController.text,
                 port: int.parse(_portController.text),
+                uplink: widget.server.uplink,
+                downlink: widget.server.downlink,
                 remark: _remarkController.text,
                 authPayload: _passwordController.text,
                 encryption: _encryption,

@@ -355,10 +355,14 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
         ElevatedButton(
           onPressed: () {
             if (_formKey.currentState?.validate() == true) {
-              final server = widget.server.copyWith(
+              final server = XrayServer(
+                id: widget.server.id,
+                groupId: widget.server.groupId,
                 protocol: _protocol,
                 address: _addressController.text,
                 port: int.parse(_portController.text),
+                uplink: widget.server.uplink,
+                downlink: widget.server.downlink,
                 remark: _remarkController.text,
                 authPayload: _uuidController.text,
                 alterId: _protocol == 'vmess'
@@ -439,7 +443,7 @@ class _XrayServerDialogState extends State<XrayServerDialog> {
     _serviceNameController.text = server.serviceName ?? '';
     _tls = server.tls;
     _sniController.text = server.serverName ?? '';
-    _fingerprint = server.fingerprint ?? 'chrome';
+    _fingerprint = server.fingerprint ?? 'none';
     _publicKeyController.text = server.publicKey ?? '';
     _shortIdController.text = server.shortId ?? '';
     _spiderXController.text = server.spiderX ?? '';

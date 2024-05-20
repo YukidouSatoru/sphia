@@ -85,7 +85,7 @@ class ServerDao {
 
   Future<void> updateServer(ServerModel server) async {
     await (_db.update(_db.servers)..where((tbl) => tbl.id.equals(server.id)))
-        .write(server.toServer());
+        .write(server.toCompanion());
   }
 
   Future<void> updateTraffic(int id, int? uplink, int? downlink) async {

@@ -160,10 +160,14 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
         ElevatedButton(
           onPressed: () {
             if (_formKey.currentState?.validate() == true) {
-              final server = widget.server.copyWith(
+              final server = TrojanServer(
+                id: widget.server.id,
+                groupId: widget.server.groupId,
                 protocol: widget.server.protocol,
                 address: _addressController.text,
                 port: int.parse(_portController.text),
+                uplink: widget.server.uplink,
+                downlink: widget.server.downlink,
                 remark: _remarkController.text,
                 authPayload: _passwordController.text,
                 serverName: _sniController.text.trim().isNotEmpty
@@ -173,6 +177,7 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
                 allowInsecure: _allowInsecure == 'true',
                 routingProvider: _routingProvider,
                 protocolProvider: _protocolProvider,
+                tls: 'tls',
               );
               Navigator.pop(context, server);
             }
@@ -190,7 +195,7 @@ class _TrojanServerDialogState extends State<TrojanServerDialog> {
     _portController.text = server.port.toString();
     _passwordController.text = server.authPayload;
     _sniController.text = server.serverName ?? '';
-    _fingerprint = server.fingerprint;
+    _fingerprint = server.fingerprint ?? 'none';
     _allowInsecure = server.allowInsecure.toString();
     _routingProvider = server.routingProvider;
     _protocolProvider = server.protocolProvider;

@@ -55,25 +55,6 @@ class ShadowsocksServer extends ServerModel {
       );
 
   @override
-  Server toServer() => Server(
-        id: id,
-        groupId: groupId,
-        protocol: protocol,
-        remark: remark,
-        address: address,
-        port: port,
-        uplink: uplink,
-        downlink: downlink,
-        routingProvider: routingProvider,
-        protocolProvider: protocolProvider,
-        authPayload: authPayload,
-        latency: latency,
-        encryption: encryption,
-        plugin: plugin,
-        pluginOpts: pluginOpts,
-      );
-
-  @override
   ServersCompanion toCompanion() => ServersCompanion(
         groupId: Value(groupId),
         protocol: Value(protocol),
@@ -90,42 +71,6 @@ class ShadowsocksServer extends ServerModel {
         plugin: Value(plugin),
         pluginOpts: Value(pluginOpts),
       );
-
-  ShadowsocksServer copyWith({
-    int? id,
-    int? groupId,
-    String? protocol,
-    String? remark,
-    String? address,
-    int? port,
-    int? uplink,
-    int? downlink,
-    int? routingProvider,
-    int? protocolProvider,
-    String? authPayload,
-    int? latency,
-    String? encryption,
-    String? plugin,
-    String? pluginOpts,
-  }) {
-    return ShadowsocksServer(
-      id: id ?? this.id,
-      groupId: groupId ?? this.groupId,
-      protocol: protocol ?? this.protocol,
-      remark: remark ?? this.remark,
-      address: address ?? this.address,
-      port: port ?? this.port,
-      uplink: uplink ?? this.uplink,
-      downlink: downlink ?? this.downlink,
-      routingProvider: routingProvider ?? this.routingProvider,
-      protocolProvider: protocolProvider ?? this.protocolProvider,
-      authPayload: authPayload ?? this.authPayload,
-      latency: latency ?? this.latency,
-      encryption: encryption ?? this.encryption,
-      plugin: plugin ?? this.plugin,
-      pluginOpts: pluginOpts ?? this.pluginOpts,
-    );
-  }
 
   @override
   bool operator ==(Object other) {

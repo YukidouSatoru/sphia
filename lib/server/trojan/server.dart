@@ -5,7 +5,7 @@ import 'package:sphia/server/server_model.dart';
 class TrojanServer extends ServerModel {
   String tls;
   String? serverName;
-  String fingerprint;
+  String? fingerprint;
   bool allowInsecure;
 
   TrojanServer({
@@ -23,7 +23,7 @@ class TrojanServer extends ServerModel {
     super.latency,
     required this.tls,
     this.serverName,
-    required this.fingerprint,
+    this.fingerprint,
     required this.allowInsecure,
   });
 
@@ -60,26 +60,6 @@ class TrojanServer extends ServerModel {
       );
 
   @override
-  Server toServer() => Server(
-        id: id,
-        groupId: groupId,
-        protocol: protocol,
-        remark: remark,
-        address: address,
-        port: port,
-        uplink: uplink,
-        downlink: downlink,
-        routingProvider: routingProvider,
-        protocolProvider: protocolProvider,
-        authPayload: authPayload,
-        latency: latency,
-        tls: tls,
-        serverName: serverName,
-        fingerprint: fingerprint,
-        allowInsecure: allowInsecure,
-      );
-
-  @override
   ServersCompanion toCompanion() => ServersCompanion(
         groupId: Value(groupId),
         protocol: Value(protocol),
@@ -97,44 +77,6 @@ class TrojanServer extends ServerModel {
         fingerprint: Value(fingerprint),
         allowInsecure: Value(allowInsecure),
       );
-
-  TrojanServer copyWith({
-    int? id,
-    int? groupId,
-    String? protocol,
-    String? remark,
-    String? address,
-    int? port,
-    int? uplink,
-    int? downlink,
-    int? routingProvider,
-    int? protocolProvider,
-    String? authPayload,
-    int? latency,
-    String? tls,
-    String? serverName,
-    String? fingerprint,
-    bool? allowInsecure,
-  }) {
-    return TrojanServer(
-      id: id ?? this.id,
-      groupId: groupId ?? this.groupId,
-      protocol: protocol ?? this.protocol,
-      remark: remark ?? this.remark,
-      address: address ?? this.address,
-      port: port ?? this.port,
-      uplink: uplink ?? this.uplink,
-      downlink: downlink ?? this.downlink,
-      routingProvider: routingProvider ?? this.routingProvider,
-      protocolProvider: protocolProvider ?? this.protocolProvider,
-      authPayload: authPayload ?? this.authPayload,
-      latency: latency ?? this.latency,
-      tls: tls ?? this.tls,
-      serverName: serverName ?? this.serverName,
-      fingerprint: fingerprint ?? this.fingerprint,
-      allowInsecure: allowInsecure ?? this.allowInsecure,
-    );
-  }
 
   @override
   bool operator ==(Object other) {
