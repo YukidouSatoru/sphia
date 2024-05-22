@@ -195,6 +195,9 @@ class CoreStateNotifier extends _$CoreStateNotifier {
         cores.add(core);
         late final int additionalServerPort;
         // determine the additional server port
+        // if protocol provider is sing-box or xray-core
+        // use the socks port or mixed port as the additional server port
+        // otherwise use the additional socks port
         if (routingProvider == RoutingProvider.sing.index) {
           cores.add(ref.read(singBoxCoreProvider)..isRouting = true);
           if (core.name == 'xray-core') {
