@@ -45,7 +45,13 @@ class _RulePageState extends ConsumerState<RulePage>
       if (previous != null) {
         final notifier = ref.read(ruleNotifierProvider.notifier);
         notifier.clearRules();
-        final id = ruleGroups[next].id;
+        final action = ref.read(ruleGroupStatusProvider);
+        late final int id;
+        if (action == RuleGroupAction.reset) {
+          id = await ruleGroupDao.getDefaultRuleGroupId();
+        } else {
+          id = ruleGroups[next].id;
+        }
         final rules = await ruleDao.getOrderedRuleModelsByGroupId(id);
         notifier.setRules(rules);
       }

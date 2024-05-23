@@ -36,6 +36,13 @@ class RuleGroupDao {
     return ruleGroup.name;
   }
 
+  Future<int> getDefaultRuleGroupId() {
+    return (_db.select(_db.ruleGroups)
+          ..where((tbl) => tbl.name.equals('Default')))
+        .getSingle()
+        .then((value) => value.id);
+  }
+
   Future<int> insertRuleGroup(String name) async {
     final groupId = await _db.into(_db.ruleGroups).insert(
           RuleGroupsCompanion.insert(

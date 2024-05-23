@@ -155,7 +155,8 @@ mixin RuleAgent {
     notifier.removeGroup(groupId);
     if (ref.read(ruleConfigNotifierProvider).selectedRuleGroupId == groupId) {
       final notifier = ref.read(ruleConfigNotifierProvider.notifier);
-      notifier.updateSelectedRuleGroupId(1);
+      final defaultRuleGroupId = await ruleGroupDao.getDefaultRuleGroupId();
+      notifier.updateSelectedRuleGroupId(defaultRuleGroupId);
     }
     return;
   }
@@ -331,6 +332,9 @@ mixin RuleAgent {
     // refresh rule groups
     final actionNotifier = ref.read(ruleGroupStatusProvider.notifier);
     actionNotifier.set(RuleGroupAction.reset);
+    final ruleGroupIndexNotifier =
+        ref.read(ruleGroupIndexNotifierProvider.notifier);
+    ruleGroupIndexNotifier.setIndex(0);
     final ruleGroupNotifier = ref.read(ruleGroupNotifierProvider.notifier);
     ruleGroupNotifier.setGroups([
       RuleGroup(id: defaultGroupId, name: 'Default'),
@@ -339,9 +343,6 @@ mixin RuleAgent {
     ]);
     final ruleConfigNotifier = ref.read(ruleConfigNotifierProvider.notifier);
     ruleConfigNotifier.updateSelectedRuleGroupId(defaultGroupId);
-    final ruleGroupIndexNotifier =
-        ref.read(ruleGroupIndexNotifierProvider.notifier);
-    ruleGroupIndexNotifier.setIndex(0);
     return;
   }
 
