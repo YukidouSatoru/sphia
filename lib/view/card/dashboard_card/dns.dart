@@ -109,8 +109,13 @@ class DnsCard extends ConsumerWidget {
               ],
             )
           : Center(
-              child: Text(
-                S.of(context).dnsIsNotConfigured,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.block,
+                  color: Colors.grey,
+                ),
+                tooltip: S.of(context).dnsIsNotConfigured,
+                onPressed: null,
               ),
             ),
     );

@@ -146,7 +146,6 @@ class SystemUtil {
 
   static void enableSystemProxy(
     String listen,
-    int socksPort,
     int httpPort,
   ) {
     logger.i('Enabling system proxy');
@@ -155,7 +154,7 @@ class SystemUtil {
         enableWindowsProxy(listen, httpPort);
         break;
       case OS.linux:
-        enableLinuxProxy(listen, socksPort, httpPort);
+        enableLinuxProxy(listen, httpPort);
         break;
       case OS.macos:
         enableMacOSProxy(listen, httpPort);
@@ -226,7 +225,6 @@ class SystemUtil {
 
   static void enableLinuxProxy(
     String listen,
-    int socksPort,
     int httpPort,
   ) async {
     await runCommand('gsettings', [
@@ -261,21 +259,9 @@ class SystemUtil {
     ]);
     await runCommand('gsettings', [
       'set',
-      'org.gnome.system.proxy.ftp',
-      'port',
-      socksPort.toString(),
-    ]);
-    await runCommand('gsettings', [
-      'set',
       'org.gnome.system.proxy.socks',
       'host',
       listen,
-    ]);
-    await runCommand('gsettings', [
-      'set',
-      'org.gnome.system.proxy.socks',
-      'port',
-      socksPort.toString(),
     ]);
     await runCommand('gsettings', [
       'set',

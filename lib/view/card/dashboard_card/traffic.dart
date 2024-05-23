@@ -120,8 +120,13 @@ class _TrafficCardState extends ConsumerState<TrafficCard> {
               ],
             )
           : Center(
-              child: Text(
-                S.of(context).statisticsIsDisabled,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.block,
+                  color: Colors.grey,
+                ),
+                tooltip: S.of(context).statisticsIsDisabled,
+                onPressed: null,
               ),
             ),
     );

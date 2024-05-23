@@ -390,6 +390,26 @@ class S {
     );
   }
 
+  /// `Configuration File Path`
+  String get configFilePath {
+    return Intl.message(
+      'Configuration File Path',
+      name: 'configFilePath',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Configuration Format`
+  String get configFormat {
+    return Intl.message(
+      'Configuration Format',
+      name: 'configFormat',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Configuration`
   String get configuration {
     return Intl.message(
@@ -460,6 +480,16 @@ class S {
     );
   }
 
+  /// `Core Provider`
+  String get coreProvider {
+    return Intl.message(
+      'Core Provider',
+      name: 'coreProvider',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Start Core`
   String get coreStart {
     return Intl.message(
@@ -515,6 +545,36 @@ class S {
     return Intl.message(
       'Current Version',
       name: 'currentVersion',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Custom Configuration`
+  String get customConfig {
+    return Intl.message(
+      'Custom Configuration',
+      name: 'customConfig',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Custom configuration does not support switching rule groups`
+  String get customConfigSwitchUnsupported {
+    return Intl.message(
+      'Custom configuration does not support switching rule groups',
+      name: 'customConfigSwitchUnsupported',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Custom Local HTTP Port (-1 to disable)`
+  String get customLocalHttpPort {
+    return Intl.message(
+      'Custom Local HTTP Port (-1 to disable)',
+      name: 'customLocalHttpPort',
       desc: '',
       args: [],
     );
@@ -790,6 +850,26 @@ class S {
     );
   }
 
+  /// `Editor Path`
+  String get editorPath {
+    return Intl.message(
+      'Editor Path',
+      name: 'editorPath',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Editor path, default is /usr/bin/code`
+  String get editorPathMsg {
+    return Intl.message(
+      'Editor path, default is /usr/bin/code',
+      name: 'editorPathMsg',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Enable Core Log`
   String get enableCoreLog {
     return Intl.message(
@@ -1025,6 +1105,16 @@ class S {
     return Intl.message(
       'Fetch Subscription',
       name: 'fetchSubscription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `File does not exist`
+  String get fileDoesNotExist {
+    return Intl.message(
+      'File does not exist',
+      name: 'fileDoesNotExist',
       desc: '',
       args: [],
     );
@@ -1650,6 +1740,16 @@ class S {
     );
   }
 
+  /// `Path cannot be empty`
+  String get pathCannotBeEmpty {
+    return Intl.message(
+      'Path cannot be empty',
+      name: 'pathCannotBeEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Plugin`
   String get plugin {
     return Intl.message(
@@ -1727,6 +1827,16 @@ class S {
       name: 'qrCode',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `Failed to read configuration file, error: {error}`
+  String readConfigFileFailed(Object error) {
+    return Intl.message(
+      'Failed to read configuration file, error: $error',
+      name: 'readConfigFileFailed',
+      desc: '',
+      args: [error],
     );
   }
 
@@ -1965,6 +2075,16 @@ class S {
     return Intl.message(
       'Scan Cores Completed',
       name: 'scanCoresCompleted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select Editor`
+  String get selectEditor {
+    return Intl.message(
+      'Select Editor',
+      name: 'selectEditor',
       desc: '',
       args: [],
     );

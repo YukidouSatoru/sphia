@@ -48,17 +48,28 @@ class NetworkUtil extends _$NetworkUtil {
         throw Exception('Core state is null');
       }
 
-      final port = coreState.routing.name == 'sing-box'
-          ? sphiaConfig.mixedPort
-          : sphiaConfig.httpPort;
-      final proxyUrl = '${sphiaConfig.listen}:${port.toString()}';
-
-      if (sphiaConfig.authentication) {
-        final user = sphiaConfig.user;
-        final password = sphiaConfig.password;
-        client.findProxy = (uri) => 'PROXY $user:$password@$proxyUrl';
+      late final int port;
+      if (coreState.cores.first.isCustom) {
+        port = coreState.cores.first.servers.first.port;
+        if (port == -1) {
+          logger.w('HTTP port is not set');
+        } else {
+          final proxyUrl = '${sphiaConfig.listen}:${port.toString()}';
+          client.findProxy = (uri) => 'PROXY $proxyUrl';
+        }
       } else {
-        client.findProxy = (uri) => 'PROXY $proxyUrl';
+        port = coreState.routing.name == 'sing-box'
+            ? sphiaConfig.mixedPort
+            : sphiaConfig.httpPort;
+        final proxyUrl = '${sphiaConfig.listen}:${port.toString()}';
+
+        if (sphiaConfig.authentication) {
+          final user = sphiaConfig.user;
+          final password = sphiaConfig.password;
+          client.findProxy = (uri) => 'PROXY $user:$password@$proxyUrl';
+        } else {
+          client.findProxy = (uri) => 'PROXY $proxyUrl';
+        }
       }
     }
     final uri = Uri.parse(url);

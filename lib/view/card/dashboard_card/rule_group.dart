@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sphia/app/database/database.dart';
+import 'package:sphia/app/notifier/core_state.dart';
 import 'package:sphia/app/notifier/data/rule_group.dart';
+import 'package:sphia/app/notifier/proxy.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 import 'package:sphia/view/card/dashboard_card/card.dart';
 import 'package:sphia/view/widget/rule_group_list_tile.dart';
@@ -20,21 +22,43 @@ class RuleGroupCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ruleGroups = ref.watch(ruleGroupNotifierProvider);
+
+    Widget widget = ListView.builder(
+      itemCount: ruleGroups.length,
+      itemBuilder: (BuildContext context, int index) {
+        final ruleGroup = ruleGroups[index];
+        return ProviderScope(
+          overrides: [
+            currentRuleGroupProvider.overrideWithValue(ruleGroup),
+          ],
+          child: const RuleGroupListTile(),
+        );
+      },
+    );
+
+    final coreRunning =
+        ref.watch(proxyNotifierProvider.select((value) => value.coreRunning));
+    if (coreRunning) {
+      final isCustom = ref.watch(coreStateNotifierProvider
+          .select((value) => value.valueOrNull?.cores.first.isCustom));
+      if (isCustom != null && isCustom) {
+        widget = Center(
+          child: IconButton(
+            icon: const Icon(
+              Icons.block,
+              color: Colors.grey,
+            ),
+            tooltip: S.of(context).customConfigSwitchUnsupported,
+            onPressed: null,
+          ),
+        );
+      }
+    }
+
     final rulesCard = CardData(
       title: Text(S.of(context).rules),
       icon: Icons.alt_route,
-      widget: ListView.builder(
-        itemCount: ruleGroups.length,
-        itemBuilder: (BuildContext context, int index) {
-          final ruleGroup = ruleGroups[index];
-          return ProviderScope(
-            overrides: [
-              currentRuleGroupProvider.overrideWithValue(ruleGroup),
-            ],
-            child: const RuleGroupListTile(),
-          );
-        },
-      ),
+      widget: widget,
     );
 
     return buildCard(rulesCard);

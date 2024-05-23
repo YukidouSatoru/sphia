@@ -8,6 +8,7 @@ import 'package:sphia/app/notifier/traffic.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/state/core_state.dart';
 import 'package:sphia/core/core.dart';
+import 'package:sphia/server/custom_config/server.dart';
 import 'package:sphia/server/server_model.dart';
 import 'package:sphia/server/xray/server.dart';
 import 'package:sphia/util/network.dart';
@@ -48,25 +49,37 @@ class CoreStateNotifier extends _$CoreStateNotifier {
     if (preState == null) {
       return;
     }
+
     state = const AsyncValue.loading();
     final cores = await _addCores(selectedServer);
     final sphiaConfig = ref.read(sphiaConfigNotifierProvider);
     late final String routingProviderName;
+
+    final isCustom = cores.first.isCustom;
+
     try {
       logger.i('Starting cores');
-      if (cores.length == 1) {
-        // Only routing core
+      if (isCustom) {
         cores.first.servers.add(selectedServer);
-        await cores.first.start();
+        final jsonString = (selectedServer as CustomConfigServer).configString;
+        await cores.first.writeConfig(jsonString);
+        await cores.first.start(manual: true);
         routingProviderName = cores.first.name;
       } else {
-        for (int i = 0; i < cores.length; i++) {
-          if (cores[i].isRouting) {
-            await cores[i].start();
-            routingProviderName = cores[i].name;
-          } else {
-            cores[i].servers.add(selectedServer);
-            await cores[i].start();
+        if (cores.length == 1) {
+          // Only routing core
+          cores.first.servers.add(selectedServer);
+          await cores.first.start();
+          routingProviderName = cores.first.name;
+        } else {
+          for (int i = 0; i < cores.length; i++) {
+            if (cores[i].isRouting) {
+              await cores[i].start();
+              routingProviderName = cores[i].name;
+            } else {
+              cores[i].servers.add(selectedServer);
+              await cores[i].start();
+            }
           }
         }
       }
@@ -79,13 +92,22 @@ class CoreStateNotifier extends _$CoreStateNotifier {
     }
     state = AsyncValue.data(CoreState(cores: cores));
 
-    int socksPort = sphiaConfig.socksPort;
-    int httpPort = sphiaConfig.httpPort;
-    if (routingProviderName == 'sing-box') {
-      socksPort = sphiaConfig.mixedPort;
-      httpPort = sphiaConfig.mixedPort;
+    late final int httpPort;
+    if (isCustom) {
+      httpPort = selectedServer.port;
+      if (httpPort == -1) {
+        final proxyNotifier = ref.read(proxyNotifierProvider.notifier);
+        proxyNotifier.setCoreRunning(true);
+        await TrayUtil.setIcon(coreRunning: true);
+        return;
+      }
+    } else {
+      if (routingProviderName == 'sing-box') {
+        httpPort = sphiaConfig.mixedPort;
+      } else {
+        httpPort = sphiaConfig.httpPort;
+      }
     }
-
     final proxyNotifier = ref.read(proxyNotifierProvider.notifier);
     final localServerAvailable = await NetworkUtil.isServerAvailable(
       httpPort,
@@ -94,22 +116,27 @@ class CoreStateNotifier extends _$CoreStateNotifier {
     if (!localServerAvailable) {
       // stop cores
       await stopCores();
+      logger.e('Port $httpPort is not available');
       logger.e('Local server is not available');
       throw Exception('Local server is not available');
     }
-    if (sphiaConfig.enableTun) {
+
+    final isTun = !isCustom && sphiaConfig.enableTun;
+
+    if (isTun) {
       proxyNotifier.setTunMode(true);
     }
+
     proxyNotifier.setCoreRunning(true);
     await TrayUtil.setIcon(coreRunning: true);
 
-    final enableStatistics = sphiaConfig.enableStatistics;
+    final enableStatistics = !isCustom && sphiaConfig.enableStatistics;
     if (enableStatistics) {
       final trafficNotifier = ref.read(trafficNotifierProvider.notifier);
       await trafficNotifier.start();
     }
 
-    if (sphiaConfig.enableTun) {
+    if (isTun) {
       // do not enable system proxy in tun mode
       SystemUtil.disableSystemProxy();
       proxyNotifier.setSystemProxy(false);
@@ -118,7 +145,6 @@ class CoreStateNotifier extends _$CoreStateNotifier {
       if (sphiaConfig.autoConfigureSystemProxy) {
         SystemUtil.enableSystemProxy(
           sphiaConfig.listen,
-          socksPort,
           httpPort,
         );
         proxyNotifier.setSystemProxy(true);
@@ -127,6 +153,33 @@ class CoreStateNotifier extends _$CoreStateNotifier {
   }
 
   Future<List<Core>> _addCores(ServerModel selectedServer) async {
+    if (selectedServer.protocol == 'custom') {
+      selectedServer = selectedServer as CustomConfigServer;
+      final coreProvider = selectedServer.protocolProvider;
+      if (coreProvider == null) {
+        logger.f('Custom server must have a protocol provider');
+        throw Exception('Custom server must have a protocol provider');
+      }
+      final toCore = {
+        CustomServerProvider.sing.index: ref.read(singBoxCoreProvider)
+          ..configFileName = 'sing-box.${selectedServer.configFormat}',
+        CustomServerProvider.xray.index: ref.read(xrayCoreProvider)
+          ..configFileName = 'xray.${selectedServer.configFormat}',
+        CustomServerProvider.hysteria.index: ref.read(hysteriaCoreProvider)
+          ..configFileName = 'hysteria.${selectedServer.configFormat}',
+      };
+      final core = toCore[coreProvider];
+      if (core == null) {
+        logger.e('Unsupported custom server provider: $coreProvider');
+        throw Exception('Unsupported custom server provider: $coreProvider');
+      }
+      return [
+        core
+          ..isRouting = true
+          ..isCustom = true
+      ];
+    }
+
     final sphiaConfig = ref.read(sphiaConfigNotifierProvider);
     final protocol = selectedServer.protocol;
     final routingProvider =
@@ -276,7 +329,7 @@ class CoreStateNotifier extends _$CoreStateNotifier {
         await startCores(runningServer);
       } on Exception catch (e) {
         logger.e('Failed to restart cores: $e');
-        rethrow;
+        throw Exception('Failed to restart cores: $e');
       }
     }
   }

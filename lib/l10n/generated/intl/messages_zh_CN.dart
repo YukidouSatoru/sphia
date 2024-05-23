@@ -32,7 +32,9 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m5(count, total) => "${count}/${total} 个订阅已更新";
 
-  static String m6(coreName, version) => "更新 ${coreName} 到 ${version} 成功";
+  static String m6(error) => "读取配置文件失败，错误: ${error}";
+
+  static String m7(coreName, version) => "更新 ${coreName} 到 ${version} 成功";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -77,6 +79,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "checkingUpdate": MessageLookupByLibrary.simpleMessage("正在检查更新"),
         "clearLatency": MessageLookupByLibrary.simpleMessage("清除延迟"),
         "clearTraffic": MessageLookupByLibrary.simpleMessage("清除流量"),
+        "configFilePath": MessageLookupByLibrary.simpleMessage("配置文件路径"),
+        "configFormat": MessageLookupByLibrary.simpleMessage("配置格式"),
         "configuration": MessageLookupByLibrary.simpleMessage("配置"),
         "configureDns": MessageLookupByLibrary.simpleMessage("配置 DNS"),
         "configureDnsMsg": MessageLookupByLibrary.simpleMessage(
@@ -87,12 +91,18 @@ class MessageLookup extends MessageLookupByLibrary {
         "coreApiPortMsg":
             MessageLookupByLibrary.simpleMessage("核心 API 端口，用于获取流量统计"),
         "coreNotFound": m0,
+        "coreProvider": MessageLookupByLibrary.simpleMessage("核心提供者"),
         "coreStart": MessageLookupByLibrary.simpleMessage("启动核心"),
         "coreStartFailed": MessageLookupByLibrary.simpleMessage("启动核心失败"),
         "coreStop": MessageLookupByLibrary.simpleMessage("停止核心"),
         "currentGroup": MessageLookupByLibrary.simpleMessage("当前分组"),
         "currentIp": MessageLookupByLibrary.simpleMessage("当前 IP"),
         "currentVersion": MessageLookupByLibrary.simpleMessage("当前版本"),
+        "customConfig": MessageLookupByLibrary.simpleMessage("自定义配置"),
+        "customConfigSwitchUnsupported":
+            MessageLookupByLibrary.simpleMessage("自定义配置不支持切换规则分组"),
+        "customLocalHttpPort":
+            MessageLookupByLibrary.simpleMessage("自定义本地 HTTP 端口 (-1 表示关闭)"),
         "darkMode": MessageLookupByLibrary.simpleMessage("深色模式"),
         "darkModeMsg": MessageLookupByLibrary.simpleMessage("启用深色模式，默认开启"),
         "dashboard": MessageLookupByLibrary.simpleMessage("仪表盘"),
@@ -125,6 +135,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "downloadSpeed": MessageLookupByLibrary.simpleMessage("下载速度"),
         "edit": MessageLookupByLibrary.simpleMessage("编辑"),
         "editGroup": MessageLookupByLibrary.simpleMessage("编辑分组"),
+        "editorPath": MessageLookupByLibrary.simpleMessage("编辑器路径"),
+        "editorPathMsg":
+            MessageLookupByLibrary.simpleMessage("编辑器路径，默认为 /usr/bin/code"),
         "enableCoreLog": MessageLookupByLibrary.simpleMessage("启用核心日志"),
         "enableCoreLogMsg": MessageLookupByLibrary.simpleMessage("启用核心日志，默认开启"),
         "enableIpv4": MessageLookupByLibrary.simpleMessage("启用 IPv4"),
@@ -156,6 +169,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "exportToClipboard": MessageLookupByLibrary.simpleMessage("导出到剪贴板"),
         "exportToFile": MessageLookupByLibrary.simpleMessage("导出到文件"),
         "fetchSubscription": MessageLookupByLibrary.simpleMessage("获取订阅"),
+        "fileDoesNotExist": MessageLookupByLibrary.simpleMessage("文件不存在"),
         "fingerPrint": MessageLookupByLibrary.simpleMessage("指纹"),
         "flow": MessageLookupByLibrary.simpleMessage("流控"),
         "getIpFailed": MessageLookupByLibrary.simpleMessage("获取 IP 失败"),
@@ -230,6 +244,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "passwordEnterMsg": MessageLookupByLibrary.simpleMessage("请输入密码"),
         "passwordMsg": MessageLookupByLibrary.simpleMessage("本地服务器认证的密码"),
         "path": MessageLookupByLibrary.simpleMessage("路径"),
+        "pathCannotBeEmpty": MessageLookupByLibrary.simpleMessage("路径不能为空"),
         "plugin": MessageLookupByLibrary.simpleMessage("插件"),
         "pluginOpts": MessageLookupByLibrary.simpleMessage("插件选项"),
         "port": MessageLookupByLibrary.simpleMessage("端口"),
@@ -238,6 +253,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "publicKey": MessageLookupByLibrary.simpleMessage("公钥"),
         "publicKeyEnterMsg": MessageLookupByLibrary.simpleMessage("请输入公钥"),
         "qrCode": MessageLookupByLibrary.simpleMessage("二维码"),
+        "readConfigFileFailed": m6,
         "recvWindow": MessageLookupByLibrary.simpleMessage("QUIC 连接接收窗口"),
         "recvWindowConn": MessageLookupByLibrary.simpleMessage("QUIC 流接收窗口"),
         "recvWindowConnInvalidMsg":
@@ -267,6 +283,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("保存核心日志到 log 目录下"),
         "scanCores": MessageLookupByLibrary.simpleMessage("扫描核心"),
         "scanCoresCompleted": MessageLookupByLibrary.simpleMessage("扫描核心完成"),
+        "selectEditor": MessageLookupByLibrary.simpleMessage("选择编辑器"),
         "selectProtocol": MessageLookupByLibrary.simpleMessage("选择协议"),
         "selectedServer": MessageLookupByLibrary.simpleMessage("已选服务器"),
         "server": MessageLookupByLibrary.simpleMessage("服务器"),
@@ -338,7 +355,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "通过代理更新，默认关闭。开启后，会通过代理服务器更新核心和订阅 (需要有活动的服务器)"),
         "updatedGroupSuccessfully":
             MessageLookupByLibrary.simpleMessage("更新分组成功"),
-        "updatedSuccessfully": m6,
+        "updatedSuccessfully": m7,
         "upload": MessageLookupByLibrary.simpleMessage("上传"),
         "uploadSpeed": MessageLookupByLibrary.simpleMessage("上传速度"),
         "useMaterial3": MessageLookupByLibrary.simpleMessage("使用 Material 3"),

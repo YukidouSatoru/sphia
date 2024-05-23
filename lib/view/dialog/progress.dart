@@ -100,7 +100,13 @@ class _ProgressDialogState extends ConsumerState<ProgressDialog> {
       final id = serverConfig.selectedServerId;
       final server = await serverDao.getServerModelById(id);
       if (server == null) {
-        logger.e('Selected server not exists');
+        logger.w('Selected server not exists');
+        _completer.complete();
+        return;
+      }
+      if (server.protocol == 'custom') {
+        logger.w('Custom config server does not support latency test');
+        _completer.complete();
         return;
       }
       //
@@ -125,6 +131,12 @@ class _ProgressDialogState extends ConsumerState<ProgressDialog> {
     } else {
       // option == 'CurrentGroup'
       final servers = ref.read(serverNotifierProvider);
+      servers.removeWhere((server) => server.protocol == 'custom');
+      if (servers.isEmpty) {
+        logger.w('No server to test latency');
+        _completer.complete();
+        return;
+      }
       late final UrlLatency urlLatency;
       if (isUrl) {
         urlLatency = UrlLatency(servers: servers, testUrl: testUrl);
@@ -167,7 +179,13 @@ class _ProgressDialogState extends ConsumerState<ProgressDialog> {
       final id = serverConfig.selectedServerId;
       final server = await serverDao.getServerModelById(id);
       if (server == null) {
-        logger.e('Selected server not exists');
+        logger.w('Selected server not exists');
+        _completer.complete();
+        return;
+      }
+      if (server.protocol == 'custom') {
+        logger.w('Custom config server does not support latency clearing');
+        _completer.complete();
         return;
       }
       await serverDao.updateLatency(server.id, null);
@@ -178,6 +196,12 @@ class _ProgressDialogState extends ConsumerState<ProgressDialog> {
     } else {
       // option == 'CurrentGroup'
       final servers = ref.read(serverNotifierProvider);
+      servers.removeWhere((server) => server.protocol == 'custom');
+      if (servers.isEmpty) {
+        logger.w('No server to clear latency');
+        _completer.complete();
+        return;
+      }
       for (var i = 0; i < servers.length; i++) {
         if (_completer.isCompleted) {
           return;

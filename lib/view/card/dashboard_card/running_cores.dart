@@ -53,7 +53,14 @@ class RunningCoresCard extends ConsumerWidget {
           final cores = coreState.cores;
           if (cores.isEmpty) {
             return Center(
-              child: Text(S.of(context).noRunningCores),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.block,
+                  color: Colors.grey,
+                ),
+                tooltip: S.of(context).noRunningCores,
+                onPressed: null,
+              ),
             );
           }
           return ListView.builder(
@@ -122,7 +129,14 @@ class RunningCoresCard extends ConsumerWidget {
         error: (error, stackTrace) {
           logger.e('Failed to get running cores: $error\n$stackTrace');
           return Center(
-            child: Text(S.of(context).noRunningCores),
+            child: IconButton(
+              icon: const Icon(
+                Icons.block,
+                color: Colors.grey,
+              ),
+              tooltip: S.of(context).noRunningCores,
+              onPressed: null,
+            ),
           );
         },
         loading: () {

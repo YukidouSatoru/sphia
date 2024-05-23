@@ -755,6 +755,20 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       ),
       const Divider(),
       TextCard(
+        title: S.of(context).editorPath,
+        selector: (value) => value.editorPath,
+        updater: (value) {
+          notifier.updateValue('editorPath', value);
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).editorPathMsg,
+            ),
+          );
+        },
+      ),
+      const Divider(),
+      TextCard(
         title: S.of(context).additionalSocksPort,
         selector: (value) => value.additionalSocksPort.toString(),
         updater: (value) {

@@ -27,6 +27,8 @@ enum TrojanProvider { sing, xray }
 
 enum HysteriaProvider { sing, hysteria }
 
+enum CustomServerProvider { sing, xray, hysteria }
+
 enum TunProvider { sing }
 
 enum TunStack { system, gvisor, mixed }
@@ -77,6 +79,7 @@ class SphiaConfig with _$SphiaConfig {
     @Default(ShadowsocksProvider.sing) ShadowsocksProvider shadowsocksProvider,
     @Default(TrojanProvider.sing) TrojanProvider trojanProvider,
     @Default(HysteriaProvider.sing) HysteriaProvider hysteriaProvider,
+    @Default('/usr/bin/code') String editorPath,
     @Default(11114) int additionalSocksPort,
     @Default(TunProvider.sing) TunProvider tunProvider,
     @Default(true) bool enableIpv4,

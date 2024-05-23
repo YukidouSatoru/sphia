@@ -27,6 +27,8 @@ class TrayMenuNotifier extends _$TrayMenuNotifier {
         ref.watch(proxyNotifierProvider.select((value) => value.systemProxy));
     final tunMode =
         ref.watch(proxyNotifierProvider.select((value) => value.tunMode));
+    final isCustom = ref.watch(coreStateNotifierProvider
+        .select((value) => value.valueOrNull?.cores.first.isCustom));
     final servers = ref.watch(serverLiteNotifierProvider);
     final ruleGroups = ref.watch(ruleGroupNotifierProvider);
     return [
@@ -69,21 +71,39 @@ class TrayMenuNotifier extends _$TrayMenuNotifier {
             proxyStateNotifier.setSystemProxy(false);
           } else {
             final sphiaConfig = ref.read(sphiaConfigNotifierProvider);
-            int socksPort = sphiaConfig.socksPort;
-            int httpPort = sphiaConfig.httpPort;
             final coreState = ref.read(coreStateNotifierProvider).valueOrNull;
             final routingName = coreState?.routing.name;
-            if (routingName == null) {
+            if (coreState == null || routingName == null) {
               logger.e('Core state is null');
               throw Exception('Core state is null');
             }
+
+            if (coreState.cores.isEmpty ||
+                coreState.cores.first.servers.isEmpty) {
+              logger.e('Core state is empty');
+              throw Exception('Core state is empty');
+            }
+
+            if (coreState.cores.first.isCustom) {
+              SystemUtil.enableSystemProxy(
+                sphiaConfig.listen,
+                coreState.cores.first.servers.first.port,
+                // ugly
+              );
+              proxyStateNotifier.setSystemProxy(true);
+              return;
+            }
+
+            int httpPort = sphiaConfig.httpPort;
+            if (httpPort == -1) {
+              logger.w('HTTP port is not set');
+            }
+
             if (routingName == 'sing-box') {
-              socksPort = sphiaConfig.mixedPort;
               httpPort = sphiaConfig.mixedPort;
             }
             SystemUtil.enableSystemProxy(
               sphiaConfig.listen,
-              socksPort,
               httpPort,
             );
             proxyStateNotifier.setSystemProxy(true);
@@ -98,6 +118,7 @@ class TrayMenuNotifier extends _$TrayMenuNotifier {
         ),
       ),
       MenuItem.submenu(
+        disabled: coreRunning && (isCustom != null && isCustom),
         label: S.current.rules,
         submenu: Menu(
           items: _generateRuleItems(ruleGroups),

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
@@ -12,6 +14,7 @@ import 'package:sphia/app/notifier/data/server.dart';
 import 'package:sphia/app/provider/core.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
+import 'package:sphia/server/custom_config/server.dart';
 import 'package:sphia/server/hysteria/server.dart';
 import 'package:sphia/server/server_model.dart';
 import 'package:sphia/server/shadowsocks/server.dart';
@@ -133,14 +136,16 @@ class ServerCard extends ConsumerWidget with ServerAgent {
                 SphiaWidget.popupMenuIconButton(
                   icon: Icons.share,
                   items: [
-                    PopupMenuItem(
-                      value: 'QRCode',
-                      child: Text(S.of(context).qrCode),
-                    ),
-                    PopupMenuItem(
-                      value: 'ExportToClipboard',
-                      child: Text(S.of(context).exportToClipboard),
-                    ),
+                    if (server.protocol != 'custom') ...[
+                      PopupMenuItem(
+                        value: 'QRCode',
+                        child: Text(S.of(context).qrCode),
+                      ),
+                      PopupMenuItem(
+                        value: 'ExportToClipboard',
+                        child: Text(S.of(context).exportToClipboard),
+                      ),
+                    ],
                     PopupMenuItem(
                       value: 'Configuration',
                       child: Text(S.of(context).configuration),
@@ -335,9 +340,18 @@ class ServerCard extends ConsumerWidget with ServerAgent {
     required ServerModel server,
     required WidgetRef ref,
   }) async {
-    const exportFileName = 'export.json';
-
     final protocol = server.protocol;
+
+    if (protocol == 'custom') {
+      server = server as CustomConfigServer;
+      final file = File(p.join(tempPath, 'export.${server.configFormat}'));
+      if (file.existsSync()) {
+        file.deleteSync();
+      }
+      await file.writeAsString(server.configString);
+      return true;
+    }
+
     final protocolToCore = {
       'vmess': (ServerModel selectedServer, SphiaConfig sphiaConfig) =>
           (selectedServer.protocolProvider ?? sphiaConfig.vmessProvider) ==
@@ -377,7 +391,7 @@ class ServerCard extends ConsumerWidget with ServerAgent {
       logger.e('No supported core for protocol: $protocol');
       return false;
     }
-    core.configFileName = exportFileName;
+    core.configFileName = 'export.json';
     core.isRouting = true;
     core.servers = [server];
     logger.i('Sharing Configuration: ${server.id}');

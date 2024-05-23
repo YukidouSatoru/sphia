@@ -1,4 +1,5 @@
 import 'package:sphia/app/database/database.dart';
+import 'package:sphia/server/custom_config/server.dart';
 import 'package:sphia/server/hysteria/server.dart';
 import 'package:sphia/server/server_model_lite.dart';
 import 'package:sphia/server/shadowsocks/server.dart';
@@ -54,6 +55,8 @@ class ServerModel {
       case 'vless':
       case 'socks':
         return XrayServer.fromServer(server);
+      case 'custom':
+        return CustomConfigServer.fromServer(server);
       default:
         throw Exception('Unsupported protocol: ${server.protocol}');
     }
@@ -71,6 +74,8 @@ class ServerModel {
       case 'vless':
       case 'socks':
         return (this as XrayServer).toCompanion();
+      case 'custom':
+        return (this as CustomConfigServer).toCompanion();
       default:
         throw Exception('Unsupported protocol: $protocol');
     }

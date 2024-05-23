@@ -12,6 +12,7 @@ import 'package:sphia/app/notifier/data/server.dart';
 import 'package:sphia/app/notifier/data/server_group.dart';
 import 'package:sphia/app/theme.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
+import 'package:sphia/server/custom_config/server.dart';
 import 'package:sphia/server/hysteria/server.dart';
 import 'package:sphia/server/server_model.dart';
 import 'package:sphia/server/shadowsocks/server.dart';
@@ -19,6 +20,7 @@ import 'package:sphia/server/trojan/server.dart';
 import 'package:sphia/server/xray/server.dart';
 import 'package:sphia/util/subscription.dart';
 import 'package:sphia/util/uri/uri.dart';
+import 'package:sphia/view/dialog/custom_config.dart';
 import 'package:sphia/view/dialog/hysteria.dart';
 import 'package:sphia/view/dialog/server_group.dart';
 import 'package:sphia/view/dialog/shadowsocks.dart';
@@ -108,6 +110,13 @@ mixin ServerAgent {
           context: context,
         );
         break;
+      case 'custom':
+        server = await _showEditServerDialog(
+          title:
+              '${S.of(context).add} ${S.of(context).customConfig} ${S.of(context).server}',
+          server: CustomConfigServer.defaults()..groupId = groupId,
+          context: context,
+        );
       case 'clipboard':
         List<String> uris = await UriUtil.importUriFromClipboard();
         if (uris.isNotEmpty) {
@@ -179,6 +188,13 @@ mixin ServerAgent {
     } else if (server.protocol == 'hysteria') {
       return await _showEditServerDialog(
         title: '${S.of(context).edit} Hysteria ${S.of(context).server}',
+        server: server,
+        context: context,
+      );
+    } else if (server.protocol == 'custom') {
+      return await _showEditServerDialog(
+        title:
+            '${S.of(context).edit} ${S.of(context).customConfig} ${S.of(context).server}',
         server: server,
         context: context,
       );
@@ -473,6 +489,12 @@ mixin ServerAgent {
         context: context,
         builder: (context) => HysteriaServerDialog(
             title: title, server: server as HysteriaServer),
+      );
+    } else if (server.protocol == 'custom') {
+      return showDialog<ServerModel>(
+        context: context,
+        builder: (context) => CustomConfigServerDialog(
+            title: title, server: server as CustomConfigServer),
       );
     }
     return null;

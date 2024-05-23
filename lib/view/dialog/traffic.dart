@@ -48,6 +48,10 @@ class TrafficDialog extends ConsumerWidget {
           logger.w('Selected server not exists');
           return;
         }
+        if (server.protocol == 'custom') {
+          logger.w('Custom server does not support traffic clearing');
+          return;
+        }
         await serverDao.updateTraffic(server.id, null, null);
         notifier.updateServer(
           server
@@ -57,7 +61,12 @@ class TrafficDialog extends ConsumerWidget {
         );
       } else {
         // option == 'CurrentGroup'
-        final servers = ref.watch(serverNotifierProvider);
+        final servers = ref.read(serverNotifierProvider);
+        servers.removeWhere((server) => server.protocol == 'custom');
+        if (servers.isEmpty) {
+          logger.w('No server to clear traffic');
+          return;
+        }
         for (var i = 0; i < servers.length; i++) {
           if (!ref.context.mounted) {
             return;

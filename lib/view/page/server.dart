@@ -172,6 +172,10 @@ class _ServerPageState extends ConsumerState<ServerPage>
                         value: 'hysteria',
                         child: Text('Hysteria'),
                       ),
+                      const PopupMenuItem(
+                        value: 'custom',
+                        child: Text('Custom'),
+                      ),
                       PopupMenuItem(
                         value: 'clipboard',
                         child: Text(S.of(context).importFromClipboard),
@@ -260,6 +264,9 @@ class _ServerPageState extends ConsumerState<ServerPage>
                   ];
                   final renderBox = context.findRenderObject() as RenderBox;
                   final position = renderBox.localToGlobal(Offset.zero);
+                  final selectedServerId = ref.watch(
+                      serverConfigNotifierProvider
+                          .select((value) => value.selectedServerId));
                   showMenu(
                     context: context,
                     position: RelativeRect.fromLTRB(
@@ -269,16 +276,18 @@ class _ServerPageState extends ConsumerState<ServerPage>
                       position.dy + renderBox.size.height,
                     ),
                     items: [
-                      PopupMenuItem(
-                        value: 'SelectedServer',
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(S.of(context).selectedServer),
-                            const Icon(Icons.arrow_left),
-                          ],
+                      if (selectedServerId != 0) ...[
+                        PopupMenuItem(
+                          value: 'SelectedServer',
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(S.of(context).selectedServer),
+                              const Icon(Icons.arrow_left),
+                            ],
+                          ),
                         ),
-                      ),
+                      ],
                       PopupMenuItem(
                         value: 'CurrentGroup',
                         child: Row(
@@ -335,6 +344,9 @@ class _ServerPageState extends ConsumerState<ServerPage>
                 case 'ClearTraffic':
                   final renderBox = context.findRenderObject() as RenderBox;
                   final position = renderBox.localToGlobal(Offset.zero);
+                  final selectedServerId = ref.watch(
+                      serverConfigNotifierProvider
+                          .select((value) => value.selectedServerId));
                   showMenu(
                     context: context,
                     position: RelativeRect.fromLTRB(
@@ -344,10 +356,12 @@ class _ServerPageState extends ConsumerState<ServerPage>
                       position.dy + renderBox.size.height,
                     ),
                     items: [
-                      PopupMenuItem(
-                        value: 'SelectedServer',
-                        child: Text(S.of(context).selectedServer),
-                      ),
+                      if (selectedServerId != 0) ...[
+                        PopupMenuItem(
+                          value: 'SelectedServer',
+                          child: Text(S.of(context).selectedServer),
+                        ),
+                      ],
                       PopupMenuItem(
                         value: 'CurrentGroup',
                         child: Text(S.of(context).currentGroup),

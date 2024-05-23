@@ -34,7 +34,10 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m5(count, total) =>
       "${count}/${total} subscriptions have been updated";
 
-  static String m6(coreName, version) =>
+  static String m6(error) =>
+      "Failed to read configuration file, error: ${error}";
+
+  static String m7(coreName, version) =>
       "Updated ${coreName} to ${version} successfully";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -90,6 +93,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Checking update"),
         "clearLatency": MessageLookupByLibrary.simpleMessage("Clear Latency"),
         "clearTraffic": MessageLookupByLibrary.simpleMessage("Clear Traffic"),
+        "configFilePath":
+            MessageLookupByLibrary.simpleMessage("Configuration File Path"),
+        "configFormat":
+            MessageLookupByLibrary.simpleMessage("Configuration Format"),
         "configuration": MessageLookupByLibrary.simpleMessage("Configuration"),
         "configureDns": MessageLookupByLibrary.simpleMessage("Configure DNS"),
         "configureDnsMsg": MessageLookupByLibrary.simpleMessage(
@@ -100,6 +107,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "coreApiPortMsg": MessageLookupByLibrary.simpleMessage(
             "The port used for retrieving traffic statistics from the core API"),
         "coreNotFound": m0,
+        "coreProvider": MessageLookupByLibrary.simpleMessage("Core Provider"),
         "coreStart": MessageLookupByLibrary.simpleMessage("Start Core"),
         "coreStartFailed":
             MessageLookupByLibrary.simpleMessage("Failed to start core"),
@@ -108,6 +116,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "currentIp": MessageLookupByLibrary.simpleMessage("Current IP"),
         "currentVersion":
             MessageLookupByLibrary.simpleMessage("Current Version"),
+        "customConfig":
+            MessageLookupByLibrary.simpleMessage("Custom Configuration"),
+        "customConfigSwitchUnsupported": MessageLookupByLibrary.simpleMessage(
+            "Custom configuration does not support switching rule groups"),
+        "customLocalHttpPort": MessageLookupByLibrary.simpleMessage(
+            "Custom Local HTTP Port (-1 to disable)"),
         "darkMode": MessageLookupByLibrary.simpleMessage("Dark Mode"),
         "darkModeMsg": MessageLookupByLibrary.simpleMessage(
             "Enable dark mode, default on"),
@@ -145,6 +159,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "downloadSpeed": MessageLookupByLibrary.simpleMessage("Download Speed"),
         "edit": MessageLookupByLibrary.simpleMessage("Edit"),
         "editGroup": MessageLookupByLibrary.simpleMessage("Edit Group"),
+        "editorPath": MessageLookupByLibrary.simpleMessage("Editor Path"),
+        "editorPathMsg": MessageLookupByLibrary.simpleMessage(
+            "Editor path, default is /usr/bin/code"),
         "enableCoreLog":
             MessageLookupByLibrary.simpleMessage("Enable Core Log"),
         "enableCoreLogMsg": MessageLookupByLibrary.simpleMessage(
@@ -186,6 +203,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "exportToFile": MessageLookupByLibrary.simpleMessage("Export to File"),
         "fetchSubscription":
             MessageLookupByLibrary.simpleMessage("Fetch Subscription"),
+        "fileDoesNotExist":
+            MessageLookupByLibrary.simpleMessage("File does not exist"),
         "fingerPrint": MessageLookupByLibrary.simpleMessage("FingerPrint"),
         "flow": MessageLookupByLibrary.simpleMessage("Flow"),
         "getIpFailed": MessageLookupByLibrary.simpleMessage("Failed to get IP"),
@@ -281,6 +300,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "passwordMsg": MessageLookupByLibrary.simpleMessage(
             "Password for local server authentication"),
         "path": MessageLookupByLibrary.simpleMessage("Path"),
+        "pathCannotBeEmpty":
+            MessageLookupByLibrary.simpleMessage("Path cannot be empty"),
         "plugin": MessageLookupByLibrary.simpleMessage("Plugin"),
         "pluginOpts": MessageLookupByLibrary.simpleMessage("Plugin Options"),
         "port": MessageLookupByLibrary.simpleMessage("Port"),
@@ -292,6 +313,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "publicKeyEnterMsg":
             MessageLookupByLibrary.simpleMessage("Please enter a PublicKey"),
         "qrCode": MessageLookupByLibrary.simpleMessage("QR Code"),
+        "readConfigFileFailed": m6,
         "recvWindow": MessageLookupByLibrary.simpleMessage(
             "QUIC Connection Receive Window"),
         "recvWindowConn":
@@ -326,6 +348,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "scanCores": MessageLookupByLibrary.simpleMessage("Scan Cores"),
         "scanCoresCompleted":
             MessageLookupByLibrary.simpleMessage("Scan Cores Completed"),
+        "selectEditor": MessageLookupByLibrary.simpleMessage("Select Editor"),
         "selectProtocol":
             MessageLookupByLibrary.simpleMessage("Select Protocol"),
         "selectedServer":
@@ -408,7 +431,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "Update through proxy, default off. When it\'s on, updates for the core and subscriptions will be done through a proxy server (requires an active server)"),
         "updatedGroupSuccessfully":
             MessageLookupByLibrary.simpleMessage("Updated group successfully"),
-        "updatedSuccessfully": m6,
+        "updatedSuccessfully": m7,
         "upload": MessageLookupByLibrary.simpleMessage("Upload"),
         "uploadSpeed": MessageLookupByLibrary.simpleMessage("Upload Speed"),
         "useMaterial3": MessageLookupByLibrary.simpleMessage("Use Material 3"),

@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:sphia/app/log.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
 
 class SphiaWidget {
@@ -21,7 +25,7 @@ class SphiaWidget {
 
   static Widget popupMenuIconButton({
     required IconData icon,
-    required List<PopupMenuEntry<dynamic>> items,
+    required List<PopupMenuEntry<String>> items,
     required void Function(String) onItemSelected,
   }) {
     return Builder(
@@ -102,6 +106,79 @@ class SphiaWidget {
         ),
       ),
       obscureText: obscureText,
+      validator: validator,
+    );
+  }
+
+  static Widget pathInput({
+    required TextEditingController controller,
+    required String labelText,
+    required String configFromat,
+    String? Function(String?)? validator,
+    required String editorPath,
+  }) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: labelText,
+        suffixIcon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            iconButton(
+              icon: Icons.folder,
+              onTap: () async {
+                final result = await FilePicker.platform.pickFiles(
+                  type: FileType.custom,
+                  allowedExtensions: [configFromat],
+                  allowMultiple: false,
+                );
+                if (result != null && result.files.isNotEmpty) {
+                  final path = result.files.first.path;
+                  if (path != null) {
+                    controller.text = path;
+                  }
+                }
+              },
+            ),
+            popupMenuIconButton(
+              icon: Icons.edit,
+              items: [
+                const PopupMenuItem(
+                  value: 'kate',
+                  child: Text('kate'),
+                ),
+                const PopupMenuItem(
+                  value: 'notepad',
+                  child: Text('notepad'),
+                ),
+                PopupMenuItem(
+                  value: editorPath,
+                  child: Text(editorPath),
+                ),
+              ],
+              onItemSelected: (value) async {
+                final path = controller.text;
+                if (path.isEmpty) {
+                  logger.w('Path is empty');
+                  return;
+                }
+                final pathEnv = Platform.environment['PATH'];
+                final paths = pathEnv?.split(':') ?? [];
+                final isPath = paths.any((element) => value.contains(element));
+                if (isPath) {
+                  try {
+                    await Process.start(value, [controller.text]);
+                  } catch (e) {
+                    logger.e('Failed to open file: $e');
+                  }
+                } else {
+                  logger.e('Invalid editor path: $value');
+                }
+              },
+            ),
+          ],
+        ),
+      ),
       validator: validator,
     );
   }
@@ -287,6 +364,29 @@ class SphiaWidget {
     );
   }
 
+  static Widget customConfigServerDropdownButton({
+    required int value,
+    required String labelText,
+    required void Function(int) onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(labelText: labelText),
+      value: customServerProviderList[value],
+      items: customServerProviderList.map((item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value != null) {
+          final index = customServerProviderList.indexOf(value);
+          onChanged(index);
+        }
+      },
+    );
+  }
+
   static Future<void> showDialogWithMsg({
     required BuildContext context,
     required String message,
@@ -325,5 +425,6 @@ const vlessProviderList = ['sing-box', 'xray-core'];
 const shadowsocksProviderList = ['sing-box', 'xray-core', 'shadowsocks-rust'];
 const trojanProviderList = ['sing-box', 'xray-core'];
 const hysteriaProviderList = ['sing-box', 'hysteria'];
+const customServerProviderList = ['sing-box', 'xray-core', 'hysteria'];
 const tunProviderList = ['sing-box'];
 const tunStackList = ['system', 'gvisor', 'mixed'];

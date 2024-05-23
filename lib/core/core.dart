@@ -20,6 +20,7 @@ abstract class Core {
   List<ServerModel> servers = [];
   final List<int> usedPorts = [];
   bool isRouting = false;
+  bool isCustom = false;
 
   Core(this.name, this.args, this.configFileName);
 
@@ -73,7 +74,7 @@ abstract class Core {
     _process = null;
     // check if port is still in use
     await Future.delayed(const Duration(milliseconds: 100));
-    if (await CoreHelper.coreIsStillRunning(usedPorts)) {
+    if (!isCustom && await CoreHelper.coreIsStillRunning(usedPorts)) {
       logger.w('Detected core $name is still running, killing process: $pid');
       await SystemUtil.killProcess(pid);
     }
@@ -98,11 +99,11 @@ abstract class Core {
 
   Future<String> generateConfig(ConfigParameters parameters);
 
-  Future<void> writeConfig(String jsonString) async {
+  Future<void> writeConfig(String configString) async {
     SystemUtil.deleteFileIfExists(
         _configFile.path, 'Deleting config file: $configFileName');
     logger.i('Writing config file: $configFileName');
-    await _configFile.writeAsString(jsonString);
+    await _configFile.writeAsString(configString);
   }
 }
 
