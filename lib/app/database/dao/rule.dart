@@ -69,11 +69,6 @@ class RuleDao {
     return (_db.delete(_db.rules)..where((tbl) => tbl.id.equals(id))).go();
   }
 
-  Future<void> deleteRulesByGroupId(int groupId) {
-    return (_db.delete(_db.rules)..where((tbl) => tbl.groupId.equals(groupId)))
-        .go();
-  }
-
   Future<List<int>> getRulesOrder(int groupId) async {
     return _db.select(_db.rulesOrder).get().then((value) {
       if (value.isEmpty) {

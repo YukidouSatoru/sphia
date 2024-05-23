@@ -98,12 +98,15 @@ Future<void> configureApp() async {
 
   // Init database
   await SphiaDatabase.init();
+  // Enable foreign keys
+  await SphiaDatabase.enableForeignKeys();
 
   // Check write permission
   try {
     await SystemUtil.checkWritePermission();
-  } catch (e) {
-    await showErrorMsg('An error occurred while checking write permission: $e');
+  } catch (e, st) {
+    await showErrorMsg(
+        'An error occurred while checking write permission: $e', st.toString());
     return;
   }
 
@@ -118,14 +121,15 @@ Future<void> configureApp() async {
     serverConfig = await serverConfigDao.loadConfig();
     ruleConfig = await ruleConfigDao.loadConfig();
     versionConfig = await versionConfigDao.loadConfig();
-  } catch (e) {
+  } catch (e, st) {
     await SphiaDatabase.backupDatabase();
     final errorMsg = '''
     An error occurred while loading config: $e
     Current database file has been backuped to ${p.join(tempPath, 'sphia.db.bak')}
     Please restart Sphia to create a new database file''';
     logger.e(errorMsg);
-    await showErrorMsg(errorMsg);
+    logger.e(st);
+    await showErrorMsg(errorMsg, st.toString());
     return;
   }
 
@@ -189,15 +193,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await configureApp();
-  } catch (e) {
+  } catch (e, st) {
     if (!logger.isClosed()) {
       logger.f(e);
+      logger.f(st);
     }
-    await showErrorMsg('An error occurred while starting Sphia: $e');
+    await showErrorMsg(
+        'An error occurred while starting Sphia: $e', st.toString());
   }
 }
 
-Future<void> showErrorMsg(String errorMsg) async {
+Future<void> showErrorMsg(String e, String st) async {
   await windowManager.ensureInitialized();
   const errorWindowOptions = WindowOptions(
     size: Size(400, 300),
@@ -216,22 +222,18 @@ Future<void> showErrorMsg(String errorMsg) async {
     MaterialApp(
       home: Scaffold(
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                child: Text(errorMsg),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  exit(1);
-                },
-                child: const Text('OK'),
-              ),
-            ],
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40.0),
+              child: Text('$e\n$st'),
+            ),
           ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            exit(1);
+          },
+          child: const Icon(Icons.check),
         ),
       ),
     ),

@@ -57,8 +57,6 @@ class RuleGroupDao {
 
   Future<void> deleteRuleGroup(int id) {
     return _db.transaction(() async {
-      await _db.ruleDao.deleteRulesByGroupId(id);
-      await _db.ruleDao.deleteRulesOrder(id);
       await (_db.delete(_db.ruleGroups)..where((tbl) => tbl.id.equals(id)))
           .go();
     });

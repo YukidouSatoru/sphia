@@ -250,12 +250,8 @@ mixin RuleAgent {
     // delete all rules and groups
     for (final ruleGroup in ruleGroups) {
       final groupId = ruleGroup.id;
-      await ruleDao.deleteRulesByGroupId(groupId);
-      await ruleDao.deleteRulesOrder(groupId);
       await ruleGroupDao.deleteRuleGroup(groupId);
     }
-    await ruleGroupDao.clearRuleGroupsOrder();
-    // ruleGroupNotifier.clearGroups();
     // insert default groups
     final defaultGroupId = await ruleGroupDao.insertRuleGroup('Default');
     final directGroupId = await ruleGroupDao.insertRuleGroup('Direct');

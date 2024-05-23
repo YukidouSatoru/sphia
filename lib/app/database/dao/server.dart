@@ -107,12 +107,6 @@ class ServerDao {
     return (_db.delete(_db.servers)..where((tbl) => tbl.id.equals(id))).go();
   }
 
-  Future<void> deleteServersByGroupId(int groupId) {
-    return (_db.delete(_db.servers)
-          ..where((tbl) => tbl.groupId.equals(groupId)))
-        .go();
-  }
-
   Future<List<int>> getServersOrder(int groupId) async {
     return _db.select(_db.serversOrder).get().then((value) {
       if (value.isEmpty) {

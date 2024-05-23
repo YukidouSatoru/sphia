@@ -17,7 +17,8 @@ class ServerGroups extends Table {
 class Servers extends Table {
   IntColumn get id => integer().autoIncrement()();
 
-  IntColumn get groupId => integer()();
+  IntColumn get groupId => integer().customConstraint(
+      'REFERENCES server_groups(id) ON DELETE CASCADE NOT NULL')();
 
   TextColumn get protocol => text()();
 
@@ -90,6 +91,10 @@ class Servers extends Table {
   BoolColumn get disableMtuDiscovery => boolean().nullable()();
 
   IntColumn get latency => integer().nullable()();
+
+  TextColumn get configString => text().nullable()();
+
+  TextColumn get configFormat => text().nullable()();
 }
 
 class RuleGroups extends Table {
@@ -101,7 +106,8 @@ class RuleGroups extends Table {
 class Rules extends Table {
   IntColumn get id => integer().autoIncrement()();
 
-  IntColumn get groupId => integer()();
+  IntColumn get groupId => integer().customConstraint(
+      'REFERENCES rule_groups(id) ON DELETE CASCADE NOT NULL')();
 
   TextColumn get name => text()();
 
@@ -135,7 +141,8 @@ class GroupsOrder extends Table {
 class ServersOrder extends Table {
   IntColumn get id => integer().autoIncrement()();
 
-  IntColumn get groupId => integer()();
+  IntColumn get groupId => integer().customConstraint(
+      'REFERENCES server_groups(id) ON DELETE CASCADE NOT NULL')();
 
   TextColumn get data => text()();
 }
@@ -143,7 +150,8 @@ class ServersOrder extends Table {
 class RulesOrder extends Table {
   IntColumn get id => integer().autoIncrement()();
 
-  IntColumn get groupId => integer()();
+  IntColumn get groupId => integer().customConstraint(
+      'REFERENCES rule_groups(id) ON DELETE CASCADE NOT NULL')();
 
   TextColumn get data => text()();
 }

@@ -39,6 +39,10 @@ class SphiaDatabase {
     _database = Database();
   }
 
+  static Future<void> enableForeignKeys() async {
+    await _database.customStatement('PRAGMA foreign_keys = ON');
+  }
+
   static Database get I => _database;
 
   static SphiaConfigDao get sphiaConfigDao => _database.sphiaConfigDao;
@@ -110,14 +114,18 @@ class Database extends _$Database {
   Database() : super(_openDatabase());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onUpgrade: (migrator, from, to) async {
-        if (from == 2) {
+        if (from < 3) {
           await Migration.from2To3(migrator, servers, rules);
+        }
+        if (from < 4) {
+          await Migration.from3To4(
+              migrator, servers, rules, serversOrder, rulesOrder);
         }
       },
     );
