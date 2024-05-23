@@ -144,11 +144,11 @@ class SphiaWidget {
               icon: Icons.edit,
               items: [
                 const PopupMenuItem(
-                  value: 'kate',
+                  value: '/usr/bin/kate',
                   child: Text('kate'),
                 ),
                 const PopupMenuItem(
-                  value: 'notepad',
+                  value: 'C:\\Windows\\System32\\notepad.exe',
                   child: Text('notepad'),
                 ),
                 PopupMenuItem(
@@ -162,10 +162,7 @@ class SphiaWidget {
                   logger.w('Path is empty');
                   return;
                 }
-                final pathEnv = Platform.environment['PATH'];
-                final paths = pathEnv?.split(':') ?? [];
-                final isPath = paths.any((element) => value.contains(element));
-                if (isPath) {
+                if (await File(value).exists()) {
                   try {
                     await Process.start(value, [controller.text]);
                   } catch (e) {
