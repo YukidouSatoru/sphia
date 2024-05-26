@@ -20,7 +20,6 @@ abstract class Core {
   List<ServerModel> servers = [];
   final List<int> usedPorts = [];
   bool isRouting = false;
-  bool isCustom = false;
 
   Core(this.name, this.args, this.configFileName);
 
@@ -62,7 +61,7 @@ abstract class Core {
     }
   }
 
-  Future<void> stop() async {
+  Future<void> stop([bool checkPorts = true]) async {
     if (_process == null) {
       logger.w('Core process is null');
       return;
@@ -74,7 +73,7 @@ abstract class Core {
     _process = null;
     // check if port is still in use
     await Future.delayed(const Duration(milliseconds: 100));
-    if (!isCustom && await CoreHelper.coreIsStillRunning(usedPorts)) {
+    if (checkPorts && await CoreHelper.coreIsStillRunning(usedPorts)) {
       logger.w('Detected core $name is still running, killing process: $pid');
       await SystemUtil.killProcess(pid);
     }

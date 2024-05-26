@@ -30,7 +30,7 @@ class XrayCore extends Core {
         );
 
   @override
-  Future<void> stop() async {
+  Future<void> stop([bool checkPorts = true]) async {
     await super.stop();
     if (!_logStreamController.isClosed) {
       await _logStreamController.close();

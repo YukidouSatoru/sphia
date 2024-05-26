@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sphia/app/database/database.dart';
-import 'package:sphia/app/notifier/core_state.dart';
 import 'package:sphia/app/notifier/data/rule_group.dart';
 import 'package:sphia/app/notifier/proxy.dart';
 import 'package:sphia/l10n/generated/l10n.dart';
@@ -39,9 +38,8 @@ class RuleGroupCard extends ConsumerWidget {
     final coreRunning =
         ref.watch(proxyNotifierProvider.select((value) => value.coreRunning));
     if (coreRunning) {
-      final isCustom = ref.watch(coreStateNotifierProvider
-          .select((value) => value.valueOrNull?.cores.first.isCustom));
-      if (isCustom != null && isCustom) {
+      final isCustom = ref.watch(proxyNotifierProvider).customConfig;
+      if (isCustom) {
         widget = Center(
           child: IconButton(
             icon: const Icon(

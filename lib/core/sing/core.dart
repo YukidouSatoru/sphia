@@ -36,7 +36,7 @@ class SingBoxCore extends Core {
         );
 
   @override
-  Future<void> stop() async {
+  Future<void> stop([bool checkPorts = true]) async {
     await super.stop();
     if (configFileName == 'latency.json') {
       // do not delete cache file which currently used by other core

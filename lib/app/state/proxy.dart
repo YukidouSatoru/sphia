@@ -9,5 +9,6 @@ class ProxyState with _$ProxyState {
     @Default(false) bool trafficRunning,
     @Default(false) bool systemProxy,
     @Default(false) bool tunMode,
+    @Default(false) bool customConfig,
   }) = _proxyState;
 }

@@ -55,7 +55,7 @@ class CoreStateNotifier extends _$CoreStateNotifier {
     final sphiaConfig = ref.read(sphiaConfigNotifierProvider);
     late final String routingProviderName;
 
-    final isCustom = cores.first.isCustom;
+    final isCustom = selectedServer.protocol == 'custom';
 
     try {
       logger.i('Starting cores');
@@ -97,7 +97,7 @@ class CoreStateNotifier extends _$CoreStateNotifier {
       httpPort = selectedServer.port;
       if (httpPort == -1) {
         final proxyNotifier = ref.read(proxyNotifierProvider.notifier);
-        proxyNotifier.setCoreRunning(true);
+        proxyNotifier.setCoreRunningAndCustomConfig(true, true);
         await TrayUtil.setIcon(coreRunning: true);
         return;
       }
@@ -173,11 +173,7 @@ class CoreStateNotifier extends _$CoreStateNotifier {
         logger.e('Unsupported custom server provider: $coreProvider');
         throw Exception('Unsupported custom server provider: $coreProvider');
       }
-      return [
-        core
-          ..isRouting = true
-          ..isCustom = true
-      ];
+      return [core..isRouting = true];
     }
 
     final sphiaConfig = ref.read(sphiaConfigNotifierProvider);
@@ -305,11 +301,19 @@ class CoreStateNotifier extends _$CoreStateNotifier {
       final trafficNotifier = ref.read(trafficNotifierProvider.notifier);
       await trafficNotifier.stop();
       logger.i('Stopping cores');
-      proxyNotifier.setCoreRunning(false);
-      await TrayUtil.setIcon(coreRunning: false);
-      for (var core in preState.cores) {
-        await core.stop();
+      final isCustom =
+          ref.read(proxyNotifierProvider.select((value) => value.customConfig));
+      if (isCustom) {
+        proxyNotifier.setCoreRunningAndCustomConfig(false, false);
+        // only one core
+        await preState.cores.first.stop(false);
+      } else {
+        proxyNotifier.setCoreRunning(false);
+        for (var core in preState.cores) {
+          await core.stop();
+        }
       }
+      await TrayUtil.setIcon(coreRunning: false);
       proxyNotifier.setTunMode(false);
       state = const AsyncValue.data(CoreState(cores: []));
     }

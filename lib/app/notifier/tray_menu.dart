@@ -27,8 +27,8 @@ class TrayMenuNotifier extends _$TrayMenuNotifier {
         ref.watch(proxyNotifierProvider.select((value) => value.systemProxy));
     final tunMode =
         ref.watch(proxyNotifierProvider.select((value) => value.tunMode));
-    final isCustom = ref.watch(coreStateNotifierProvider
-        .select((value) => value.valueOrNull?.cores.first.isCustom));
+    final isCustom =
+        ref.watch(proxyNotifierProvider.select((value) => value.customConfig));
     final servers = ref.watch(serverLiteNotifierProvider);
     final ruleGroups = ref.watch(ruleGroupNotifierProvider);
     return [
@@ -78,13 +78,7 @@ class TrayMenuNotifier extends _$TrayMenuNotifier {
               throw Exception('Core state is null');
             }
 
-            if (coreState.cores.isEmpty ||
-                coreState.cores.first.servers.isEmpty) {
-              logger.e('Core state is empty');
-              throw Exception('Core state is empty');
-            }
-
-            if (coreState.cores.first.isCustom) {
+            if (isCustom) {
               SystemUtil.enableSystemProxy(
                 sphiaConfig.listen,
                 coreState.cores.first.servers.first.port,
@@ -118,7 +112,7 @@ class TrayMenuNotifier extends _$TrayMenuNotifier {
         ),
       ),
       MenuItem.submenu(
-        disabled: coreRunning && (isCustom != null && isCustom),
+        disabled: coreRunning && isCustom,
         label: S.current.rules,
         submenu: Menu(
           items: _generateRuleItems(ruleGroups),
