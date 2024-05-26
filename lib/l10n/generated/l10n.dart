@@ -1930,10 +1930,10 @@ class S {
     );
   }
 
-  /// `Remote DNS, default is https://dns.google/dns-query. Sing-Box will attempt resolution before startup.\nIf you are not sure about the DNS format of the routing provider, please do not modify`
+  /// `Remote DNS, default is https://dns.google/dns-query.\nIf you are not sure about the DNS format of the routing provider, please do not modify`
   String get remoteDnsMsg {
     return Intl.message(
-      'Remote DNS, default is https://dns.google/dns-query. Sing-Box will attempt resolution before startup.\nIf you are not sure about the DNS format of the routing provider, please do not modify',
+      'Remote DNS, default is https://dns.google/dns-query.\nIf you are not sure about the DNS format of the routing provider, please do not modify',
       name: 'remoteDnsMsg',
       desc: '',
       args: [],

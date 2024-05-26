@@ -267,7 +267,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "remark": MessageLookupByLibrary.simpleMessage("备注"),
         "remoteDns": MessageLookupByLibrary.simpleMessage("远程 DNS"),
         "remoteDnsMsg": MessageLookupByLibrary.simpleMessage(
-            "远程 DNS，默认为 https://dns.google/dns-query。Sing-Box 在启动前会尝试解析。\n如果你不清楚路由提供者的 DNS 格式，请不要修改"),
+            "远程 DNS，默认为 https://dns.google/dns-query。\n如果你不清楚路由提供者的 DNS 格式，请不要修改"),
         "reorderGroup": MessageLookupByLibrary.simpleMessage("排序分组"),
         "repoUrl": MessageLookupByLibrary.simpleMessage("仓库地址"),
         "resetRules": MessageLookupByLibrary.simpleMessage("重置规则"),
