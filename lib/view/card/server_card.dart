@@ -82,7 +82,9 @@ class ServerCard extends ConsumerWidget with ServerAgent {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(serverInfo),
-                if (showAddress) Text('${server.address}:${server.port}')
+                if (showAddress && server.protocol != 'custom') ...[
+                  Text('${server.address}:${server.port}')
+                ]
               ],
             ),
             trailing: Row(
