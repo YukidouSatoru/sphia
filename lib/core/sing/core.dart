@@ -140,6 +140,7 @@ class SingBoxCore extends Core {
       dns = await SingBoxGenerate.dns(
         remoteDns: sphiaConfig.remoteDns,
         directDns: sphiaConfig.directDns,
+        dnsResolver: sphiaConfig.dnsResolver,
         serverAddress: servers.first.address,
         ipv4Only: !sphiaConfig.enableIpv6,
       );

@@ -116,11 +116,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "deletedCoreSuccessfully": m3,
         "directDns": MessageLookupByLibrary.simpleMessage("直连 DNS"),
         "directDnsMsg": MessageLookupByLibrary.simpleMessage(
-            "直连 DNS，默认为 https+local://doh.pub/dns-query。Sing-Box 在启动前会尝试解析。\n如果你不清楚路由提供者的 DNS 格式，请不要修改"),
+            "直连 DNS，默认为 https+local://dns.alidns.com/dns-query。\n如果你不清楚路由提供者的 DNS 格式，请不要修改"),
         "disableMtuDiscovery":
             MessageLookupByLibrary.simpleMessage("禁用 MTU 发现"),
         "dns": MessageLookupByLibrary.simpleMessage("DNS"),
         "dnsIsNotConfigured": MessageLookupByLibrary.simpleMessage("未配置 DNS"),
+        "dnsResolver": MessageLookupByLibrary.simpleMessage("DNS 解析器"),
+        "dnsResolverMsg": MessageLookupByLibrary.simpleMessage(
+            "DNS 解析器，仅适用于 sing-box。默认为 223.5.5.5"),
         "domainMatcher": MessageLookupByLibrary.simpleMessage("域名匹配器"),
         "domainMatcherMsg": MessageLookupByLibrary.simpleMessage(
             "域名匹配器，默认为 hybrid。仅适用于 xray-core"),

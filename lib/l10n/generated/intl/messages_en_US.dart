@@ -137,12 +137,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "deletedCoreSuccessfully": m3,
         "directDns": MessageLookupByLibrary.simpleMessage("Direct DNS"),
         "directDnsMsg": MessageLookupByLibrary.simpleMessage(
-            "Direct DNS, default is https+local://doh.pub/dns-query. Sing-Box will attempt resolution before startup.\nIf you are not sure about the DNS format of the routing provider, please do not modify"),
+            "Direct DNS, default is https+local://dns.alidns.com/dns-query. \nIf you are not sure about the DNS format of the routing provider, please do not modify"),
         "disableMtuDiscovery":
             MessageLookupByLibrary.simpleMessage("Disable MTU Discovery"),
         "dns": MessageLookupByLibrary.simpleMessage("DNS"),
         "dnsIsNotConfigured":
             MessageLookupByLibrary.simpleMessage("DNS is not configured"),
+        "dnsResolver": MessageLookupByLibrary.simpleMessage("DNS Resolver"),
+        "dnsResolverMsg": MessageLookupByLibrary.simpleMessage(
+            "DNS resolver, only applicable to sing-box. Default is 223.5.5.5"),
         "domainMatcher": MessageLookupByLibrary.simpleMessage("Domain Matcher"),
         "domainMatcherMsg": MessageLookupByLibrary.simpleMessage(
             "Domain matcher, default is hybrid. Only applicable to xray-core"),

@@ -15,45 +15,29 @@ import 'package:sphia/util/system.dart';
 import 'package:sphia/view/dialog/rule.dart';
 
 class SingBoxGenerate {
-  static const ipRegExp = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}';
-
-  static Future<String> resolveDns(String dns) async {
-    final dnsHost = Uri.parse(dns).host;
-    if (!RegExp(ipRegExp).hasMatch(dnsHost) && dnsHost.isNotEmpty) {
-      try {
-        final dnsIp = (await InternetAddress.lookup(dnsHost)
-                .timeout(const Duration(seconds: 2)))
-            .first;
-        return dns.replaceFirst(dnsHost, dnsIp.address);
-      } on Exception catch (_) {
-        throw Exception('Failed to resolve DNS server address: $dns');
-      }
-    }
-    return dns;
-  }
-
   static Future<Dns> dns({
     required String remoteDns,
     required String directDns,
+    required String dnsResolver,
     required String serverAddress,
     required bool ipv4Only,
   }) async {
-    remoteDns = await resolveDns(remoteDns);
-    directDns = await resolveDns(directDns);
-
     if (directDns.contains('+local://')) {
       directDns = directDns.replaceFirst('+local', '');
     }
 
     List<SingBoxDnsRule> dnsRules = [
       SingBoxDnsRule(
+        outbound: ['any'],
+        server: 'resolver',
+      ),
+      SingBoxDnsRule(
         domain: ['geosite:cn'],
         server: 'local',
       ),
     ];
 
-    if (!RegExp(ipRegExp).hasMatch(serverAddress) &&
-        serverAddress != '127.0.0.1') {
+    if (serverAddress != '127.0.0.1') {
       dnsRules.add(
         SingBoxDnsRule(
           domain: [serverAddress],
@@ -67,14 +51,21 @@ class SingBoxGenerate {
         DnsServer(
           tag: 'remote',
           address: remoteDns,
+          addressResolver: 'resolver',
           detour: 'proxy',
           strategy: ipv4Only ? 'ipv4_only' : null,
         ),
         DnsServer(
           tag: 'local',
           address: directDns,
+          addressResolver: 'resolver',
           detour: 'direct',
           strategy: ipv4Only ? 'ipv4_only' : null,
+        ),
+        DnsServer(
+          tag: 'resolver',
+          address: dnsResolver,
+          detour: 'direct',
         ),
       ],
       rules: dnsRules,

@@ -20,6 +20,8 @@ class DnsCard extends ConsumerWidget {
         .watch(sphiaConfigNotifierProvider.select((value) => value.remoteDns));
     final directDns = ref
         .watch(sphiaConfigNotifierProvider.select((value) => value.directDns));
+    final dnsResolver = ref.watch(
+        sphiaConfigNotifierProvider.select((value) => value.dnsResolver));
     final dnsCard = CardData(
       title: Text(S.of(context).dns),
       icon: Icons.dns,
@@ -96,6 +98,46 @@ class DnsCard extends ConsumerWidget {
                                 notifier.updateValue(
                                   'directDns',
                                   directDnsController.text,
+                                );
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+                ListTile(
+                  shape: SphiaTheme.listTileShape(useMaterial3),
+                  title: Text(S.of(context).dnsResolver),
+                  subtitle: Text(dnsResolver),
+                  onTap: () async {
+                    final dnsResolverController = TextEditingController();
+                    dnsResolverController.text = dnsResolver;
+                    await showDialog<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text(S.of(context).dnsResolver),
+                          content: TextFormField(
+                            controller: dnsResolverController,
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: Text(S.of(context).cancel),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            TextButton(
+                              child: Text(S.of(context).save),
+                              onPressed: () {
+                                final notifier = ref
+                                    .read(sphiaConfigNotifierProvider.notifier);
+                                notifier.updateValue(
+                                  'dnsResolver',
+                                  dnsResolverController.text,
                                 );
                                 Navigator.of(context).pop();
                               },

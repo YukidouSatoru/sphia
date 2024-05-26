@@ -565,6 +565,19 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           );
         },
       ),
+      TextCard(
+        title: S.of(context).dnsResolver,
+        selector: (value) => value.dnsResolver,
+        updater: (value) {
+          notifier.updateValue('dnsResolver', value);
+          _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState?.showSnackBar(
+            SphiaWidget.snackBar(
+              S.of(context).dnsResolverMsg,
+            ),
+          );
+        },
+      ),
       const Divider(),
       ItemsCard(
         title: S.of(context).domainStrategy,

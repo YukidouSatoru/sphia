@@ -700,10 +700,10 @@ class S {
     );
   }
 
-  /// `Direct DNS, default is https+local://doh.pub/dns-query. Sing-Box will attempt resolution before startup.\nIf you are not sure about the DNS format of the routing provider, please do not modify`
+  /// `Direct DNS, default is https+local://dns.alidns.com/dns-query. \nIf you are not sure about the DNS format of the routing provider, please do not modify`
   String get directDnsMsg {
     return Intl.message(
-      'Direct DNS, default is https+local://doh.pub/dns-query. Sing-Box will attempt resolution before startup.\nIf you are not sure about the DNS format of the routing provider, please do not modify',
+      'Direct DNS, default is https+local://dns.alidns.com/dns-query. \nIf you are not sure about the DNS format of the routing provider, please do not modify',
       name: 'directDnsMsg',
       desc: '',
       args: [],
@@ -735,6 +735,26 @@ class S {
     return Intl.message(
       'DNS is not configured',
       name: 'dnsIsNotConfigured',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DNS Resolver`
+  String get dnsResolver {
+    return Intl.message(
+      'DNS Resolver',
+      name: 'dnsResolver',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DNS resolver, only applicable to sing-box. Default is 223.5.5.5`
+  String get dnsResolverMsg {
+    return Intl.message(
+      'DNS resolver, only applicable to sing-box. Default is 223.5.5.5',
+      name: 'dnsResolverMsg',
       desc: '',
       args: [],
     );
