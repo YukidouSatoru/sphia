@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:path/path.dart' as p;
 import 'package:sphia/app/database/database.dart';
 import 'package:sphia/core/helper.dart';
@@ -26,25 +24,22 @@ class SingBoxGenerate {
       directDns = directDns.replaceFirst('+local', '');
     }
 
-    List<SingBoxDnsRule> dnsRules = [
+    final dnsRules = <SingBoxDnsRule>[
+      if (serverAddress != '127.0.0.1') ...[
+        SingBoxDnsRule(
+          domain: [serverAddress],
+          server: 'local',
+        )
+      ],
       SingBoxDnsRule(
-        outbound: ['any'],
-        server: 'resolver',
+        domain: ['geosite:geolocation-!cn'],
+        server: 'remote',
       ),
       SingBoxDnsRule(
         domain: ['geosite:cn'],
         server: 'local',
       ),
     ];
-
-    if (serverAddress != '127.0.0.1') {
-      dnsRules.add(
-        SingBoxDnsRule(
-          domain: [serverAddress],
-          server: 'local',
-        ),
-      );
-    }
 
     return Dns(
       servers: [
@@ -69,6 +64,7 @@ class SingBoxGenerate {
         ),
       ],
       rules: dnsRules,
+      finalTag: 'remote',
     );
   }
 
@@ -106,6 +102,7 @@ class SingBoxGenerate {
       listen: listen,
       listenPort: listenPort,
       users: users,
+      domainStrategy: 'prefer_ipv4',
     );
   }
 

@@ -50,10 +50,13 @@ class Log {
 class Dns {
   List<DnsServer> servers;
   List<SingBoxDnsRule> rules;
+  @JsonKey(name: 'final')
+  String? finalTag;
 
   Dns({
     required this.servers,
     required this.rules,
+    this.finalTag,
   });
 
   factory Dns.fromJson(Map<String, dynamic> json) => _$DnsFromJson(json);
@@ -157,6 +160,8 @@ class Inbound {
   bool? sniff;
   @JsonKey(name: 'endpoint_independent_nat')
   bool? endpointIndependentNat;
+  @JsonKey(name: 'domain_strategy')
+  String? domainStrategy;
 
   Inbound({
     required this.type,
@@ -173,6 +178,7 @@ class Inbound {
     this.stack,
     this.sniff,
     this.endpointIndependentNat,
+    this.domainStrategy,
   });
 
   factory Inbound.fromJson(Map<String, dynamic> json) =>
