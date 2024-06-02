@@ -122,16 +122,14 @@ class XrayTraffic extends Traffic {
     return Tuple2(uplink, downlink);
   }
 
-  Future<int> queryOutboundUplink(String outboundTag) {
-    final uplinkRequest = QueryStatsRequest()
-      ..pattern = 'outbound>>>$outboundTag>>>traffic>>>uplink';
-    return _client.queryStats(uplinkRequest).then((response) {
+  Future<int> queryOutboundData(String type, String outboundTag) {
+    final request = QueryStatsRequest()
+      ..pattern = 'outbound>>>$outboundTag>>>traffic>>>$type';
+    return _client.queryStats(request).then((response) {
       try {
-        final uplink = int.tryParse(response.writeToJsonMap()['1'][0]['2']);
-        if (uplink == null) {
-          return 0;
-        }
-        return uplink;
+        final data =
+            int.tryParse(response.writeToJsonMap()['1'][0]['2'] ?? '0');
+        return data!;
       } catch (e) {
         logger.e('Failed to get uplink from $outboundTag: $e');
         return 0;
@@ -139,21 +137,12 @@ class XrayTraffic extends Traffic {
     });
   }
 
+  Future<int> queryOutboundUplink(String outboundTag) {
+    return queryOutboundData("uplink", outboundTag);
+  }
+
   Future<int> queryOutboundDownlink(String outboundTag) {
-    final downlinkRequest = QueryStatsRequest()
-      ..pattern = 'outbound>>>$outboundTag>>>traffic>>>downlink';
-    return _client.queryStats(downlinkRequest).then((response) {
-      try {
-        final downlink = int.tryParse(response.writeToJsonMap()['1'][0]['2']);
-        if (downlink == null) {
-          return 0;
-        }
-        return downlink;
-      } catch (e) {
-        logger.e('Failed to get downlink from $outboundTag: $e');
-        return 0;
-      }
-    });
+    return queryOutboundData("downlink", outboundTag);
   }
 }
 

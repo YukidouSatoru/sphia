@@ -67,18 +67,10 @@ class SystemUtil {
   static bool determineIsRoot() {
     if (os == OS.windows) {
       final result = Process.runSync('net', ['session']);
-      if (result.exitCode == 0) {
-        return true;
-      } else {
-        return false;
-      }
+      return result.exitCode == 0;
     } else {
       final result = Process.runSync('id', ['-u']);
-      if (result.exitCode == 0) {
-        return result.stdout.toString().trim() == '0';
-      } else {
-        return false;
-      }
+      return result.exitCode == 0 && result.stdout.toString().trim() == '0';
     }
   }
 

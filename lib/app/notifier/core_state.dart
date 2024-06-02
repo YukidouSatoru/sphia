@@ -34,6 +34,7 @@ class CoreStateNotifier extends _$CoreStateNotifier {
           await stopCores();
         } else {
           await stopCores(keepSysProxy: true);
+          // Keep the changes to the system proxy if the user changes it during use.
           await startCores(selectedServer);
         }
       } else {
