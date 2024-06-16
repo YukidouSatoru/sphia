@@ -100,24 +100,42 @@ class SystemUtil {
         if (result.exitCode == 0) {
           final regex = RegExp(r'ProxyEnable\s+REG_DWORD\s+(0x\d)');
           final match = regex.firstMatch(result.stdout.toString());
-          if (match != null) {
-            return match.group(1) == '0x1';
-          } else {
-            return false;
-          }
+          return match?.group(1) == '0x1';
         } else {
           return false;
         }
       case OS.linux:
-        final result = Process.runSync('gsettings', [
-          'get',
-          'org.gnome.system.proxy',
-          'mode',
-        ]);
-        if (result.exitCode == 0) {
-          final value = result.stdout.toString().trim();
-          return value == '\'manual\'';
+        final desktop = Platform.environment['XDG_CURRENT_DESKTOP'];
+        if (desktop == 'GNOME') {
+          final result = Process.runSync('gsettings', [
+            'get',
+            'org.gnome.system.proxy',
+            'mode',
+          ]);
+          if (result.exitCode == 0) {
+            final value = result.stdout.toString().trim();
+            return value == '\'manual\'';
+          } else {
+            return false;
+          }
+        } else if (desktop == 'KDE') {
+          final configPath = p.join(Platform.environment['HOME']!, '.config');
+          final result = Process.runSync('kreadconfig5', [
+            '--file',
+            p.join(configPath, 'kioslaverc'),
+            '--group',
+            'Proxy Settings',
+            '--key',
+            'ProxyType',
+          ]);
+          if (result.exitCode == 0) {
+            final value = result.stdout.toString().trim();
+            return value == '1';
+          } else {
+            return false;
+          }
         } else {
+          logger.w('Unsupported desktop environment');
           return false;
         }
       case OS.macos:
@@ -219,63 +237,76 @@ class SystemUtil {
     String listen,
     int httpPort,
   ) async {
-    await runCommand('gsettings', [
-      'set',
-      'org.gnome.system.proxy.http',
-      'host',
-      listen,
-    ]);
-    await runCommand('gsettings', [
-      'set',
-      'org.gnome.system.proxy.http',
-      'port',
-      httpPort.toString(),
-    ]);
-    await runCommand('gsettings', [
-      'set',
-      'org.gnome.system.proxy.https',
-      'host',
-      listen,
-    ]);
-    await runCommand('gsettings', [
-      'set',
-      'org.gnome.system.proxy.https',
-      'port',
-      httpPort.toString(),
-    ]);
-    await runCommand('gsettings', [
-      'set',
-      'org.gnome.system.proxy.ftp',
-      'host',
-      listen,
-    ]);
-    await runCommand('gsettings', [
-      'set',
-      'org.gnome.system.proxy.socks',
-      'host',
-      listen,
-    ]);
-    await runCommand('gsettings', [
-      'set',
-      'org.gnome.system.proxy',
-      'use-same-proxy',
-      'true',
-    ]);
-    await runCommand('gsettings', [
-      'set',
-      'org.gnome.system.proxy',
-      'mode',
-      'manual',
-    ]);
+    final desktop = Platform.environment['XDG_CURRENT_DESKTOP'];
+    if (desktop == 'GNOME') {
+      await runCommand('gsettings', [
+        'set',
+        'org.gnome.system.proxy.http',
+        'host',
+        listen,
+      ]);
+      await runCommand('gsettings', [
+        'set',
+        'org.gnome.system.proxy.http',
+        'port',
+        httpPort.toString(),
+      ]);
+      await runCommand('gsettings', [
+        'set',
+        'org.gnome.system.proxy',
+        'mode',
+        'manual',
+      ]);
+    } else if (desktop == 'KDE') {
+      final configPath = p.join(Platform.environment['HOME']!, '.config');
+      await runCommand('kwriteconfig5', [
+        '--file',
+        p.join(configPath, 'kioslaverc'),
+        '--group',
+        'Proxy Settings',
+        '--key',
+        'httpProxy',
+        'http://$listen:$httpPort',
+      ]);
+      await runCommand('kwriteconfig5', [
+        '--file',
+        p.join(configPath, 'kioslaverc'),
+        '--group',
+        'Proxy Settings',
+        '--key',
+        'ProxyType',
+        '1',
+      ]);
+    } else {
+      logger.e('Unsupported desktop environment');
+      throw Exception('Unsupported desktop environment');
+    }
   }
 
   static void disableLinuxProxy() async {
-    await runCommand('gsettings', [
-      'set',
-      'org.gnome.system.proxy',
-      'mode',
-      'none',
-    ]);
+    final desktop = Platform.environment['XDG_CURRENT_DESKTOP'];
+    if (desktop == 'GNOME') {
+      await runCommand('gsettings', [
+        'set',
+        'org.gnome.system.proxy',
+        'mode',
+        'none',
+      ]);
+    } else if (desktop == 'KDE') {
+      final configPath = p.join(Platform.environment['HOME']!, '.config');
+      await runCommand('kwriteconfig5', [
+        '--file',
+        p.join(configPath, 'kioslaverc'),
+        '--group',
+        'Proxy Settings',
+        '--key',
+        'ProxyType',
+        '0',
+      ]);
+    } else {
+      logger.e('Unsupported desktop environment');
+      throw Exception('Unsupported desktop environment');
+    }
   }
 
   static void enableMacOSProxy(String listen, int httpPort) async {

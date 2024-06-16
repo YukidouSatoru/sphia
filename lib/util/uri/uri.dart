@@ -43,15 +43,15 @@ class UriUtil extends _$UriUtil {
       String scheme = uri.split('://')[0];
       switch (scheme) {
         case 'vless':
-          return VlessUtil.parseUri(uri) as ServerModel;
+          return VlessUtil.parseUri(uri);
         case 'vmess':
-          return VMessUtil.parseUri(uri) as ServerModel;
+          return VMessUtil.parseUri(uri);
         case 'ss':
-          return ShadowsocksUtil.parseUri(uri) as ServerModel;
+          return ShadowsocksUtil.parseUri(uri);
         case 'trojan':
-          return TrojanUtil.parseUri(uri) as ServerModel;
+          return TrojanUtil.parseUri(uri);
         case 'hysteria':
-          return HysteriaUtil.parseUri(uri) as ServerModel;
+          return HysteriaUtil.parseUri(uri);
       }
     } on Exception catch (e) {
       logger.e('$e: $uri');

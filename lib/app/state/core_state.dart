@@ -26,12 +26,10 @@ extension CoreStateExt on CoreState {
   }
 
   Stream<String> get logStream {
-    if (routing is SingBoxCore) {
-      return (routing as SingBoxCore).logStream;
-    } else if (routing is XrayCore) {
-      return (routing as XrayCore).logStream;
-    } else {
-      throw Exception('Unknown core type');
-    }
+    return switch (routing) {
+      SingBoxCore singBoxCore => singBoxCore.logStream,
+      XrayCore xrayCore => xrayCore.logStream,
+      _ => throw Exception('Unknown core type'),
+    };
   }
 }

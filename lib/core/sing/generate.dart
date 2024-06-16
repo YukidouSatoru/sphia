@@ -1,5 +1,6 @@
 import 'package:path/path.dart' as p;
 import 'package:sphia/app/database/database.dart';
+import 'package:sphia/app/log.dart';
 import 'package:sphia/core/helper.dart';
 import 'package:sphia/core/rule/extension.dart';
 import 'package:sphia/core/rule/sing.dart';
@@ -192,17 +193,40 @@ class SingBoxGenerate {
     );
     Transport? transport;
     if (server.transport != 'tcp') {
-      transport = Transport(
-        type: server.transport,
-        host: server.transport == 'httpupgrade'
-            ? (server.host ?? server.address)
-            : null,
-        path: server.transport == 'ws' || server.transport == 'httpupgrade'
-            ? (server.path ?? '/')
-            : null,
-        serviceName:
-            server.transport == 'grpc' ? (server.serviceName ?? '/') : null,
-      );
+      if (server.transport == 'ws') {
+        if (server.path != null && server.path!.contains('?ed=')) {
+          final splitPath = server.path!.split('?ed=');
+          final path = splitPath.first;
+          final earlyData = int.tryParse(splitPath.last);
+          if (earlyData == null) {
+            logger.w('Invalid early data: ${splitPath.last}');
+          }
+          transport = Transport(
+            type: 'ws',
+            earlyDataHeaderName: "Sec-WebSocket-Protocol",
+            maxEarlyData: earlyData,
+            path: path,
+            headers: Headers(
+              host: server.host ?? server.address,
+            ),
+          );
+        } else {
+          transport = Transport(
+            type: 'ws',
+            path: (server.path ?? '/'),
+          );
+        }
+      } else {
+        transport = Transport(
+          type: server.transport,
+          host: server.transport == 'httpupgrade'
+              ? (server.host ?? server.address)
+              : null,
+          path: server.transport == 'httpupgrade' ? (server.path ?? '/') : null,
+          serviceName:
+              server.transport == 'grpc' ? (server.serviceName ?? '/') : null,
+        );
+      }
     }
     return Outbound(
       type: server.protocol,

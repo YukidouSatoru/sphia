@@ -324,18 +324,41 @@ class Transport {
   String? path;
   @JsonKey(name: 'service_name')
   String? serviceName;
+  @JsonKey(name: 'max_early_data')
+  int? maxEarlyData;
+  @JsonKey(name: 'early_data_header_name')
+  String? earlyDataHeaderName;
+  Headers? headers;
 
   Transport({
     required this.type,
     this.host,
     this.path,
     this.serviceName,
+    this.maxEarlyData,
+    this.earlyDataHeaderName,
+    this.headers,
   });
 
   factory Transport.fromJson(Map<String, dynamic> json) =>
       _$TransportFromJson(json);
 
   Map<String, dynamic> toJson() => _$TransportToJson(this);
+}
+
+@JsonSerializable()
+class Headers {
+  @JsonKey(name: 'Host')
+  String host;
+
+  Headers({
+    required this.host,
+  });
+
+  factory Headers.fromJson(Map<String, dynamic> json) =>
+      _$HeadersFromJson(json);
+
+  Map<String, dynamic> toJson() => _$HeadersToJson(this);
 }
 
 @JsonSerializable()
