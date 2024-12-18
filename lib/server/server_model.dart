@@ -126,37 +126,13 @@ class ServerModel {
         latency.hashCode;
   }
 
-  ServerModel withTraffic(int? uplink, int? downlink) {
-    return ServerModel(
-      id: id,
-      groupId: groupId,
-      protocol: protocol,
-      remark: remark,
-      address: address,
-      port: port,
-      uplink: uplink,
-      downlink: downlink,
-      routingProvider: routingProvider,
-      protocolProvider: protocolProvider,
-      authPayload: authPayload,
-      latency: latency,
-    );
+  T withTraffic<T extends ServerModel>(int? uplink, int? downlink) {
+    return (this as T)
+      ..uplink = uplink
+      ..downlink = downlink;
   }
 
-  ServerModel withLatency(int? latency) {
-    return ServerModel(
-      id: id,
-      groupId: groupId,
-      protocol: protocol,
-      remark: remark,
-      address: address,
-      port: port,
-      uplink: uplink,
-      downlink: downlink,
-      routingProvider: routingProvider,
-      protocolProvider: protocolProvider,
-      authPayload: authPayload,
-      latency: latency,
-    );
+  T withLatency<T extends ServerModel>(int? latency) {
+    return (this as T)..latency = latency;
   }
 }
